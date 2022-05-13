@@ -7,21 +7,23 @@ You can run a model and get its output:
 ```python
 >>> import replicate
 
->>> replicate.run("bfirsh/resnet", input=open("mystery.jpg"))
+>>> model = replicate.models.get("bfirsh/resnet")
+>>> model.predict(open("mystery.jpg"))
 [('n02123597', 'Siamese_cat', 0.88293666), ('n02123394', 'Persian_cat', 0.09810519), ('n02123045', 'tabby', 0.0057580653)]
 ```
 
 You can run a model and feed the output into another model:
 
 ```python
->>> image = replicate.run("afiaka87/clip-guided-diffusion", prompt="avocado armchair")
->>> upscaled_image = replicate.run("jingyunliang/swinir", image=image)
+>>> image = replicate.models.get("afiaka87/clip-guided-diffusion".predict(prompt="avocado armchair")
+>>> upscaled_image = replicate.models.get("jingyunliang/swinir").predict(image=image)
 ```
 
 Run a model and get its output while it's running:
 
 ```python
-for image in replicate.run("pixray/text2image", prompt="san francisco sunset"):
+model = replicate.models.get("pixray/text2image")
+for image in model.predict(prompt="san francisco sunset"):
     display(image)
 ```
 
@@ -29,7 +31,9 @@ for image in replicate.run("pixray/text2image", prompt="san francisco sunset"):
 You can start a model and run it in the background:
 
 ```python
->>> prediction = replicate.predictions.create("kvfrans/clipdraw", prompt="Watercolor painting of an underwater submarine")
+>>> prediction = replicate.predictions.create(
+...    version="kvfrans/clipdraw",
+...    input={"prompt":"Watercolor painting of an underwater submarine"})
 
 >>> prediction
 <Prediction 38a73e57ddb9 on kvfrans/clipdraw:8b0ba5ab4d85>
