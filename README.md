@@ -69,5 +69,5 @@ You can list all the predictions you've run:
 ## Install
 
 ```bash
-pip install replicate
+python setup.py install
 ```
