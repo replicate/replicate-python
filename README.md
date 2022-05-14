@@ -8,7 +8,7 @@ You can run a model and get its output:
 >>> import replicate
 
 >>> model = replicate.models.get("bfirsh/resnet")
->>> model.predict(open("mystery.jpg"))
+>>> model.predict(input=open("mystery.jpg"))
 [('n02123597', 'Siamese_cat', 0.88293666), ('n02123394', 'Persian_cat', 0.09810519), ('n02123045', 'tabby', 0.0057580653)]
 ```
 
