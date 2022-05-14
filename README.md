@@ -71,3 +71,7 @@ You can list all the predictions you've run:
 ```bash
 python setup.py install
 ```
+
+## Authentication
+
+Set the `REPLICATE_API_TOKEN` environment variable to your API token.
