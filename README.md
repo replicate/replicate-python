@@ -27,7 +27,6 @@ for image in model.predict(prompt="san francisco sunset"):
     display(image)
 ```
 
-
 You can start a model and run it in the background:
 
 ```python
@@ -41,14 +40,14 @@ You can start a model and run it in the background:
 >>> prediction.status
 Prediction.STATUS_RUNNING
 
->>> prediction.logs()
+>>> prediction.logs
 ["something happened"]
 
 >>> dict(prediction)
 {"id": "...", "status": "running", ...}
 
->>> prediction.update()
->>> prediction.logs()
+>>> prediction.reload()
+>>> prediction.logs
 ["something happened", "another thing happened"]
 
 >>> prediction.wait()
@@ -66,7 +65,6 @@ You can list all the predictions you've run:
 >>> replicate.predictions.list()
 [<Prediction: 8b0ba5ab4d85>, <Prediction: 494900564e8c>]
 ```
-
 
 ## Install
 

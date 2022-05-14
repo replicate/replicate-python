@@ -1,0 +1,51 @@
+import datetime
+from typing import Any, Iterator, List
+
+from replicate.base_model import BaseModel
+from replicate.collection import Collection
+from replicate.exceptions import ModelError
+
+
+class Version(BaseModel):
+    id: str
+    created_at: datetime.datetime
+    cog_version: str
+    openapi_schema: Any
+
+    def predict(self, **kwargs) -> Any | Iterator[Any]:
+        # TODO: support args
+        prediction = self._client.predictions.create(version=self, input=kwargs)
+        # Return an iterator of the output
+        # FIXME: might just be a list, not an iterator. I wonder if we should differentiate?
+        if (
+            self.openapi_schema["components"]["schemas"]["Output"].get("type")
+            == "array"
+        ):
+            return prediction.output_iterator()
+
+        prediction.wait()
+        if prediction.status == "failed":
+            raise ModelError(prediction.error)
+        return prediction.output
+
+
+class VersionCollection(Collection):
+    model = Version
+
+    # doesn't exist yet
+    def get(self, id: str) -> Version:
+        """
+        Get a specific version.
+        """
+        resp = self._client._get(f"/v1/versions/{id}")
+        resp.raise_for_status()
+        return self.prepare_model(resp.json())
+
+    # HACK: model should be a property, or something, and get attached to the version
+    def list(self, model) -> List[Version]:
+        """
+        Return a list of all versions for a model.
+        """
+        resp = self._client._get(f"/v1/models/{model.username}/{model.name}/versions")
+        resp.raise_for_status()
+        return [self.prepare_model(obj) for obj in resp.json()]
