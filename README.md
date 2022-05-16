@@ -69,7 +69,7 @@ You can list all the predictions you've run:
 ## Install
 
 ```bash
-python setup.py install
+pip install -e .
 ```
 
 ## Authentication
