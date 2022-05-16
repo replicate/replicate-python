@@ -9,10 +9,9 @@ from replicate.version import VersionCollection
 class Client:
     def __init__(self, api_token=None) -> None:
         super().__init__()
+        # Client is instantiated at import time, so do as little as possible.
+        # This includes resolving environment variables -- they might be set programmatically.
         self.api_token = api_token
-        if self.api_token is None:
-            self.api_token = os.environ.get("REPLICATE_API_TOKEN")
-
         self.base_url = "https://api.replicate.com"
 
         # TODO: make thread safe
@@ -31,7 +30,13 @@ class Client:
         return self.session.post(self.base_url + path, **kwargs)
 
     def _headers(self):
-        return {"Authorization": f"Token {self.api_token}"}
+        return {"Authorization": f"Token {self._api_token()}"}
+
+    def _api_token(self):
+        # Evaluate lazily in case environment variable is set with dotenv, or something
+        if self.api_token is None:
+            return os.environ.get("REPLICATE_API_TOKEN")
+        return self.api_token
 
     @property
     def models(self) -> ModelCollection:
