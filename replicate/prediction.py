@@ -4,6 +4,8 @@ from typing import Any, Dict, Iterator, List, Optional
 from replicate.base_model import BaseModel
 from replicate.collection import Collection
 from replicate.exceptions import ModelError, ReplicateException
+from replicate.files import upload_file
+from replicate.json import encode_json
 from replicate.version import Version
 
 
@@ -45,6 +47,7 @@ class PredictionCollection(Collection):
     model = Prediction
 
     def create(self, version: Version, input: Dict[str, Any]) -> Prediction:
+        input = encode_json(input, upload_file=upload_file)
         resp = self._client._post(
             "/v1/predictions", json={"version": version.id, "input": input}
         )
