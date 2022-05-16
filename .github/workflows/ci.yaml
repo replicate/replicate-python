@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    name: "Test Python ${{ matrix.python-version }}"
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@master
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ hashFiles('**/requirements-dev.txt') }}
+          restore-keys: |
+            pip-${{ secrets.CACHE_VERSION }}-
+      - name: Install development dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Install package & dependencies
+        run: pip install .
+      - name: Test
+        run: pytest
