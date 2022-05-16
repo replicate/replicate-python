@@ -1,5 +1,5 @@
 import datetime
-from typing import Any, Iterator, List
+from typing import Any, Iterator, List, Union
 
 from replicate.base_model import BaseModel
 from replicate.collection import Collection
@@ -12,7 +12,7 @@ class Version(BaseModel):
     cog_version: str
     openapi_schema: Any
 
-    def predict(self, **kwargs) -> Any | Iterator[Any]:
+    def predict(self, **kwargs) -> Union[Any, Iterator[Any]]:
         # TODO: support args
         prediction = self._client.predictions.create(version=self, input=kwargs)
         # Return an iterator of the output
