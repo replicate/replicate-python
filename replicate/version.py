@@ -32,6 +32,10 @@ class Version(BaseModel):
 class VersionCollection(Collection):
     model = Version
 
+    def __init__(self, client, model):
+        super().__init__(client=client)
+        self._model = model
+
     # doesn't exist yet
     def get(self, id: str) -> Version:
         """
@@ -41,11 +45,12 @@ class VersionCollection(Collection):
         resp.raise_for_status()
         return self.prepare_model(resp.json())
 
-    # HACK: model should be a property, or something, and get attached to the version
-    def list(self, model) -> List[Version]:
+    def list(self) -> List[Version]:
         """
         Return a list of all versions for a model.
         """
-        resp = self._client._get(f"/v1/models/{model.username}/{model.name}/versions")
+        resp = self._client._get(
+            f"/v1/models/{self._model.username}/{self._model.name}/versions"
+        )
         resp.raise_for_status()
         return [self.prepare_model(obj) for obj in resp.json()]
