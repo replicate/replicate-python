@@ -45,7 +45,3 @@ class Client:
     @property
     def predictions(self) -> PredictionCollection:
         return PredictionCollection(client=self)
-
-    @property
-    def versions(self) -> VersionCollection:
-        return VersionCollection(client=self)

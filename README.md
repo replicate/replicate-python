@@ -30,8 +30,9 @@ for image in model.predict(prompt="san francisco sunset"):
 You can start a model and run it in the background:
 
 ```python
+>>> model = replicate.models.get("kvfrans/clipdraw")
 >>> prediction = replicate.predictions.create(
-...    version="kvfrans/clipdraw",
+...    version=models.versions.list()[0],
 ...    input={"prompt":"Watercolor painting of an underwater submarine"})
 
 >>> prediction
