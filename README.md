@@ -7,8 +7,12 @@ You can run a model and get its output:
 ```python
 >>> import replicate
 
+>>> model = replicate.models.get("replicate/hello-world")
+>>> model.predict(text="python")
+"hello python"
+
 >>> model = replicate.models.get("bfirsh/resnet")
->>> model.predict(input=open("mystery.jpg"))
+>>> model.predict(image=open("mystery.jpg", "rb"))
 [('n02123597', 'Siamese_cat', 0.88293666), ('n02123394', 'Persian_cat', 0.09810519), ('n02123045', 'tabby', 0.0057580653)]
 ```
 
