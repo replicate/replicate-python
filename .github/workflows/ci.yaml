@@ -34,6 +34,15 @@ jobs:
       - name: Test
         run: pytest
 
+  release:
+    name: "Release"
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@master
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
       - name: Install pypa/build
         run: >-
           python -m
