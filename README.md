@@ -21,7 +21,7 @@ You can run a model and get its output:
 You can run a model and feed the output into another model:
 
 ```python
->>> image = replicate.models.get("afiaka87/clip-guided-diffusion".predict(prompt="avocado armchair")
+>>> image = replicate.models.get("afiaka87/laionide-v4").predict(prompt="avocado armchair")
 >>> upscaled_image = replicate.models.get("jingyunliang/swinir").predict(image=image)
 ```
 
