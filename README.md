@@ -13,7 +13,9 @@ You can run a model and get its output:
 
 >>> model = replicate.models.get("bfirsh/resnet")
 >>> model.predict(image=open("mystery.jpg", "rb"))
-[('n02123597', 'Siamese_cat', 0.88293666), ('n02123394', 'Persian_cat', 0.09810519), ('n02123045', 'tabby', 0.0057580653)]
+[['n02123597', 'Siamese_cat', 0.8829364776611328],
+ ['n02123394', 'Persian_cat', 0.09810526669025421],
+ ['n02123045', 'tabby', 0.005758069921284914]]
 ```
 
 You can run a model and feed the output into another model:
