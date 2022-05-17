@@ -11,7 +11,7 @@ You can run a model and get its output:
 >>> model.predict(text="python")
 "hello python"
 
->>> model = replicate.models.get("bfirsh/resnet")
+>>> model = replicate.models.get("replicate/resnet")
 >>> model.predict(image=open("mystery.jpg", "rb"))
 [['n02123597', 'Siamese_cat', 0.8829364776611328],
  ['n02123394', 'Persian_cat', 0.09810526669025421],
