@@ -70,9 +70,17 @@ You can list all the predictions you've run:
 ## Install
 
 ```bash
-pip install -e .
+pip install replicate
 ```
 
 ## Authentication
 
 Set the `REPLICATE_API_TOKEN` environment variable to your API token.
+
+## Development
+
+To install in development:
+
+```bash
+pip install -e .
+```
