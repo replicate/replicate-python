@@ -38,32 +38,35 @@ You can start a model and run it in the background:
 ```python
 >>> model = replicate.models.get("kvfrans/clipdraw")
 >>> prediction = replicate.predictions.create(
-...    version=models.versions.list()[0],
+...    version=model.versions.list()[0],
 ...    input={"prompt":"Watercolor painting of an underwater submarine"})
 
 >>> prediction
-<Prediction 38a73e57ddb9 on kvfrans/clipdraw:8b0ba5ab4d85>
+Prediction(...)
 
 >>> prediction.status
-Prediction.STATUS_RUNNING
-
->>> prediction.logs
-["something happened"]
+'starting'
 
 >>> dict(prediction)
-{"id": "...", "status": "running", ...}
+{"id": "...", "status": "starting", ...}
 
 >>> prediction.reload()
->>> prediction.logs
-["something happened", "another thing happened"]
+>>> prediction.status
+'processing'
+
+>>> print(prediction.logs)
+iteration: 0, render:loss: -0.6171875
+iteration: 10, render:loss: -0.92236328125
+iteration: 20, render:loss: -1.197265625
+iteration: 30, render:loss: -1.3994140625
 
 >>> prediction.wait()
 
 >>> prediction.status
-Prediction.STATUS_SUCCESSFUL
+'succeeded'
 
 >>> prediction.output
-<file: output.png>
+'https://.../output.png'
 ```
 
 You can list all the predictions you've run:
