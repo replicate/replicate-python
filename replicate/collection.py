@@ -30,6 +30,9 @@ class Collection:
             attrs._collection = self
             return attrs
         elif isinstance(attrs, dict):
-            return self.model(attrs=attrs, client=self._client, collection=self)
+            model = self.model(**attrs)
+            model._client = self._client
+            model._collection = self
+            return model
         else:
             raise Exception("Can't create %s from %s" % (self.model.__name__, attrs))
