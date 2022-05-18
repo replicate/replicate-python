@@ -53,4 +53,4 @@ class VersionCollection(Collection):
             f"/v1/models/{self._model.username}/{self._model.name}/versions"
         )
         resp.raise_for_status()
-        return [self.prepare_model(obj) for obj in resp.json()]
+        return [self.prepare_model(obj) for obj in resp.json()["results"]]

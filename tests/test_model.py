@@ -11,20 +11,22 @@ def test_versions():
 
     responses.get(
         "https://api.replicate.com/v1/models/test/model/versions",
-        json=[
-            {
-                "id": "v1",
-                "created_at": "2022-04-26T19:29:04.418669Z",
-                "cog_version": "0.3.0",
-                "openapi_schema": {},
-            },
-            {
-                "id": "v2",
-                "created_at": "2022-03-21T13:01:04.418669Z",
-                "cog_version": "0.3.0",
-                "openapi_schema": {},
-            },
-        ],
+        json={
+            "results": [
+                {
+                    "id": "v1",
+                    "created_at": "2022-04-26T19:29:04.418669Z",
+                    "cog_version": "0.3.0",
+                    "openapi_schema": {},
+                },
+                {
+                    "id": "v2",
+                    "created_at": "2022-03-21T13:01:04.418669Z",
+                    "cog_version": "0.3.0",
+                    "openapi_schema": {},
+                },
+            ]
+        },
     )
 
     versions = model.versions.list()
