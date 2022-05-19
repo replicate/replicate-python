@@ -2,6 +2,7 @@ import os
 
 import requests
 
+from replicate.__about__ import __version__
 from replicate.model import ModelCollection
 from replicate.prediction import PredictionCollection
 from replicate.version import VersionCollection
@@ -33,7 +34,10 @@ class Client:
         return self.session.post(self.base_url + path, **kwargs)
 
     def _headers(self):
-        return {"Authorization": f"Token {self._api_token()}"}
+        return {
+            "Authorization": f"Token {self._api_token()}",
+            "User-Agent": f"replicate-python@{__version__}",
+        }
 
     def _api_token(self):
         # Evaluate lazily in case environment variable is set with dotenv, or something
