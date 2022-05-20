@@ -84,7 +84,13 @@ pip install replicate
 
 ## Authentication
 
-Set the `REPLICATE_API_TOKEN` environment variable to your API token.
+Set the `REPLICATE_API_TOKEN` environment variable to your API token. For example, run this before running any Python scripts that use the API:
+
+```
+export REPLICATE_API_TOKEN=<your token>
+```
+
+We recommend not adding it directly to your source code, because you don't want to put your API in source control. If anyone uses your API key, their usage would be charged to your account.
 
 ## Development
 
