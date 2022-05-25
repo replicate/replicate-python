@@ -20,7 +20,7 @@ class Prediction(BaseModel):
 
     def wait(self):
         """Wait for prediction to finish."""
-        while self.status not in ["succeeded", "failed"]:
+        while self.status not in ["succeeded", "failed", "canceled"]:
             time.sleep(0.1)
             self.reload()
 
