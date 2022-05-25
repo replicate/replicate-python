@@ -1,2 +1,2 @@
 pytest==7.1.2
-responses==0.20.0
+responses==0.21.0
