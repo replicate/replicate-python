@@ -1,4 +1,27 @@
 {
-    "python.formatting.provider": "black",
-    "editor.formatOnSave": true
+  "python.formatting.provider": "black",
+  "python.languageServer": "Pylance",
+  "editor.formatOnSave": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true,
+  "editor.formatOnType": true,
+  "editor.formatOnPaste": true,
+  "editor.renderControlCharacters": true,
+  "editor.suggest.localityBonus": true,
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.python",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    }
+  },
+  "python.linting.mypyEnabled": true,
+  "python.linting.mypyArgs": ["--show-column-numbers", "--no-pretty"]
 }
