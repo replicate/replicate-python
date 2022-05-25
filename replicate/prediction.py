@@ -42,6 +42,11 @@ class Prediction(BaseModel):
         for output in new_output:
             yield output
 
+    def cancel(self):
+        """ Cancel a currently running prediction """
+        resp = self._client._post(f"/v1/predictions/{self.id}/cancel")
+        resp.raise_for_status()
+
 
 class PredictionCollection(Collection):
     model = Prediction
