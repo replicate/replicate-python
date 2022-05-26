@@ -4,6 +4,7 @@
   - [Signing your work](#signing-your-work)
   - [How to sign off your commits](#how-to-sign-off-your-commits)
 - [Development](#development)
+    - [Environment variables](#environment-variables)
 - [Publishing a release](#publishing-a-release)
 
 ## Making a contribution
@@ -97,6 +98,11 @@ To install the package in development:
 ```sh
 pip install -e .
 ```
+
+### Environment variables
+
+- `REPLICATE_API_BASE_URL`: Defaults to `https://api.replicate.com` but can be overriden to point the client at a development host.
+- `REPLICATE_API_TOKEN`: Required. Find your token at https://replicate.com/#token
 
 ## Publishing a release
 
