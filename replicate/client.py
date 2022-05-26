@@ -1,4 +1,5 @@
 import os
+
 import requests
 
 from replicate.model import ModelCollection
@@ -12,7 +13,9 @@ class Client:
         # Client is instantiated at import time, so do as little as possible.
         # This includes resolving environment variables -- they might be set programmatically.
         self.api_token = api_token
-        self.base_url = "https://api.replicate.com"
+        self.base_url = os.environ.get(
+            "REPLICATE_API_BASE_URL", "https://api.replicate.com"
+        )
 
         # TODO: make thread safe
         self.session = requests.Session()
