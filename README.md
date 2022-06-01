@@ -91,7 +91,8 @@ export REPLICATE_API_TOKEN=<your token>
 ```
 
 We recommend not adding it directly to your source code, because you don't want to put your API in source control. If anyone uses your API key, their usage would be charged to your account.
-If you have an account with API access, you can find your API key on the main page of <replicate.com>.
+
+If you have access to the API, [you can find your API key on your dashboard when signed in](https://replicate.com).
 
 ## Development
 
