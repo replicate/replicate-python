@@ -46,10 +46,17 @@ class Client:
         }
 
     def _api_token(self):
+        token = self.api_token
         # Evaluate lazily in case environment variable is set with dotenv, or something
-        if self.api_token is None:
-            return os.environ.get("REPLICATE_API_TOKEN")
-        return self.api_token
+        if token is None:
+            token = os.environ.get("REPLICATE_API_TOKEN")
+        if not token:
+            raise ReplicateError(
+                """No API token provided. You need to set the REPLICATE_API_TOKEN environment variable or create a client with `replicate.Client(api_token=...)`.
+
+You can find your API key on https://replicate.com"""
+            )
+        return token
 
     @property
     def models(self) -> ModelCollection:
