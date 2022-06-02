@@ -43,8 +43,8 @@ class Prediction(BaseModel):
             yield output
 
     def cancel(self):
-        """ Cancel a currently running prediction """
-        resp = self._client._post(f"/v1/predictions/{self.id}/cancel")
+        """Cancel a currently running prediction"""
+        resp = self._client._request("POST", f"/v1/predictions/{self.id}/cancel")
         resp.raise_for_status()
 
 
@@ -53,8 +53,8 @@ class PredictionCollection(Collection):
 
     def create(self, version: Version, input: Dict[str, Any]) -> Prediction:
         input = encode_json(input, upload_file=upload_file)
-        resp = self._client._post(
-            "/v1/predictions", json={"version": version.id, "input": input}
+        resp = self._client._request(
+            "POST", "/v1/predictions", json={"version": version.id, "input": input}
         )
         resp.raise_for_status()
         obj = resp.json()
@@ -62,7 +62,7 @@ class PredictionCollection(Collection):
         return self.prepare_model(obj)
 
     def get(self, id: str) -> Prediction:
-        resp = self._client._get(f"/v1/predictions/{id}")
+        resp = self._client._request("GET", f"/v1/predictions/{id}")
         resp.raise_for_status()
         obj = resp.json()
         # HACK: resolve this? make it lazy somehow?
@@ -70,7 +70,7 @@ class PredictionCollection(Collection):
         return self.prepare_model(obj)
 
     def list(self) -> List[Prediction]:
-        resp = self._client._get(f"/v1/predictions")
+        resp = self._client._request("GET", f"/v1/predictions")
         resp.raise_for_status()
         # TODO: paginate
         predictions = resp.json()["results"]

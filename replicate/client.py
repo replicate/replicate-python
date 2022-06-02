@@ -21,17 +21,15 @@ class Client:
         # TODO: make thread safe
         self.session = requests.Session()
 
-    def _get(self, path: str, **kwargs):
-        if "headers" not in kwargs:
-            kwargs["headers"] = {}
+    def _request(self, method: str, path: str, **kwargs):
+        # from requests.Session
+        if method in ["GET", "OPTIONS"]:
+            kwargs.setdefault("allow_redirects", True)
+        if method in ["HEAD"]:
+            kwargs.setdefault("allow_redirects", False)
+        kwargs.setdefault("headers", {})
         kwargs["headers"].update(self._headers())
-        return self.session.get(self.base_url + path, **kwargs)
-
-    def _post(self, path: str, **kwargs):
-        if "headers" not in kwargs:
-            kwargs["headers"] = {}
-        kwargs["headers"].update(self._headers())
-        return self.session.post(self.base_url + path, **kwargs)
+        return self.session.request(method, self.base_url + path, **kwargs)
 
     def _headers(self):
         return {
