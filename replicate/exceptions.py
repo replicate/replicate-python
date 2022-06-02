@@ -3,4 +3,8 @@ class ReplicateException(Exception):
 
 
 class ModelError(ReplicateException):
-    pass
+    """An error from user's code in a model."""
+
+
+class ReplicateError(ReplicateException):
+    """An error from Replicate."""

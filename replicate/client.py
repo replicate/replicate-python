@@ -1,11 +1,12 @@
 import os
+from json import JSONDecodeError
 
 import requests
 
 from replicate.__about__ import __version__
+from replicate.exceptions import ReplicateError
 from replicate.model import ModelCollection
 from replicate.prediction import PredictionCollection
-from replicate.version import VersionCollection
 
 
 class Client:
@@ -29,7 +30,14 @@ class Client:
             kwargs.setdefault("allow_redirects", False)
         kwargs.setdefault("headers", {})
         kwargs["headers"].update(self._headers())
-        return self.session.request(method, self.base_url + path, **kwargs)
+        resp = self.session.request(method, self.base_url + path, **kwargs)
+        if 400 <= resp.status_code < 600:
+            try:
+                raise ReplicateError(resp.json()["detail"])
+            except (JSONDecodeError, KeyError):
+                pass
+            raise ReplicateError(f"HTTP error: {resp.status_code, resp.reason}")
+        return resp
 
     def _headers(self):
         return {
