@@ -41,7 +41,7 @@ class VersionCollection(Collection):
         """
         Get a specific version.
         """
-        resp = self._client._get(f"/v1/versions/{id}")
+        resp = self._client._request("GET", f"/v1/versions/{id}")
         resp.raise_for_status()
         return self.prepare_model(resp.json())
 
@@ -49,8 +49,8 @@ class VersionCollection(Collection):
         """
         Return a list of all versions for a model.
         """
-        resp = self._client._get(
-            f"/v1/models/{self._model.username}/{self._model.name}/versions"
+        resp = self._client._request(
+            "GET", f"/v1/models/{self._model.username}/{self._model.name}/versions"
         )
         resp.raise_for_status()
         return [self.prepare_model(obj) for obj in resp.json()["results"]]
