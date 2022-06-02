@@ -44,8 +44,7 @@ class Prediction(BaseModel):
 
     def cancel(self):
         """Cancel a currently running prediction"""
-        resp = self._client._request("POST", f"/v1/predictions/{self.id}/cancel")
-        resp.raise_for_status()
+        self._client._request("POST", f"/v1/predictions/{self.id}/cancel")
 
 
 class PredictionCollection(Collection):
@@ -56,14 +55,12 @@ class PredictionCollection(Collection):
         resp = self._client._request(
             "POST", "/v1/predictions", json={"version": version.id, "input": input}
         )
-        resp.raise_for_status()
         obj = resp.json()
         obj["version"] = version
         return self.prepare_model(obj)
 
     def get(self, id: str) -> Prediction:
         resp = self._client._request("GET", f"/v1/predictions/{id}")
-        resp.raise_for_status()
         obj = resp.json()
         # HACK: resolve this? make it lazy somehow?
         del obj["version"]
@@ -71,7 +68,6 @@ class PredictionCollection(Collection):
 
     def list(self) -> List[Prediction]:
         resp = self._client._request("GET", f"/v1/predictions")
-        resp.raise_for_status()
         # TODO: paginate
         predictions = resp.json()["results"]
         for prediction in predictions:
