@@ -2,12 +2,13 @@ import replicate
 import responses
 from responses import matchers
 
-from .factories import create_version
+from .factories import create_client, create_version
 
 
 @responses.activate
 def test_cancel():
-    version = create_version()
+    client = create_client()
+    version = create_version(client)
 
     responses.post(
         "https://api.replicate.com/v1/predictions",
@@ -32,7 +33,7 @@ def test_cancel():
         },
     )
 
-    prediction = replicate.predictions.create(version=version, input={"text": "world"})
+    prediction = client.predictions.create(version=version, input={"text": "world"})
 
     rsp = responses.post("https://api.replicate.com/v1/predictions/p1/cancel", json={})
     prediction.cancel()

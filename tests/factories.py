@@ -4,13 +4,20 @@ from replicate.client import Client
 from replicate.version import Version
 
 
-def create_version():
+def create_client():
     client = Client(api_token="abc123")
+    return client
+
+
+def create_version(client=None, openapi_schema=None):
+    if client is None:
+        client = create_client()
     version = Version(
         id="v1",
         created_at=datetime.datetime.now(),
         cog_version="0.3.0",
-        openapi_schema={
+        openapi_schema=openapi_schema
+        or {
             "info": {"title": "Cog", "version": "0.1.0"},
             "paths": {
                 "/": {
