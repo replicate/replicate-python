@@ -28,8 +28,6 @@ class Prediction(BaseModel):
         # TODO: check output is list
         previous_output = self.output or []
         while self.status not in ["succeeded", "failed"]:
-            if self.status == "failed":
-                raise ModelError(self.error)
             output = self.output or []
             new_output = output[len(previous_output) :]
             for output in new_output:
@@ -37,6 +35,10 @@ class Prediction(BaseModel):
             previous_output = output
             time.sleep(0.1)
             self.reload()
+
+        if self.status == "failed":
+            raise ModelError(self.error)
+
         output = self.output or []
         new_output = output[len(previous_output) :]
         for output in new_output:
