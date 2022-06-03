@@ -41,7 +41,9 @@ class VersionCollection(Collection):
         """
         Get a specific version.
         """
-        resp = self._client._request("GET", f"/v1/versions/{id}")
+        resp = self._client._request(
+            "GET", f"/v1/models/{self._model.username}/{self._model.name}/versions/{id}"
+        )
         return self.prepare_model(resp.json())
 
     def list(self) -> List[Version]:
