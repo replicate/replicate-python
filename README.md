@@ -69,6 +69,15 @@ iteration: 30, render:loss: -1.3994140625
 'https://.../output.png'
 ```
 
+By default, `model.predict()` uses the latest version. If you want to pin to a particular version, you can get a version with its ID:
+
+```
+>>> model = replicate.models.get("replicate/hello-world")
+>>> version = model.versions.get("5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa")
+>>> model.predict(text="python")
+"hello python"
+```
+
 You can list all the predictions you've run:
 
 ```
