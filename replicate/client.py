@@ -2,6 +2,7 @@ import os
 from json import JSONDecodeError
 
 import requests
+from requests.adapters import HTTPAdapter, Retry
 
 from replicate.__about__ import __version__
 from replicate.exceptions import ReplicateError
@@ -21,6 +22,22 @@ class Client:
 
         # TODO: make thread safe
         self.session = requests.Session()
+
+        # Gracefully retry requests
+        # This is primarily for when iterating through predict(), where if an exception is thrown, the client
+        # has no way of restarting the iterator.
+        # We might just want to enable retry logic for iterators, but for now this is a blunt instrument to
+        # make this reliable.
+        retries = Retry(
+            total=5,
+            backoff_factor=2,
+            # Only retry on GET so we don't unintionally mutute data
+            method_whitelist=["GET"],
+            # https://support.cloudflare.com/hc/en-us/articles/115003011431-Troubleshooting-Cloudflare-5XX-errors
+            status_forcelist=[500, 502, 503, 504, 520, 521, 522, 523, 524, 526, 527],
+        )
+        self.session.mount("http://", HTTPAdapter(max_retries=retries))
+        self.session.mount("https://", HTTPAdapter(max_retries=retries))
 
     def _request(self, method: str, path: str, **kwargs):
         # from requests.Session
