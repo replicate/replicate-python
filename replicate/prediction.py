@@ -27,7 +27,7 @@ class Prediction(BaseModel):
     def output_iterator(self) -> Iterator[Any]:
         # TODO: check output is list
         previous_output = self.output or []
-        while self.status not in ["succeeded", "failed"]:
+        while self.status not in ["succeeded", "failed", "canceled"]:
             output = self.output or []
             new_output = output[len(previous_output) :]
             for output in new_output:
