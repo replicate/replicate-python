@@ -4,6 +4,7 @@ from typing import Any, Iterator, List, Union
 from replicate.base_model import BaseModel
 from replicate.collection import Collection
 from replicate.exceptions import ModelError
+from replicate.schema import make_schema_backwards_compatible
 
 
 class Version(BaseModel):
@@ -17,9 +18,11 @@ class Version(BaseModel):
         prediction = self._client.predictions.create(version=self, input=kwargs)
         # Return an iterator of the output
         # FIXME: might just be a list, not an iterator. I wonder if we should differentiate?
+        schema = self.get_transformed_schema()
+        output = schema["components"]["schemas"]["Output"]
         if (
-            self.openapi_schema["components"]["schemas"]["Output"].get("type")
-            == "array"
+            output.get("type") == "array"
+            and output.get("x-cog-array-type") == "iterator"
         ):
             return prediction.output_iterator()
 
@@ -27,6 +30,11 @@ class Version(BaseModel):
         if prediction.status == "failed":
             raise ModelError(prediction.error)
         return prediction.output
+
+    def get_transformed_schema(self):
+        schema = self.openapi_schema
+        schema = make_schema_backwards_compatible(schema, self.cog_version)
+        return schema
 
 
 class VersionCollection(Collection):
