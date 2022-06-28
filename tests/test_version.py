@@ -6,11 +6,10 @@ from replicate.exceptions import ModelError
 from responses import matchers
 
 from .factories import (
-    create_version,
+    create_version, create_version_with_file_output,
     create_version_with_iterator_output,
     create_version_with_iterator_output_backwards_compatibility_0_3_8,
-    create_version_with_list_output,
-)
+    create_version_with_list_output)
 
 
 @responses.activate
@@ -160,6 +159,64 @@ def test_predict_with_list():
     output = version.predict(text="world")
     assert isinstance(output, list)
     assert output == ["hello world"]
+
+
+@responses.activate
+def test_predict_with_file():
+    version = create_version_with_file_output()
+    responses.post(
+        "https://api.replicate.com/v1/predictions",
+        match=[
+            matchers.json_params_matcher({"version": "v1", "input": {"text": "world"}})
+        ],
+        json={
+            "id": "p1",
+            "version": "v1",
+            "urls": {
+                "get": "https://api.replicate.com/v1/predictions/p1",
+                "cancel": "https://api.replicate.com/v1/predictions/p1/cancel",
+            },
+            "created_at": "2022-04-26T20:00:40.658234Z",
+            "completed_at": "2022-04-26T20:02:27.648305Z",
+            "source": "api",
+            "status": "processing",
+            "input": {"text": "world"},
+            "output": None,
+            "error": None,
+            "logs": "",
+        },
+    )
+    responses.get(
+        "https://api.replicate.com/v1/predictions/p1",
+        json={
+            "id": "p1",
+            "version": "v1",
+            "urls": {
+                "get": "https://api.replicate.com/v1/predictions/p1",
+                "cancel": "https://api.replicate.com/v1/predictions/p1/cancel",
+            },
+            "created_at": "2022-04-26T20:00:40.658234Z",
+            "completed_at": "2022-04-26T20:02:27.648305Z",
+            "source": "api",
+            "status": "succeeded",
+            "input": {"text": "world"},
+            "output": {
+                "file": "https://replicate.com/api/files/12345/example.txt",
+                "text": "hello",
+            },
+            "error": None,
+            "logs": "",
+        },
+    )
+    responses.get(
+        "https://replicate.com/api/files/12345/example.txt",
+        match=[matchers.header_matcher({"Authorization": "token abc123"})],
+        body="this is a file",
+    )
+
+    output = version.predict(text="world")
+    assert output["text"] == "hello"
+    assert output["file"].read() == b"this is a file"
 
 
 @responses.activate
