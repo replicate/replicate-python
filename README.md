@@ -69,6 +69,24 @@ iteration: 30, render:loss: -1.3994140625
 'https://.../output.png'
 ```
 
+You can cancel a running prediction:
+
+```python
+>>> model = replicate.models.get("kvfrans/clipdraw")
+>>> prediction = replicate.predictions.create(
+...    version=model.versions.list()[0],
+...    input={"prompt":"Watercolor painting of an underwater submarine"})
+
+>>> prediction.status
+'starting'
+
+>>> prediction.cancel()
+
+>>> prediction.reload()
+>>> prediction.status
+'canceled'
+```
+
 By default, `model.predict()` uses the latest version. If you want to pin to a particular version, you can get a version with its ID:
 
 ```
