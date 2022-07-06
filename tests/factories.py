@@ -176,6 +176,19 @@ def create_version_with_list_output():
     return version
 
 
+def create_version_with_file_output():
+    version = create_version(cog_version="0.3.9")
+    version.openapi_schema["components"]["schemas"]["Output"] = {
+        "type": "object",
+        "properties": {
+            "file": {"type": "string", "format": "uri"},
+            "text": {"type": "string"},
+        },
+        "title": "Output",
+    }
+    return version
+
+
 def create_version_with_iterator_output_backwards_compatibility_0_3_8():
     version = create_version(cog_version="0.3.8")
     version.openapi_schema["components"]["schemas"]["Output"] = {

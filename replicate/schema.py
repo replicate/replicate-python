@@ -16,3 +16,27 @@ def make_schema_backwards_compatible(schema, version):
         if output.get("type") == "array":
             output["x-cog-array-type"] = "iterator"
     return schema
+
+
+def map_items(function, schema, value):
+    if schema.get("type") == "object":
+        # guard against optional objects
+        if value is None:
+            return None
+        return {
+            prop_key: map_items(function, prop_schema, value[prop_key])
+            for prop_key, prop_schema in schema["properties"].items()
+            # guard against optional properties
+            if prop_key in value
+        }
+
+    if schema.get("type") == "array":
+        # guard against optional arrays
+        if value is None:
+            return None
+        return [
+            map_items(function, schema["items"], item_value) for item_value in value
+        ]
+
+    # base case -- this is a leaf node, so just apply the function to it
+    return function(schema, value)

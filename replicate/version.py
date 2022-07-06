@@ -1,10 +1,23 @@
 import datetime
 from typing import Any, Iterator, List, Union
 
+import requests
+
 from replicate.base_model import BaseModel
 from replicate.collection import Collection
 from replicate.exceptions import ModelError
-from replicate.schema import make_schema_backwards_compatible
+from replicate.schema import make_schema_backwards_compatible, map_items
+
+
+def _process_output_item(schema, value):
+    if schema.get("type") == "string" and schema.get("format") == "uri":
+        # TODO: make request with client to pass auth, only for replicate.com URLs so as not to leak token
+        return requests.get(value, stream=True).raw
+    return value
+
+
+def _process_output(schema, value):
+    return map_items(_process_output_item, schema, value)
 
 
 class Version(BaseModel):
@@ -19,17 +32,18 @@ class Version(BaseModel):
         # Return an iterator of the output
         # FIXME: might just be a list, not an iterator. I wonder if we should differentiate?
         schema = self.get_transformed_schema()
-        output = schema["components"]["schemas"]["Output"]
+        output_schema = schema["components"]["schemas"]["Output"]
         if (
-            output.get("type") == "array"
-            and output.get("x-cog-array-type") == "iterator"
+            output_schema.get("type") == "array"
+            and output_schema.get("x-cog-array-type") == "iterator"
         ):
             return prediction.output_iterator()
 
         prediction.wait()
         if prediction.status == "failed":
             raise ModelError(prediction.error)
-        return prediction.output
+
+        return _process_output(output_schema, prediction.output)
 
     def get_transformed_schema(self):
         schema = self.openapi_schema
