@@ -52,10 +52,24 @@ class Prediction(BaseModel):
 class PredictionCollection(Collection):
     model = Prediction
 
-    def create(self, version: Version, input: Dict[str, Any]) -> Prediction:
+    def create(
+        self,
+        version: Version,
+        input: Dict[str, Any],
+        webhook_completed: Optional[str] = None,
+    ) -> Prediction:
         input = encode_json(input, upload_file=upload_file)
+        body = {
+            "version": version.id,
+            "input": input,
+        }
+        if webhook_completed is not None:
+            body["webhook_completed"] = webhook_completed
+
         resp = self._client._request(
-            "POST", "/v1/predictions", json={"version": version.id, "input": input}
+            "POST",
+            "/v1/predictions",
+            json=body,
         )
         obj = resp.json()
         obj["version"] = version
