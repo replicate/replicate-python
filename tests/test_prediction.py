@@ -13,7 +13,13 @@ def test_cancel():
     responses.post(
         "https://api.replicate.com/v1/predictions",
         match=[
-            matchers.json_params_matcher({"version": "v1", "input": {"text": "world"}})
+            matchers.json_params_matcher(
+                {
+                    "version": "v1",
+                    "input": {"text": "world"},
+                    "webhook_completed": "https://example.com/webhook",
+                }
+            ),
         ],
         json={
             "id": "p1",
@@ -33,7 +39,11 @@ def test_cancel():
         },
     )
 
-    prediction = client.predictions.create(version=version, input={"text": "world"})
+    prediction = client.predictions.create(
+        version=version,
+        input={"text": "world"},
+        webhook_completed="https://example.com/webhook",
+    )
 
     rsp = responses.post("https://api.replicate.com/v1/predictions/p1/cancel", json={})
     prediction.cancel()
