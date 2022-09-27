@@ -2,15 +2,25 @@
 
 This is a Python client for Replicate. It lets you run models from your Python code or Jupyter notebook, and do various other things on Replicate.
 
+Grab your token from [replicate.com/account](https://replicate.com/account) and authenticate by setting a it as an environment variable:
+
+```
+export REPLICATE_API_TOKEN=[token]
+```
+
 You can run a model and get its output:
 
 ```python
+$ python
 >>> import replicate
+>>> model = replicate.models.get("stability-ai/stable-diffusion")
+>>> model.predict(prompt="a 19th century portrait of a wombat gentleman")
+['https://replicate.com/api/models/stability-ai/stable-diffusion/files/50fcac81-865d-499e-81ac-49de0cb79264/out-0.png']
+```
 
->>> model = replicate.models.get("replicate/hello-world")
->>> model.predict(text="python")
-"hello python"
+Some models, like [replicate/resnet](/replicate/resnet), receive images as inputs. To pass a file as an input, use a file handle or URL
 
+```python
 >>> model = replicate.models.get("replicate/resnet")
 >>> model.predict(image=open("mystery.jpg", "rb"))
 [['n02123597', 'Siamese_cat', 0.8829364776611328],
