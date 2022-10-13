@@ -1,4 +1,6 @@
 # Replicate Python client
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Freplicate%2Freplicate-python.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Freplicate%2Freplicate-python?ref=badge_shield)
+
 
 This is a Python client for Replicate. It lets you run models from your Python code or Jupyter notebook, and do various other things on Replicate.
 
@@ -134,3 +136,7 @@ If you have access to the API, [you can find your API key on your dashboard when
 ## Development
 
 See [CONTRIBUTING.md](CONTRIBUTING.md)
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Freplicate%2Freplicate-python.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Freplicate%2Freplicate-python?ref=badge_large)
