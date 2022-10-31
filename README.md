@@ -2,7 +2,7 @@
 
 This is a Python client for Replicate. It lets you run models from your Python code or Jupyter notebook, and do various other things on Replicate.
 
-Grab your token from [replicate.com/account](https://replicate.com/account) and authenticate by setting a it as an environment variable:
+Grab your token from [replicate.com/account](https://replicate.com/account) and authenticate by setting it as an environment variable:
 
 ```
 export REPLICATE_API_TOKEN=[token]
