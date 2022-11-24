@@ -97,7 +97,9 @@ You can cancel a running prediction:
 'canceled'
 ```
 
-By default, `model.predict()` uses the latest version. If you want to pin to a particular version, you can get a version with its ID, then call the `predict()` method on that version:
+By default, `model.predict()` uses the latest version. If you're running a model in production, you should pin to a particular version to ensure its API or behavior doesn't change.
+
+If you want to pin to a particular version, you can get a version with its ID, then call the `predict()` method on that version:
 
 ```
 >>> model = replicate.models.get("replicate/hello-world")
