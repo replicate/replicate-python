@@ -14,7 +14,8 @@ You can run a model and get its output:
 $ python
 >>> import replicate
 >>> model = replicate.models.get("stability-ai/stable-diffusion")
->>> model.predict(prompt="a 19th century portrait of a wombat gentleman")
+>>> version = model.versions.get("27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478")
+>>> version.predict(prompt="a 19th century portrait of a wombat gentleman")
 ['https://replicate.com/api/models/stability-ai/stable-diffusion/files/50fcac81-865d-499e-81ac-49de0cb79264/out-0.png']
 ```
 
@@ -22,7 +23,8 @@ Some models, like [replicate/resnet](/replicate/resnet), receive images as input
 
 ```python
 >>> model = replicate.models.get("replicate/resnet")
->>> model.predict(image=open("mystery.jpg", "rb"))
+>>> version = model.versions.get("dd782a3d531b61af491d1026434392e8afb40bfb53b8af35f727e80661489767")
+>>> version.predict(image=open("mystery.jpg", "rb"))
 [['n02123597', 'Siamese_cat', 0.8829364776611328],
  ['n02123394', 'Persian_cat', 0.09810526669025421],
  ['n02123045', 'tabby', 0.005758069921284914]]
@@ -31,15 +33,18 @@ Some models, like [replicate/resnet](/replicate/resnet), receive images as input
 You can run a model and feed the output into another model:
 
 ```python
->>> image = replicate.models.get("afiaka87/laionide-v4").predict(prompt="avocado armchair")
->>> upscaled_image = replicate.models.get("jingyunliang/swinir").predict(image=image)
+>>> laionide = replicate.models.get("afiaka87/laionide-v4").versions.get("b21cbe271e65c1718f2999b038c18b45e21e4fba961181fbfae9342fc53b9e05")
+>>> swinir = replicate.models.get("jingyunliang/swinir").versions.get("660d922d33153019e8c263a3bba265de882e7f4f70396546b6c9c8f9d47a021a")
+>>> image = laionide.predict(prompt="avocado armchair")
+>>> upscaled_image = swinir.predict(image=image)
 ```
 
 Run a model and get its output while it's running:
 
 ```python
 model = replicate.models.get("pixray/text2image")
-for image in model.predict(prompts="san francisco sunset"):
+version = model.versions.get("5c347a4bfa1d4523a58ae614c2194e15f2ae682b57e3797a5bb468920aa70ebf")
+for image in version.predict(prompts="san francisco sunset"):
     display(image)
 ```
 
@@ -47,8 +52,9 @@ You can start a model and run it in the background:
 
 ```python
 >>> model = replicate.models.get("kvfrans/clipdraw")
+>>> version = model.versions.get("5797a99edc939ea0e9242d5e8c9cb3bc7d125b1eac21bda852e5cb79ede2cd9b")
 >>> prediction = replicate.predictions.create(
-...    version=model.versions.list()[0],
+...    version=version,
 ...    input={"prompt":"Watercolor painting of an underwater submarine"})
 
 >>> prediction
@@ -83,8 +89,9 @@ You can cancel a running prediction:
 
 ```python
 >>> model = replicate.models.get("kvfrans/clipdraw")
+>>> version = model.versions.get("5797a99edc939ea0e9242d5e8c9cb3bc7d125b1eac21bda852e5cb79ede2cd9b")
 >>> prediction = replicate.predictions.create(
-...    version=model.versions.list()[0],
+...    version=version,
 ...    input={"prompt":"Watercolor painting of an underwater submarine"})
 
 >>> prediction.status
@@ -95,17 +102,6 @@ You can cancel a running prediction:
 >>> prediction.reload()
 >>> prediction.status
 'canceled'
-```
-
-By default, `model.predict()` uses the latest version. If you're running a model in production, you should pin to a particular version to ensure its API or behavior doesn't change.
-
-If you want to pin to a particular version, you can get a version with its ID, then call the `predict()` method on that version:
-
-```
->>> model = replicate.models.get("replicate/hello-world")
->>> version = model.versions.get("5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa")
->>> version.predict(text="python")
-"hello python"
 ```
 
 You can list all the predictions you've run:
