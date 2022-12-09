@@ -36,7 +36,7 @@ You can run a model and feed the output into another model:
 >>> laionide = replicate.models.get("afiaka87/laionide-v4").versions.get("b21cbe271e65c1718f2999b038c18b45e21e4fba961181fbfae9342fc53b9e05")
 >>> swinir = replicate.models.get("jingyunliang/swinir").versions.get("660d922d33153019e8c263a3bba265de882e7f4f70396546b6c9c8f9d47a021a")
 >>> image = laionide.predict(prompt="avocado armchair")
->>> upscaled_image = swinir.predict(image=image)
+>>> upscaled_image = swinir.predict(image=image[0])
 ```
 
 Run a model and get its output while it's running:
