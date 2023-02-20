@@ -11,13 +11,9 @@ class Model(BaseModel):
     name: str
 
     def predict(self, *args, **kwargs):
-        versions = self.versions.list()
-        if not versions:
-            raise ReplicateException(
-                "No versions found for model %s/%s" % (self.username, self.name)
-            )
-        latest_version = versions[0]
-        return latest_version.predict(*args, **kwargs)
+        raise ReplicateException(
+            f"The `model.predict()` method has been removed, because it's unstable: if a new version of the model you're using is pushed and its API has changed, your code may break. Use `version.predict()` instead. See https://github.com/replicate/replicate-python#readme"
+        )
 
     @property
     def versions(self):
