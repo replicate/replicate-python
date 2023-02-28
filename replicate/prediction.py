@@ -17,6 +17,9 @@ class Prediction(BaseModel):
     output: Optional[Any]
     status: str
     version: Optional[Version]
+    started_at: Optional[str]
+    created_at: Optional[str]
+    completed_at: Optional[str]
 
     def wait(self):
         """Wait for prediction to finish."""
