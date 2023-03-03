@@ -33,7 +33,7 @@ version.predict(prompt="a 19th century portrait of a wombat gentleman")
 # ['https://replicate.com/api/models/stability-ai/stable-diffusion/files/50fcac81-865d-499e-81ac-49de0cb79264/out-0.png']
 ```
 
-Some models, like [methexis-inc/img2prompt](https://replicate.com/methexis-inc/img2prompt), receive images as inputs. To pass a file as an input, use a file handle or URL
+Some models, like [methexis-inc/img2prompt](https://replicate.com/methexis-inc/img2prompt), receive images as inputs. To pass a file as an input, use a file handle or URL:
 
 ```python
 model = replicate.models.get("methexis-inc/img2prompt")
