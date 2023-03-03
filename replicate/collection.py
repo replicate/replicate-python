@@ -21,6 +21,15 @@ class Collection:
     def create(self, attrs=None):
         raise NotImplementedError
 
+    async def list_async(self):
+        raise NotImplementedError
+
+    async def get_async(self, key):
+        raise NotImplementedError
+
+    async def create_async(self, attrs=None):
+        raise NotImplementedError
+
     def prepare_model(self, attrs):
         """
         Create a model from a set of attributes.

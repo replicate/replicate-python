@@ -31,6 +31,25 @@ class Version(BaseModel):
             raise ModelError(prediction.error)
         return prediction.output
 
+
+    async def predict_async(self, **kwargs) -> Union[Any, Iterator[Any]]:
+        # TODO: support args
+        prediction = await self._client.predictions.create_async(version=self, input=kwargs)
+        # Return an iterator of the output
+        # FIXME: might just be a list, not an iterator. I wonder if we should differentiate?
+        schema = self.get_transformed_schema()
+        output = schema["components"]["schemas"]["Output"]
+        if (
+            output.get("type") == "array"
+            and output.get("x-cog-array-type") == "iterator"
+        ):
+            return prediction.output_iterator_async()
+
+        await prediction.wait_async()
+        if prediction.status == "failed":
+            raise ModelError(prediction.error)
+        return prediction.output
+
     def get_transformed_schema(self):
         schema = self.openapi_schema
         schema = make_schema_backwards_compatible(schema, self.cog_version)
@@ -43,6 +62,25 @@ class VersionCollection(Collection):
     def __init__(self, client, model):
         super().__init__(client=client)
         self._model = model
+
+    # doesn't exist yet
+    async def get_async(self, id: str) -> Version:
+        """
+        Get a specific version.
+        """
+        resp = await self._client._request_async(
+            "GET", f"/v1/models/{self._model.username}/{self._model.name}/versions/{id}"
+        )
+        return self.prepare_model(resp.json())
+
+    async def list_async(self) -> List[Version]:
+        """
+        Return a list of all versions for a model.
+        """
+        resp = await self._client._request_async(
+            "GET", f"/v1/models/{self._model.username}/{self._model.name}/versions"
+        )
+        return [self.prepare_model(obj) for obj in resp.json()["results"]]
 
     # doesn't exist yet
     def get(self, id: str) -> Version:

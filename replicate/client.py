@@ -1,6 +1,7 @@
 import os
 from json import JSONDecodeError
 
+import httpx
 import requests
 from requests.adapters import HTTPAdapter, Retry
 
@@ -20,6 +21,9 @@ class Client:
             "REPLICATE_API_BASE_URL", "https://api.replicate.com"
         )
 
+        max_retries: int = 5
+        self.httpx_transport = httpx.AsyncHTTPTransport(retries=max_retries)
+
         # TODO: make thread safe
         self.session = requests.Session()
 
@@ -29,7 +33,7 @@ class Client:
         # We might just want to enable retry logic for iterators, but for now this is a blunt instrument to
         # make this reliable.
         retries = Retry(
-            total=5,
+            total=max_retries,
             backoff_factor=2,
             # Only retry on GET so we don't unintionally mutute data
             method_whitelist=["GET"],
@@ -48,6 +52,32 @@ class Client:
         kwargs.setdefault("headers", {})
         kwargs["headers"].update(self._headers())
         resp = self.session.request(method, self.base_url + path, **kwargs)
+        if 400 <= resp.status_code < 600:
+            try:
+                raise ReplicateError(resp.json()["detail"])
+            except (JSONDecodeError, KeyError):
+                pass
+            raise ReplicateError(f"HTTP error: {resp.status_code, resp.reason}")
+        return resp
+
+    async def _request_async(self, method: str, path: str, **kwargs):
+        # from requests.Session
+        if method in ["GET", "OPTIONS"]:
+            kwargs.setdefault("allow_redirects", True)
+        if method in ["HEAD"]:
+            kwargs.setdefault("allow_redirects", False)
+        kwargs.setdefault("headers", {})
+        kwargs["headers"].update(self._headers())
+
+        async with httpx.AsyncClient(
+            follow_redirects=True,
+            transport=self.httpx_transport,
+        ) as client:
+            if "allow_redirects" in kwargs:
+                kwargs.pop("allow_redirects")
+
+            resp = await client.request(method, self.base_url + path, **kwargs)
+
         if 400 <= resp.status_code < 600:
             try:
                 raise ReplicateError(resp.json()["detail"])

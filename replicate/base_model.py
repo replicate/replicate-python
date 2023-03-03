@@ -21,3 +21,11 @@ class BaseModel(pydantic.BaseModel):
         new_model = self._collection.get(self.id)
         for k, v in new_model.dict().items():
             setattr(self, k, v)
+
+    async def reload_async(self):
+        """
+        Load this object from the server again.
+        """
+        new_model = await self._collection.get_async(self.id)
+        for k, v in new_model.dict().items():
+            setattr(self, k, v)
