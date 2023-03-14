@@ -24,7 +24,7 @@ class Prediction(BaseModel):
     def wait(self):
         """Wait for prediction to finish."""
         while self.status not in ["succeeded", "failed", "canceled"]:
-            time.sleep(0.5)
+            time.sleep(self._client.poll_interval)
             self.reload()
 
     def output_iterator(self) -> Iterator[Any]:
@@ -36,7 +36,7 @@ class Prediction(BaseModel):
             for output in new_output:
                 yield output
             previous_output = output
-            time.sleep(0.5)
+            time.sleep(self._client.poll_interval)
             self.reload()
 
         if self.status == "failed":
