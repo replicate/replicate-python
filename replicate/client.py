@@ -19,6 +19,7 @@ class Client:
         self.base_url = os.environ.get(
             "REPLICATE_API_BASE_URL", "https://api.replicate.com"
         )
+        self.poll_interval = float(os.environ.get("REPLICATE_POLL_INTERVAL", "0.5"))
 
         # TODO: make thread safe
         self.session = requests.Session()
