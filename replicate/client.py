@@ -32,11 +32,12 @@ class Client:
         retries = Retry(
             total=5,
             backoff_factor=2,
-            # Only retry on GET so we don't unintionally mutute data
-            method_whitelist=["GET"],
+            # TODO: Only retry on GET so we don't unintionally mutute data
+            method_whitelist=["GET", "POST", "PUT"],
             # https://support.cloudflare.com/hc/en-us/articles/115003011431-Troubleshooting-Cloudflare-5XX-errors
-            status_forcelist=[500, 502, 503, 504, 520, 521, 522, 523, 524, 526, 527],
+            status_forcelist=[429, 500, 502, 503, 504, 520, 521, 522, 523, 524, 526, 527],
         )
+
         self.session.mount("http://", HTTPAdapter(max_retries=retries))
         self.session.mount("https://", HTTPAdapter(max_retries=retries))
 
