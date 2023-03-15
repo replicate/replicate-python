@@ -22,24 +22,41 @@ class Client:
         self.poll_interval = float(os.environ.get("REPLICATE_POLL_INTERVAL", "0.5"))
 
         # TODO: make thread safe
-        self.session = requests.Session()
-
-        # Gracefully retry requests
-        # This is primarily for when iterating through predict(), where if an exception is thrown, the client
-        # has no way of restarting the iterator.
-        # We might just want to enable retry logic for iterators, but for now this is a blunt instrument to
-        # make this reliable.
-        retries = Retry(
+        self.read_session = requests.Session()
+        read_retries = Retry(
             total=5,
             backoff_factor=2,
-            # TODO: Only retry on GET so we don't unintionally mutute data
-            method_whitelist=["GET", "POST", "PUT"],
+            # Only retry 500s on GET so we don't unintionally mutute data
+            method_whitelist=["GET"],
             # https://support.cloudflare.com/hc/en-us/articles/115003011431-Troubleshooting-Cloudflare-5XX-errors
-            status_forcelist=[429, 500, 502, 503, 504, 520, 521, 522, 523, 524, 526, 527],
+            status_forcelist=[
+                429,
+                500,
+                502,
+                503,
+                504,
+                520,
+                521,
+                522,
+                523,
+                524,
+                526,
+                527,
+            ],
         )
+        self.read_session.mount("http://", HTTPAdapter(max_retries=read_retries))
+        self.read_session.mount("https://", HTTPAdapter(max_retries=read_retries))
 
-        self.session.mount("http://", HTTPAdapter(max_retries=retries))
-        self.session.mount("https://", HTTPAdapter(max_retries=retries))
+        self.write_session = requests.Session()
+        write_retries = Retry(
+            total=5,
+            backoff_factor=2,
+            method_whitelist=["POST", "PUT"],
+            # Only retry POST/PUT requests on rate limits, so we don't unintionally mutute data
+            status_forcelist=[429],
+        )
+        self.write_session.mount("http://", HTTPAdapter(max_retries=write_retries))
+        self.write_session.mount("https://", HTTPAdapter(max_retries=write_retries))
 
     def _request(self, method: str, path: str, **kwargs):
         # from requests.Session
@@ -49,7 +66,10 @@ class Client:
             kwargs.setdefault("allow_redirects", False)
         kwargs.setdefault("headers", {})
         kwargs["headers"].update(self._headers())
-        resp = self.session.request(method, self.base_url + path, **kwargs)
+        session = self.read_session
+        if method in ["POST", "PUT", "DELETE", "PATCH"]:
+            session = self.write_session
+        resp = session.request(method, self.base_url + path, **kwargs)
         if 400 <= resp.status_code < 600:
             try:
                 raise ReplicateError(resp.json()["detail"])
