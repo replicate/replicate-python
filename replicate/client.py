@@ -1,11 +1,13 @@
 import os
+import re
 from json import JSONDecodeError
+from typing import Any, Iterator, Union
 
 import requests
 from requests.adapters import HTTPAdapter, Retry
 
 from replicate.__about__ import __version__
-from replicate.exceptions import ReplicateError
+from replicate.exceptions import ModelError, ReplicateError
 from replicate.model import ModelCollection
 from replicate.prediction import PredictionCollection
 
@@ -104,3 +106,30 @@ You can find your API key on https://replicate.com"""
     @property
     def predictions(self) -> PredictionCollection:
         return PredictionCollection(client=self)
+
+    def run(self, model_version, **kwargs) -> Union[Any, Iterator[Any]]:
+        """
+        Run a model in the format owner/name:version.
+        """
+        # Split model_version into owner, name, version in format owner/name:version
+        m = re.match(r"^(?P<model>[^/]+/[^:]+):(?P<version>.+)$", model_version)
+        if not m:
+            raise ReplicateError(
+                f"Invalid model_version: {model_version}. Expected format: owner/name:version"
+            )
+        model = self.models.get(m.group("model"))
+        version = model.versions.get(m.group("version"))
+        prediction = self.predictions.create(version=version, **kwargs)
+        # Return an iterator of the output
+        schema = version.get_transformed_schema()
+        output = schema["components"]["schemas"]["Output"]
+        if (
+            output.get("type") == "array"
+            and output.get("x-cog-array-type") == "iterator"
+        ):
+            return prediction.output_iterator()
+
+        prediction.wait()
+        if prediction.status == "failed":
+            raise ModelError(prediction.error)
+        return prediction.output

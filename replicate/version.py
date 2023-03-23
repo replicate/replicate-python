@@ -1,4 +1,5 @@
 import datetime
+import warnings
 from typing import Any, Iterator, List, Union
 
 from replicate.base_model import BaseModel
@@ -14,10 +15,13 @@ class Version(BaseModel):
     openapi_schema: Any
 
     def predict(self, **kwargs) -> Union[Any, Iterator[Any]]:
-        # TODO: support args
+        warnings.warn(
+            "version.predict() is deprecated. Use replicate.run() instead. It will be removed before version 1.0.",
+            DeprecationWarning,
+        )
+
         prediction = self._client.predictions.create(version=self, input=kwargs)
         # Return an iterator of the output
-        # FIXME: might just be a list, not an iterator. I wonder if we should differentiate?
         schema = self.get_transformed_schema()
         output = schema["components"]["schemas"]["Output"]
         if (
