@@ -59,15 +59,21 @@ class PredictionCollection(Collection):
         self,
         version: Version,
         input: Dict[str, Any],
+        webhook: Optional[str] = None,
         webhook_completed: Optional[str] = None,
+        webhook_events_filter: Optional[List[str]] = None,
     ) -> Prediction:
         input = encode_json(input, upload_file=upload_file)
         body = {
             "version": version.id,
             "input": input,
         }
+        if webhook is not None:
+            body["webhook"] = webhook
         if webhook_completed is not None:
             body["webhook_completed"] = webhook_completed
+        if webhook_events_filter is not None:
+            body["webhook_events_filter"] = webhook_events_filter
 
         resp = self._client._request(
             "POST",
