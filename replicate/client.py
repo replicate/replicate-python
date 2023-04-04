@@ -10,6 +10,7 @@ from replicate.__about__ import __version__
 from replicate.exceptions import ModelError, ReplicateError
 from replicate.model import ModelCollection
 from replicate.prediction import PredictionCollection
+from replicate.training import TrainingCollection
 
 
 class Client:
@@ -106,6 +107,10 @@ You can find your API key on https://replicate.com"""
     @property
     def predictions(self) -> PredictionCollection:
         return PredictionCollection(client=self)
+
+    @property
+    def trainings(self) -> TrainingCollection:
+        return TrainingCollection(client=self)
 
     def run(self, model_version, **kwargs) -> Union[Any, Iterator[Any]]:
         """
