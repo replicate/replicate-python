@@ -9,7 +9,7 @@ description = "Python client for Replicate"
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [{ name = "Replicate, Inc." }]
-requires-python = ">=3.6"
+requires-python = ">=3.8"
 dependencies = ["requests>2", "pydantic>1", "packaging"]
 optional-dependencies = { dev = ["black", "pydantic", "pytest"] }
 
