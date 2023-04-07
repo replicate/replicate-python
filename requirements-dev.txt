@@ -43,6 +43,8 @@ requests==2.28.2
     #   responses
 responses==0.23.1
     # via replicate (pyproject.toml)
+ruff==0.0.261
+    # via replicate (pyproject.toml)
 types-pyyaml==6.0.12.9
     # via responses
 typing-extensions==4.5.0
