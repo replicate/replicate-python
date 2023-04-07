@@ -24,6 +24,7 @@ testpaths = "tests/"
 select = [
     "E", # pycodestyle error
     "F", # Pyflakes
+    "I", # isort
     "W", # pycodestyle warning
 ]
 ignore = [
