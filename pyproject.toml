@@ -10,8 +10,8 @@ readme = "README.md"
 license = { file = "LICENSE" }
 authors = [{ name = "Replicate, Inc." }]
 requires-python = ">=3.8"
-dependencies = ["requests>2", "pydantic>1", "packaging"]
-optional-dependencies = { dev = ["black", "pydantic", "pytest"] }
+dependencies = ["packaging", "pydantic>1", "requests>2"]
+optional-dependencies = { dev = ["black", "pytest", "responses"] }
 
 [project.urls]
 homepage = "https://replicate.com"
