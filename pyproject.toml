@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "replicate"
+dynamic = ["version"]
+description = "Python client for Replicate"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Replicate, Inc." }]
+requires-python = ">=3.6"
+dependencies = ["requests>2", "pydantic>1", "packaging"]
+optional-dependencies = { dev = ["black", "pydantic", "pytest"] }
+
+[project.urls]
+homepage = "https://replicate.com"
+repository = "https://github.com/replicate/replicate-python"
