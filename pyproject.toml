@@ -21,6 +21,11 @@ repository = "https://github.com/replicate/replicate-python"
 testpaths = "tests/"
 
 [tool.ruff]
+select = [
+    "E", # pycodestyle error
+    "F", # Pyflakes
+    "W", # pycodestyle warning
+]
 ignore = [
     "E501", # Line too long
 ]
