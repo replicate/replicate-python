@@ -21,7 +21,7 @@ setup(
     author="Replicate, Inc.",
     license="BSD",
     url="https://github.com/replicate/replicate-python",
-    python_requires=">=3.6",
+    python_requires=">=3.8",
     install_requires=["requests", "pydantic", "packaging"],
     classifiers=[],
 )
