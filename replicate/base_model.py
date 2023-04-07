@@ -1,6 +1,6 @@
 from typing import ForwardRef
-import pydantic
 
+import pydantic
 
 Client = ForwardRef("Client")
 Collection = ForwardRef("Collection")

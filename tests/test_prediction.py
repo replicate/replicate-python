@@ -1,7 +1,6 @@
 import responses
 from responses import matchers
 
-
 from .factories import create_client, create_version
 
 

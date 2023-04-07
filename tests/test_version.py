@@ -2,8 +2,9 @@ from collections.abc import Iterable
 
 import pytest
 import responses
-from replicate.exceptions import ModelError
 from responses import matchers
+
+from replicate.exceptions import ModelError
 
 from .factories import (
     create_version,

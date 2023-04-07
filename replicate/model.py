@@ -1,4 +1,3 @@
-
 from replicate.base_model import BaseModel
 from replicate.collection import Collection
 from replicate.exceptions import ReplicateException
