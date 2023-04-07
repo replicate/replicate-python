@@ -19,3 +19,8 @@ repository = "https://github.com/replicate/replicate-python"
 
 [tool.pytest.ini_options]
 testpaths = "tests/"
+
+[tool.ruff]
+ignore = [
+    "E501", # Line too long
+]
