@@ -16,3 +16,6 @@ optional-dependencies = { dev = ["black", "pydantic", "pytest"] }
 [project.urls]
 homepage = "https://replicate.com"
 repository = "https://github.com/replicate/replicate-python"
+
+[tool.pytest.ini_options]
+testpaths = "tests/"
