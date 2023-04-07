@@ -22,10 +22,11 @@ testpaths = "tests/"
 
 [tool.ruff]
 select = [
-    "E", # pycodestyle error
-    "F", # Pyflakes
-    "I", # isort
-    "W", # pycodestyle warning
+    "E",  # pycodestyle error
+    "F",  # Pyflakes
+    "I",  # isort
+    "W",  # pycodestyle warning
+    "UP", # pyupgrade
 ]
 ignore = [
     "E501", # Line too long
