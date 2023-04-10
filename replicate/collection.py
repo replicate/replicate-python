@@ -1,5 +1,5 @@
 import abc
-from typing import TYPE_CHECKING, Any, Generic, List, Optional, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, List, TypeVar
 
 if TYPE_CHECKING:
     from replicate.client import Client

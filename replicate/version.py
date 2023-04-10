@@ -1,6 +1,6 @@
 import datetime
 import warnings
-from typing import TYPE_CHECKING, Any, Iterator, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Iterator, List, Union
 
 if TYPE_CHECKING:
     from replicate.client import Client
@@ -17,7 +17,7 @@ class Version(BaseModel):
     id: str
     created_at: datetime.datetime
     cog_version: str
-    openapi_schema: Any
+    openapi_schema: dict
 
     def predict(self, **kwargs) -> Union[Any, Iterator[Any]]:
         warnings.warn(
@@ -41,7 +41,7 @@ class Version(BaseModel):
             raise ModelError(prediction.error)
         return prediction.output
 
-    def get_transformed_schema(self) -> Any:
+    def get_transformed_schema(self) -> dict:
         schema = self.openapi_schema
         schema = make_schema_backwards_compatible(schema, self.cog_version)
         return schema
@@ -50,7 +50,7 @@ class Version(BaseModel):
 class VersionCollection(Collection):
     model = Version
 
-    def __init__(self, client: Optional["Client"], model: "Model") -> None:
+    def __init__(self, client: "Client", model: "Model") -> None:
         super().__init__(client=client)
         self._model = model
 

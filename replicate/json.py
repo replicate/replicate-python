@@ -11,7 +11,9 @@ except ImportError:
     has_numpy = False
 
 
-def encode_json(obj: Any, upload_file: Callable[[io.IOBase], str]) -> Any:
+def encode_json(
+    obj: Any, upload_file: Callable[[io.IOBase], str]  # noqa: ANN401
+) -> Any:  # noqa: ANN401
     """
     Returns a JSON-compatible version of the object. Effectively the same thing as cog.json.encode_json.
     """
