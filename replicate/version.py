@@ -18,6 +18,7 @@ class Version(BaseModel):
         warnings.warn(
             "version.predict() is deprecated. Use replicate.run() instead. It will be removed before version 1.0.",
             DeprecationWarning,
+            stacklevel=1,
         )
 
         prediction = self._client.predictions.create(version=self, input=kwargs)
