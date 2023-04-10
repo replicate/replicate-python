@@ -30,6 +30,7 @@ select = [
     "S",   # flake8-bandit
     "BLE", # flake8-blind-except
     "FBT", # flake8-boolean-trap
+    "B",   # flake8-bugbear
 ]
 ignore = [
     "E501", # Line too long
