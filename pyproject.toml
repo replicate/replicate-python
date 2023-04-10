@@ -36,6 +36,7 @@ select = [
 ignore = [
     "E501",   # Line too long
     "S113",   # Probable use of requests call without timeout
+    "ANN001", # Missing type annotation for function argument
     "ANN002", # Missing type annotation for `*args`
     "ANN003", # Missing type annotation for `**kwargs`
     "ANN101", # Missing type annotation for self in method
