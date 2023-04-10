@@ -2,11 +2,12 @@ import base64
 import io
 import mimetypes
 import os
+from typing import Optional
 
 import requests
 
 
-def upload_file(fh: io.IOBase, output_file_prefix: str = None) -> str:
+def upload_file(fh: io.IOBase, output_file_prefix: Optional[str] = None) -> str:
     """
     Lifted straight from cog.files
     """

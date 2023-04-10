@@ -1,27 +1,40 @@
+import abc
+from typing import TYPE_CHECKING, Any, Generic, List, Optional, TypeVar
+
+if TYPE_CHECKING:
+    from replicate.client import Client
+
 from replicate.base_model import BaseModel
 
+Model = TypeVar("Model", BaseModel, Any)
 
-class Collection:
+
+class Collection(abc.ABC, Generic[Model]):
     """
     A base class for representing all objects of a particular type on the
     server.
     """
 
-    model: BaseModel = None
-
-    def __init__(self, client=None):
+    def __init__(self, client: "Client") -> None:
         self._client = client
 
-    def list(self):
-        raise NotImplementedError
+    @abc.abstractproperty
+    def model(self) -> Model:
+        pass
 
-    def get(self, key):
-        raise NotImplementedError
+    @abc.abstractmethod
+    def list(self) -> List[Model]:
+        pass
 
-    def create(self, attrs=None):
-        raise NotImplementedError
+    @abc.abstractmethod
+    def get(self, key: str) -> Model:
+        pass
 
-    def prepare_model(self, attrs):
+    @abc.abstractmethod
+    def create(self, **kwargs) -> Model:
+        pass
+
+    def prepare_model(self, attrs: Model | dict) -> Model:
         """
         Create a model from a set of attributes.
         """
