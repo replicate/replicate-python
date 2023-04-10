@@ -29,6 +29,7 @@ select = [
     "UP",  # pyupgrade
     "S",   # flake8-bandit
     "BLE", # flake8-blind-except
+    "FBT", # flake8-boolean-trap
 ]
 ignore = [
     "E501", # Line too long
