@@ -36,5 +36,8 @@ class ModelCollection(Collection):
         raise NotImplementedError()
 
     def prepare_model(self, attrs: Union[Model, Dict]) -> Model:
-        attrs["id"] = f"{attrs['username']}/{attrs['name']}"
+        if isinstance(attrs, BaseModel):
+            attrs.id = f"{attrs.username}/{attrs.name}"
+        elif isinstance(attrs, dict):
+            attrs["id"] = f"{attrs['username']}/{attrs['name']}"
         return super().prepare_model(attrs)
