@@ -1,12 +1,12 @@
 import abc
-from typing import TYPE_CHECKING, Any, Generic, List, TypeVar
+from typing import TYPE_CHECKING, Generic, List, TypeVar, cast
 
 if TYPE_CHECKING:
     from replicate.client import Client
 
 from replicate.base_model import BaseModel
 
-Model = TypeVar("Model", BaseModel, Any)
+Model = TypeVar("Model", bound=BaseModel)
 
 
 class Collection(abc.ABC, Generic[Model]):
@@ -41,11 +41,14 @@ class Collection(abc.ABC, Generic[Model]):
         if isinstance(attrs, BaseModel):
             attrs._client = self._client
             attrs._collection = self
-            return attrs
-        elif isinstance(attrs, dict):
+            return cast(Model, attrs)
+        elif (
+            isinstance(attrs, dict) and self.model is not None and callable(self.model)
+        ):
             model = self.model(**attrs)
             model._client = self._client
             model._collection = self
             return model
         else:
-            raise Exception(f"Can't create {self.model.__name__} from {attrs}")
+            name = self.model.__name__ if hasattr(self.model, "__name__") else "model"
+            raise Exception(f"Can't create {name} from {attrs}")
