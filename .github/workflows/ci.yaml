@@ -25,7 +25,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install -r requirements.txt -r requirements-dev.txt .
-          python -m mypy --install-types
+          yes | python -m mypy --install-types replicate || true
+
       - name: Lint
         run: |
           python -m mypy replicate
