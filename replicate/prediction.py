@@ -21,7 +21,7 @@ class Prediction(BaseModel):
     created_at: Optional[str]
     completed_at: Optional[str]
 
-    def wait(self):
+    def wait(self) -> None:
         """Wait for prediction to finish."""
         while self.status not in ["succeeded", "failed", "canceled"]:
             time.sleep(self._client.poll_interval)
@@ -47,7 +47,7 @@ class Prediction(BaseModel):
         for output in new_output:
             yield output
 
-    def cancel(self):
+    def cancel(self) -> None:
         """Cancel a currently running prediction"""
         self._client._request("POST", f"/v1/predictions/{self.id}/cancel")
 
@@ -55,13 +55,30 @@ class Prediction(BaseModel):
 class PredictionCollection(Collection):
     model = Prediction
 
-    def create(
+    def list(self) -> List[Prediction]:
+        resp = self._client._request("GET", "/v1/predictions")
+        # TODO: paginate
+        predictions = resp.json()["results"]
+        for prediction in predictions:
+            # HACK: resolve this? make it lazy somehow?
+            del prediction["version"]
+        return [self.prepare_model(obj) for obj in predictions]
+
+    def get(self, id: str) -> Prediction:
+        resp = self._client._request("GET", f"/v1/predictions/{id}")
+        obj = resp.json()
+        # HACK: resolve this? make it lazy somehow?
+        del obj["version"]
+        return self.prepare_model(obj)
+
+    def create(  # type: ignore
         self,
         version: Version,
         input: Dict[str, Any],
         webhook: Optional[str] = None,
         webhook_completed: Optional[str] = None,
         webhook_events_filter: Optional[List[str]] = None,
+        **kwargs,
     ) -> Prediction:
         input = encode_json(input, upload_file=upload_file)
         body = {
@@ -83,19 +100,3 @@ class PredictionCollection(Collection):
         obj = resp.json()
         obj["version"] = version
         return self.prepare_model(obj)
-
-    def get(self, id: str) -> Prediction:
-        resp = self._client._request("GET", f"/v1/predictions/{id}")
-        obj = resp.json()
-        # HACK: resolve this? make it lazy somehow?
-        del obj["version"]
-        return self.prepare_model(obj)
-
-    def list(self) -> List[Prediction]:
-        resp = self._client._request("GET", "/v1/predictions")
-        # TODO: paginate
-        predictions = resp.json()["results"]
-        for prediction in predictions:
-            # HACK: resolve this? make it lazy somehow?
-            del prediction["version"]
-        return [self.prepare_model(obj) for obj in predictions]

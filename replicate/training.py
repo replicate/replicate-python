@@ -21,7 +21,7 @@ class Training(BaseModel):
     status: str
     version: str
 
-    def cancel(self):
+    def cancel(self) -> None:
         """Cancel a running training"""
         self._client._request("POST", f"/v1/trainings/{self.id}/cancel")
 
@@ -29,13 +29,25 @@ class Training(BaseModel):
 class TrainingCollection(Collection):
     model = Training
 
-    def create(
+    def list(self) -> List[Training]:
+        raise NotImplementedError()
+
+    def get(self, id: str) -> Training:
+        resp = self._client._request(
+            "GET",
+            f"/v1/trainings/{id}",
+        )
+        obj = resp.json()
+        return self.prepare_model(obj)
+
+    def create(  # type: ignore
         self,
         version: str,
         input: Dict[str, Any],
         destination: str,
         webhook: Optional[str] = None,
         webhook_events_filter: Optional[List[str]] = None,
+        **kwargs,
     ) -> Training:
         input = encode_json(input, upload_file=upload_file)
         body = {
@@ -63,14 +75,6 @@ class TrainingCollection(Collection):
             "POST",
             f"/v1/models/{username}/{model_name}/versions/{version_id}/trainings",
             json=body,
-        )
-        obj = resp.json()
-        return self.prepare_model(obj)
-
-    def get(self, id: str) -> Training:
-        resp = self._client._request(
-            "GET",
-            f"/v1/trainings/{id}",
         )
         obj = resp.json()
         return self.prepare_model(obj)

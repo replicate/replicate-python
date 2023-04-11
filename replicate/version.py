@@ -1,6 +1,11 @@
 import datetime
 import warnings
-from typing import Any, Iterator, List, Union
+from typing import TYPE_CHECKING, Any, Iterator, List, Union
+
+if TYPE_CHECKING:
+    from replicate.client import Client
+    from replicate.model import Model
+
 
 from replicate.base_model import BaseModel
 from replicate.collection import Collection
@@ -12,7 +17,7 @@ class Version(BaseModel):
     id: str
     created_at: datetime.datetime
     cog_version: str
-    openapi_schema: Any
+    openapi_schema: dict
 
     def predict(self, **kwargs) -> Union[Any, Iterator[Any]]:
         warnings.warn(
@@ -36,7 +41,7 @@ class Version(BaseModel):
             raise ModelError(prediction.error)
         return prediction.output
 
-    def get_transformed_schema(self):
+    def get_transformed_schema(self) -> dict:
         schema = self.openapi_schema
         schema = make_schema_backwards_compatible(schema, self.cog_version)
         return schema
@@ -45,7 +50,7 @@ class Version(BaseModel):
 class VersionCollection(Collection):
     model = Version
 
-    def __init__(self, client, model):
+    def __init__(self, client: "Client", model: "Model") -> None:
         super().__init__(client=client)
         self._model = model
 
@@ -58,6 +63,9 @@ class VersionCollection(Collection):
             "GET", f"/v1/models/{self._model.username}/{self._model.name}/versions/{id}"
         )
         return self.prepare_model(resp.json())
+
+    def create(self, **kwargs) -> Version:
+        raise NotImplementedError()
 
     def list(self) -> List[Version]:
         """

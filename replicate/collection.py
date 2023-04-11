@@ -1,38 +1,54 @@
+import abc
+from typing import TYPE_CHECKING, Dict, Generic, List, TypeVar, Union, cast
+
+if TYPE_CHECKING:
+    from replicate.client import Client
+
 from replicate.base_model import BaseModel
 
+Model = TypeVar("Model", bound=BaseModel)
 
-class Collection:
+
+class Collection(abc.ABC, Generic[Model]):
     """
     A base class for representing all objects of a particular type on the
     server.
     """
 
-    model: BaseModel = None
-
-    def __init__(self, client=None):
+    def __init__(self, client: "Client") -> None:
         self._client = client
 
-    def list(self):
-        raise NotImplementedError
+    @abc.abstractproperty
+    def model(self) -> Model:
+        pass
 
-    def get(self, key):
-        raise NotImplementedError
+    @abc.abstractmethod
+    def list(self) -> List[Model]:
+        pass
 
-    def create(self, attrs=None):
-        raise NotImplementedError
+    @abc.abstractmethod
+    def get(self, key: str) -> Model:
+        pass
 
-    def prepare_model(self, attrs):
+    @abc.abstractmethod
+    def create(self, **kwargs) -> Model:
+        pass
+
+    def prepare_model(self, attrs: Union[Model, Dict]) -> Model:
         """
         Create a model from a set of attributes.
         """
         if isinstance(attrs, BaseModel):
             attrs._client = self._client
             attrs._collection = self
-            return attrs
-        elif isinstance(attrs, dict):
+            return cast(Model, attrs)
+        elif (
+            isinstance(attrs, dict) and self.model is not None and callable(self.model)
+        ):
             model = self.model(**attrs)
             model._client = self._client
             model._collection = self
             return model
         else:
-            raise Exception(f"Can't create {self.model.__name__} from {attrs}")
+            name = self.model.__name__ if hasattr(self.model, "__name__") else "model"
+            raise Exception(f"Can't create {name} from {attrs}")
