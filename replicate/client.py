@@ -1,7 +1,7 @@
 import os
 import re
 from json import JSONDecodeError
-from typing import Any, Iterator, Optional, Union
+from typing import Any, Dict, Iterator, Optional, Union
 
 import requests
 from requests.adapters import HTTPAdapter, Retry
@@ -81,7 +81,7 @@ class Client:
             raise ReplicateError(f"HTTP error: {resp.status_code, resp.reason}")
         return resp
 
-    def _headers(self) -> dict[str, str]:
+    def _headers(self) -> Dict[str, str]:
         return {
             "Authorization": f"Token {self._api_token()}",
             "User-Agent": f"replicate-python@{__version__}",
