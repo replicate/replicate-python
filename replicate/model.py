@@ -1,3 +1,5 @@
+from typing import List
+
 from replicate.base_model import BaseModel
 from replicate.collection import Collection
 from replicate.exceptions import ReplicateException
@@ -21,7 +23,7 @@ class Model(BaseModel):
 class ModelCollection(Collection):
     model = Model
 
-    def list(self) -> list[Model]:
+    def list(self) -> List[Model]:
         raise NotImplementedError()
 
     def get(self, name: str) -> Model:

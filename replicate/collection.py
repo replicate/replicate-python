@@ -1,5 +1,5 @@
 import abc
-from typing import TYPE_CHECKING, Generic, List, TypeVar, cast
+from typing import TYPE_CHECKING, Dict, Generic, List, TypeVar, Union, cast
 
 if TYPE_CHECKING:
     from replicate.client import Client
@@ -34,7 +34,7 @@ class Collection(abc.ABC, Generic[Model]):
     def create(self, **kwargs) -> Model:
         pass
 
-    def prepare_model(self, attrs: Model | dict) -> Model:
+    def prepare_model(self, attrs: Union[Model, Dict]) -> Model:
         """
         Create a model from a set of attributes.
         """
