@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List, Union
 
 from replicate.base_model import BaseModel
 from replicate.collection import Collection
@@ -34,3 +34,7 @@ class ModelCollection(Collection):
 
     def create(self, **kwargs) -> Model:
         raise NotImplementedError()
+
+    def prepare_model(self, attrs: Union[Model, Dict]) -> Model:
+        attrs["id"] = f"{attrs['username']}/{attrs['name']}"
+        return super().prepare_model(attrs)
