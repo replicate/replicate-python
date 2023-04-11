@@ -1,5 +1,3 @@
-from typing import List
-
 from replicate.base_model import BaseModel
 from replicate.collection import Collection
 from replicate.exceptions import ReplicateException
@@ -12,7 +10,7 @@ class Model(BaseModel):
 
     def predict(self, *args, **kwargs):
         raise ReplicateException(
-            f"The `model.predict()` method has been removed, because it's unstable: if a new version of the model you're using is pushed and its API has changed, your code may break. Use `version.predict()` instead. See https://github.com/replicate/replicate-python#readme"
+            "The `model.predict()` method has been removed, because it's unstable: if a new version of the model you're using is pushed and its API has changed, your code may break. Use `version.predict()` instead. See https://github.com/replicate/replicate-python#readme"
         )
 
     @property

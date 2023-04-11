@@ -3,7 +3,7 @@ from typing import Any, Dict, Iterator, List, Optional
 
 from replicate.base_model import BaseModel
 from replicate.collection import Collection
-from replicate.exceptions import ModelError, ReplicateException
+from replicate.exceptions import ModelError
 from replicate.files import upload_file
 from replicate.json import encode_json
 from replicate.version import Version
@@ -92,7 +92,7 @@ class PredictionCollection(Collection):
         return self.prepare_model(obj)
 
     def list(self) -> List[Prediction]:
-        resp = self._client._request("GET", f"/v1/predictions")
+        resp = self._client._request("GET", "/v1/predictions")
         # TODO: paginate
         predictions = resp.json()["results"]
         for prediction in predictions:

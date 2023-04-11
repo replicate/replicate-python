@@ -1,13 +1,11 @@
 import re
-import time
-from typing import Any, Dict, Iterator, List, Optional
+from typing import Any, Dict, List, Optional
 
 from replicate.base_model import BaseModel
 from replicate.collection import Collection
-from replicate.exceptions import ModelError, ReplicateException
+from replicate.exceptions import ReplicateException
 from replicate.files import upload_file
 from replicate.json import encode_json
-from replicate.version import Version
 
 
 class Training(BaseModel):
@@ -55,7 +53,7 @@ class TrainingCollection(Collection):
         )
         if not match:
             raise ReplicateException(
-                f"version must be in format username/model_name:version_id"
+                "version must be in format username/model_name:version_id"
             )
         username = match.group("username")
         model_name = match.group("model_name")

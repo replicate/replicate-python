@@ -3,7 +3,6 @@ from pathlib import Path
 from types import GeneratorType
 from typing import Any, Callable
 
-
 try:
     import numpy as np  # type: ignore
 

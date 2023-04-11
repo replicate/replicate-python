@@ -35,4 +35,4 @@ class Collection:
             model._collection = self
             return model
         else:
-            raise Exception("Can't create %s from %s" % (self.model.__name__, attrs))
+            raise Exception(f"Can't create {self.model.__name__} from {attrs}")

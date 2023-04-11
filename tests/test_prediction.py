@@ -1,8 +1,6 @@
 import responses
 from responses import matchers
 
-import replicate
-
 from .factories import create_client, create_version
 
 
@@ -41,7 +39,7 @@ def test_create_works_with_webhooks():
         },
     )
 
-    prediction = client.predictions.create(
+    client.predictions.create(
         version=version,
         input={"text": "world"},
         webhook="https://example.com/webhook",
@@ -156,8 +154,8 @@ def test_async_timings():
     )
 
     assert prediction.created_at == "2022-04-26T20:00:40.658234Z"
-    assert prediction.completed_at == None
-    assert prediction.output == None
+    assert prediction.completed_at is None
+    assert prediction.output is None
     prediction.wait()
     assert prediction.created_at == "2022-04-26T20:00:40.658234Z"
     assert prediction.completed_at == "2022-04-26T20:02:27.648305Z"
