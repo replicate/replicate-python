@@ -40,7 +40,7 @@ class TrainingCollection(Collection):
         obj = resp.json()
         return self.prepare_model(obj)
 
-    def create(
+    def create(  # type: ignore
         self,
         version: str,
         input: Dict[str, Any],

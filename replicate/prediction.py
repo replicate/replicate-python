@@ -71,7 +71,7 @@ class PredictionCollection(Collection):
         del obj["version"]
         return self.prepare_model(obj)
 
-    def create(
+    def create(  # type: ignore
         self,
         version: Version,
         input: Dict[str, Any],
