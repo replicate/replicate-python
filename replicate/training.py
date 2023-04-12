@@ -30,7 +30,13 @@ class TrainingCollection(Collection):
     model = Training
 
     def list(self) -> List[Training]:
-        raise NotImplementedError()
+        resp = self._client._request("GET", "/v1/trainings")
+        # TODO: paginate
+        trainings = resp.json()["results"]
+        for training in trainings:
+            # HACK: resolve this? make it lazy somehow?
+            del training["version"]
+        return [self.prepare_model(obj) for obj in trainings]
 
     def get(self, id: str) -> Training:
         resp = self._client._request(
