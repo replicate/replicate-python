@@ -86,4 +86,5 @@ class TrainingCollection(Collection):
             json=body,
         )
         obj = resp.json()
+        del obj["version"]
         return self.prepare_model(obj)
