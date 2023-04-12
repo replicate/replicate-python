@@ -6,6 +6,7 @@ from replicate.collection import Collection
 from replicate.exceptions import ReplicateException
 from replicate.files import upload_file
 from replicate.json import encode_json
+from replicate.version import Version
 
 
 class Training(BaseModel):
@@ -19,7 +20,7 @@ class Training(BaseModel):
     output: Optional[Any]
     started_at: Optional[str]
     status: str
-    version: str
+    version: Optional[Version]
 
     def cancel(self) -> None:
         """Cancel a running training"""
