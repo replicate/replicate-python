@@ -45,6 +45,8 @@ class TrainingCollection(Collection):
             f"/v1/trainings/{id}",
         )
         obj = resp.json()
+        # HACK: resolve this? make it lazy somehow?
+        del obj["version"]
         return self.prepare_model(obj)
 
     def create(  # type: ignore
