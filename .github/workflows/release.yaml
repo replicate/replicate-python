@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
 
     name: "Publish to PyPI"
+    permissions:
+      id-token: write # IMPORTANT: this permission is mandatory for trusted publishing
 
     steps:
       - uses: actions/checkout@v3
@@ -28,7 +30,5 @@ jobs:
           --sdist
           --outdir dist/
           .
-      - name: Publish distribution 📦 to PyPI
+      - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
