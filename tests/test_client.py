@@ -25,7 +25,7 @@ def test_client_sets_authorization_token_and_user_agent_headers():
         "https://api.replicate.com/v1/models/test/model/versions",
         match=[
             matchers.header_matcher({"Authorization": "Token abc123"}),
-            matchers.header_matcher({"User-Agent": f"replicate-python@{__version__}"}),
+            matchers.header_matcher({"User-Agent": f"replicate-python/{__version__}"}),
         ],
         json={"results": []},
     )
