@@ -33,8 +33,8 @@ class Prediction(BaseModel):
         while self.status not in ["succeeded", "failed", "canceled"]:
             output = self.output or []
             new_output = output[len(previous_output) :]
-            for output in new_output:
-                yield output
+            for o in new_output:
+                yield o
             previous_output = output
             time.sleep(self._client.poll_interval)
             self.reload()
@@ -44,8 +44,8 @@ class Prediction(BaseModel):
 
         output = self.output or []
         new_output = output[len(previous_output) :]
-        for output in new_output:
-            yield output
+        for o in new_output:
+            yield o
 
     def cancel(self) -> None:
         """Cancel a currently running prediction"""
