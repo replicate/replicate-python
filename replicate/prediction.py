@@ -33,8 +33,7 @@ class Prediction(BaseModel):
         while self.status not in ["succeeded", "failed", "canceled"]:
             output = self.output or []
             new_output = output[len(previous_output) :]
-            for output in new_output:
-                yield output
+            yield from new_output
             previous_output = output
             time.sleep(self._client.poll_interval)
             self.reload()
