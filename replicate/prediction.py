@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 from typing import Any, Dict, Iterator, List, Optional
 
 from replicate.base_model import BaseModel
@@ -54,14 +55,56 @@ class Prediction(BaseModel):
 class PredictionCollection(Collection):
     model = Prediction
 
-    def list(self) -> List[Prediction]:
-        resp = self._client._request("GET", "/v1/predictions")
-        # TODO: paginate
-        predictions = resp.json()["results"]
+    def list(self, paginate=False, cursor=None) -> List[Prediction]:
+        # if paginating, use passed in cursor
+        req_url = "/v1/predictions" if not paginate or cursor is None else f"/v1/predictions?cursor={cursor}"
+
+        resp = self._client._request("GET", req_url)
+        resp_dict = resp.json()
+
+        predictions = resp_dict["results"]
         for prediction in predictions:
             # HACK: resolve this? make it lazy somehow?
             del prediction["version"]
-        return [self.prepare_model(obj) for obj in predictions]
+
+        predictions_results = [self.prepare_model(obj) for obj in predictions]
+
+        # backwards compatibility for non-paginated results
+        if paginate:
+            # make sure this code can handle entirely missing "next" field in API response
+            if "next" in resp_dict and resp_dict["next"] is not None:
+                next_cursor = self._client._extract_url_param(resp_dict["next"], "cursor")
+                return predictions_results, next_cursor
+            else:
+                # None cursor is treated as "no more results"
+                return predictions_results, None
+        else:
+            return predictions_results
+
+    def list_after_date(self, date: str) -> List[Prediction]:
+        """List predictions created after a given date (in ISO 8601 format, e.g. '2023-06-06T20:25:13.031191Z'.
+        Will continously get pages of size 100 until the date is reached (might take a while)."""
+        date = datetime.fromisoformat(date.replace("Z", "+00:00"))
+        results, cursor = self.list(paginate=True)
+        while True:
+            next_results, cursor = self.list(paginate=True, cursor=cursor)
+            results.extend(next_results)
+
+            if cursor is None:
+                break
+            
+            datetime_objects = [datetime.fromisoformat(prediction.created_at.replace("Z", "+00:00")) for prediction in next_results]
+            earliest_datetime = min(datetime_objects)
+            if earliest_datetime < date:
+                break
+
+        # filter out predictions created before date
+        results = [prediction for prediction in results if datetime.fromisoformat(prediction.created_at.replace("Z", "+00:00")) >= date]
+        
+        return results
+
+        
+        
 
     def get(self, id: str) -> Prediction:
         resp = self._client._request("GET", f"/v1/predictions/{id}")
