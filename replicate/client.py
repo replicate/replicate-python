@@ -2,6 +2,7 @@ import os
 import re
 from json import JSONDecodeError
 from typing import Any, Dict, Iterator, Optional, Union
+from urllib.parse import parse_qs, urlparse
 
 import requests
 from requests.adapters import HTTPAdapter, Retry
@@ -81,6 +82,14 @@ class Client:
                 pass
             raise ReplicateError(f"HTTP error: {resp.status_code, resp.reason}")
         return resp
+
+    def _extract_url_param(self, url: str, param: str) -> str:
+        """Extract a query parameter from a URL. First used in replicate/prediction.py 
+        to extract pagination cursors from API-returned URLs."""
+        parsed_url = urlparse(url)
+        params = parse_qs(parsed_url.query)
+        cursor = params.get(param, [None])[0]
+        return cursor
 
     def _headers(self) -> Dict[str, str]:
         return {
