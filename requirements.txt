@@ -14,7 +14,7 @@ packaging==23.0
     # via replicate (pyproject.toml)
 pydantic==1.10.7
     # via replicate (pyproject.toml)
-requests==2.28.2
+requests==2.31.0
     # via replicate (pyproject.toml)
 typing-extensions==4.5.0
     # via pydantic
