@@ -4,7 +4,10 @@ if TYPE_CHECKING:
     from replicate.client import Client
     from replicate.collection import Collection
 
-import pydantic
+try:
+    from pydantic import v1 as pydantic
+except ImportError:
+    import pydantic
 
 
 class BaseModel(pydantic.BaseModel):
