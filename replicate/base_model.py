@@ -5,9 +5,9 @@ if TYPE_CHECKING:
     from replicate.collection import Collection
 
 try:
-    from pydantic import v1 as pydantic
+    from pydantic import v1 as pydantic  # type: ignore
 except ImportError:
-    import pydantic
+    import pydantic  # type: ignore
 
 
 class BaseModel(pydantic.BaseModel):
