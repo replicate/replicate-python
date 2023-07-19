@@ -12,7 +12,7 @@ idna==3.4
     # via requests
 packaging==23.0
     # via replicate (pyproject.toml)
-pydantic==1.10.7
+pydantic>=1.10.7
     # via replicate (pyproject.toml)
 requests==2.31.0
     # via replicate (pyproject.toml)
