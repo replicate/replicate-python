@@ -26,6 +26,9 @@ repository = "https://github.com/replicate/replicate-python"
 [tool.pytest.ini_options]
 testpaths = "tests/"
 
+[tool.setuptools.package-data]
+"replicate" = ["py.typed"]
+
 [tool.ruff]
 select = [
     "E",   # pycodestyle error
