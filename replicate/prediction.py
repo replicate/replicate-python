@@ -55,7 +55,7 @@ class Prediction(BaseModel):
 
     def wait(self) -> None:
         """
-        Waits for prediction to finish.
+        Wait for prediction to finish.
         """
         while self.status not in ["succeeded", "failed", "canceled"]:
             time.sleep(self._client.poll_interval)

@@ -115,7 +115,7 @@ You can find your API key on https://replicate.com"""
 
     def run(self, model_version: str, **kwargs) -> Union[Any, Iterator[Any]]:
         """
-        Runs a model and waits for its output.
+        Run a model and wait for its output.
 
         Args:
             model_version: The model version to run, in the format `owner/name:version`
