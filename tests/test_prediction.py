@@ -156,6 +156,7 @@ def test_async_timings():
     assert prediction.created_at == "2022-04-26T20:00:40.658234Z"
     assert prediction.completed_at is None
     assert prediction.output is None
+    assert prediction.urls["get"] == "https://api.replicate.com/v1/predictions/p1"
     prediction.wait()
     assert prediction.created_at == "2022-04-26T20:00:40.658234Z"
     assert prediction.completed_at == "2022-04-26T20:02:27.648305Z"
