@@ -29,6 +29,10 @@ testpaths = "tests/"
 [tool.setuptools.package-data]
 "replicate" = ["py.typed"]
 
+[tool.mypy]
+plugins = "pydantic.mypy"
+exclude = ["tests/"]
+
 [tool.ruff]
 select = [
     "E",   # pycodestyle error
