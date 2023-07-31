@@ -85,7 +85,7 @@ class TrainingCollection(Collection):
         Get a training by ID.
 
         Args:
-            id (str): The ID of the training.
+            id: The ID of the training.
         Returns:
             Training: The training object.
         """
@@ -112,13 +112,13 @@ class TrainingCollection(Collection):
         Create a new training using the specified model version as a base.
 
         Args:
-            version (str): The ID of the base model version that you're using to train a new model version.
-            input (Dict[str, Any]): The input to the training.
-            destination (str): The desired model to push to in the format `{owner}/{model_name}`. This should be an existing model owned by the user or organization making the API request.
-            webhook (Optional[str], optional): The URL to send a POST request to when the training is completed. Defaults to None.
-            webhook_events_filter (Optional[List[str]], optional): The events to send to the webhook. Defaults to None.
+            version: The ID of the base model version that you're using to train a new model version.
+            input: The input to the training.
+            destination: The desired model to push to in the format `{owner}/{model_name}`. This should be an existing model owned by the user or organization making the API request.
+            webhook: The URL to send a POST request to when the training is completed. Defaults to None.
+            webhook_events_filter: The events to send to the webhook. Defaults to None.
         Returns:
-            Training: The training object.
+            The training object.
         """
 
         input = encode_json(input, upload_file=upload_file)

@@ -95,7 +95,7 @@ class PredictionCollection(Collection):
         List your predictions.
 
         Returns:
-            List[Prediction]: A list of prediction objects.
+            A list of prediction objects.
         """
 
         resp = self._client._request("GET", "/v1/predictions")
@@ -111,7 +111,7 @@ class PredictionCollection(Collection):
         Get a prediction by ID.
 
         Args:
-            id (str): The ID of the prediction.
+            id: The ID of the prediction.
         Returns:
             Prediction: The prediction object.
         """
@@ -135,16 +135,15 @@ class PredictionCollection(Collection):
         Create a new prediction for the specified model version.
 
         Args:
-            version (Version): The model version to use for the prediction.
-            input (Dict[str, Any]): The input data for the prediction.
-            webhook (Optional[str]): The URL to receive a POST request with prediction updates.
-            webhook_completed (Optional[str]): The URL to receive a POST request when the prediction is completed.
-            webhook_events_filter (Optional[List[str]]): List of events to trigger webhooks.
-            stream (Optional[bool]): Set to True to enable streaming of prediction output.
+            version: The model version to use for the prediction.
+            input: The input data for the prediction.
+            webhook: The URL to receive a POST request with prediction updates.
+            webhook_completed: The URL to receive a POST request when the prediction is completed.
+            webhook_events_filter: List of events to trigger webhooks.
+            stream: Set to True to enable streaming of prediction output.
 
         Returns:
             Prediction: The created prediction object.
-
         """
 
         input = encode_json(input, upload_file=upload_file)
