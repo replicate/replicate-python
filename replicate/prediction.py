@@ -129,6 +129,8 @@ class PredictionCollection(Collection):
         webhook: Optional[str] = None,
         webhook_completed: Optional[str] = None,
         webhook_events_filter: Optional[List[str]] = None,
+        *,
+        stream: Optional[bool] = None,
         **kwargs,
     ) -> Prediction:
         """
@@ -157,6 +159,8 @@ class PredictionCollection(Collection):
             body["webhook_completed"] = webhook_completed
         if webhook_events_filter is not None:
             body["webhook_events_filter"] = webhook_events_filter
+        if stream is True:
+            body["stream"] = "true"
 
         resp = self._client._request(
             "POST",
