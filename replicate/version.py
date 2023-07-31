@@ -20,6 +20,15 @@ class Version(BaseModel):
     openapi_schema: dict
 
     def predict(self, **kwargs) -> Union[Any, Iterator[Any]]:
+        """
+        Create a prediction using this model version.
+
+        Args:
+            kwargs: The input to the model.
+        Returns:
+            The output of the model.
+        """
+
         warnings.warn(
             "version.predict() is deprecated. Use replicate.run() instead. It will be removed before version 1.0.",
             DeprecationWarning,
@@ -57,7 +66,12 @@ class VersionCollection(Collection):
     # doesn't exist yet
     def get(self, id: str) -> Version:
         """
-        Get a specific version.
+        Get a specific model version.
+
+        Args:
+            id: The version ID.
+        Returns:
+            The model version.
         """
         resp = self._client._request(
             "GET", f"/v1/models/{self._model.username}/{self._model.name}/versions/{id}"
@@ -70,6 +84,9 @@ class VersionCollection(Collection):
     def list(self) -> List[Version]:
         """
         Return a list of all versions for a model.
+
+        Returns:
+            List[Version]: A list of version objects.
         """
         resp = self._client._request(
             "GET", f"/v1/models/{self._model.username}/{self._model.name}/versions"

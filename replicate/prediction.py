@@ -23,7 +23,9 @@ class Prediction(BaseModel):
     urls: Optional[Dict[str, str]]
 
     def wait(self) -> None:
-        """Wait for prediction to finish."""
+        """
+        Waits for prediction to finish.
+        """
         while self.status not in ["succeeded", "failed", "canceled"]:
             time.sleep(self._client.poll_interval)
             self.reload()
@@ -48,7 +50,9 @@ class Prediction(BaseModel):
             yield output
 
     def cancel(self) -> None:
-        """Cancel a currently running prediction"""
+        """
+        Cancels a running prediction.
+        """
         self._client._request("POST", f"/v1/predictions/{self.id}/cancel")
 
 
@@ -56,6 +60,13 @@ class PredictionCollection(Collection):
     model = Prediction
 
     def list(self) -> List[Prediction]:
+        """
+        List your predictions.
+
+        Returns:
+            List[Prediction]: A list of prediction objects.
+        """
+
         resp = self._client._request("GET", "/v1/predictions")
         # TODO: paginate
         predictions = resp.json()["results"]
@@ -65,6 +76,15 @@ class PredictionCollection(Collection):
         return [self.prepare_model(obj) for obj in predictions]
 
     def get(self, id: str) -> Prediction:
+        """
+        Get a prediction by ID.
+
+        Args:
+            id (str): The ID of the prediction.
+        Returns:
+            Prediction: The prediction object.
+        """
+
         resp = self._client._request("GET", f"/v1/predictions/{id}")
         obj = resp.json()
         # HACK: resolve this? make it lazy somehow?
@@ -80,6 +100,22 @@ class PredictionCollection(Collection):
         webhook_events_filter: Optional[List[str]] = None,
         **kwargs,
     ) -> Prediction:
+        """
+        Create a new prediction for the specified model version.
+
+        Args:
+            version (Version): The model version to use for the prediction.
+            input (Dict[str, Any]): The input data for the prediction.
+            webhook (Optional[str]): The URL to receive a POST request with prediction updates.
+            webhook_completed (Optional[str]): The URL to receive a POST request when the prediction is completed.
+            webhook_events_filter (Optional[List[str]]): List of events to trigger webhooks.
+            stream (Optional[bool]): Set to True to enable streaming of prediction output.
+
+        Returns:
+            Prediction: The created prediction object.
+
+        """
+
         input = encode_json(input, upload_file=upload_file)
         body = {
             "version": version.id,

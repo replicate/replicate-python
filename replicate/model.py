@@ -17,6 +17,10 @@ class Model(BaseModel):
 
     @property
     def versions(self) -> VersionCollection:
+        """
+        Get the versions of this model.
+        """
+
         return VersionCollection(client=self._client, model=self)
 
 
@@ -27,6 +31,15 @@ class ModelCollection(Collection):
         raise NotImplementedError()
 
     def get(self, name: str) -> Model:
+        """
+        Get a model by name.
+
+        Args:
+            name: The name of the model, in the format `owner/model-name`.
+        Returns:
+            The model.
+        """
+
         # TODO: fetch model from server
         # TODO: support permanent IDs
         username, name = name.split("/")
