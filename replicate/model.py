@@ -22,6 +22,10 @@ class Model(BaseModel):
     """
 
     def predict(self, *args, **kwargs) -> None:
+        """
+        DEPRECATED: Use `version.predict()` instead.
+        """
+
         raise ReplicateException(
             "The `model.predict()` method has been removed, because it's unstable: if a new version of the model you're using is pushed and its API has changed, your code may break. Use `version.predict()` instead. See https://github.com/replicate/replicate-python#readme"
         )
