@@ -115,7 +115,13 @@ You can find your API key on https://replicate.com"""
 
     def run(self, model_version: str, **kwargs) -> Union[Any, Iterator[Any]]:
         """
-        Run a model in the format owner/name:version.
+        Run a model and wait for its output.
+
+        Args:
+            model_version: The model version to run, in the format `owner/name:version`
+            kwargs: The input to the model, as a dictionary
+        Returns:
+            The output of the model
         """
         # Split model_version into owner, name, version in format owner/name:version
         m = re.match(r"^(?P<model>[^/]+/[^:]+):(?P<version>.+)$", model_version)

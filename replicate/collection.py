@@ -11,8 +11,7 @@ Model = TypeVar("Model", bound=BaseModel)
 
 class Collection(abc.ABC, Generic[Model]):
     """
-    A base class for representing all objects of a particular type on the
-    server.
+    A base class for representing objects of a particular type on the server.
     """
 
     def __init__(self, client: "Client") -> None:

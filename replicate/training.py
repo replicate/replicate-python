@@ -10,17 +10,51 @@ from replicate.version import Version
 
 
 class Training(BaseModel):
-    completed_at: Optional[str]
-    created_at: Optional[str]
-    destination: Optional[str]
-    error: Optional[str]
+    """
+    A training made for a model hosted on Replicate.
+    """
+
     id: str
-    input: Optional[Dict[str, Any]]
-    logs: Optional[str]
-    output: Optional[Any]
-    started_at: Optional[str]
-    status: str
+    """The unique ID of the training."""
+
     version: Optional[Version]
+    """The version of the model used to create the training."""
+
+    destination: Optional[str]
+    """The model destination of the training."""
+
+    status: str
+    """The status of the training."""
+
+    input: Optional[Dict[str, Any]]
+    """The input to the training."""
+
+    output: Optional[Any]
+    """The output of the training."""
+
+    logs: Optional[str]
+    """The logs of the training."""
+
+    error: Optional[str]
+    """The error encountered during the training, if any."""
+
+    created_at: Optional[str]
+    """When the training was created."""
+
+    started_at: Optional[str]
+    """When the training was started."""
+
+    completed_at: Optional[str]
+    """When the training was completed, if finished."""
+
+    urls: Optional[Dict[str, str]]
+    """
+    URLs associated with the training.
+
+    The following keys are available:
+    - `get`: A URL to fetch the training.
+    - `cancel`: A URL to cancel the training.
+    """
 
     def cancel(self) -> None:
         """Cancel a running training"""
@@ -31,6 +65,13 @@ class TrainingCollection(Collection):
     model = Training
 
     def list(self) -> List[Training]:
+        """
+        List your trainings.
+
+        Returns:
+            List[Training]: A list of training objects.
+        """
+
         resp = self._client._request("GET", "/v1/trainings")
         # TODO: paginate
         trainings = resp.json()["results"]
@@ -40,6 +81,15 @@ class TrainingCollection(Collection):
         return [self.prepare_model(obj) for obj in trainings]
 
     def get(self, id: str) -> Training:
+        """
+        Get a training by ID.
+
+        Args:
+            id: The ID of the training.
+        Returns:
+            Training: The training object.
+        """
+
         resp = self._client._request(
             "GET",
             f"/v1/trainings/{id}",
@@ -58,6 +108,19 @@ class TrainingCollection(Collection):
         webhook_events_filter: Optional[List[str]] = None,
         **kwargs,
     ) -> Training:
+        """
+        Create a new training using the specified model version as a base.
+
+        Args:
+            version: The ID of the base model version that you're using to train a new model version.
+            input: The input to the training.
+            destination: The desired model to push to in the format `{owner}/{model_name}`. This should be an existing model owned by the user or organization making the API request.
+            webhook: The URL to send a POST request to when the training is completed. Defaults to None.
+            webhook_events_filter: The events to send to the webhook. Defaults to None.
+        Returns:
+            The training object.
+        """
+
         input = encode_json(input, upload_file=upload_file)
         body = {
             "input": input,
