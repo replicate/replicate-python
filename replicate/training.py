@@ -10,17 +10,51 @@ from replicate.version import Version
 
 
 class Training(BaseModel):
-    completed_at: Optional[str]
-    created_at: Optional[str]
-    destination: Optional[str]
-    error: Optional[str]
+    """
+    A training made for a model hosted on Replicate.
+    """
+
     id: str
-    input: Optional[Dict[str, Any]]
-    logs: Optional[str]
-    output: Optional[Any]
-    started_at: Optional[str]
-    status: str
+    """The unique ID of the training."""
+
     version: Optional[Version]
+    """The version of the model used to create the training."""
+
+    destination: Optional[str]
+    """The model destination of the training."""
+
+    status: str
+    """The status of the training."""
+
+    input: Optional[Dict[str, Any]]
+    """The input to the training."""
+
+    output: Optional[Any]
+    """The output of the training."""
+
+    logs: Optional[str]
+    """The logs of the training."""
+
+    error: Optional[str]
+    """The error encountered during the training, if any."""
+
+    created_at: Optional[str]
+    """When the training was created."""
+
+    started_at: Optional[str]
+    """When the training was started."""
+
+    completed_at: Optional[str]
+    """When the training was completed, if finished."""
+
+    urls: Optional[Dict[str, str]]
+    """
+    URLs associated with the training.
+
+    The following keys are available:
+    - `get`: A URL to fetch the training.
+    - `cancel`: A URL to cancel the training.
+    """
 
     def cancel(self) -> None:
         """Cancel a running training"""

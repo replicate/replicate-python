@@ -14,10 +14,21 @@ from replicate.schema import make_schema_backwards_compatible
 
 
 class Version(BaseModel):
+    """
+    A version of a model.
+    """
+
     id: str
+    """The unique ID of the version."""
+
     created_at: datetime.datetime
+    """When the version was created."""
+
     cog_version: str
+    """The version of the Cog used to create the version."""
+
     openapi_schema: dict
+    """An OpenAPI description of the model inputs and outputs."""
 
     def predict(self, **kwargs) -> Union[Any, Iterator[Any]]:
         """

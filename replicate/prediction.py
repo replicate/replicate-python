@@ -10,17 +10,48 @@ from replicate.version import Version
 
 
 class Prediction(BaseModel):
+    """
+    A prediction made by a model hosted on Replicate.
+    """
+
     id: str
-    error: Optional[str]
-    input: Optional[Dict[str, Any]]
-    logs: Optional[str]
-    output: Optional[Any]
-    status: str
+    """The unique ID of the prediction."""
+
     version: Optional[Version]
-    started_at: Optional[str]
+    """The version of the model used to create the prediction."""
+
+    status: str
+    """The status of the prediction."""
+
+    input: Optional[Dict[str, Any]]
+    """The input to the prediction."""
+
+    output: Optional[Any]
+    """The output of the prediction."""
+
+    logs: Optional[str]
+    """The logs of the prediction."""
+
+    error: Optional[str]
+    """The error encountered during the prediction, if any."""
+
     created_at: Optional[str]
+    """When the prediction was created."""
+
+    started_at: Optional[str]
+    """When the prediction was started."""
+
     completed_at: Optional[str]
+    """When the prediction was completed, if finished."""
+
     urls: Optional[Dict[str, str]]
+    """
+    URLs associated with the prediction.
+
+    The following keys are available:
+    - `get`: A URL to fetch the prediction.
+    - `cancel`: A URL to cancel the prediction.
+    """
 
     def wait(self) -> None:
         """

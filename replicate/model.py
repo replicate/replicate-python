@@ -7,8 +7,19 @@ from replicate.version import VersionCollection
 
 
 class Model(BaseModel):
+    """
+    A machine learning model hosted on Replicate.
+    """
+
     username: str
+    """
+    The name of the user or organization that owns the model.
+    """
+
     name: str
+    """
+    The name of the model.
+    """
 
     def predict(self, *args, **kwargs) -> None:
         raise ReplicateException(
