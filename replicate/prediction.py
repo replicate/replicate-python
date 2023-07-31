@@ -20,6 +20,7 @@ class Prediction(BaseModel):
     started_at: Optional[str]
     created_at: Optional[str]
     completed_at: Optional[str]
+    urls: Optional[Dict[str, str]]
 
     def wait(self) -> None:
         """Wait for prediction to finish."""
