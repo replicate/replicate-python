@@ -32,6 +32,8 @@ class Version(BaseModel):
 
     def predict(self, **kwargs) -> Union[Any, Iterator[Any]]:
         """
+        DEPRECATED: Use `replicate.run()` instead.
+
         Create a prediction using this model version.
 
         Args:
