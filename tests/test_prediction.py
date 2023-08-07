@@ -193,6 +193,9 @@ def test_async_timings():
             "output": "hello world",
             "error": None,
             "logs": "",
+            "metrics": {
+                "predict_time": 1.2345,
+            },
         },
     )
 
@@ -210,3 +213,4 @@ def test_async_timings():
     assert prediction.created_at == "2022-04-26T20:00:40.658234Z"
     assert prediction.completed_at == "2022-04-26T20:02:27.648305Z"
     assert prediction.output == "hello world"
+    assert prediction.metrics["predict_time"] == 1.2345

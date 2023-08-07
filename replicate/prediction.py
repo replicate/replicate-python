@@ -35,6 +35,9 @@ class Prediction(BaseModel):
     error: Optional[str]
     """The error encountered during the prediction, if any."""
 
+    metrics: Optional[Dict[str, Any]]
+    """Metrics for the prediction."""
+
     created_at: Optional[str]
     """When the prediction was created."""
 
