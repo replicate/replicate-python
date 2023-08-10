@@ -129,6 +129,36 @@ for image in iterator:
     display(image)
 ```
 
+## Use the punkt iterator to display the model's output in complete sentences:
+
+```python
+import replicate
+import nltk
+
+# Download the NLTK Punkt tokenizer if you haven't already
+nltk.download('punkt')
+
+# Initialize the NLTK Punkt tokenizer
+tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
+
+output = replicate.run(
+    "replicate/llama-2-70b-chat:2c1608e18606fad2812020dc541930f2d0495ce32eee50074220b87300bc16e1",
+    input={"prompt": "How can I do synthetic division in python?"}
+)
+
+# Accumulate the generated text
+generated_text = ""
+for item in output:
+    generated_text += item
+
+# Tokenize the text into sentences
+sentences = tokenizer.tokenize(generated_text)
+
+# Print sentences on separate lines
+for sentence in sentences:
+    print(sentence)
+```
+
 ## Cancel a prediction
 
 You can cancel a running prediction:
