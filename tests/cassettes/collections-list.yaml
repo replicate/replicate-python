@@ -1,0 +1,93 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - api.replicate.com
+      user-agent:
+      - replicate-python/0.11.0
+    method: GET
+    uri: https://api.replicate.com/v1/collections
+  response:
+    content: '{"next":null,"previous":null,"results":[{"name":"SDXL Fine-Tunes","slug":"sdxl-fine-tunes","description":"Some
+      of our favorite SDXL fine-tunes."},{"name":"Streaming language models","slug":"streaming-language-models","description":"Language
+      models that support streaming responses. See https://replicate.com/docs/streaming"},{"name":"Image
+      editing","slug":"image-editing","description":"Tools for manipulating images."},{"name":"Embedding
+      models","slug":"embedding-models","description":"Models that generate embeddings
+      from inputs"},{"name":"Trainable language models","slug":"trainable-language-models","description":"Language
+      models that you can fine-tune using Replicate''s training API."},{"name":"Language
+      models","slug":"language-models","description":"Models that can understand and
+      generate text"},{"name":"ControlNet","slug":"control-net","description":"Control
+      diffusion models"},{"name":"Audio generation","slug":"audio-generation","description":"Models
+      to generate and modify audio"},{"name":"Diffusion models","slug":"diffusion-models","description":"Image
+      and video generation models trained with diffusion processes"},{"name":"Videos","slug":"text-to-video","description":"Models
+      that create and edit videos"},{"name":"Image to text","slug":"image-to-text","description":"Models
+      that generate text prompts and captions from images"},{"name":"Super resolution","slug":"super-resolution","description":"Upscaling
+      models that create high-quality images from low-quality images"},{"name":"Style
+      transfer","slug":"style-transfer","description":"Models that take a content
+      image and a style reference to produce a new image"},{"name":"ML makeovers","slug":"ml-makeovers","description":"Models
+      that let you change facial features"},{"name":"Image restoration","slug":"image-restoration","description":"Models
+      that improve or restore images by deblurring, colorization, and removing noise"},{"name":"Text
+      to image","slug":"text-to-image","description":"Models that generate images
+      from text prompts"}]}'
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 7f7bd72a4b1230ab-SEA
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 16 Aug 2023 18:46:30 GMT
+      NEL:
+      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+      Report-To:
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=xY4nmBiLHnv9HILfvA2bO9AMBvS13ZYk5iKbaP5chtACEDw%2F8SdZS8eOSgylczOC4XVN0npUhK%2B7Bq20j4OZLexqswUo6E6aqcl5RKINGm2BSKuWmYN4gSo8vTfv3G0mxDNr"}],"group":"cf-nel","max_age":604800}'
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000
+      Transfer-Encoding:
+      - chunked
+      allow:
+      - GET, HEAD, OPTIONS
+      content-security-policy-report-only:
+      - 'connect-src ''report-sample'' ''self'' https://replicate.delivery https://*.replicate.delivery
+        https://*.rudderlabs.com https://*.rudderstack.com https://*.mux.com https://*.sentry.io;
+        img-src ''report-sample'' ''self'' data: https://replicate.delivery https://*.replicate.delivery
+        https://*.githubusercontent.com https://github.com; script-src ''report-sample''
+        ''self'' https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js; media-src
+        ''report-sample'' ''self'' https://replicate.delivery https://*.replicate.delivery
+        https://*.mux.com https://*.gstatic.com https://*.sentry.io; font-src ''report-sample''
+        ''self'' data: https://fonts.replicate.ai https://fonts.gstatic.com; style-src
+        ''report-sample'' ''self'' ''unsafe-inline'' https://fonts.googleapis.com;
+        worker-src ''none''; default-src ''self''; report-uri'
+      cross-origin-opener-policy:
+      - same-origin
+      ratelimit-remaining:
+      - '2999'
+      ratelimit-reset:
+      - '1'
+      referrer-policy:
+      - same-origin
+      vary:
+      - Cookie, origin
+      via:
+      - 1.1 vegur, 1.1 google
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - DENY
+    http_version: HTTP/1.1
+    status_code: 200
+version: 1

@@ -1,0 +1,105 @@
+interactions:
+- request:
+    body: '{"input": {"input_images": "https://replicate.delivery/pbxt/JMV5OrEWpBAC5gO8rre0tPOyJIOkaXvG0TWfVJ9b4zhLeEUY/data.zip",
+      "use_face_detection_instead": true}, "destination": "replicate/dreambooth-sdxl"}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '196'
+      content-type:
+      - application/json
+      host:
+      - api.replicate.com
+      user-agent:
+      - replicate-python/0.11.0
+    method: POST
+    uri: https://api.replicate.com/v1/models/stability-ai/sdxl/versions/a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5/trainings
+  response:
+    content: '{"id":"xxi2kydbnla3ocjp64sclkewku","version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","input":{"input_images":"https://replicate.delivery/pbxt/JMV5OrEWpBAC5gO8rre0tPOyJIOkaXvG0TWfVJ9b4zhLeEUY/data.zip","use_face_detection_instead":true},"logs":"","error":null,"status":"starting","created_at":"2023-08-16T19:33:27.07526337Z","urls":{"cancel":"https://api.replicate.com/v1/predictions/xxi2kydbnla3ocjp64sclkewku/cancel","get":"https://api.replicate.com/v1/predictions/xxi2kydbnla3ocjp64sclkewku"}}
+
+      '
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 7f7c1bebbefb279c-SEA
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 16 Aug 2023 19:33:27 GMT
+      NEL:
+      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+      Report-To:
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=8nwXblNwwv%2B3MNruaLvo105IDtUra2KhqpdDIxWIzz0LXn8aAFXd3LaW1jyNse6YOfiuX5%2BFuBrA4%2FdFnF%2FmnqqTC58iRNJw8qlNjr8ZvnEXwJrJqxDEWa%2FtzJGC8wVt%2BQko"}],"group":"cf-nel","max_age":604800}'
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000
+      Transfer-Encoding:
+      - chunked
+      ratelimit-remaining:
+      - '2999'
+      ratelimit-reset:
+      - '1'
+      via:
+      - 1.1 google
+    http_version: HTTP/1.1
+    status_code: 201
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '0'
+      host:
+      - api.replicate.com
+      user-agent:
+      - replicate-python/0.11.0
+    method: POST
+    uri: https://api.replicate.com/v1/trainings/xxi2kydbnla3ocjp64sclkewku/cancel
+  response:
+    content: '{"completed_at":"2023-08-16T19:33:27.215203Z","created_at":"2023-08-16T19:33:27.135361Z","error":null,"id":"xxi2kydbnla3ocjp64sclkewku","input":{"input_images":"https://replicate.delivery/pbxt/JMV5OrEWpBAC5gO8rre0tPOyJIOkaXvG0TWfVJ9b4zhLeEUY/data.zip","use_face_detection_instead":true},"logs":null,"metrics":{"predict_time":3e-06},"output":null,"started_at":"2023-08-16T19:33:27.215200Z","status":"canceled","urls":{"get":"https://api.replicate.com/v1/predictions/xxi2kydbnla3ocjp64sclkewku","cancel":"https://api.replicate.com/v1/predictions/xxi2kydbnla3ocjp64sclkewku/cancel"},"version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","webhook_completed":null}'
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 7f7c1bec8813279c-SEA
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 16 Aug 2023 19:33:27 GMT
+      NEL:
+      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+      Report-To:
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=Y93Ig0lcI3wRbWLTTyTwQuz%2FQPzwlzM%2FI79Q17bYeJIu382PgqxEwZxl3dduPP%2FYm91xCRzfjW41b44fxB0YD6XXF%2FSMKmO19I1LpI%2FMd3p0jwepg7i3B1cNsCc6Rfpo0qN%2B"}],"group":"cf-nel","max_age":604800}'
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000
+      Transfer-Encoding:
+      - chunked
+      ratelimit-remaining:
+      - '2999'
+      ratelimit-reset:
+      - '1'
+      via:
+      - 1.1 google
+    http_version: HTTP/1.1
+    status_code: 200
+version: 1

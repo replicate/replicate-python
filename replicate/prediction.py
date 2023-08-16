@@ -1,24 +1,20 @@
-import time
-from typing import Any, Dict, Iterator, List, Optional
+from typing import Any, Dict, List, Optional
 
-from replicate.base_model import BaseModel
-from replicate.collection import Collection
-from replicate.exceptions import ModelError
-from replicate.files import upload_file
-from replicate.json import encode_json
-from replicate.version import Version
+from .files import upload_file
+from .json import encode_json
+from .pagination import Page
+from .resource import Namespace, Resource
+from .version import Version
 
 
-class Prediction(BaseModel):
-    """
-    A prediction made by a model hosted on Replicate.
-    """
+class Prediction(Resource):
+    """A prediction made by a model hosted on Replicate."""
 
     id: str
     """The unique ID of the prediction."""
 
-    version: Optional[Version]
-    """The version of the model used to create the prediction."""
+    version: str
+    """The version id of the model used to create the prediction."""
 
     status: str
     """The status of the prediction."""
@@ -26,90 +22,40 @@ class Prediction(BaseModel):
     input: Optional[Dict[str, Any]]
     """The input to the prediction."""
 
-    output: Optional[Any]
+    output: Optional[Any] = None
     """The output of the prediction."""
 
-    logs: Optional[str]
+    logs: Optional[str] = None
     """The logs of the prediction."""
 
-    error: Optional[str]
+    error: Optional[Any] = None
     """The error encountered during the prediction, if any."""
 
-    metrics: Optional[Dict[str, Any]]
+    metrics: Optional[dict[str, Any]] = None
     """Metrics for the prediction."""
 
     created_at: Optional[str]
     """When the prediction was created."""
 
-    started_at: Optional[str]
+    started_at: Optional[str] = None
     """When the prediction was started."""
 
-    completed_at: Optional[str]
+    completed_at: Optional[str] = None
     """When the prediction was completed, if finished."""
 
     urls: Optional[Dict[str, str]]
-    """
-    URLs associated with the prediction.
+    """URLs associated with the prediction.
 
     The following keys are available:
     - `get`: A URL to fetch the prediction.
     - `cancel`: A URL to cancel the prediction.
     """
 
-    def wait(self) -> None:
-        """
-        Wait for prediction to finish.
-        """
-        while self.status not in ["succeeded", "failed", "canceled"]:
-            time.sleep(self._client.poll_interval)
-            self.reload()
 
-    def output_iterator(self) -> Iterator[Any]:
-        # TODO: check output is list
-        previous_output = self.output or []
-        while self.status not in ["succeeded", "failed", "canceled"]:
-            output = self.output or []
-            new_output = output[len(previous_output) :]
-            yield from new_output
-            previous_output = output
-            time.sleep(self._client.poll_interval)
-            self.reload()
-
-        if self.status == "failed":
-            raise ModelError(self.error)
-
-        output = self.output or []
-        new_output = output[len(previous_output) :]
-        for output in new_output:
-            yield output
-
-    def cancel(self) -> None:
-        """
-        Cancels a running prediction.
-        """
-        self._client._request("POST", f"/v1/predictions/{self.id}/cancel")
-
-
-class PredictionCollection(Collection):
+class Predictions(Namespace):
     model = Prediction
 
-    def list(self) -> List[Prediction]:
-        """
-        List your predictions.
-
-        Returns:
-            A list of prediction objects.
-        """
-
-        resp = self._client._request("GET", "/v1/predictions")
-        # TODO: paginate
-        predictions = resp.json()["results"]
-        for prediction in predictions:
-            # HACK: resolve this? make it lazy somehow?
-            del prediction["version"]
-        return [self.prepare_model(obj) for obj in predictions]
-
-    def get(self, id: str) -> Prediction:
+    def get(self, prediction: Prediction | str) -> Prediction:
         """
         Get a prediction by ID.
 
@@ -119,16 +65,27 @@ class PredictionCollection(Collection):
             Prediction: The prediction object.
         """
 
-        resp = self._client._request("GET", f"/v1/predictions/{id}")
-        obj = resp.json()
-        # HACK: resolve this? make it lazy somehow?
-        del obj["version"]
-        return self.prepare_model(obj)
+        id = prediction.id if isinstance(prediction, Prediction) else prediction
+        resp = self._client.request("GET", f"/predictions/{id}")
 
-    def create(  # type: ignore
+        return Prediction(**resp.json())
+
+    def list(self) -> Page[Prediction]:
+        """
+        List your predictions.
+
+        Returns:
+            A page of prediction objects.
+        """
+
+        resp = self._client.request("GET", "/v1/predictions")
+
+        return Page[Prediction](**resp.json())
+
+    def create(
         self,
-        version: Version,
-        input: Dict[str, Any],
+        version: Version | str,
+        input: dict,
         webhook: Optional[str] = None,
         webhook_completed: Optional[str] = None,
         webhook_events_filter: Optional[List[str]] = None,
@@ -151,11 +108,11 @@ class PredictionCollection(Collection):
             Prediction: The created prediction object.
         """
 
-        input = encode_json(input, upload_file=upload_file)
-        body = {
-            "version": version.id,
-            "input": input,
-        }
+        body = {}
+
+        body["version"] = version.id if isinstance(version, Version) else version
+        body["input"] = encode_json(input, upload_file=upload_file)
+
         if webhook is not None:
             body["webhook"] = webhook
         if webhook_completed is not None:
@@ -165,11 +122,72 @@ class PredictionCollection(Collection):
         if stream is True:
             body["stream"] = "true"
 
-        resp = self._client._request(
+        resp = self._client.request(
             "POST",
-            "/v1/predictions",
+            "/predictions",
             json=body,
         )
-        obj = resp.json()
-        obj["version"] = version
-        return self.prepare_model(obj)
+
+        return Prediction(**resp.json())
+
+    def cancel(self, prediction: Prediction | str) -> Prediction:
+        """
+        Cancels a running prediction.
+        """
+
+        id = prediction.id if isinstance(prediction, Prediction) else prediction
+        resp = self._client.request("POST", f"/predictions/{id}/cancel")
+
+        return Prediction(**resp.json())
+
+
+class AsyncPredictions(Predictions):
+    async def get(self, prediction: Prediction | str) -> Prediction:
+        id = prediction.id if isinstance(prediction, Prediction) else prediction
+        resp = await self._client.request("GET", f"/predictions/{id}")
+
+        return Prediction(**resp.json())
+
+    async def list(self) -> Page[Prediction]:
+        resp = await self._client.request("GET", "/v1/predictions")
+
+        return Page[Prediction](**resp.json())
+
+    async def create(
+        self,
+        version: Version | str,
+        input: dict,
+        webhook: Optional[str] = None,
+        webhook_completed: Optional[str] = None,
+        webhook_events_filter: Optional[List[str]] = None,
+        *,
+        stream: Optional[bool] = None,
+        **kwargs,
+    ) -> Prediction:
+        body = {}
+
+        body["version"] = version.id if isinstance(version, Version) else version
+        body["input"] = encode_json(input, upload_file=upload_file)
+
+        if webhook is not None:
+            body["webhook"] = webhook
+        if webhook_completed is not None:
+            body["webhook_completed"] = webhook_completed
+        if webhook_events_filter is not None:
+            body["webhook_events_filter"] = webhook_events_filter
+        if stream is True:
+            body["stream"] = "true"
+
+        resp = await self._client.request(
+            "POST",
+            "/predictions",
+            json=body,
+        )
+
+        return Prediction(**resp.json())
+
+    async def cancel(self, prediction: Prediction | str) -> Prediction:
+        id = prediction.id if isinstance(prediction, Prediction) else prediction
+        resp = await self._client.request("POST", f"/predictions/{id}/cancel")
+
+        return Prediction(**resp.json())

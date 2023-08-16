@@ -1,53 +1,54 @@
-import abc
-from typing import TYPE_CHECKING, Dict, Generic, List, TypeVar, Union, cast
+from typing import Optional
 
-if TYPE_CHECKING:
-    from replicate.client import Client
+from replicate.resource import Namespace, Resource
 
-from replicate.base_model import BaseModel
-
-Model = TypeVar("Model", bound=BaseModel)
+from .model import Model
+from .pagination import Page
 
 
-class Collection(abc.ABC, Generic[Model]):
-    """
-    A base class for representing objects of a particular type on the server.
-    """
+class Collection(Resource):
+    """"""
 
-    def __init__(self, client: "Client") -> None:
-        self._client = client
+    slug: str
 
-    @abc.abstractproperty
-    def model(self) -> Model:
-        pass
+    name: str
 
-    @abc.abstractmethod
-    def list(self) -> List[Model]:
-        pass
+    description: str
 
-    @abc.abstractmethod
-    def get(self, key: str) -> Model:
-        pass
+    models: Optional[list[Model]] = None
 
-    @abc.abstractmethod
-    def create(self, **kwargs) -> Model:
-        pass
 
-    def prepare_model(self, attrs: Union[Model, Dict]) -> Model:
+class Collections(Namespace):
+    model = Collection
+
+    def list(self) -> Page[Collection]:
+        """List all models."""
+
+        resp = self._client.request("GET", "/collections")
+
+        return Page[Collection](**resp.json())
+
+    def get(self, slug: str) -> Model:
+        """Get a model by name.
+
+        Args:
+            name: The name of the model, in the format `owner/model-name`.
+        Returns:
+            The model.
         """
-        Create a model from a set of attributes.
-        """
-        if isinstance(attrs, BaseModel):
-            attrs._client = self._client
-            attrs._collection = self
-            return cast(Model, attrs)
-        elif (
-            isinstance(attrs, dict) and self.model is not None and callable(self.model)
-        ):
-            model = self.model(**attrs)
-            model._client = self._client
-            model._collection = self
-            return model
-        else:
-            name = self.model.__name__ if hasattr(self.model, "__name__") else "model"
-            raise Exception(f"Can't create {name} from {attrs}")
+
+        resp = self._client.request("GET", f"/collections/{slug}")
+
+        return Collection(**resp.json())
+
+
+class AsyncCollections(Collections):
+    async def list(self) -> Page[Collection]:
+        resp = await self._client.request("GET", "/collections")
+
+        return Page[Collection](**resp.json())
+
+    async def get(self, slug: str) -> Collection:
+        resp = await self._client.request("GET", f"/collections/{slug}")
+
+        return Collection(**resp.json())

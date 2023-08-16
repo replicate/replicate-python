@@ -1,165 +1,203 @@
+import asyncio
 import os
-import re
-from json import JSONDecodeError
-from typing import Any, Dict, Iterator, Optional, Union
+import time
+from typing import Optional
 
-import requests
-from requests.adapters import HTTPAdapter, Retry
-from requests.cookies import RequestsCookieJar
+import httpx
 
-from replicate.__about__ import __version__
-from replicate.exceptions import ModelError, ReplicateError
-from replicate.model import ModelCollection
-from replicate.prediction import PredictionCollection
-from replicate.training import TrainingCollection
+from .__about__ import __version__
+from .collection import AsyncCollections, Collections
+from .exceptions import APIError, ModelError
+from .model import AsyncModels, Models
+from .prediction import AsyncPredictions, Prediction, Predictions
+from .training import AsyncTrainings, Trainings
+from .version import VersionIdentifier
 
 
 class Client:
-    def __init__(self, api_token: Optional[str] = None) -> None:
+    """A Replicate API client library"""
+
+    def __init__(
+        self,
+        api_token: str,
+        *,
+        base_url: Optional[str] = None,
+        timeout: Optional[httpx.Timeout] = None,
+        **kwargs,
+    ) -> None:
         super().__init__()
-        # Client is instantiated at import time, so do as little as possible.
-        # This includes resolving environment variables -- they might be set programmatically.
-        self.api_token = api_token
-        self.base_url = os.environ.get(
-            "REPLICATE_API_BASE_URL", "https://api.replicate.com"
+
+        base_url = base_url or os.environ.get(
+            "REPLICATE_API_BASE_URL", "https://api.replicate.com/v1"
         )
-        self.poll_interval = float(os.environ.get("REPLICATE_POLL_INTERVAL", "0.5"))
 
-        # TODO: make thread safe
-        self.read_session = _create_session()
-        read_retries = Retry(
-            total=5,
-            backoff_factor=2,
-            # Only retry 500s on GET so we don't unintionally mutute data
-            allowed_methods=["GET"],
-            # https://support.cloudflare.com/hc/en-us/articles/115003011431-Troubleshooting-Cloudflare-5XX-errors
-            status_forcelist=[
-                429,
-                500,
-                502,
-                503,
-                504,
-                520,
-                521,
-                522,
-                523,
-                524,
-                526,
-                527,
-            ],
+        timeout = timeout or httpx.Timeout(
+            5.0, read=30.0, write=30.0, connect=5.0, pool=10.0
         )
-        self.read_session.mount("http://", HTTPAdapter(max_retries=read_retries))
-        self.read_session.mount("https://", HTTPAdapter(max_retries=read_retries))
 
-        self.write_session = _create_session()
-        write_retries = Retry(
-            total=5,
-            backoff_factor=2,
-            allowed_methods=["POST", "PUT"],
-            # Only retry POST/PUT requests on rate limits, so we don't unintionally mutute data
-            status_forcelist=[429],
-        )
-        self.write_session.mount("http://", HTTPAdapter(max_retries=write_retries))
-        self.write_session.mount("https://", HTTPAdapter(max_retries=write_retries))
-
-    def _request(self, method: str, path: str, **kwargs) -> requests.Response:
-        # from requests.Session
-        if method in ["GET", "OPTIONS"]:
-            kwargs.setdefault("allow_redirects", True)
-        if method in ["HEAD"]:
-            kwargs.setdefault("allow_redirects", False)
-        kwargs.setdefault("headers", {})
-        kwargs["headers"].update(self._headers())
-        session = self.read_session
-        if method in ["POST", "PUT", "DELETE", "PATCH"]:
-            session = self.write_session
-        resp = session.request(method, self.base_url + path, **kwargs)
-        if 400 <= resp.status_code < 600:
-            try:
-                raise ReplicateError(resp.json()["detail"])
-            except (JSONDecodeError, KeyError):
-                pass
-            raise ReplicateError(f"HTTP error: {resp.status_code, resp.reason}")
-        return resp
-
-    def _headers(self) -> Dict[str, str]:
-        return {
-            "Authorization": f"Token {self._api_token()}",
+        headers = {
+            "Authorization": f"Token {api_token}",
             "User-Agent": f"replicate-python/{__version__}",
         }
 
-    def _api_token(self) -> str:
-        token = self.api_token
-        # Evaluate lazily in case environment variable is set with dotenv, or something
-        if token is None:
-            token = os.environ.get("REPLICATE_API_TOKEN")
-        if not token:
-            raise ReplicateError(
-                """No API token provided. You need to set the REPLICATE_API_TOKEN environment variable or create a client with `replicate.Client(api_token=...)`.
+        self._client = self._build_client(
+            **kwargs,
+            base_url=base_url,
+            headers=headers,
+            timeout=timeout,
+        )
 
-You can find your API key on https://replicate.com"""
-            )
-        return token
+    def _build_client(self, **kwargs) -> httpx.Client:
+        return httpx.Client(**kwargs)
 
-    @property
-    def models(self) -> ModelCollection:
-        return ModelCollection(client=self)
+    def request(self, method: str, path: str, **kwargs) -> httpx.Response:
+        resp = self._client.request(method, path, **kwargs)
 
-    @property
-    def predictions(self) -> PredictionCollection:
-        return PredictionCollection(client=self)
+        if 400 <= resp.status_code < 600:
+            raise APIError.from_response(resp)
+
+        return resp
 
     @property
-    def trainings(self) -> TrainingCollection:
-        return TrainingCollection(client=self)
+    def collections(self) -> Collections:
+        return Collections(client=self)
 
-    def run(self, model_version: str, **kwargs) -> Union[Any, Iterator[Any]]:
+    @property
+    def models(self) -> Models:
+        return Models(client=self)
+
+    @property
+    def predictions(self) -> Predictions:
+        return Predictions(client=self)
+
+    @property
+    def trainings(self) -> Trainings:
+        return Trainings(client=self)
+
+    def run(
+        self,
+        identifier: VersionIdentifier | str,
+        input: dict,
+        webhook: Optional[str] = None,
+        webhook_completed: Optional[str] = None,
+        webhook_events_filter: Optional[list[str]] = None,
+        *,
+        poll_interval: float = 1.0,
+        **kwargs,
+    ) -> any:
         """
         Run a model and wait for its output.
 
         Args:
-            model_version: The model version to run, in the format `owner/name:version`
+            identifier: The model version to run, in the form `owner/name:version`
             kwargs: The input to the model, as a dictionary
         Returns:
             The output of the model
+        Throws:
+            Identifier.InvalidError: If the model identifier is invalid
+            ModelError: If the prediction fails
         """
-        # Split model_version into owner, name, version in format owner/name:version
-        m = re.match(r"^(?P<model>[^/]+/[^:]+):(?P<version>.+)$", model_version)
-        if not m:
-            raise ReplicateError(
-                f"Invalid model_version: {model_version}. Expected format: owner/name:version"
-            )
-        model = self.models.get(m.group("model"))
-        version = model.versions.get(m.group("version"))
-        prediction = self.predictions.create(version=version, **kwargs)
-        # Return an iterator of the output
-        schema = version.get_transformed_schema()
-        output = schema["components"]["schemas"]["Output"]
-        if (
-            output.get("type") == "array"
-            and output.get("x-cog-array-type") == "iterator"
-        ):
-            return prediction.output_iterator()
 
-        prediction.wait()
+        if not isinstance(identifier, VersionIdentifier):
+            identifier = VersionIdentifier.from_string(identifier)
+
+        prediction = self.predictions.create(
+            identifier.version,
+            input,
+            webhook,
+            webhook_completed,
+            webhook_events_filter,
+            **kwargs,
+        )
+
+        prediction = self.wait(prediction, poll_interval=poll_interval)
+
         if prediction.status == "failed":
             raise ModelError(prediction.error)
+
         return prediction.output
 
+    def wait(self, prediction: Prediction, *, poll_interval: float = 1.0) -> Prediction:
+        """
+        Wait for a prediction to complete.
 
-class _NonpersistentCookieJar(RequestsCookieJar):
-    """
-    A cookie jar that doesn't persist cookies between requests.
-    """
+        Args:
+            prediction: The prediction to wait for.
+        """
 
-    def set(self, name, value, **kwargs) -> None:
-        return
+        while prediction.status not in ["succeeded", "failed", "canceled"]:
+            if poll_interval > 0:
+                time.sleep(poll_interval)
+            prediction = self.predictions.get(prediction.id)
 
-    def set_cookie(self, cookie, *args, **kwargs) -> None:
-        return
+        return prediction
 
 
-def _create_session() -> requests.Session:
-    s = requests.Session()
-    s.cookies = _NonpersistentCookieJar()
-    return s
+class AsyncClient(Client):
+    """An asynchronous Replicate API client library"""
+
+    def _build_client(self, **kwargs) -> httpx.AsyncClient:
+        return httpx.AsyncClient(**kwargs)
+
+    async def request(self, method: str, path: str, **kwargs) -> httpx.Response:
+        resp = await self._client.request(method, path, **kwargs)
+
+        if 400 <= resp.status_code < 600:
+            raise APIError.from_response(resp)
+
+        return resp
+
+    @property
+    def collections(self) -> AsyncCollections:
+        return AsyncCollections(client=self)
+
+    @property
+    def models(self) -> AsyncModels:
+        return AsyncModels(client=self)
+
+    @property
+    def predictions(self) -> AsyncPredictions:
+        return AsyncPredictions(client=self)
+
+    @property
+    def trainings(self) -> AsyncTrainings:
+        return AsyncTrainings(client=self)
+
+    async def run(
+        self,
+        identifier: VersionIdentifier | str,
+        input: dict,
+        webhook: Optional[str] = None,
+        webhook_completed: Optional[str] = None,
+        webhook_events_filter: Optional[list[str]] = None,
+        *,
+        poll_interval: float = 1.0,
+        **kwargs,
+    ) -> any:
+        if not isinstance(identifier, VersionIdentifier):
+            identifier = VersionIdentifier.from_string(identifier)
+
+        prediction = await self.predictions.create(
+            identifier.version,
+            input,
+            webhook,
+            webhook_completed,
+            webhook_events_filter,
+            **kwargs,
+        )
+
+        prediction = await self.wait(prediction, poll_interval=poll_interval)
+
+        if prediction.status == "failed":
+            raise ModelError(prediction.error)
+
+        return prediction.output
+
+    async def wait(
+        self, prediction: Prediction, *, poll_interval: float = 1.0
+    ) -> Prediction:
+        while prediction.status not in ["succeeded", "failed", "canceled"]:
+            await asyncio.sleep(poll_interval)
+            prediction = await self.predictions.get(prediction.id)
+
+        return prediction

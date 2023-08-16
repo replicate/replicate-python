@@ -1,27 +1,23 @@
-import datetime
-import warnings
-from typing import TYPE_CHECKING, Any, Iterator, List, Union
+import re
+from datetime import datetime
+from typing import TYPE_CHECKING, NamedTuple
 
 if TYPE_CHECKING:
-    from replicate.client import Client
-    from replicate.model import Model
+    pass
 
 
-from replicate.base_model import BaseModel
-from replicate.collection import Collection
-from replicate.exceptions import ModelError
-from replicate.schema import make_schema_backwards_compatible
+from .exceptions import ReplicateError
+from .pagination import Page
+from .resource import Namespace, Resource
 
 
-class Version(BaseModel):
-    """
-    A version of a model.
-    """
+class Version(Resource):
+    """A version of a model."""
 
     id: str
     """The unique ID of the version."""
 
-    created_at: datetime.datetime
+    created_at: datetime
     """When the version was created."""
 
     cog_version: str
@@ -30,78 +26,94 @@ class Version(BaseModel):
     openapi_schema: dict
     """An OpenAPI description of the model inputs and outputs."""
 
-    def predict(self, **kwargs) -> Union[Any, Iterator[Any]]:
-        """
-        DEPRECATED: Use `replicate.run()` instead.
 
-        Create a prediction using this model version.
+class VersionIdentifier(NamedTuple):
+    """An identifier for a Replicate model at a given version in the form
+    `owner/name:version`.
+    """
+
+    owner: str
+    """The owner of the model"""
+
+    name: str
+    """The name of the model"""
+
+    version: str
+    """The version of the model"""
+
+    @classmethod
+    def from_string(cls, identifier: str) -> "VersionIdentifier":
+        """Parse a model identifier in the format into its components.
 
         Args:
-            kwargs: The input to the model.
+            identifier: The version identifier in the format `owner/name:version`.
         Returns:
-            The output of the model.
+            A version identifier object.
+        Throws:
+            InvalidVersionIdentifierError: If the model identifier is invalid.
         """
-
-        warnings.warn(
-            "version.predict() is deprecated. Use replicate.run() instead. It will be removed before version 1.0.",
-            DeprecationWarning,
-            stacklevel=1,
-        )
-
-        prediction = self._client.predictions.create(version=self, input=kwargs)
-        # Return an iterator of the output
-        schema = self.get_transformed_schema()
-        output = schema["components"]["schemas"]["Output"]
-        if (
-            output.get("type") == "array"
-            and output.get("x-cog-array-type") == "iterator"
-        ):
-            return prediction.output_iterator()
-
-        prediction.wait()
-        if prediction.status == "failed":
-            raise ModelError(prediction.error)
-        return prediction.output
-
-    def get_transformed_schema(self) -> dict:
-        schema = self.openapi_schema
-        schema = make_schema_backwards_compatible(schema, self.cog_version)
-        return schema
+        m = re.match(r"^(?P<owner>[^/]+)/(?P<name>[^:]+):(?P<version>.+)$", identifier)
+        if not m:
+            raise InvalidVersionIdentifierError(
+                f"Invalid model identifier: {identifier}. Expected format: owner/name:version"
+            )
+        return cls(**m.groupdict())
 
 
-class VersionCollection(Collection):
+class InvalidVersionIdentifierError(ReplicateError):
+    """Raised when an invalid model identifier is provided"""
+
+    pass
+
+
+class Versions(Namespace):
     model = Version
 
-    def __init__(self, client: "Client", model: "Model") -> None:
-        super().__init__(client=client)
-        self._model = model
-
-    # doesn't exist yet
-    def get(self, id: str) -> Version:
-        """
-        Get a specific model version.
+    def get(self, model_owner: str, model_name: str, version_id: str) -> Version:
+        """Get a specific model version.
 
         Args:
-            id: The version ID.
+            model_owner: The name of the user or organization that owns the model.
+            model_name: The name of the model.
+            version_id: The ID of the version.
         Returns:
             The model version.
         """
-        resp = self._client._request(
-            "GET", f"/v1/models/{self._model.username}/{self._model.name}/versions/{id}"
+
+        resp = self._client.request(
+            "GET", f"/models/{model_owner}/{model_name}/versions/{version_id}"
         )
-        return self.prepare_model(resp.json())
 
-    def create(self, **kwargs) -> Version:
-        raise NotImplementedError()
+        return Version(**resp.json())
 
-    def list(self) -> List[Version]:
-        """
-        Return a list of all versions for a model.
+    def list(self, model_owner: str, model_name: str) -> Page[Version]:
+        """Return a list of all versions for a model.
 
+        Args:
+            model_owner: The name of the user or organization that owns the model.
+            model_name: The name of the model.
         Returns:
-            List[Version]: A list of version objects.
+            A page of model versions.
         """
-        resp = self._client._request(
-            "GET", f"/v1/models/{self._model.username}/{self._model.name}/versions"
+
+        resp = self._client.request(
+            "GET", f"/models/{model_owner}/{model_name}/versions"
         )
-        return [self.prepare_model(obj) for obj in resp.json()["results"]]
+
+        return Page[Version](**resp.json())
+
+
+class AsyncVersions(Versions):
+    async def get(self, model_owner: str, model_name: str, version_id: str) -> Version:
+        resp = await self._client.request(
+            "GET", f"/models/{model_owner}/{model_name}/versions/{version_id}"
+        )
+
+        return Version(**resp.json())
+
+    async def list(self, model_owner: str, model_name: str) -> Page[Version]:
+        resp = await self._client.request(
+            "GET", f"/models/{model_owner}/{model_name}/versions"
+        )
+
+        return Page[Version](**resp.json())

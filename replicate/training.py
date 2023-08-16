@@ -1,27 +1,20 @@
-import re
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
-from replicate.base_model import BaseModel
-from replicate.collection import Collection
-from replicate.exceptions import ReplicateException
-from replicate.files import upload_file
-from replicate.json import encode_json
-from replicate.version import Version
+from .files import upload_file
+from .json import encode_json
+from .pagination import Page
+from .resource import Namespace, Resource
+from .version import Version
 
 
-class Training(BaseModel):
-    """
-    A training made for a model hosted on Replicate.
-    """
+class Training(Resource):
+    """A training made for a model hosted on Replicate."""
 
     id: str
     """The unique ID of the training."""
 
-    version: Optional[Version]
+    version: Optional[str]
     """The version of the model used to create the training."""
-
-    destination: Optional[str]
-    """The model destination of the training."""
 
     status: str
     """The status of the training."""
@@ -29,60 +22,41 @@ class Training(BaseModel):
     input: Optional[Dict[str, Any]]
     """The input to the training."""
 
-    output: Optional[Any]
+    output: Optional[Any] = None
     """The output of the training."""
 
-    logs: Optional[str]
+    logs: Optional[str] = None
     """The logs of the training."""
 
-    error: Optional[str]
+    error: Optional[Any] = None
     """The error encountered during the training, if any."""
+
+    metrics: Optional[dict[str, Any]] = None
+    """Metrics for the training."""
 
     created_at: Optional[str]
     """When the training was created."""
 
-    started_at: Optional[str]
+    started_at: Optional[str] = None
     """When the training was started."""
 
-    completed_at: Optional[str]
+    completed_at: Optional[str] = None
     """When the training was completed, if finished."""
 
     urls: Optional[Dict[str, str]]
-    """
-    URLs associated with the training.
+    """URLs associated with the training.
 
     The following keys are available:
     - `get`: A URL to fetch the training.
     - `cancel`: A URL to cancel the training.
     """
 
-    def cancel(self) -> None:
-        """Cancel a running training"""
-        self._client._request("POST", f"/v1/trainings/{self.id}/cancel")
 
-
-class TrainingCollection(Collection):
+class Trainings(Namespace):
     model = Training
 
-    def list(self) -> List[Training]:
-        """
-        List your trainings.
-
-        Returns:
-            List[Training]: A list of training objects.
-        """
-
-        resp = self._client._request("GET", "/v1/trainings")
-        # TODO: paginate
-        trainings = resp.json()["results"]
-        for training in trainings:
-            # HACK: resolve this? make it lazy somehow?
-            del training["version"]
-        return [self.prepare_model(obj) for obj in trainings]
-
     def get(self, id: str) -> Training:
-        """
-        Get a training by ID.
+        """Get a training by ID.
 
         Args:
             id: The ID of the training.
@@ -90,26 +64,36 @@ class TrainingCollection(Collection):
             Training: The training object.
         """
 
-        resp = self._client._request(
+        resp = self._client.request(
             "GET",
-            f"/v1/trainings/{id}",
+            f"/trainings/{id}",
         )
-        obj = resp.json()
-        # HACK: resolve this? make it lazy somehow?
-        del obj["version"]
-        return self.prepare_model(obj)
+
+        return Training(**resp.json())
+
+    def list(self) -> Page[Training]:
+        """List your trainings.
+
+        Returns:
+            List[Training]: A list of training objects.
+        """
+
+        resp = self._client.request("GET", "/v1/trainings")
+
+        return Page[Training](**resp.json())
 
     def create(  # type: ignore
         self,
-        version: str,
-        input: Dict[str, Any],
+        model_owner: str,
+        model_name: str,
+        version: Version | str,
         destination: str,
+        input: dict[str, any],
         webhook: Optional[str] = None,
-        webhook_events_filter: Optional[List[str]] = None,
+        webhook_events_filter: Optional[list] = None,
         **kwargs,
     ) -> Training:
-        """
-        Create a new training using the specified model version as a base.
+        """Create a new training using the specified model version as a base.
 
         Args:
             version: The ID of the base model version that you're using to train a new model version.
@@ -121,33 +105,82 @@ class TrainingCollection(Collection):
             The training object.
         """
 
-        input = encode_json(input, upload_file=upload_file)
-        body = {
-            "input": input,
-            "destination": destination,
-        }
+        body = {}
+
+        body["input"] = encode_json(input, upload_file=upload_file)
+
+        body["destination"] = destination
+
         if webhook is not None:
             body["webhook"] = webhook
         if webhook_events_filter is not None:
             body["webhook_events_filter"] = webhook_events_filter
 
-        # Split version in format "username/model_name:version_id"
-        match = re.match(
-            r"^(?P<username>[^/]+)/(?P<model_name>[^:]+):(?P<version_id>.+)$", version
-        )
-        if not match:
-            raise ReplicateException(
-                "version must be in format username/model_name:version_id"
-            )
-        username = match.group("username")
-        model_name = match.group("model_name")
-        version_id = match.group("version_id")
-
-        resp = self._client._request(
+        version_id = version.id if isinstance(version, Version) else version
+        resp = self._client.request(
             "POST",
-            f"/v1/models/{username}/{model_name}/versions/{version_id}/trainings",
+            f"/models/{model_owner}/{model_name}/versions/{version_id}/trainings",
             json=body,
         )
-        obj = resp.json()
-        del obj["version"]
-        return self.prepare_model(obj)
+
+        return Training(**resp.json())
+
+    def cancel(self, training: Training | str) -> Training:
+        """Cancel a running training"""
+
+        training_id = training.id if isinstance(training, Training) else training
+        resp = self._client.request("POST", f"/trainings/{training_id}/cancel")
+
+        return Training(**resp.json())
+
+
+class AsyncTrainings(Trainings):
+    async def get(self, id: str) -> Training:
+        resp = await self._client.request(
+            "GET",
+            f"/trainings/{id}",
+        )
+
+        return Training(**resp.json())
+
+    async def list(self) -> Page[Training]:
+        resp = await self._client.request("GET", "/v1/trainings")
+
+        return Page[Training](**resp.json())
+
+    async def create(  # type: ignore
+        self,
+        model_owner: str,
+        model_name: str,
+        version: Version | str,
+        destination: str,
+        input: dict[str, any],
+        webhook: Optional[str] = None,
+        webhook_events_filter: Optional[list] = None,
+        **kwargs,
+    ) -> Training:
+        body = {}
+
+        body["input"] = encode_json(input, upload_file=upload_file)
+
+        body["destination"] = destination
+
+        if webhook is not None:
+            body["webhook"] = webhook
+        if webhook_events_filter is not None:
+            body["webhook_events_filter"] = webhook_events_filter
+
+        version_id = version.id if isinstance(version, Version) else version
+        resp = await self._client.request(
+            "POST",
+            f"/models/{model_owner}/{model_name}/versions/{version_id}/trainings",
+            json=body,
+        )
+
+        return Training(**resp.json())
+
+    async def cancel(self, training: Training | str) -> Training:
+        training_id = training.id if isinstance(training, Training) else training
+        resp = await self._client.request("POST", f"/trainings/{training_id}/cancel")
+
+        return Training(**resp.json())

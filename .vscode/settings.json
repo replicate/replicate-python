@@ -12,7 +12,7 @@
       "source.fixAll": true,
       "source.organizeImports": true
     },
-    "editor.defaultFormatter": null
+    "editor.defaultFormatter": "ms-python.black-formatter"
   },
   "python.languageServer": "Pylance",
   "python.testing.pytestArgs": ["-vvv", "python"],

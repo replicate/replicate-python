@@ -1,0 +1,320 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - api.replicate.com
+      user-agent:
+      - replicate-python/0.11.0
+    method: GET
+    uri: https://api.replicate.com/v1/models/stability-ai/sdxl/versions
+  response:
+    content: '{"next":null,"previous":null,"results":[{"id":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","created_at":"2023-08-11T17:00:23.916379Z","cog_version":"0.8.5","openapi_schema":{"info":{"title":"Cog","version":"0.1.0"},"paths":{"/":{"get":{"summary":"Root","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Root  Get"}}},"description":"Successful Response"}},"operationId":"root__get"}},"/shutdown":{"post":{"summary":"Start
+      Shutdown","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Start Shutdown Shutdown Post"}}},"description":"Successful Response"}},"operationId":"start_shutdown_shutdown_post"}},"/predictions":{"post":{"summary":"Predict","responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionResponse"}}},"description":"Successful
+      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+      Error"}},"parameters":[{"in":"header","name":"prefer","schema":{"type":"string","title":"Prefer"},"required":false}],"description":"Run
+      a single prediction on the model","operationId":"predict_predictions_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionRequest"}}}}}},"/health-check":{"get":{"summary":"Healthcheck","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Healthcheck Health Check Get"}}},"description":"Successful Response"}},"operationId":"healthcheck_health_check_get"}},"/predictions/{prediction_id}":{"put":{"summary":"Predict
+      Idempotent","responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionResponse"}}},"description":"Successful
+      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+      Error"}},"parameters":[{"in":"path","name":"prediction_id","schema":{"type":"string","title":"Prediction
+      ID"},"required":true},{"in":"header","name":"prefer","schema":{"type":"string","title":"Prefer"},"required":false}],"description":"Run
+      a single prediction on the model (idempotent creation).","operationId":"predict_idempotent_predictions__prediction_id__put","requestBody":{"content":{"application/json":{"schema":{"allOf":[{"$ref":"#/components/schemas/PredictionRequest"}],"title":"Prediction
+      Request"}}},"required":true}}},"/predictions/{prediction_id}/cancel":{"post":{"summary":"Cancel","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Cancel Predictions  Prediction Id  Cancel Post"}}},"description":"Successful
+      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+      Error"}},"parameters":[{"in":"path","name":"prediction_id","schema":{"type":"string","title":"Prediction
+      ID"},"required":true}],"description":"Cancel a running prediction","operationId":"cancel_predictions__prediction_id__cancel_post"}}},"openapi":"3.0.2","components":{"schemas":{"Input":{"type":"object","title":"Input","properties":{"mask":{"type":"string","title":"Mask","format":"uri","x-order":3,"description":"Input
+      mask for inpaint mode. Black areas will be preserved, white areas will be inpainted."},"seed":{"type":"integer","title":"Seed","x-order":11,"description":"Random
+      seed. Leave blank to randomize the seed"},"image":{"type":"string","title":"Image","format":"uri","x-order":2,"description":"Input
+      image for img2img or inpaint mode"},"width":{"type":"integer","title":"Width","default":1024,"x-order":4,"description":"Width
+      of output image"},"height":{"type":"integer","title":"Height","default":1024,"x-order":5,"description":"Height
+      of output image"},"prompt":{"type":"string","title":"Prompt","default":"An astronaut
+      riding a rainbow unicorn","x-order":0,"description":"Input prompt"},"refine":{"allOf":[{"$ref":"#/components/schemas/refine"}],"default":"no_refiner","x-order":12,"description":"Which
+      refine style to use"},"scheduler":{"allOf":[{"$ref":"#/components/schemas/scheduler"}],"default":"K_EULER","x-order":7,"description":"scheduler"},"lora_scale":{"type":"number","title":"Lora
+      Scale","default":0.6,"maximum":1,"minimum":0,"x-order":16,"description":"LoRA
+      additive scale. Only applicable on trained models."},"num_outputs":{"type":"integer","title":"Num
+      Outputs","default":1,"maximum":4,"minimum":1,"x-order":6,"description":"Number
+      of images to output."},"refine_steps":{"type":"integer","title":"Refine Steps","x-order":14,"description":"For
+      base_image_refiner, the number of steps to refine, defaults to num_inference_steps"},"guidance_scale":{"type":"number","title":"Guidance
+      Scale","default":7.5,"maximum":50,"minimum":1,"x-order":9,"description":"Scale
+      for classifier-free guidance"},"apply_watermark":{"type":"boolean","title":"Apply
+      Watermark","default":true,"x-order":15,"description":"Applies a watermark to
+      enable determining if an image is generated in downstream applications. If you
+      have other provisions for generating or deploying images safely, you can use
+      this to disable watermarking."},"high_noise_frac":{"type":"number","title":"High
+      Noise Frac","default":0.8,"maximum":1,"minimum":0,"x-order":13,"description":"For
+      expert_ensemble_refiner, the fraction of noise to use"},"negative_prompt":{"type":"string","title":"Negative
+      Prompt","default":"","x-order":1,"description":"Input Negative Prompt"},"prompt_strength":{"type":"number","title":"Prompt
+      Strength","default":0.8,"maximum":1,"minimum":0,"x-order":10,"description":"Prompt
+      strength when using img2img / inpaint. 1.0 corresponds to full destruction of
+      information in image"},"num_inference_steps":{"type":"integer","title":"Num
+      Inference Steps","default":50,"maximum":500,"minimum":1,"x-order":8,"description":"Number
+      of denoising steps"}}},"Output":{"type":"array","items":{"type":"string","format":"uri"},"title":"Output"},"Status":{"enum":["starting","processing","succeeded","canceled","failed"],"type":"string","title":"Status","description":"An
+      enumeration."},"refine":{"enum":["no_refiner","expert_ensemble_refiner","base_image_refiner"],"type":"string","title":"refine","description":"An
+      enumeration."},"scheduler":{"enum":["DDIM","DPMSolverMultistep","HeunDiscrete","KarrasDPM","K_EULER_ANCESTRAL","K_EULER","PNDM"],"type":"string","title":"scheduler","description":"An
+      enumeration."},"WebhookEvent":{"enum":["start","output","logs","completed"],"type":"string","title":"WebhookEvent","description":"An
+      enumeration."},"ValidationError":{"type":"object","title":"ValidationError","required":["loc","msg","type"],"properties":{"loc":{"type":"array","items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error
+      Type"}}},"PredictionRequest":{"type":"object","title":"PredictionRequest","properties":{"id":{"type":"string","title":"Id"},"input":{"$ref":"#/components/schemas/Input"},"webhook":{"type":"string","title":"Webhook","format":"uri","maxLength":65536,"minLength":1},"created_at":{"type":"string","title":"Created
+      At","format":"date-time"},"output_file_prefix":{"type":"string","title":"Output
+      File Prefix"},"webhook_events_filter":{"type":"array","items":{"$ref":"#/components/schemas/WebhookEvent"},"default":["start","completed","logs","output"],"uniqueItems":true}}},"PredictionResponse":{"type":"object","title":"PredictionResponse","properties":{"id":{"type":"string","title":"Id"},"logs":{"type":"string","title":"Logs","default":""},"error":{"type":"string","title":"Error"},"input":{"$ref":"#/components/schemas/Input"},"output":{"$ref":"#/components/schemas/Output"},"status":{"$ref":"#/components/schemas/Status"},"metrics":{"type":"object","title":"Metrics"},"version":{"type":"string","title":"Version"},"created_at":{"type":"string","title":"Created
+      At","format":"date-time"},"started_at":{"type":"string","title":"Started At","format":"date-time"},"completed_at":{"type":"string","title":"Completed
+      At","format":"date-time"}}},"HTTPValidationError":{"type":"object","title":"HTTPValidationError","properties":{"detail":{"type":"array","items":{"$ref":"#/components/schemas/ValidationError"},"title":"Detail"}}}}}}},{"id":"d02f1e612690b04427b4be7700c4e17457a71758d21805e9ebc54698429bf05e","created_at":"2023-08-10T18:15:25.991293Z","cog_version":"0.8.5","openapi_schema":{"info":{"title":"Cog","version":"0.1.0"},"paths":{"/":{"get":{"summary":"Root","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Root  Get"}}},"description":"Successful Response"}},"operationId":"root__get"}},"/shutdown":{"post":{"summary":"Start
+      Shutdown","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Start Shutdown Shutdown Post"}}},"description":"Successful Response"}},"operationId":"start_shutdown_shutdown_post"}},"/predictions":{"post":{"summary":"Predict","responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionResponse"}}},"description":"Successful
+      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+      Error"}},"parameters":[{"in":"header","name":"prefer","schema":{"type":"string","title":"Prefer"},"required":false}],"description":"Run
+      a single prediction on the model","operationId":"predict_predictions_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionRequest"}}}}}},"/health-check":{"get":{"summary":"Healthcheck","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Healthcheck Health Check Get"}}},"description":"Successful Response"}},"operationId":"healthcheck_health_check_get"}},"/predictions/{prediction_id}":{"put":{"summary":"Predict
+      Idempotent","responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionResponse"}}},"description":"Successful
+      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+      Error"}},"parameters":[{"in":"path","name":"prediction_id","schema":{"type":"string","title":"Prediction
+      ID"},"required":true},{"in":"header","name":"prefer","schema":{"type":"string","title":"Prefer"},"required":false}],"description":"Run
+      a single prediction on the model (idempotent creation).","operationId":"predict_idempotent_predictions__prediction_id__put","requestBody":{"content":{"application/json":{"schema":{"allOf":[{"$ref":"#/components/schemas/PredictionRequest"}],"title":"Prediction
+      Request"}}},"required":true}}},"/predictions/{prediction_id}/cancel":{"post":{"summary":"Cancel","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Cancel Predictions  Prediction Id  Cancel Post"}}},"description":"Successful
+      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+      Error"}},"parameters":[{"in":"path","name":"prediction_id","schema":{"type":"string","title":"Prediction
+      ID"},"required":true}],"description":"Cancel a running prediction","operationId":"cancel_predictions__prediction_id__cancel_post"}}},"openapi":"3.0.2","components":{"schemas":{"Input":{"type":"object","title":"Input","properties":{"mask":{"type":"string","title":"Mask","format":"uri","x-order":3,"description":"Input
+      mask for inpaint mode. Black areas will be preserved, white areas will be inpainted."},"seed":{"type":"integer","title":"Seed","x-order":11,"description":"Random
+      seed. Leave blank to randomize the seed"},"image":{"type":"string","title":"Image","format":"uri","x-order":2,"description":"Input
+      image for img2img or inpaint mode"},"width":{"type":"integer","title":"Width","default":1024,"x-order":4,"description":"Width
+      of output image"},"height":{"type":"integer","title":"Height","default":1024,"x-order":5,"description":"Height
+      of output image"},"prompt":{"type":"string","title":"Prompt","default":"An astronaut
+      riding a rainbow unicorn","x-order":0,"description":"Input prompt"},"refine":{"allOf":[{"$ref":"#/components/schemas/refine"}],"default":"no_refiner","x-order":12,"description":"Which
+      refine style to use"},"scheduler":{"allOf":[{"$ref":"#/components/schemas/scheduler"}],"default":"K_EULER","x-order":7,"description":"scheduler"},"lora_scale":{"type":"number","title":"Lora
+      Scale","default":0.6,"maximum":1,"minimum":0,"x-order":16,"description":"LoRA
+      additive scale. Only applicable on trained models."},"num_outputs":{"type":"integer","title":"Num
+      Outputs","default":1,"maximum":4,"minimum":1,"x-order":6,"description":"Number
+      of images to output."},"refine_steps":{"type":"integer","title":"Refine Steps","x-order":14,"description":"For
+      base_image_refiner, the number of steps to refine, defaults to num_inference_steps"},"guidance_scale":{"type":"number","title":"Guidance
+      Scale","default":7.5,"maximum":50,"minimum":1,"x-order":9,"description":"Scale
+      for classifier-free guidance"},"apply_watermark":{"type":"boolean","title":"Apply
+      Watermark","default":true,"x-order":15,"description":"Applies a watermark to
+      enable determining if an image is generated in downstream applications. If you
+      have other provisions for generating or deploying images safely, you can use
+      this to disable watermarking."},"high_noise_frac":{"type":"number","title":"High
+      Noise Frac","default":0.8,"maximum":1,"minimum":0,"x-order":13,"description":"For
+      expert_ensemble_refiner, the fraction of noise to use"},"negative_prompt":{"type":"string","title":"Negative
+      Prompt","default":"","x-order":1,"description":"Input Negative Prompt"},"prompt_strength":{"type":"number","title":"Prompt
+      Strength","default":0.8,"maximum":1,"minimum":0,"x-order":10,"description":"Prompt
+      strength when using img2img / inpaint. 1.0 corresponds to full destruction of
+      information in image"},"num_inference_steps":{"type":"integer","title":"Num
+      Inference Steps","default":50,"maximum":500,"minimum":1,"x-order":8,"description":"Number
+      of denoising steps"}}},"Output":{"type":"array","items":{"type":"string","format":"uri"},"title":"Output"},"Status":{"enum":["starting","processing","succeeded","canceled","failed"],"type":"string","title":"Status","description":"An
+      enumeration."},"refine":{"enum":["no_refiner","expert_ensemble_refiner","base_image_refiner"],"type":"string","title":"refine","description":"An
+      enumeration."},"scheduler":{"enum":["DDIM","DPMSolverMultistep","HeunDiscrete","KarrasDPM","K_EULER_ANCESTRAL","K_EULER","PNDM"],"type":"string","title":"scheduler","description":"An
+      enumeration."},"WebhookEvent":{"enum":["start","output","logs","completed"],"type":"string","title":"WebhookEvent","description":"An
+      enumeration."},"ValidationError":{"type":"object","title":"ValidationError","required":["loc","msg","type"],"properties":{"loc":{"type":"array","items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error
+      Type"}}},"PredictionRequest":{"type":"object","title":"PredictionRequest","properties":{"id":{"type":"string","title":"Id"},"input":{"$ref":"#/components/schemas/Input"},"webhook":{"type":"string","title":"Webhook","format":"uri","maxLength":65536,"minLength":1},"created_at":{"type":"string","title":"Created
+      At","format":"date-time"},"output_file_prefix":{"type":"string","title":"Output
+      File Prefix"},"webhook_events_filter":{"type":"array","items":{"$ref":"#/components/schemas/WebhookEvent"},"default":["completed","output","logs","start"],"uniqueItems":true}}},"PredictionResponse":{"type":"object","title":"PredictionResponse","properties":{"id":{"type":"string","title":"Id"},"logs":{"type":"string","title":"Logs","default":""},"error":{"type":"string","title":"Error"},"input":{"$ref":"#/components/schemas/Input"},"output":{"$ref":"#/components/schemas/Output"},"status":{"$ref":"#/components/schemas/Status"},"metrics":{"type":"object","title":"Metrics"},"version":{"type":"string","title":"Version"},"created_at":{"type":"string","title":"Created
+      At","format":"date-time"},"started_at":{"type":"string","title":"Started At","format":"date-time"},"completed_at":{"type":"string","title":"Completed
+      At","format":"date-time"}}},"HTTPValidationError":{"type":"object","title":"HTTPValidationError","properties":{"detail":{"type":"array","items":{"$ref":"#/components/schemas/ValidationError"},"title":"Detail"}}}}}}},{"id":"7ca7f0d3a51cd993449541539270971d38a24d9a0d42f073caf25190d41346d7","created_at":"2023-08-08T16:20:27.656340Z","cog_version":"0.8.2","openapi_schema":{"info":{"title":"Cog","version":"0.1.0"},"paths":{"/":{"get":{"summary":"Root","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Root  Get"}}},"description":"Successful Response"}},"operationId":"root__get"}},"/shutdown":{"post":{"summary":"Start
+      Shutdown","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Start Shutdown Shutdown Post"}}},"description":"Successful Response"}},"operationId":"start_shutdown_shutdown_post"}},"/predictions":{"post":{"summary":"Predict","responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionResponse"}}},"description":"Successful
+      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+      Error"}},"parameters":[{"in":"header","name":"prefer","schema":{"type":"string","title":"Prefer"},"required":false}],"description":"Run
+      a single prediction on the model","operationId":"predict_predictions_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionRequest"}}}}}},"/health-check":{"get":{"summary":"Healthcheck","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Healthcheck Health Check Get"}}},"description":"Successful Response"}},"operationId":"healthcheck_health_check_get"}},"/predictions/{prediction_id}":{"put":{"summary":"Predict
+      Idempotent","responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionResponse"}}},"description":"Successful
+      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+      Error"}},"parameters":[{"in":"path","name":"prediction_id","schema":{"type":"string","title":"Prediction
+      ID"},"required":true},{"in":"header","name":"prefer","schema":{"type":"string","title":"Prefer"},"required":false}],"description":"Run
+      a single prediction on the model (idempotent creation).","operationId":"predict_idempotent_predictions__prediction_id__put","requestBody":{"content":{"application/json":{"schema":{"allOf":[{"$ref":"#/components/schemas/PredictionRequest"}],"title":"Prediction
+      Request"}}},"required":true}}},"/predictions/{prediction_id}/cancel":{"post":{"summary":"Cancel","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Cancel Predictions  Prediction Id  Cancel Post"}}},"description":"Successful
+      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+      Error"}},"parameters":[{"in":"path","name":"prediction_id","schema":{"type":"string","title":"Prediction
+      ID"},"required":true}],"description":"Cancel a running prediction","operationId":"cancel_predictions__prediction_id__cancel_post"}}},"openapi":"3.0.2","components":{"schemas":{"Input":{"type":"object","title":"Input","properties":{"mask":{"type":"string","title":"Mask","format":"uri","x-order":3,"description":"Input
+      mask for inpaint mode. Black areas will be preserved, white areas will be inpainted."},"seed":{"type":"integer","title":"Seed","x-order":11,"description":"Random
+      seed. Leave blank to randomize the seed"},"image":{"type":"string","title":"Image","format":"uri","x-order":2,"description":"Input
+      image for img2img or inpaint mode"},"width":{"type":"integer","title":"Width","default":1024,"x-order":4,"description":"Width
+      of output image"},"height":{"type":"integer","title":"Height","default":1024,"x-order":5,"description":"Height
+      of output image"},"prompt":{"type":"string","title":"Prompt","default":"An astronaut
+      riding a rainbow unicorn","x-order":0,"description":"Input prompt"},"refine":{"allOf":[{"$ref":"#/components/schemas/refine"}],"default":"no_refiner","x-order":12,"description":"Which
+      refine style to use"},"scheduler":{"allOf":[{"$ref":"#/components/schemas/scheduler"}],"default":"K_EULER","x-order":7,"description":"scheduler"},"lora_scale":{"type":"number","title":"Lora
+      Scale","default":0.6,"maximum":1,"minimum":0,"x-order":16,"description":"LoRA
+      additive scale. Only applicable on trained models."},"num_outputs":{"type":"integer","title":"Num
+      Outputs","default":1,"maximum":4,"minimum":1,"x-order":6,"description":"Number
+      of images to output."},"refine_steps":{"type":"integer","title":"Refine Steps","x-order":14,"description":"For
+      base_image_refiner, the number of steps to refine, defaults to num_inference_steps"},"guidance_scale":{"type":"number","title":"Guidance
+      Scale","default":7.5,"maximum":50,"minimum":1,"x-order":9,"description":"Scale
+      for classifier-free guidance"},"apply_watermark":{"type":"boolean","title":"Apply
+      Watermark","default":true,"x-order":15,"description":"Applies a watermark to
+      enable determining if an image is generated in downstream applications. If you
+      have other provisions for generating or deploying images safely, you can use
+      this to disable watermarking."},"high_noise_frac":{"type":"number","title":"High
+      Noise Frac","default":0.8,"maximum":1,"minimum":0,"x-order":13,"description":"For
+      expert_ensemble_refiner, the fraction of noise to use"},"negative_prompt":{"type":"string","title":"Negative
+      Prompt","default":"","x-order":1,"description":"Input Negative Prompt"},"prompt_strength":{"type":"number","title":"Prompt
+      Strength","default":0.8,"maximum":1,"minimum":0,"x-order":10,"description":"Prompt
+      strength when using img2img / inpaint. 1.0 corresponds to full destruction of
+      information in image"},"num_inference_steps":{"type":"integer","title":"Num
+      Inference Steps","default":50,"maximum":500,"minimum":1,"x-order":8,"description":"Number
+      of denoising steps"}}},"Output":{"type":"array","items":{"type":"string","format":"uri"},"title":"Output"},"Status":{"enum":["starting","processing","succeeded","canceled","failed"],"type":"string","title":"Status","description":"An
+      enumeration."},"refine":{"enum":["no_refiner","expert_ensemble_refiner","base_image_refiner"],"type":"string","title":"refine","description":"An
+      enumeration."},"scheduler":{"enum":["DDIM","DPMSolverMultistep","HeunDiscrete","KarrasDPM","K_EULER_ANCESTRAL","K_EULER","PNDM"],"type":"string","title":"scheduler","description":"An
+      enumeration."},"WebhookEvent":{"enum":["start","output","logs","completed"],"type":"string","title":"WebhookEvent","description":"An
+      enumeration."},"ValidationError":{"type":"object","title":"ValidationError","required":["loc","msg","type"],"properties":{"loc":{"type":"array","items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error
+      Type"}}},"PredictionRequest":{"type":"object","title":"PredictionRequest","properties":{"id":{"type":"string","title":"Id"},"input":{"$ref":"#/components/schemas/Input"},"webhook":{"type":"string","title":"Webhook","format":"uri","maxLength":65536,"minLength":1},"created_at":{"type":"string","title":"Created
+      At","format":"date-time"},"output_file_prefix":{"type":"string","title":"Output
+      File Prefix"},"webhook_events_filter":{"type":"array","items":{"$ref":"#/components/schemas/WebhookEvent"},"default":["completed","output","start","logs"],"uniqueItems":true}}},"PredictionResponse":{"type":"object","title":"PredictionResponse","properties":{"id":{"type":"string","title":"Id"},"logs":{"type":"string","title":"Logs","default":""},"error":{"type":"string","title":"Error"},"input":{"$ref":"#/components/schemas/Input"},"output":{"$ref":"#/components/schemas/Output"},"status":{"$ref":"#/components/schemas/Status"},"metrics":{"type":"object","title":"Metrics"},"version":{"type":"string","title":"Version"},"created_at":{"type":"string","title":"Created
+      At","format":"date-time"},"started_at":{"type":"string","title":"Started At","format":"date-time"},"completed_at":{"type":"string","title":"Completed
+      At","format":"date-time"}}},"HTTPValidationError":{"type":"object","title":"HTTPValidationError","properties":{"detail":{"type":"array","items":{"$ref":"#/components/schemas/ValidationError"},"title":"Detail"}}}}}}},{"id":"2b017d9b67edd2ee1401238df49d75da53c523f36e363881e057f5dc3ed3c5b2","created_at":"2023-07-27T08:09:45.583346Z","cog_version":"0.8.2","openapi_schema":{"info":{"title":"Cog","version":"0.1.0"},"paths":{"/":{"get":{"summary":"Root","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Root  Get"}}},"description":"Successful Response"}},"operationId":"root__get"}},"/shutdown":{"post":{"summary":"Start
+      Shutdown","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Start Shutdown Shutdown Post"}}},"description":"Successful Response"}},"operationId":"start_shutdown_shutdown_post"}},"/predictions":{"post":{"summary":"Predict","responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionResponse"}}},"description":"Successful
+      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+      Error"}},"parameters":[{"in":"header","name":"prefer","schema":{"type":"string","title":"Prefer"},"required":false}],"description":"Run
+      a single prediction on the model","operationId":"predict_predictions_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionRequest"}}}}}},"/health-check":{"get":{"summary":"Healthcheck","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Healthcheck Health Check Get"}}},"description":"Successful Response"}},"operationId":"healthcheck_health_check_get"}},"/predictions/{prediction_id}":{"put":{"summary":"Predict
+      Idempotent","responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionResponse"}}},"description":"Successful
+      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+      Error"}},"parameters":[{"in":"path","name":"prediction_id","schema":{"type":"string","title":"Prediction
+      ID"},"required":true},{"in":"header","name":"prefer","schema":{"type":"string","title":"Prefer"},"required":false}],"description":"Run
+      a single prediction on the model (idempotent creation).","operationId":"predict_idempotent_predictions__prediction_id__put","requestBody":{"content":{"application/json":{"schema":{"allOf":[{"$ref":"#/components/schemas/PredictionRequest"}],"title":"Prediction
+      Request"}}},"required":true}}},"/predictions/{prediction_id}/cancel":{"post":{"summary":"Cancel","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Cancel Predictions  Prediction Id  Cancel Post"}}},"description":"Successful
+      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+      Error"}},"parameters":[{"in":"path","name":"prediction_id","schema":{"type":"string","title":"Prediction
+      ID"},"required":true}],"description":"Cancel a running prediction","operationId":"cancel_predictions__prediction_id__cancel_post"}}},"openapi":"3.0.2","components":{"schemas":{"Input":{"type":"object","title":"Input","properties":{"mask":{"type":"string","title":"Mask","format":"uri","x-order":3,"description":"Input
+      mask for inpaint mode. Black areas will be preserved, white areas will be inpainted."},"seed":{"type":"integer","title":"Seed","x-order":11,"description":"Random
+      seed. Leave blank to randomize the seed"},"image":{"type":"string","title":"Image","format":"uri","x-order":2,"description":"Input
+      image for img2img or inpaint mode"},"width":{"type":"integer","title":"Width","default":1024,"x-order":4,"description":"Width
+      of output image"},"height":{"type":"integer","title":"Height","default":1024,"x-order":5,"description":"Height
+      of output image"},"prompt":{"type":"string","title":"Prompt","default":"An astronaut
+      riding a rainbow unicorn","x-order":0,"description":"Input prompt"},"refine":{"allOf":[{"$ref":"#/components/schemas/refine"}],"default":"no_refiner","x-order":12,"description":"Which
+      refine style to use"},"scheduler":{"allOf":[{"$ref":"#/components/schemas/scheduler"}],"default":"DDIM","x-order":7,"description":"scheduler"},"num_outputs":{"type":"integer","title":"Num
+      Outputs","default":1,"maximum":4,"minimum":1,"x-order":6,"description":"Number
+      of images to output."},"refine_steps":{"type":"integer","title":"Refine Steps","x-order":14,"description":"for
+      base_image_refiner, the number of steps to refine, defaults to num_inference_steps"},"guidance_scale":{"type":"number","title":"Guidance
+      Scale","default":7.5,"maximum":50,"minimum":1,"x-order":9,"description":"Scale
+      for classifier-free guidance"},"high_noise_frac":{"type":"number","title":"High
+      Noise Frac","default":0.8,"maximum":1,"minimum":0,"x-order":13,"description":"for
+      expert_ensemble_refiner, the fraction of noise to use"},"negative_prompt":{"type":"string","title":"Negative
+      Prompt","default":"","x-order":1,"description":"Input Negative Prompt"},"prompt_strength":{"type":"number","title":"Prompt
+      Strength","default":0.8,"maximum":1,"minimum":0,"x-order":10,"description":"Prompt
+      strength when using img2img / inpaint. 1.0 corresponds to full destruction of
+      information in image"},"num_inference_steps":{"type":"integer","title":"Num
+      Inference Steps","default":50,"maximum":500,"minimum":1,"x-order":8,"description":"Number
+      of denoising steps"}}},"Output":{"type":"array","items":{"type":"string","format":"uri"},"title":"Output"},"Status":{"enum":["starting","processing","succeeded","canceled","failed"],"type":"string","title":"Status","description":"An
+      enumeration."},"refine":{"enum":["no_refiner","expert_ensemble_refiner","base_image_refiner"],"type":"string","title":"refine","description":"An
+      enumeration."},"scheduler":{"enum":["DDIM","DPMSolverMultistep","HeunDiscrete","KarrasDPM","K_EULER_ANCESTRAL","K_EULER","PNDM"],"type":"string","title":"scheduler","description":"An
+      enumeration."},"WebhookEvent":{"enum":["start","output","logs","completed"],"type":"string","title":"WebhookEvent","description":"An
+      enumeration."},"ValidationError":{"type":"object","title":"ValidationError","required":["loc","msg","type"],"properties":{"loc":{"type":"array","items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error
+      Type"}}},"PredictionRequest":{"type":"object","title":"PredictionRequest","properties":{"id":{"type":"string","title":"Id"},"input":{"$ref":"#/components/schemas/Input"},"webhook":{"type":"string","title":"Webhook","format":"uri","maxLength":65536,"minLength":1},"created_at":{"type":"string","title":"Created
+      At","format":"date-time"},"output_file_prefix":{"type":"string","title":"Output
+      File Prefix"},"webhook_events_filter":{"type":"array","items":{"$ref":"#/components/schemas/WebhookEvent"},"default":["start","output","completed","logs"],"uniqueItems":true}}},"PredictionResponse":{"type":"object","title":"PredictionResponse","properties":{"id":{"type":"string","title":"Id"},"logs":{"type":"string","title":"Logs","default":""},"error":{"type":"string","title":"Error"},"input":{"$ref":"#/components/schemas/Input"},"output":{"$ref":"#/components/schemas/Output"},"status":{"$ref":"#/components/schemas/Status"},"metrics":{"type":"object","title":"Metrics"},"version":{"type":"string","title":"Version"},"created_at":{"type":"string","title":"Created
+      At","format":"date-time"},"started_at":{"type":"string","title":"Started At","format":"date-time"},"completed_at":{"type":"string","title":"Completed
+      At","format":"date-time"}}},"HTTPValidationError":{"type":"object","title":"HTTPValidationError","properties":{"detail":{"type":"array","items":{"$ref":"#/components/schemas/ValidationError"},"title":"Detail"}}}}}}},{"id":"2f779eb9b23b34fe171f8eaa021b8261566f0d2c10cd2674063e7dbcd351509e","created_at":"2023-07-26T20:59:53.336058Z","cog_version":"0.8.2","openapi_schema":{"info":{"title":"Cog","version":"0.1.0"},"paths":{"/":{"get":{"summary":"Root","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Root  Get"}}},"description":"Successful Response"}},"operationId":"root__get"}},"/shutdown":{"post":{"summary":"Start
+      Shutdown","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Start Shutdown Shutdown Post"}}},"description":"Successful Response"}},"operationId":"start_shutdown_shutdown_post"}},"/predictions":{"post":{"summary":"Predict","responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionResponse"}}},"description":"Successful
+      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+      Error"}},"parameters":[{"in":"header","name":"prefer","schema":{"type":"string","title":"Prefer"},"required":false}],"description":"Run
+      a single prediction on the model","operationId":"predict_predictions_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionRequest"}}}}}},"/health-check":{"get":{"summary":"Healthcheck","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Healthcheck Health Check Get"}}},"description":"Successful Response"}},"operationId":"healthcheck_health_check_get"}},"/predictions/{prediction_id}":{"put":{"summary":"Predict
+      Idempotent","responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionResponse"}}},"description":"Successful
+      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+      Error"}},"parameters":[{"in":"path","name":"prediction_id","schema":{"type":"string","title":"Prediction
+      ID"},"required":true},{"in":"header","name":"prefer","schema":{"type":"string","title":"Prefer"},"required":false}],"description":"Run
+      a single prediction on the model (idempotent creation).","operationId":"predict_idempotent_predictions__prediction_id__put","requestBody":{"content":{"application/json":{"schema":{"allOf":[{"$ref":"#/components/schemas/PredictionRequest"}],"title":"Prediction
+      Request"}}},"required":true}}},"/predictions/{prediction_id}/cancel":{"post":{"summary":"Cancel","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Cancel Predictions  Prediction Id  Cancel Post"}}},"description":"Successful
+      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+      Error"}},"parameters":[{"in":"path","name":"prediction_id","schema":{"type":"string","title":"Prediction
+      ID"},"required":true}],"description":"Cancel a running prediction","operationId":"cancel_predictions__prediction_id__cancel_post"}}},"openapi":"3.0.2","components":{"schemas":{"Input":{"type":"object","title":"Input","properties":{"mask":{"type":"string","title":"Mask","format":"uri","x-order":3,"description":"Input
+      mask for inpaint mode. Black areas will be preserved, white areas will be inpainted."},"seed":{"type":"integer","title":"Seed","x-order":11,"description":"Random
+      seed. Leave blank to randomize the seed"},"image":{"type":"string","title":"Image","format":"uri","x-order":2,"description":"Input
+      image for img2img or inpaint mode"},"width":{"type":"integer","title":"Width","default":1024,"x-order":4,"description":"Width
+      of output image"},"height":{"type":"integer","title":"Height","default":1024,"x-order":5,"description":"Height
+      of output image"},"prompt":{"type":"string","title":"Prompt","default":"An astronaut
+      riding a rainbow unicorn","x-order":0,"description":"Input prompt"},"refine":{"allOf":[{"$ref":"#/components/schemas/refine"}],"default":"no_refiner","x-order":12,"description":"Which
+      refine style to use"},"scheduler":{"allOf":[{"$ref":"#/components/schemas/scheduler"}],"default":"DDIM","x-order":7,"description":"scheduler"},"num_outputs":{"type":"integer","title":"Num
+      Outputs","default":1,"maximum":4,"minimum":1,"x-order":6,"description":"Number
+      of images to output."},"refine_steps":{"type":"integer","title":"Refine Steps","x-order":14,"description":"for
+      base_image_refiner, the number of steps to refine, defaults to num_inference_steps"},"guidance_scale":{"type":"number","title":"Guidance
+      Scale","default":7.5,"maximum":50,"minimum":1,"x-order":9,"description":"Scale
+      for classifier-free guidance"},"high_noise_frac":{"type":"number","title":"High
+      Noise Frac","default":0.8,"maximum":1,"minimum":0,"x-order":13,"description":"for
+      expert_ensemble_refiner, the fraction of noise to use"},"negative_prompt":{"type":"string","title":"Negative
+      Prompt","default":"","x-order":1,"description":"Input Negative Prompt"},"prompt_strength":{"type":"number","title":"Prompt
+      Strength","default":0.8,"maximum":1,"minimum":0,"x-order":10,"description":"Prompt
+      strength when using img2img / inpaint. 1.0 corresponds to full destruction of
+      information in image"},"num_inference_steps":{"type":"integer","title":"Num
+      Inference Steps","default":50,"maximum":500,"minimum":1,"x-order":8,"description":"Number
+      of denoising steps"}}},"Output":{"type":"array","items":{"type":"string","format":"uri"},"title":"Output"},"Status":{"enum":["starting","processing","succeeded","canceled","failed"],"type":"string","title":"Status","description":"An
+      enumeration."},"refine":{"enum":["no_refiner","expert_ensemble_refiner","base_image_refiner"],"type":"string","title":"refine","description":"An
+      enumeration."},"scheduler":{"enum":["DDIM","DPMSolverMultistep","HeunDiscrete","KarrasDPM","K_EULER_ANCESTRAL","K_EULER","PNDM"],"type":"string","title":"scheduler","description":"An
+      enumeration."},"WebhookEvent":{"enum":["start","output","logs","completed"],"type":"string","title":"WebhookEvent","description":"An
+      enumeration."},"ValidationError":{"type":"object","title":"ValidationError","required":["loc","msg","type"],"properties":{"loc":{"type":"array","items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error
+      Type"}}},"PredictionRequest":{"type":"object","title":"PredictionRequest","properties":{"id":{"type":"string","title":"Id"},"input":{"$ref":"#/components/schemas/Input"},"webhook":{"type":"string","title":"Webhook","format":"uri","maxLength":65536,"minLength":1},"created_at":{"type":"string","title":"Created
+      At","format":"date-time"},"output_file_prefix":{"type":"string","title":"Output
+      File Prefix"},"webhook_events_filter":{"type":"array","items":{"$ref":"#/components/schemas/WebhookEvent"},"default":["completed","start","logs","output"],"uniqueItems":true}}},"PredictionResponse":{"type":"object","title":"PredictionResponse","properties":{"id":{"type":"string","title":"Id"},"logs":{"type":"string","title":"Logs","default":""},"error":{"type":"string","title":"Error"},"input":{"$ref":"#/components/schemas/Input"},"output":{"$ref":"#/components/schemas/Output"},"status":{"$ref":"#/components/schemas/Status"},"metrics":{"type":"object","title":"Metrics"},"version":{"type":"string","title":"Version"},"created_at":{"type":"string","title":"Created
+      At","format":"date-time"},"started_at":{"type":"string","title":"Started At","format":"date-time"},"completed_at":{"type":"string","title":"Completed
+      At","format":"date-time"}}},"HTTPValidationError":{"type":"object","title":"HTTPValidationError","properties":{"detail":{"type":"array","items":{"$ref":"#/components/schemas/ValidationError"},"title":"Detail"}}}}}}}]}'
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 7f7cd5ce1e84c38e-SEA
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 16 Aug 2023 21:40:20 GMT
+      NEL:
+      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+      Report-To:
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=vp9T1OvjQm%2BdlrR%2FgwJKLGenKBl2YFzJnIvu6stAE2QDZD%2F%2B5j%2FSMVe%2Ff10lqSVkY8rVMK2CaXkYRepnDzaelXAg0xB7E2smdnv50DayBjpshm42W1crzh6NHoUbQgTsIKrq"}],"group":"cf-nel","max_age":604800}'
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000
+      Transfer-Encoding:
+      - chunked
+      allow:
+      - GET, HEAD, OPTIONS
+      content-security-policy-report-only:
+      - 'media-src ''report-sample'' ''self'' https://replicate.delivery https://*.replicate.delivery
+        https://*.mux.com https://*.gstatic.com https://*.sentry.io; img-src ''report-sample''
+        ''self'' data: https://replicate.delivery https://*.replicate.delivery https://*.githubusercontent.com
+        https://github.com; style-src ''report-sample'' ''self'' ''unsafe-inline''
+        https://fonts.googleapis.com; script-src ''report-sample'' ''self'' https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js;
+        default-src ''self''; font-src ''report-sample'' ''self'' data: https://fonts.replicate.ai
+        https://fonts.gstatic.com; connect-src ''report-sample'' ''self'' https://replicate.delivery
+        https://*.replicate.delivery https://*.rudderlabs.com https://*.rudderstack.com
+        https://*.mux.com https://*.sentry.io; worker-src ''none''; report-uri'
+      cross-origin-opener-policy:
+      - same-origin
+      ratelimit-remaining:
+      - '2999'
+      ratelimit-reset:
+      - '1'
+      referrer-policy:
+      - same-origin
+      vary:
+      - Cookie, origin
+      via:
+      - 1.1 vegur, 1.1 google
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - DENY
+    http_version: HTTP/1.1
+    status_code: 200
+version: 1

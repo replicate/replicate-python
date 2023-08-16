@@ -1,216 +1,83 @@
-import responses
-from responses import matchers
+import pytest
 
-from .factories import create_client, create_version
-
-
-@responses.activate
-def test_create_works_with_webhooks():
-    client = create_client()
-    version = create_version(client)
-
-    rsp = responses.post(
-        "https://api.replicate.com/v1/predictions",
-        match=[
-            matchers.json_params_matcher(
-                {
-                    "version": "v1",
-                    "input": {"text": "world"},
-                    "webhook": "https://example.com/webhook",
-                    "webhook_events_filter": ["completed"],
-                }
-            ),
-        ],
-        json={
-            "id": "p1",
-            "version": "v1",
-            "urls": {
-                "get": "https://api.replicate.com/v1/predictions/p1",
-                "cancel": "https://api.replicate.com/v1/predictions/p1/cancel",
-            },
-            "created_at": "2022-04-26T20:00:40.658234Z",
-            "completed_at": "2022-04-26T20:02:27.648305Z",
-            "source": "api",
-            "status": "processing",
-            "input": {"text": "world"},
-            "output": None,
-            "error": None,
-            "logs": "",
-        },
-    )
-
-    client.predictions.create(
-        version=version,
-        input={"text": "world"},
-        webhook="https://example.com/webhook",
-        webhook_events_filter=["completed"],
-    )
-
-    assert rsp.call_count == 1
+import replicate
 
 
-@responses.activate
-def test_cancel():
-    client = create_client()
-    version = create_version(client)
+@pytest.mark.vcr("predictions-create.yaml")
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_predictions_create(async_flag):
+    input = {
+        "prompt": "a studio photo of a rainbow colored corgi",
+        "width": 512,
+        "height": 512,
+        "seed": 42069,
+    }
 
-    responses.post(
-        "https://api.replicate.com/v1/predictions",
-        match=[
-            matchers.json_params_matcher(
-                {
-                    "version": "v1",
-                    "input": {"text": "world"},
-                    "webhook_completed": "https://example.com/webhook",
-                }
-            ),
-        ],
-        json={
-            "id": "p1",
-            "version": "v1",
-            "urls": {
-                "get": "https://api.replicate.com/v1/predictions/p1",
-                "cancel": "https://api.replicate.com/v1/predictions/p1/cancel",
-            },
-            "created_at": "2022-04-26T20:00:40.658234Z",
-            "completed_at": "2022-04-26T20:02:27.648305Z",
-            "source": "api",
-            "status": "processing",
-            "input": {"text": "world"},
-            "output": None,
-            "error": None,
-            "logs": "",
-        },
-    )
+    if async_flag:
+        model = await replicate.async_models.get("stability-ai", "sdxl")
+        version = model.latest_version
+        prediction = await replicate.async_predictions.create(
+            version=version,
+            input=input,
+        )
+    else:
+        model = replicate.models.get("stability-ai", "sdxl")
+        version = model.latest_version
+        prediction = replicate.predictions.create(
+            version=version,
+            input=input,
+        )
 
-    prediction = client.predictions.create(
-        version=version,
-        input={"text": "world"},
-        webhook_completed="https://example.com/webhook",
-    )
-
-    rsp = responses.post("https://api.replicate.com/v1/predictions/p1/cancel", json={})
-    prediction.cancel()
-    assert rsp.call_count == 1
+    assert prediction.id is not None
+    assert prediction.version == version.id
+    assert prediction.status == "starting"
 
 
-@responses.activate
-def test_stream():
-    client = create_client()
-    version = create_version(client)
+@pytest.mark.vcr("predictions-get.yaml")
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_predictions_get(async_flag):
+    id = "vgcm4plb7tgzlyznry5d5jkgvu"
 
-    rsp = responses.post(
-        "https://api.replicate.com/v1/predictions",
-        match=[
-            matchers.json_params_matcher(
-                {
-                    "version": "v1",
-                    "input": {"text": "world"},
-                    "stream": "true",
-                }
-            ),
-        ],
-        json={
-            "id": "p1",
-            "version": "v1",
-            "urls": {
-                "get": "https://api.replicate.com/v1/predictions/p1",
-                "cancel": "https://api.replicate.com/v1/predictions/p1/cancel",
-                "stream": "https://streaming.api.replicate.com/v1/predictions/p1",
-            },
-            "created_at": "2022-04-26T20:00:40.658234Z",
-            "completed_at": "2022-04-26T20:02:27.648305Z",
-            "source": "api",
-            "status": "processing",
-            "input": {"text": "world"},
-            "output": None,
-            "error": None,
-            "logs": "",
-        },
-    )
+    if async_flag:
+        prediction = await replicate.async_predictions.get(id)
+    else:
+        prediction = replicate.predictions.get(id)
 
-    prediction = client.predictions.create(
-        version=version,
-        input={"text": "world"},
-        stream=True,
-    )
-
-    assert rsp.call_count == 1
-
-    assert (
-        prediction.urls["stream"]
-        == "https://streaming.api.replicate.com/v1/predictions/p1"
-    )
+    assert prediction.id == id
 
 
-@responses.activate
-def test_async_timings():
-    client = create_client()
-    version = create_version(client)
+@pytest.mark.vcr("predictions-cancel.yaml")
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_predictions_cancel(async_flag):
+    input = {
+        "prompt": "a studio photo of a rainbow colored corgi",
+        "width": 512,
+        "height": 512,
+        "seed": 42069,
+    }
 
-    responses.post(
-        "https://api.replicate.com/v1/predictions",
-        match=[
-            matchers.json_params_matcher(
-                {
-                    "version": "v1",
-                    "input": {"text": "hello"},
-                    "webhook_completed": "https://example.com/webhook",
-                }
-            ),
-        ],
-        json={
-            "id": "p1",
-            "version": "v1",
-            "urls": {
-                "get": "https://api.replicate.com/v1/predictions/p1",
-                "cancel": "https://api.replicate.com/v1/predictions/p1/cancel",
-            },
-            "created_at": "2022-04-26T20:00:40.658234Z",
-            "source": "api",
-            "status": "processing",
-            "input": {"text": "hello"},
-            "output": None,
-            "error": None,
-            "logs": "",
-        },
-    )
+    if async_flag:
+        model = await replicate.async_models.get("stability-ai", "sdxl")
+        version = model.latest_version
+        prediction = await replicate.async_predictions.create(
+            version=version,
+            input=input,
+        )
+    else:
+        model = replicate.models.get("stability-ai", "sdxl")
+        version = model.latest_version
+        prediction = replicate.predictions.create(
+            version=version,
+            input=input,
+        )
 
-    responses.get(
-        "https://api.replicate.com/v1/predictions/p1",
-        json={
-            "id": "p1",
-            "version": "v1",
-            "urls": {
-                "get": "https://api.replicate.com/v1/predictions/p1",
-                "cancel": "https://api.replicate.com/v1/predictions/p1/cancel",
-            },
-            "created_at": "2022-04-26T20:00:40.658234Z",
-            "completed_at": "2022-04-26T20:02:27.648305Z",
-            "source": "api",
-            "status": "succeeded",
-            "input": {"text": "hello"},
-            "output": "hello world",
-            "error": None,
-            "logs": "",
-            "metrics": {
-                "predict_time": 1.2345,
-            },
-        },
-    )
+    id = prediction.id
+    assert prediction.status == "starting"
 
-    prediction = client.predictions.create(
-        version=version,
-        input={"text": "hello"},
-        webhook_completed="https://example.com/webhook",
-    )
+    prediction = replicate.predictions.cancel(prediction)
 
-    assert prediction.created_at == "2022-04-26T20:00:40.658234Z"
-    assert prediction.completed_at is None
-    assert prediction.output is None
-    assert prediction.urls["get"] == "https://api.replicate.com/v1/predictions/p1"
-    prediction.wait()
-    assert prediction.created_at == "2022-04-26T20:00:40.658234Z"
-    assert prediction.completed_at == "2022-04-26T20:02:27.648305Z"
-    assert prediction.output == "hello world"
-    assert prediction.metrics["predict_time"] == 1.2345
+    assert prediction.id == id
+    assert prediction.status == "canceled"
