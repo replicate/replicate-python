@@ -15,6 +15,7 @@ optional-dependencies = { dev = [
     "black",
     "mypy",
     "pytest",
+    "pytest-asyncio",
     "pytest-recording",
     "ruff",
 ] }
