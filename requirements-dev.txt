@@ -45,8 +45,11 @@ pydantic-core==2.3.0
     # via pydantic
 pytest==7.4.0
     # via
+    #   pytest-asyncio
     #   pytest-recording
     #   replicate (pyproject.toml)
+pytest-asyncio==0.21.1
+    # via replicate (pyproject.toml)
 pytest-recording==0.13.0
     # via replicate (pyproject.toml)
 pyyaml==6.0.1
