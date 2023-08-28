@@ -15,9 +15,13 @@ charset-normalizer==3.2.0
 click==8.1.6
     # via black
 idna==3.4
-    # via requests
+    # via
+    #   requests
+    #   yarl
 iniconfig==2.0.0
     # via pytest
+multidict==6.0.4
+    # via yarl
 mypy==1.4.1
     # via replicate (pyproject.toml)
 mypy-extensions==1.0.0
@@ -40,25 +44,27 @@ pydantic==2.0.3
 pydantic-core==2.3.0
     # via pydantic
 pytest==7.4.0
+    # via
+    #   pytest-recording
+    #   replicate (pyproject.toml)
+pytest-recording==0.13.0
     # via replicate (pyproject.toml)
 pyyaml==6.0.1
-    # via responses
+    # via vcrpy
 requests==2.31.0
-    # via
-    #   replicate (pyproject.toml)
-    #   responses
-responses==0.23.1
     # via replicate (pyproject.toml)
 ruff==0.0.278
     # via replicate (pyproject.toml)
-types-pyyaml==6.0.12.10
-    # via responses
 typing-extensions==4.7.1
     # via
     #   mypy
     #   pydantic
     #   pydantic-core
 urllib3==2.0.3
-    # via
-    #   requests
-    #   responses
+    # via requests
+vcrpy==5.1.0
+    # via pytest-recording
+wrapt==1.15.0
+    # via vcrpy
+yarl==1.9.2
+    # via vcrpy
