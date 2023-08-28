@@ -1,52 +1,53 @@
 interactions:
 - request:
-    body: null
+    body: ''
     headers:
-      Accept:
+      accept:
       - '*/*'
-      Accept-Encoding:
+      accept-encoding:
       - gzip, deflate
-      Connection:
+      connection:
       - keep-alive
-      User-Agent:
+      host:
+      - api.replicate.com
+      user-agent:
       - replicate-python/0.11.0
     method: GET
     uri: https://api.replicate.com/v1/predictions/vgcm4plb7tgzlyznry5d5jkgvu
   response:
-    body:
-      string: "{\"completed_at\":\"2023-08-16T18:57:12.170420Z\",\"created_at\":\"2023-08-16T18:57:08.394251Z\",\"error\":null,\"id\":\"vgcm4plb7tgzlyznry5d5jkgvu\",\"input\":{\"seed\":42069,\"width\":512,\"height\":512,\"prompt\":\"a
-        studio photo of a rainbow colored corgi\"},\"logs\":\"Using seed: 42069\\nPrompt:
-        a studio photo of a rainbow colored corgi\\ntxt2img mode\\n  0%|          |
-        0/50 [00:00<?, ?it/s]\\n  4%|\u258D         | 2/50 [00:00<00:02, 16.47it/s]\\n
-        \ 8%|\u258A         | 4/50 [00:00<00:02, 16.39it/s]\\n 12%|\u2588\u258F        |
-        6/50 [00:00<00:02, 16.60it/s]\\n 16%|\u2588\u258C        | 8/50 [00:00<00:02,
-        16.53it/s]\\n 20%|\u2588\u2588        | 10/50 [00:00<00:02, 16.76it/s]\\n
-        24%|\u2588\u2588\u258D       | 12/50 [00:00<00:02, 16.93it/s]\\n 28%|\u2588\u2588\u258A
-        \      | 14/50 [00:00<00:02, 17.04it/s]\\n 32%|\u2588\u2588\u2588\u258F      |
-        16/50 [00:00<00:01, 17.10it/s]\\n 36%|\u2588\u2588\u2588\u258C      | 18/50
-        [00:01<00:01, 17.12it/s]\\n 40%|\u2588\u2588\u2588\u2588      | 20/50 [00:01<00:01,
-        17.15it/s]\\n 44%|\u2588\u2588\u2588\u2588\u258D     | 22/50 [00:01<00:01,
-        17.16it/s]\\n 48%|\u2588\u2588\u2588\u2588\u258A     | 24/50 [00:01<00:01,
-        17.17it/s]\\n 52%|\u2588\u2588\u2588\u2588\u2588\u258F    | 26/50 [00:01<00:01,
-        17.20it/s]\\n 56%|\u2588\u2588\u2588\u2588\u2588\u258C    | 28/50 [00:01<00:01,
-        17.21it/s]\\n 60%|\u2588\u2588\u2588\u2588\u2588\u2588    | 30/50 [00:01<00:01,
-        17.19it/s]\\n 64%|\u2588\u2588\u2588\u2588\u2588\u2588\u258D   | 32/50 [00:01<00:01,
-        17.18it/s]\\n 68%|\u2588\u2588\u2588\u2588\u2588\u2588\u258A   | 34/50 [00:01<00:00,
-        17.18it/s]\\n 72%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258F  | 36/50
-        [00:02<00:00, 17.20it/s]\\n 76%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258C
-        \ | 38/50 [00:02<00:00, 17.21it/s]\\n 80%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588
-        \ | 40/50 [00:02<00:00, 17.19it/s]\\n 84%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258D
-        | 42/50 [00:02<00:00, 17.19it/s]\\n 88%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258A
-        | 44/50 [00:02<00:00, 17.19it/s]\\n 92%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258F|
-        46/50 [00:02<00:00, 17.20it/s]\\n 96%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258C|
-        48/50 [00:02<00:00, 17.22it/s]\\n100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588|
-        50/50 [00:02<00:00, 17.19it/s]\\n100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588|
-        50/50 [00:02<00:00, 17.09it/s]\",\"metrics\":{\"predict_time\":3.804328},\"output\":[\"https://replicate.delivery/pbxt/9inf36wjsEWuQ6XTf84iezPftv9QZdePfGySnU5tUai3BOrWE/out-0.png\"],\"started_at\":\"2023-08-16T18:57:08.366092Z\",\"status\":\"succeeded\",\"urls\":{\"get\":\"https://api.replicate.com/v1/predictions/vgcm4plb7tgzlyznry5d5jkgvu\",\"cancel\":\"https://api.replicate.com/v1/predictions/vgcm4plb7tgzlyznry5d5jkgvu/cancel\"},\"version\":\"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5\",\"webhook_completed\":null}"
+    content: "{\"id\":\"vgcm4plb7tgzlyznry5d5jkgvu\",\"version\":\"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5\",\"input\":{\"height\":512,\"prompt\":\"a
+      studio photo of a rainbow colored corgi\",\"seed\":42069,\"width\":512},\"logs\":\"Using
+      seed: 42069\\nPrompt: a studio photo of a rainbow colored corgi\\ntxt2img mode\\n
+      \ 0%|          | 0/50 [00:00\\u003c?, ?it/s]\\n  4%|\u258D         | 2/50 [00:00\\u003c00:02,
+      16.47it/s]\\n  8%|\u258A         | 4/50 [00:00\\u003c00:02, 16.39it/s]\\n 12%|\u2588\u258F
+      \       | 6/50 [00:00\\u003c00:02, 16.60it/s]\\n 16%|\u2588\u258C        | 8/50
+      [00:00\\u003c00:02, 16.53it/s]\\n 20%|\u2588\u2588        | 10/50 [00:00\\u003c00:02,
+      16.76it/s]\\n 24%|\u2588\u2588\u258D       | 12/50 [00:00\\u003c00:02, 16.93it/s]\\n
+      28%|\u2588\u2588\u258A       | 14/50 [00:00\\u003c00:02, 17.04it/s]\\n 32%|\u2588\u2588\u2588\u258F
+      \     | 16/50 [00:00\\u003c00:01, 17.10it/s]\\n 36%|\u2588\u2588\u2588\u258C
+      \     | 18/50 [00:01\\u003c00:01, 17.12it/s]\\n 40%|\u2588\u2588\u2588\u2588
+      \     | 20/50 [00:01\\u003c00:01, 17.15it/s]\\n 44%|\u2588\u2588\u2588\u2588\u258D
+      \    | 22/50 [00:01\\u003c00:01, 17.16it/s]\\n 48%|\u2588\u2588\u2588\u2588\u258A
+      \    | 24/50 [00:01\\u003c00:01, 17.17it/s]\\n 52%|\u2588\u2588\u2588\u2588\u2588\u258F
+      \   | 26/50 [00:01\\u003c00:01, 17.20it/s]\\n 56%|\u2588\u2588\u2588\u2588\u2588\u258C
+      \   | 28/50 [00:01\\u003c00:01, 17.21it/s]\\n 60%|\u2588\u2588\u2588\u2588\u2588\u2588
+      \   | 30/50 [00:01\\u003c00:01, 17.19it/s]\\n 64%|\u2588\u2588\u2588\u2588\u2588\u2588\u258D
+      \  | 32/50 [00:01\\u003c00:01, 17.18it/s]\\n 68%|\u2588\u2588\u2588\u2588\u2588\u2588\u258A
+      \  | 34/50 [00:01\\u003c00:00, 17.18it/s]\\n 72%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258F
+      \ | 36/50 [00:02\\u003c00:00, 17.20it/s]\\n 76%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258C
+      \ | 38/50 [00:02\\u003c00:00, 17.21it/s]\\n 80%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588
+      \ | 40/50 [00:02\\u003c00:00, 17.19it/s]\\n 84%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258D
+      | 42/50 [00:02\\u003c00:00, 17.19it/s]\\n 88%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258A
+      | 44/50 [00:02\\u003c00:00, 17.19it/s]\\n 92%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258F|
+      46/50 [00:02\\u003c00:00, 17.20it/s]\\n 96%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258C|
+      48/50 [00:02\\u003c00:00, 17.22it/s]\\n100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588|
+      50/50 [00:02\\u003c00:00, 17.19it/s]\\n100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588|
+      50/50 [00:02\\u003c00:00, 17.09it/s]\\n\",\"output\":[\"https://replicate.delivery/pbxt/9inf36wjsEWuQ6XTf84iezPftv9QZdePfGySnU5tUai3BOrWE/out-0.png\"],\"error\":null,\"status\":\"succeeded\",\"created_at\":\"2023-08-16T18:57:08.360785Z\",\"started_at\":\"2023-08-16T18:57:08.366092Z\",\"completed_at\":\"2023-08-16T18:57:12.17042Z\",\"metrics\":{\"predict_time\":3.804328},\"urls\":{\"cancel\":\"https://api.replicate.com/v1/predictions/vgcm4plb7tgzlyznry5d5jkgvu/cancel\",\"get\":\"https://api.replicate.com/v1/predictions/vgcm4plb7tgzlyznry5d5jkgvu\"}}\n"
     headers:
       CF-Cache-Status:
       - DYNAMIC
       CF-RAY:
-      - 7fdbf069d941c711-SEA
+      - 7f7be8b17b47f8d1-SEA
       Connection:
       - keep-alive
       Content-Encoding:
@@ -54,11 +55,85 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Mon, 28 Aug 2023 10:40:58 GMT
+      - Wed, 16 Aug 2023 18:58:28 GMT
       NEL:
       - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
       Report-To:
-      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=qLv7bEFpFpwzz3yjljKE%2BaB99Pi3VLwPuMQBF3rd0AIC9A5zN8Cb7vG2jSmFjYLaMDLI09illVQB509ZuhjLH%2BaT78oh%2BPVNwo6JCDO7D%2FLC3VKlsSI8F7ozdeVfGaSBN5%2Fr"}],"group":"cf-nel","max_age":604800}'
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=UuflCrg7N4NAE6re4SQXd4aIWksjHl5BGKMFC3j9Rh9twIDDFOZzdAiU%2F%2FcWNM%2FofzDCdfSG628ZUoRTySoOZY04dhbVtbL4FCJ6YCsfEfkB%2B282Tfjs0VSoavvJmvBcSN%2B0"}],"group":"cf-nel","max_age":604800}'
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000
+      Transfer-Encoding:
+      - chunked
+      ratelimit-remaining:
+      - '59999'
+      ratelimit-reset:
+      - '1'
+      via:
+      - 1.1 google
+    http_version: HTTP/1.1
+    status_code: 200
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - api.replicate.com
+      user-agent:
+      - replicate-python/0.11.0
+    method: GET
+    uri: https://api.replicate.com/v1/predictions/vgcm4plb7tgzlyznry5d5jkgvu
+  response:
+    content: "{\"completed_at\":\"2023-08-16T18:57:12.170420Z\",\"created_at\":\"2023-08-16T18:57:08.394251Z\",\"error\":null,\"id\":\"vgcm4plb7tgzlyznry5d5jkgvu\",\"input\":{\"seed\":42069,\"width\":512,\"height\":512,\"prompt\":\"a
+      studio photo of a rainbow colored corgi\"},\"logs\":\"Using seed: 42069\\nPrompt:
+      a studio photo of a rainbow colored corgi\\ntxt2img mode\\n  0%|          |
+      0/50 [00:00<?, ?it/s]\\n  4%|\u258D         | 2/50 [00:00<00:02, 16.47it/s]\\n
+      \ 8%|\u258A         | 4/50 [00:00<00:02, 16.39it/s]\\n 12%|\u2588\u258F        |
+      6/50 [00:00<00:02, 16.60it/s]\\n 16%|\u2588\u258C        | 8/50 [00:00<00:02,
+      16.53it/s]\\n 20%|\u2588\u2588        | 10/50 [00:00<00:02, 16.76it/s]\\n 24%|\u2588\u2588\u258D
+      \      | 12/50 [00:00<00:02, 16.93it/s]\\n 28%|\u2588\u2588\u258A       | 14/50
+      [00:00<00:02, 17.04it/s]\\n 32%|\u2588\u2588\u2588\u258F      | 16/50 [00:00<00:01,
+      17.10it/s]\\n 36%|\u2588\u2588\u2588\u258C      | 18/50 [00:01<00:01, 17.12it/s]\\n
+      40%|\u2588\u2588\u2588\u2588      | 20/50 [00:01<00:01, 17.15it/s]\\n 44%|\u2588\u2588\u2588\u2588\u258D
+      \    | 22/50 [00:01<00:01, 17.16it/s]\\n 48%|\u2588\u2588\u2588\u2588\u258A
+      \    | 24/50 [00:01<00:01, 17.17it/s]\\n 52%|\u2588\u2588\u2588\u2588\u2588\u258F
+      \   | 26/50 [00:01<00:01, 17.20it/s]\\n 56%|\u2588\u2588\u2588\u2588\u2588\u258C
+      \   | 28/50 [00:01<00:01, 17.21it/s]\\n 60%|\u2588\u2588\u2588\u2588\u2588\u2588
+      \   | 30/50 [00:01<00:01, 17.19it/s]\\n 64%|\u2588\u2588\u2588\u2588\u2588\u2588\u258D
+      \  | 32/50 [00:01<00:01, 17.18it/s]\\n 68%|\u2588\u2588\u2588\u2588\u2588\u2588\u258A
+      \  | 34/50 [00:01<00:00, 17.18it/s]\\n 72%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258F
+      \ | 36/50 [00:02<00:00, 17.20it/s]\\n 76%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258C
+      \ | 38/50 [00:02<00:00, 17.21it/s]\\n 80%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588
+      \ | 40/50 [00:02<00:00, 17.19it/s]\\n 84%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258D
+      | 42/50 [00:02<00:00, 17.19it/s]\\n 88%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258A
+      | 44/50 [00:02<00:00, 17.19it/s]\\n 92%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258F|
+      46/50 [00:02<00:00, 17.20it/s]\\n 96%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258C|
+      48/50 [00:02<00:00, 17.22it/s]\\n100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588|
+      50/50 [00:02<00:00, 17.19it/s]\\n100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588|
+      50/50 [00:02<00:00, 17.09it/s]\",\"metrics\":{\"predict_time\":3.804328},\"output\":[\"https://replicate.delivery/pbxt/9inf36wjsEWuQ6XTf84iezPftv9QZdePfGySnU5tUai3BOrWE/out-0.png\"],\"started_at\":\"2023-08-16T18:57:08.366092Z\",\"status\":\"succeeded\",\"urls\":{\"get\":\"https://api.replicate.com/v1/predictions/vgcm4plb7tgzlyznry5d5jkgvu\",\"cancel\":\"https://api.replicate.com/v1/predictions/vgcm4plb7tgzlyznry5d5jkgvu/cancel\"},\"version\":\"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5\",\"webhook_completed\":null}"
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 7fdc4189de7dec40-SEA
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Mon, 28 Aug 2023 11:36:20 GMT
+      NEL:
+      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+      Report-To:
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=HmSmJbXoAg%2FkFrYq0SaazhPmQ15spnJbmkglu73Db46HoR0%2F%2FGGftVRKkKIpIMvp2zkrDSSk%2Bhpy5hFySayGknnd%2F13KKmY2f5bpGbFFbbBbbv5U8h4xiGAM0%2FfJZdsDLkeh"}],"group":"cf-nel","max_age":604800}'
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -73,7 +148,6 @@ interactions:
       - Cookie, origin
       via:
       - 1.1 vegur, 1.1 google
-    status:
-      code: 200
-      message: OK
+    http_version: HTTP/1.1
+    status_code: 200
 version: 1

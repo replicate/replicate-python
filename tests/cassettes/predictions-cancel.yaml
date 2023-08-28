@@ -1,78 +1,130 @@
 interactions:
 - request:
-    body: null
+    body: ''
     headers:
-      Accept:
+      accept:
       - '*/*'
-      Accept-Encoding:
+      accept-encoding:
       - gzip, deflate
-      Connection:
+      connection:
       - keep-alive
-      User-Agent:
+      host:
+      - api.replicate.com
+      user-agent:
       - replicate-python/0.11.0
     method: GET
-    uri: https://api.replicate.com/v1/models/stability-ai/sdxl/versions/a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5
+    uri: https://api.replicate.com/v1/models/stability-ai/sdxl
   response:
-    body:
-      string: '{"id":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","created_at":"2023-08-11T17:00:23.916379Z","cog_version":"0.8.5","openapi_schema":{"info":{"title":"Cog","version":"0.1.0"},"paths":{"/":{"get":{"summary":"Root","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
-        Root  Get"}}},"description":"Successful Response"}},"operationId":"root__get"}},"/shutdown":{"post":{"summary":"Start
-        Shutdown","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
-        Start Shutdown Shutdown Post"}}},"description":"Successful Response"}},"operationId":"start_shutdown_shutdown_post"}},"/predictions":{"post":{"summary":"Predict","responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionResponse"}}},"description":"Successful
-        Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
-        Error"}},"parameters":[{"in":"header","name":"prefer","schema":{"type":"string","title":"Prefer"},"required":false}],"description":"Run
-        a single prediction on the model","operationId":"predict_predictions_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionRequest"}}}}}},"/health-check":{"get":{"summary":"Healthcheck","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
-        Healthcheck Health Check Get"}}},"description":"Successful Response"}},"operationId":"healthcheck_health_check_get"}},"/predictions/{prediction_id}":{"put":{"summary":"Predict
-        Idempotent","responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionResponse"}}},"description":"Successful
-        Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
-        Error"}},"parameters":[{"in":"path","name":"prediction_id","schema":{"type":"string","title":"Prediction
-        ID"},"required":true},{"in":"header","name":"prefer","schema":{"type":"string","title":"Prefer"},"required":false}],"description":"Run
-        a single prediction on the model (idempotent creation).","operationId":"predict_idempotent_predictions__prediction_id__put","requestBody":{"content":{"application/json":{"schema":{"allOf":[{"$ref":"#/components/schemas/PredictionRequest"}],"title":"Prediction
-        Request"}}},"required":true}}},"/predictions/{prediction_id}/cancel":{"post":{"summary":"Cancel","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
-        Cancel Predictions  Prediction Id  Cancel Post"}}},"description":"Successful
-        Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
-        Error"}},"parameters":[{"in":"path","name":"prediction_id","schema":{"type":"string","title":"Prediction
-        ID"},"required":true}],"description":"Cancel a running prediction","operationId":"cancel_predictions__prediction_id__cancel_post"}}},"openapi":"3.0.2","components":{"schemas":{"Input":{"type":"object","title":"Input","properties":{"mask":{"type":"string","title":"Mask","format":"uri","x-order":3,"description":"Input
-        mask for inpaint mode. Black areas will be preserved, white areas will be
-        inpainted."},"seed":{"type":"integer","title":"Seed","x-order":11,"description":"Random
-        seed. Leave blank to randomize the seed"},"image":{"type":"string","title":"Image","format":"uri","x-order":2,"description":"Input
-        image for img2img or inpaint mode"},"width":{"type":"integer","title":"Width","default":1024,"x-order":4,"description":"Width
-        of output image"},"height":{"type":"integer","title":"Height","default":1024,"x-order":5,"description":"Height
-        of output image"},"prompt":{"type":"string","title":"Prompt","default":"An
-        astronaut riding a rainbow unicorn","x-order":0,"description":"Input prompt"},"refine":{"allOf":[{"$ref":"#/components/schemas/refine"}],"default":"no_refiner","x-order":12,"description":"Which
-        refine style to use"},"scheduler":{"allOf":[{"$ref":"#/components/schemas/scheduler"}],"default":"K_EULER","x-order":7,"description":"scheduler"},"lora_scale":{"type":"number","title":"Lora
-        Scale","default":0.6,"maximum":1,"minimum":0,"x-order":16,"description":"LoRA
-        additive scale. Only applicable on trained models."},"num_outputs":{"type":"integer","title":"Num
-        Outputs","default":1,"maximum":4,"minimum":1,"x-order":6,"description":"Number
-        of images to output."},"refine_steps":{"type":"integer","title":"Refine Steps","x-order":14,"description":"For
-        base_image_refiner, the number of steps to refine, defaults to num_inference_steps"},"guidance_scale":{"type":"number","title":"Guidance
-        Scale","default":7.5,"maximum":50,"minimum":1,"x-order":9,"description":"Scale
-        for classifier-free guidance"},"apply_watermark":{"type":"boolean","title":"Apply
-        Watermark","default":true,"x-order":15,"description":"Applies a watermark
-        to enable determining if an image is generated in downstream applications.
-        If you have other provisions for generating or deploying images safely, you
-        can use this to disable watermarking."},"high_noise_frac":{"type":"number","title":"High
-        Noise Frac","default":0.8,"maximum":1,"minimum":0,"x-order":13,"description":"For
-        expert_ensemble_refiner, the fraction of noise to use"},"negative_prompt":{"type":"string","title":"Negative
-        Prompt","default":"","x-order":1,"description":"Input Negative Prompt"},"prompt_strength":{"type":"number","title":"Prompt
-        Strength","default":0.8,"maximum":1,"minimum":0,"x-order":10,"description":"Prompt
-        strength when using img2img / inpaint. 1.0 corresponds to full destruction
-        of information in image"},"num_inference_steps":{"type":"integer","title":"Num
-        Inference Steps","default":50,"maximum":500,"minimum":1,"x-order":8,"description":"Number
-        of denoising steps"}}},"Output":{"type":"array","items":{"type":"string","format":"uri"},"title":"Output"},"Status":{"enum":["starting","processing","succeeded","canceled","failed"],"type":"string","title":"Status","description":"An
-        enumeration."},"refine":{"enum":["no_refiner","expert_ensemble_refiner","base_image_refiner"],"type":"string","title":"refine","description":"An
-        enumeration."},"scheduler":{"enum":["DDIM","DPMSolverMultistep","HeunDiscrete","KarrasDPM","K_EULER_ANCESTRAL","K_EULER","PNDM"],"type":"string","title":"scheduler","description":"An
-        enumeration."},"WebhookEvent":{"enum":["start","output","logs","completed"],"type":"string","title":"WebhookEvent","description":"An
-        enumeration."},"ValidationError":{"type":"object","title":"ValidationError","required":["loc","msg","type"],"properties":{"loc":{"type":"array","items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error
-        Type"}}},"PredictionRequest":{"type":"object","title":"PredictionRequest","properties":{"id":{"type":"string","title":"Id"},"input":{"$ref":"#/components/schemas/Input"},"webhook":{"type":"string","title":"Webhook","format":"uri","maxLength":65536,"minLength":1},"created_at":{"type":"string","title":"Created
-        At","format":"date-time"},"output_file_prefix":{"type":"string","title":"Output
-        File Prefix"},"webhook_events_filter":{"type":"array","items":{"$ref":"#/components/schemas/WebhookEvent"},"default":["start","completed","logs","output"],"uniqueItems":true}}},"PredictionResponse":{"type":"object","title":"PredictionResponse","properties":{"id":{"type":"string","title":"Id"},"logs":{"type":"string","title":"Logs","default":""},"error":{"type":"string","title":"Error"},"input":{"$ref":"#/components/schemas/Input"},"output":{"$ref":"#/components/schemas/Output"},"status":{"$ref":"#/components/schemas/Status"},"metrics":{"type":"object","title":"Metrics"},"version":{"type":"string","title":"Version"},"created_at":{"type":"string","title":"Created
-        At","format":"date-time"},"started_at":{"type":"string","title":"Started At","format":"date-time"},"completed_at":{"type":"string","title":"Completed
-        At","format":"date-time"}}},"HTTPValidationError":{"type":"object","title":"HTTPValidationError","properties":{"detail":{"type":"array","items":{"$ref":"#/components/schemas/ValidationError"},"title":"Detail"}}}}}}}'
+    content: "{\"url\":\"https://replicate.com/stability-ai/sdxl\",\"owner\":\"stability-ai\",\"name\":\"sdxl\",\"description\":\"A
+      text-to-image generative AI model that creates beautiful 1024x1024 images\",\"visibility\":\"public\",\"github_url\":\"https://github.com/Stability-AI/generative-models\",\"paper_url\":\"https://arxiv.org/abs/2307.01952\",\"license_url\":\"https://github.com/Stability-AI/generative-models/blob/main/model_licenses/LICENSE-SDXL1.0\",\"run_count\":918101,\"cover_image_url\":\"https://tjzk.replicate.delivery/models_models_cover_image/61004930-fb88-4e09-9bd4-74fd8b4aa677/sdxl_cover.png\",\"default_example\":{\"completed_at\":\"2023-07-26T21:04:37.933562Z\",\"created_at\":\"2023-07-26T21:04:23.762683Z\",\"error\":null,\"id\":\"vu42q7dbkm6iicbpal4v6uvbqm\",\"input\":{\"width\":1024,\"height\":1024,\"prompt\":\"An
+      astronaut riding a rainbow unicorn, cinematic, dramatic\",\"refine\":\"expert_ensemble_refiner\",\"scheduler\":\"DDIM\",\"num_outputs\":1,\"guidance_scale\":7.5,\"high_noise_frac\":0.8,\"prompt_strength\":0.8,\"num_inference_steps\":50},\"logs\":\"Using
+      seed: 12103\\ntxt2img mode\\n  0%|          | 0/40 [00:00<?, ?it/s]\\n  2%|\u258E
+      \        | 1/40 [00:00<00:34,  1.14it/s]\\n  5%|\u258C         | 2/40 [00:01<00:18,
+      \ 2.10it/s]\\n  8%|\u258A         | 3/40 [00:01<00:12,  2.86it/s]\\n 10%|\u2588
+      \        | 4/40 [00:01<00:10,  3.44it/s]\\n 12%|\u2588\u258E        | 5/40 [00:01<00:09,
+      \ 3.87it/s]\\n 15%|\u2588\u258C        | 6/40 [00:01<00:08,  4.19it/s]\\n 18%|\u2588\u258A
+      \       | 7/40 [00:02<00:07,  4.43it/s]\\n 20%|\u2588\u2588        | 8/40 [00:02<00:06,
+      \ 4.60it/s]\\n 22%|\u2588\u2588\u258E       | 9/40 [00:02<00:06,  4.72it/s]\\n
+      25%|\u2588\u2588\u258C       | 10/40 [00:02<00:06,  4.80it/s]\\n 28%|\u2588\u2588\u258A
+      \      | 11/40 [00:02<00:05,  4.86it/s]\\n 30%|\u2588\u2588\u2588       | 12/40
+      [00:03<00:05,  4.90it/s]\\n 32%|\u2588\u2588\u2588\u258E      | 13/40 [00:03<00:05,
+      \ 4.93it/s]\\n 35%|\u2588\u2588\u2588\u258C      | 14/40 [00:03<00:05,  4.95it/s]\\n
+      38%|\u2588\u2588\u2588\u258A      | 15/40 [00:03<00:05,  4.97it/s]\\n 40%|\u2588\u2588\u2588\u2588
+      \     | 16/40 [00:03<00:04,  4.99it/s]\\n 42%|\u2588\u2588\u2588\u2588\u258E
+      \    | 17/40 [00:04<00:04,  5.00it/s]\\n 45%|\u2588\u2588\u2588\u2588\u258C
+      \    | 18/40 [00:04<00:04,  5.02it/s]\\n 48%|\u2588\u2588\u2588\u2588\u258A
+      \    | 19/40 [00:04<00:04,  5.02it/s]\\n 50%|\u2588\u2588\u2588\u2588\u2588
+      \    | 20/40 [00:04<00:03,  5.03it/s]\\n 52%|\u2588\u2588\u2588\u2588\u2588\u258E
+      \   | 21/40 [00:04<00:03,  5.03it/s]\\n 55%|\u2588\u2588\u2588\u2588\u2588\u258C
+      \   | 22/40 [00:05<00:03,  5.03it/s]\\n 57%|\u2588\u2588\u2588\u2588\u2588\u258A
+      \   | 23/40 [00:05<00:03,  5.03it/s]\\n 60%|\u2588\u2588\u2588\u2588\u2588\u2588
+      \   | 24/40 [00:05<00:03,  5.04it/s]\\n 62%|\u2588\u2588\u2588\u2588\u2588\u2588\u258E
+      \  | 25/40 [00:05<00:02,  5.05it/s]\\n 65%|\u2588\u2588\u2588\u2588\u2588\u2588\u258C
+      \  | 26/40 [00:05<00:02,  5.04it/s]\\n 68%|\u2588\u2588\u2588\u2588\u2588\u2588\u258A
+      \  | 27/40 [00:06<00:02,  5.03it/s]\\n 70%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588
+      \  | 28/40 [00:06<00:02,  5.03it/s]\\n 72%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258E
+      \ | 29/40 [00:06<00:02,  5.03it/s]\\n 75%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258C
+      \ | 30/40 [00:06<00:01,  5.04it/s]\\n 78%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258A
+      \ | 31/40 [00:06<00:01,  5.03it/s]\\n 80%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588
+      \ | 32/40 [00:07<00:01,  5.02it/s]\\n 82%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258E
+      | 33/40 [00:07<00:01,  5.02it/s]\\n 85%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258C
+      | 34/40 [00:07<00:01,  5.02it/s]\\n 88%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258A
+      | 35/40 [00:07<00:00,  5.03it/s]\\n 90%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588
+      | 36/40 [00:07<00:00,  5.03it/s]\\n 92%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258E|
+      37/40 [00:08<00:00,  5.02it/s]\\n 95%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258C|
+      38/40 [00:08<00:00,  5.02it/s]\\n 98%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258A|
+      39/40 [00:08<00:00,  5.02it/s]\\n100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588|
+      40/40 [00:08<00:00,  5.02it/s]\\n100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588|
+      40/40 [00:08<00:00,  4.63it/s]\\n  0%|          | 0/10 [00:00<?, ?it/s]\\n 10%|\u2588
+      \        | 1/10 [00:00<00:02,  4.24it/s]\\n 20%|\u2588\u2588        | 2/10 [00:00<00:01,
+      \ 4.33it/s]\\n 30%|\u2588\u2588\u2588       | 3/10 [00:00<00:01,  4.36it/s]\\n
+      40%|\u2588\u2588\u2588\u2588      | 4/10 [00:00<00:01,  4.37it/s]\\n 50%|\u2588\u2588\u2588\u2588\u2588
+      \    | 5/10 [00:01<00:01,  4.37it/s]\\n 60%|\u2588\u2588\u2588\u2588\u2588\u2588
+      \   | 6/10 [00:01<00:00,  4.38it/s]\\n 70%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588
+      \  | 7/10 [00:01<00:00,  4.38it/s]\\n 80%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588
+      \ | 8/10 [00:01<00:00,  4.39it/s]\\n 90%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588
+      | 9/10 [00:02<00:00,  4.37it/s]\\n100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588|
+      10/10 [00:02<00:00,  4.37it/s]\\n100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588|
+      10/10 [00:02<00:00,  4.37it/s]\",\"metrics\":{\"predict_time\":14.149563},\"output\":[\"https://replicate.delivery/pbxt/E6Ftpfi0dF1SOi4b6ltUwsfdxUf7zTQSfdhmJfRcfGTdZ88UE/out-0.png\"],\"started_at\":\"2023-07-26T21:04:23.783999Z\",\"status\":\"succeeded\",\"urls\":{\"get\":\"https://api.replicate.com/v1/predictions/vu42q7dbkm6iicbpal4v6uvbqm\",\"cancel\":\"https://api.replicate.com/v1/predictions/vu42q7dbkm6iicbpal4v6uvbqm/cancel\"},\"version\":\"2f779eb9b23b34fe171f8eaa021b8261566f0d2c10cd2674063e7dbcd351509e\",\"webhook_completed\":null},\"latest_version\":{\"id\":\"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5\",\"created_at\":\"2023-08-11T17:00:23.916379Z\",\"cog_version\":\"0.8.5\",\"openapi_schema\":{\"info\":{\"title\":\"Cog\",\"version\":\"0.1.0\"},\"paths\":{\"/\":{\"get\":{\"summary\":\"Root\",\"responses\":{\"200\":{\"content\":{\"application/json\":{\"schema\":{\"title\":\"Response
+      Root  Get\"}}},\"description\":\"Successful Response\"}},\"operationId\":\"root__get\"}},\"/shutdown\":{\"post\":{\"summary\":\"Start
+      Shutdown\",\"responses\":{\"200\":{\"content\":{\"application/json\":{\"schema\":{\"title\":\"Response
+      Start Shutdown Shutdown Post\"}}},\"description\":\"Successful Response\"}},\"operationId\":\"start_shutdown_shutdown_post\"}},\"/predictions\":{\"post\":{\"summary\":\"Predict\",\"responses\":{\"200\":{\"content\":{\"application/json\":{\"schema\":{\"$ref\":\"#/components/schemas/PredictionResponse\"}}},\"description\":\"Successful
+      Response\"},\"422\":{\"content\":{\"application/json\":{\"schema\":{\"$ref\":\"#/components/schemas/HTTPValidationError\"}}},\"description\":\"Validation
+      Error\"}},\"parameters\":[{\"in\":\"header\",\"name\":\"prefer\",\"schema\":{\"type\":\"string\",\"title\":\"Prefer\"},\"required\":false}],\"description\":\"Run
+      a single prediction on the model\",\"operationId\":\"predict_predictions_post\",\"requestBody\":{\"content\":{\"application/json\":{\"schema\":{\"$ref\":\"#/components/schemas/PredictionRequest\"}}}}}},\"/health-check\":{\"get\":{\"summary\":\"Healthcheck\",\"responses\":{\"200\":{\"content\":{\"application/json\":{\"schema\":{\"title\":\"Response
+      Healthcheck Health Check Get\"}}},\"description\":\"Successful Response\"}},\"operationId\":\"healthcheck_health_check_get\"}},\"/predictions/{prediction_id}\":{\"put\":{\"summary\":\"Predict
+      Idempotent\",\"responses\":{\"200\":{\"content\":{\"application/json\":{\"schema\":{\"$ref\":\"#/components/schemas/PredictionResponse\"}}},\"description\":\"Successful
+      Response\"},\"422\":{\"content\":{\"application/json\":{\"schema\":{\"$ref\":\"#/components/schemas/HTTPValidationError\"}}},\"description\":\"Validation
+      Error\"}},\"parameters\":[{\"in\":\"path\",\"name\":\"prediction_id\",\"schema\":{\"type\":\"string\",\"title\":\"Prediction
+      ID\"},\"required\":true},{\"in\":\"header\",\"name\":\"prefer\",\"schema\":{\"type\":\"string\",\"title\":\"Prefer\"},\"required\":false}],\"description\":\"Run
+      a single prediction on the model (idempotent creation).\",\"operationId\":\"predict_idempotent_predictions__prediction_id__put\",\"requestBody\":{\"content\":{\"application/json\":{\"schema\":{\"allOf\":[{\"$ref\":\"#/components/schemas/PredictionRequest\"}],\"title\":\"Prediction
+      Request\"}}},\"required\":true}}},\"/predictions/{prediction_id}/cancel\":{\"post\":{\"summary\":\"Cancel\",\"responses\":{\"200\":{\"content\":{\"application/json\":{\"schema\":{\"title\":\"Response
+      Cancel Predictions  Prediction Id  Cancel Post\"}}},\"description\":\"Successful
+      Response\"},\"422\":{\"content\":{\"application/json\":{\"schema\":{\"$ref\":\"#/components/schemas/HTTPValidationError\"}}},\"description\":\"Validation
+      Error\"}},\"parameters\":[{\"in\":\"path\",\"name\":\"prediction_id\",\"schema\":{\"type\":\"string\",\"title\":\"Prediction
+      ID\"},\"required\":true}],\"description\":\"Cancel a running prediction\",\"operationId\":\"cancel_predictions__prediction_id__cancel_post\"}}},\"openapi\":\"3.0.2\",\"components\":{\"schemas\":{\"Input\":{\"type\":\"object\",\"title\":\"Input\",\"properties\":{\"mask\":{\"type\":\"string\",\"title\":\"Mask\",\"format\":\"uri\",\"x-order\":3,\"description\":\"Input
+      mask for inpaint mode. Black areas will be preserved, white areas will be inpainted.\"},\"seed\":{\"type\":\"integer\",\"title\":\"Seed\",\"x-order\":11,\"description\":\"Random
+      seed. Leave blank to randomize the seed\"},\"image\":{\"type\":\"string\",\"title\":\"Image\",\"format\":\"uri\",\"x-order\":2,\"description\":\"Input
+      image for img2img or inpaint mode\"},\"width\":{\"type\":\"integer\",\"title\":\"Width\",\"default\":1024,\"x-order\":4,\"description\":\"Width
+      of output image\"},\"height\":{\"type\":\"integer\",\"title\":\"Height\",\"default\":1024,\"x-order\":5,\"description\":\"Height
+      of output image\"},\"prompt\":{\"type\":\"string\",\"title\":\"Prompt\",\"default\":\"An
+      astronaut riding a rainbow unicorn\",\"x-order\":0,\"description\":\"Input prompt\"},\"refine\":{\"allOf\":[{\"$ref\":\"#/components/schemas/refine\"}],\"default\":\"no_refiner\",\"x-order\":12,\"description\":\"Which
+      refine style to use\"},\"scheduler\":{\"allOf\":[{\"$ref\":\"#/components/schemas/scheduler\"}],\"default\":\"K_EULER\",\"x-order\":7,\"description\":\"scheduler\"},\"lora_scale\":{\"type\":\"number\",\"title\":\"Lora
+      Scale\",\"default\":0.6,\"maximum\":1,\"minimum\":0,\"x-order\":16,\"description\":\"LoRA
+      additive scale. Only applicable on trained models.\"},\"num_outputs\":{\"type\":\"integer\",\"title\":\"Num
+      Outputs\",\"default\":1,\"maximum\":4,\"minimum\":1,\"x-order\":6,\"description\":\"Number
+      of images to output.\"},\"refine_steps\":{\"type\":\"integer\",\"title\":\"Refine
+      Steps\",\"x-order\":14,\"description\":\"For base_image_refiner, the number
+      of steps to refine, defaults to num_inference_steps\"},\"guidance_scale\":{\"type\":\"number\",\"title\":\"Guidance
+      Scale\",\"default\":7.5,\"maximum\":50,\"minimum\":1,\"x-order\":9,\"description\":\"Scale
+      for classifier-free guidance\"},\"apply_watermark\":{\"type\":\"boolean\",\"title\":\"Apply
+      Watermark\",\"default\":true,\"x-order\":15,\"description\":\"Applies a watermark
+      to enable determining if an image is generated in downstream applications. If
+      you have other provisions for generating or deploying images safely, you can
+      use this to disable watermarking.\"},\"high_noise_frac\":{\"type\":\"number\",\"title\":\"High
+      Noise Frac\",\"default\":0.8,\"maximum\":1,\"minimum\":0,\"x-order\":13,\"description\":\"For
+      expert_ensemble_refiner, the fraction of noise to use\"},\"negative_prompt\":{\"type\":\"string\",\"title\":\"Negative
+      Prompt\",\"default\":\"\",\"x-order\":1,\"description\":\"Input Negative Prompt\"},\"prompt_strength\":{\"type\":\"number\",\"title\":\"Prompt
+      Strength\",\"default\":0.8,\"maximum\":1,\"minimum\":0,\"x-order\":10,\"description\":\"Prompt
+      strength when using img2img / inpaint. 1.0 corresponds to full destruction of
+      information in image\"},\"num_inference_steps\":{\"type\":\"integer\",\"title\":\"Num
+      Inference Steps\",\"default\":50,\"maximum\":500,\"minimum\":1,\"x-order\":8,\"description\":\"Number
+      of denoising steps\"}}},\"Output\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"format\":\"uri\"},\"title\":\"Output\"},\"Status\":{\"enum\":[\"starting\",\"processing\",\"succeeded\",\"canceled\",\"failed\"],\"type\":\"string\",\"title\":\"Status\",\"description\":\"An
+      enumeration.\"},\"refine\":{\"enum\":[\"no_refiner\",\"expert_ensemble_refiner\",\"base_image_refiner\"],\"type\":\"string\",\"title\":\"refine\",\"description\":\"An
+      enumeration.\"},\"scheduler\":{\"enum\":[\"DDIM\",\"DPMSolverMultistep\",\"HeunDiscrete\",\"KarrasDPM\",\"K_EULER_ANCESTRAL\",\"K_EULER\",\"PNDM\"],\"type\":\"string\",\"title\":\"scheduler\",\"description\":\"An
+      enumeration.\"},\"WebhookEvent\":{\"enum\":[\"start\",\"output\",\"logs\",\"completed\"],\"type\":\"string\",\"title\":\"WebhookEvent\",\"description\":\"An
+      enumeration.\"},\"ValidationError\":{\"type\":\"object\",\"title\":\"ValidationError\",\"required\":[\"loc\",\"msg\",\"type\"],\"properties\":{\"loc\":{\"type\":\"array\",\"items\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"integer\"}]},\"title\":\"Location\"},\"msg\":{\"type\":\"string\",\"title\":\"Message\"},\"type\":{\"type\":\"string\",\"title\":\"Error
+      Type\"}}},\"PredictionRequest\":{\"type\":\"object\",\"title\":\"PredictionRequest\",\"properties\":{\"id\":{\"type\":\"string\",\"title\":\"Id\"},\"input\":{\"$ref\":\"#/components/schemas/Input\"},\"webhook\":{\"type\":\"string\",\"title\":\"Webhook\",\"format\":\"uri\",\"maxLength\":65536,\"minLength\":1},\"created_at\":{\"type\":\"string\",\"title\":\"Created
+      At\",\"format\":\"date-time\"},\"output_file_prefix\":{\"type\":\"string\",\"title\":\"Output
+      File Prefix\"},\"webhook_events_filter\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/components/schemas/WebhookEvent\"},\"default\":[\"start\",\"completed\",\"logs\",\"output\"],\"uniqueItems\":true}}},\"PredictionResponse\":{\"type\":\"object\",\"title\":\"PredictionResponse\",\"properties\":{\"id\":{\"type\":\"string\",\"title\":\"Id\"},\"logs\":{\"type\":\"string\",\"title\":\"Logs\",\"default\":\"\"},\"error\":{\"type\":\"string\",\"title\":\"Error\"},\"input\":{\"$ref\":\"#/components/schemas/Input\"},\"output\":{\"$ref\":\"#/components/schemas/Output\"},\"status\":{\"$ref\":\"#/components/schemas/Status\"},\"metrics\":{\"type\":\"object\",\"title\":\"Metrics\"},\"version\":{\"type\":\"string\",\"title\":\"Version\"},\"created_at\":{\"type\":\"string\",\"title\":\"Created
+      At\",\"format\":\"date-time\"},\"started_at\":{\"type\":\"string\",\"title\":\"Started
+      At\",\"format\":\"date-time\"},\"completed_at\":{\"type\":\"string\",\"title\":\"Completed
+      At\",\"format\":\"date-time\"}}},\"HTTPValidationError\":{\"type\":\"object\",\"title\":\"HTTPValidationError\",\"properties\":{\"detail\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/components/schemas/ValidationError\"},\"title\":\"Detail\"}}}}}}}}"
     headers:
       CF-Cache-Status:
       - DYNAMIC
       CF-RAY:
-      - 7fdbf06afe2ec38e-SEA
+      - 7f7bf148697cc4e9-SEA
       Connection:
       - keep-alive
       Content-Encoding:
@@ -80,11 +132,11 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Mon, 28 Aug 2023 10:40:58 GMT
+      - Wed, 16 Aug 2023 19:04:20 GMT
       NEL:
       - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
       Report-To:
-      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=lqn6vZtiIEuD6ah43djQbwFcdhqmKZXq1T3A%2Bep1EXRg60x7ti4mgtoXcXd8wvjbi65JeGhwqeW%2B2tMRKx%2B0i0tJRtYcZylABbnBdtYNkp4lTeuq5BY9r7TOIYehrRHx192O"}],"group":"cf-nel","max_age":604800}'
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=e%2B7XhTUhR%2FuHRYhrC6G3FC%2BP3VktGGHLMXLzSgvkK%2BheT%2BTh2zyeYMdsLx%2BfhZG76gJ3yErQYBY4xeG%2F6tsfkWabdmA%2BOdXjKRvn%2Bp2HNct2Vu30xSneOms3dUN0pfmCAfPi"}],"group":"cf-nel","max_age":604800}'
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -92,18 +144,18 @@ interactions:
       Transfer-Encoding:
       - chunked
       allow:
-      - GET, DELETE, HEAD, OPTIONS
+      - GET, HEAD, OPTIONS
       content-security-policy-report-only:
-      - 'media-src ''report-sample'' ''self'' https://replicate.delivery https://*.replicate.delivery
-        https://*.mux.com https://*.gstatic.com https://*.sentry.io; connect-src ''report-sample''
-        ''self'' https://replicate.delivery https://*.replicate.delivery https://*.rudderlabs.com
-        https://*.rudderstack.com https://*.mux.com https://*.sentry.io; font-src
-        ''report-sample'' ''self'' data: https://fonts.replicate.ai https://fonts.gstatic.com;
-        script-src ''report-sample'' ''self'' https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js;
-        worker-src ''none''; img-src ''report-sample'' ''self'' data: https://replicate.delivery
-        https://*.replicate.delivery https://*.githubusercontent.com https://github.com;
-        style-src ''report-sample'' ''self'' ''unsafe-inline'' https://fonts.googleapis.com;
-        default-src ''self''; report-uri'
+      - 'img-src ''report-sample'' ''self'' data: https://replicate.delivery https://*.replicate.delivery
+        https://*.githubusercontent.com https://github.com; script-src ''report-sample''
+        ''self'' https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js; media-src
+        ''report-sample'' ''self'' https://replicate.delivery https://*.replicate.delivery
+        https://*.mux.com https://*.gstatic.com https://*.sentry.io; worker-src ''none'';
+        font-src ''report-sample'' ''self'' data: https://fonts.replicate.ai https://fonts.gstatic.com;
+        connect-src ''report-sample'' ''self'' https://replicate.delivery https://*.replicate.delivery
+        https://*.rudderlabs.com https://*.rudderstack.com https://*.mux.com https://*.sentry.io;
+        default-src ''self''; style-src ''report-sample'' ''self'' ''unsafe-inline''
+        https://fonts.googleapis.com; report-uri'
       cross-origin-opener-policy:
       - same-origin
       ratelimit-remaining:
@@ -120,39 +172,39 @@ interactions:
       - nosniff
       x-frame-options:
       - DENY
-    status:
-      code: 200
-      message: OK
+    http_version: HTTP/1.1
+    status_code: 200
 - request:
     body: '{"version": "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5",
       "input": {"prompt": "a studio photo of a rainbow colored corgi", "width": 512,
       "height": 512, "seed": 42069}}'
     headers:
-      Accept:
+      accept:
       - '*/*'
-      Accept-Encoding:
+      accept-encoding:
       - gzip, deflate
-      Connection:
+      connection:
       - keep-alive
-      Content-Length:
+      content-length:
       - '189'
-      Content-Type:
+      content-type:
       - application/json
-      User-Agent:
+      host:
+      - api.replicate.com
+      user-agent:
       - replicate-python/0.11.0
     method: POST
     uri: https://api.replicate.com/v1/predictions
   response:
-    body:
-      string: '{"id":"dj2xhz3b6iihe2ewh3d3fdtram","version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","input":{"height":512,"prompt":"a
-        studio photo of a rainbow colored corgi","seed":42069,"width":512},"logs":"","error":null,"status":"starting","created_at":"2023-08-28T10:40:58.313900179Z","urls":{"cancel":"https://api.replicate.com/v1/predictions/dj2xhz3b6iihe2ewh3d3fdtram/cancel","get":"https://api.replicate.com/v1/predictions/dj2xhz3b6iihe2ewh3d3fdtram"}}
+    content: '{"id":"i7pjoctb4rspimjanuagwmyyde","version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","input":{"height":512,"prompt":"a
+      studio photo of a rainbow colored corgi","seed":42069,"width":512},"logs":"","error":null,"status":"starting","created_at":"2023-08-16T19:04:20.773688136Z","urls":{"cancel":"https://api.replicate.com/v1/predictions/i7pjoctb4rspimjanuagwmyyde/cancel","get":"https://api.replicate.com/v1/predictions/i7pjoctb4rspimjanuagwmyyde"}}
 
-        '
+      '
     headers:
       CF-Cache-Status:
       - DYNAMIC
       CF-RAY:
-      - 7fdbf06bef6aeb53-SEA
+      - 7f7bf1495a8fc4e9-SEA
       Connection:
       - keep-alive
       Content-Length:
@@ -160,11 +212,11 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Mon, 28 Aug 2023 10:40:58 GMT
+      - Wed, 16 Aug 2023 19:04:20 GMT
       NEL:
       - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
       Report-To:
-      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=%2BvAgJlOECQToRU65Zaf3t3e27iqz%2Fyt3cIYchCouUpOy%2FXvjIiIe%2BDAC4DYVSBKV6OznfDoLuOTF%2BzC9XodVLtQ6NQcTC1jB5sTHLgUf4n5w%2FknHpcXlYPI23jyU9eD72cUt"}],"group":"cf-nel","max_age":604800}'
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=SZBPHtHVeBWSFVoc8%2FB6UmODNUT0DlqnDDHyxCwvzq3dBtiSIJdHxt2tAyuhBYLJ5tv70NaepjE6%2BYQ3862Y9YlGHv4X1eLKaVbCJM0TVgnU1CpG9wDnmPsSfFgEnDrCZ4Kg"}],"group":"cf-nel","max_age":604800}'
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -175,33 +227,33 @@ interactions:
       - '1'
       via:
       - 1.1 google
-    status:
-      code: 201
-      message: Created
+    http_version: HTTP/1.1
+    status_code: 201
 - request:
-    body: null
+    body: ''
     headers:
-      Accept:
+      accept:
       - '*/*'
-      Accept-Encoding:
+      accept-encoding:
       - gzip, deflate
-      Connection:
+      connection:
       - keep-alive
-      Content-Length:
+      content-length:
       - '0'
-      User-Agent:
+      host:
+      - api.replicate.com
+      user-agent:
       - replicate-python/0.11.0
     method: POST
-    uri: https://api.replicate.com/v1/predictions/dj2xhz3b6iihe2ewh3d3fdtram/cancel
+    uri: https://api.replicate.com/v1/predictions/i7pjoctb4rspimjanuagwmyyde/cancel
   response:
-    body:
-      string: '{"completed_at":"2023-08-28T10:40:58.480860Z","created_at":"2023-08-28T10:40:58.385013Z","error":null,"id":"dj2xhz3b6iihe2ewh3d3fdtram","input":{"seed":42069,"width":512,"height":512,"prompt":"a
-        studio photo of a rainbow colored corgi"},"logs":null,"metrics":{"predict_time":2e-06},"output":null,"started_at":"2023-08-28T10:40:58.480858Z","status":"canceled","urls":{"get":"https://api.replicate.com/v1/predictions/dj2xhz3b6iihe2ewh3d3fdtram","cancel":"https://api.replicate.com/v1/predictions/dj2xhz3b6iihe2ewh3d3fdtram/cancel"},"version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","webhook_completed":null}'
+    content: '{"completed_at":"2023-08-16T19:04:20.908755Z","created_at":"2023-08-16T19:04:20.813788Z","error":null,"id":"i7pjoctb4rspimjanuagwmyyde","input":{"seed":42069,"width":512,"height":512,"prompt":"a
+      studio photo of a rainbow colored corgi"},"logs":null,"metrics":{"predict_time":2e-06},"output":null,"started_at":"2023-08-16T19:04:20.908753Z","status":"canceled","urls":{"get":"https://api.replicate.com/v1/predictions/i7pjoctb4rspimjanuagwmyyde","cancel":"https://api.replicate.com/v1/predictions/i7pjoctb4rspimjanuagwmyyde/cancel"},"version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","webhook_completed":null}'
     headers:
       CF-Cache-Status:
       - DYNAMIC
       CF-RAY:
-      - 7fdbf06d0deac766-SEA
+      - 7f7bf14a2ba0c4e9-SEA
       Connection:
       - keep-alive
       Content-Encoding:
@@ -209,11 +261,11 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Mon, 28 Aug 2023 10:40:58 GMT
+      - Wed, 16 Aug 2023 19:04:20 GMT
       NEL:
       - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
       Report-To:
-      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=jeEQzHBiX9tZ4IdkiEgJjenWYtZvy3CafnOWdp%2BQZDH7ox2wiTLTfB57ya0p%2BwCYVTB0ITeL5DAfZBsnpGv9D1zctc%2FkSID7QL9f4QikvyILNB%2BPSvRf8jLYjWN7UfJ2l9g7"}],"group":"cf-nel","max_age":604800}'
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=X%2FegpbAoHBEQ7qrOpY5pT32oejJx1U8jONy%2BAIs2KrN5yGMb2FFIonSoJSFlTtgEnXkF8x%2Fec9JcTNxfujt7IEf7QjA2wlfliLVzQvlAt003lBsqBxHVoMf5PhncrTFOrjai"}],"group":"cf-nel","max_age":604800}'
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -226,7 +278,235 @@ interactions:
       - '1'
       via:
       - 1.1 google
-    status:
-      code: 200
-      message: OK
+    http_version: HTTP/1.1
+    status_code: 200
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - api.replicate.com
+      user-agent:
+      - replicate-python/0.11.0
+    method: GET
+    uri: https://api.replicate.com/v1/models/stability-ai/sdxl/versions/a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5
+  response:
+    content: '{"id":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","created_at":"2023-08-11T17:00:23.916379Z","cog_version":"0.8.5","openapi_schema":{"info":{"title":"Cog","version":"0.1.0"},"paths":{"/":{"get":{"summary":"Root","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Root  Get"}}},"description":"Successful Response"}},"operationId":"root__get"}},"/shutdown":{"post":{"summary":"Start
+      Shutdown","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Start Shutdown Shutdown Post"}}},"description":"Successful Response"}},"operationId":"start_shutdown_shutdown_post"}},"/predictions":{"post":{"summary":"Predict","responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionResponse"}}},"description":"Successful
+      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+      Error"}},"parameters":[{"in":"header","name":"prefer","schema":{"type":"string","title":"Prefer"},"required":false}],"description":"Run
+      a single prediction on the model","operationId":"predict_predictions_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionRequest"}}}}}},"/health-check":{"get":{"summary":"Healthcheck","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Healthcheck Health Check Get"}}},"description":"Successful Response"}},"operationId":"healthcheck_health_check_get"}},"/predictions/{prediction_id}":{"put":{"summary":"Predict
+      Idempotent","responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionResponse"}}},"description":"Successful
+      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+      Error"}},"parameters":[{"in":"path","name":"prediction_id","schema":{"type":"string","title":"Prediction
+      ID"},"required":true},{"in":"header","name":"prefer","schema":{"type":"string","title":"Prefer"},"required":false}],"description":"Run
+      a single prediction on the model (idempotent creation).","operationId":"predict_idempotent_predictions__prediction_id__put","requestBody":{"content":{"application/json":{"schema":{"allOf":[{"$ref":"#/components/schemas/PredictionRequest"}],"title":"Prediction
+      Request"}}},"required":true}}},"/predictions/{prediction_id}/cancel":{"post":{"summary":"Cancel","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Cancel Predictions  Prediction Id  Cancel Post"}}},"description":"Successful
+      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+      Error"}},"parameters":[{"in":"path","name":"prediction_id","schema":{"type":"string","title":"Prediction
+      ID"},"required":true}],"description":"Cancel a running prediction","operationId":"cancel_predictions__prediction_id__cancel_post"}}},"openapi":"3.0.2","components":{"schemas":{"Input":{"type":"object","title":"Input","properties":{"mask":{"type":"string","title":"Mask","format":"uri","x-order":3,"description":"Input
+      mask for inpaint mode. Black areas will be preserved, white areas will be inpainted."},"seed":{"type":"integer","title":"Seed","x-order":11,"description":"Random
+      seed. Leave blank to randomize the seed"},"image":{"type":"string","title":"Image","format":"uri","x-order":2,"description":"Input
+      image for img2img or inpaint mode"},"width":{"type":"integer","title":"Width","default":1024,"x-order":4,"description":"Width
+      of output image"},"height":{"type":"integer","title":"Height","default":1024,"x-order":5,"description":"Height
+      of output image"},"prompt":{"type":"string","title":"Prompt","default":"An astronaut
+      riding a rainbow unicorn","x-order":0,"description":"Input prompt"},"refine":{"allOf":[{"$ref":"#/components/schemas/refine"}],"default":"no_refiner","x-order":12,"description":"Which
+      refine style to use"},"scheduler":{"allOf":[{"$ref":"#/components/schemas/scheduler"}],"default":"K_EULER","x-order":7,"description":"scheduler"},"lora_scale":{"type":"number","title":"Lora
+      Scale","default":0.6,"maximum":1,"minimum":0,"x-order":16,"description":"LoRA
+      additive scale. Only applicable on trained models."},"num_outputs":{"type":"integer","title":"Num
+      Outputs","default":1,"maximum":4,"minimum":1,"x-order":6,"description":"Number
+      of images to output."},"refine_steps":{"type":"integer","title":"Refine Steps","x-order":14,"description":"For
+      base_image_refiner, the number of steps to refine, defaults to num_inference_steps"},"guidance_scale":{"type":"number","title":"Guidance
+      Scale","default":7.5,"maximum":50,"minimum":1,"x-order":9,"description":"Scale
+      for classifier-free guidance"},"apply_watermark":{"type":"boolean","title":"Apply
+      Watermark","default":true,"x-order":15,"description":"Applies a watermark to
+      enable determining if an image is generated in downstream applications. If you
+      have other provisions for generating or deploying images safely, you can use
+      this to disable watermarking."},"high_noise_frac":{"type":"number","title":"High
+      Noise Frac","default":0.8,"maximum":1,"minimum":0,"x-order":13,"description":"For
+      expert_ensemble_refiner, the fraction of noise to use"},"negative_prompt":{"type":"string","title":"Negative
+      Prompt","default":"","x-order":1,"description":"Input Negative Prompt"},"prompt_strength":{"type":"number","title":"Prompt
+      Strength","default":0.8,"maximum":1,"minimum":0,"x-order":10,"description":"Prompt
+      strength when using img2img / inpaint. 1.0 corresponds to full destruction of
+      information in image"},"num_inference_steps":{"type":"integer","title":"Num
+      Inference Steps","default":50,"maximum":500,"minimum":1,"x-order":8,"description":"Number
+      of denoising steps"}}},"Output":{"type":"array","items":{"type":"string","format":"uri"},"title":"Output"},"Status":{"enum":["starting","processing","succeeded","canceled","failed"],"type":"string","title":"Status","description":"An
+      enumeration."},"refine":{"enum":["no_refiner","expert_ensemble_refiner","base_image_refiner"],"type":"string","title":"refine","description":"An
+      enumeration."},"scheduler":{"enum":["DDIM","DPMSolverMultistep","HeunDiscrete","KarrasDPM","K_EULER_ANCESTRAL","K_EULER","PNDM"],"type":"string","title":"scheduler","description":"An
+      enumeration."},"WebhookEvent":{"enum":["start","output","logs","completed"],"type":"string","title":"WebhookEvent","description":"An
+      enumeration."},"ValidationError":{"type":"object","title":"ValidationError","required":["loc","msg","type"],"properties":{"loc":{"type":"array","items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error
+      Type"}}},"PredictionRequest":{"type":"object","title":"PredictionRequest","properties":{"id":{"type":"string","title":"Id"},"input":{"$ref":"#/components/schemas/Input"},"webhook":{"type":"string","title":"Webhook","format":"uri","maxLength":65536,"minLength":1},"created_at":{"type":"string","title":"Created
+      At","format":"date-time"},"output_file_prefix":{"type":"string","title":"Output
+      File Prefix"},"webhook_events_filter":{"type":"array","items":{"$ref":"#/components/schemas/WebhookEvent"},"default":["start","completed","logs","output"],"uniqueItems":true}}},"PredictionResponse":{"type":"object","title":"PredictionResponse","properties":{"id":{"type":"string","title":"Id"},"logs":{"type":"string","title":"Logs","default":""},"error":{"type":"string","title":"Error"},"input":{"$ref":"#/components/schemas/Input"},"output":{"$ref":"#/components/schemas/Output"},"status":{"$ref":"#/components/schemas/Status"},"metrics":{"type":"object","title":"Metrics"},"version":{"type":"string","title":"Version"},"created_at":{"type":"string","title":"Created
+      At","format":"date-time"},"started_at":{"type":"string","title":"Started At","format":"date-time"},"completed_at":{"type":"string","title":"Completed
+      At","format":"date-time"}}},"HTTPValidationError":{"type":"object","title":"HTTPValidationError","properties":{"detail":{"type":"array","items":{"$ref":"#/components/schemas/ValidationError"},"title":"Detail"}}}}}}}'
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 7fdc418acf96ec40-SEA
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Mon, 28 Aug 2023 11:36:21 GMT
+      NEL:
+      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+      Report-To:
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=yWb%2FzGs6ZQJ0%2FjqOU4fnTL%2FHLpfMEulr2b0oAmSR7x2MLR4sJRZJXMvhACamOGzh3GCvLSsDVWf%2F0FMOTnvr4B9AFtZDajgHMqgbc65OICwxbnzLD1%2BFVMEELQH2LX5iL%2Ffd"}],"group":"cf-nel","max_age":604800}'
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000
+      Transfer-Encoding:
+      - chunked
+      allow:
+      - GET, DELETE, HEAD, OPTIONS
+      content-security-policy-report-only:
+      - 'connect-src ''report-sample'' ''self'' https://replicate.delivery https://*.replicate.delivery
+        https://*.rudderlabs.com https://*.rudderstack.com https://*.mux.com https://*.sentry.io;
+        script-src ''report-sample'' ''self'' https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js;
+        media-src ''report-sample'' ''self'' https://replicate.delivery https://*.replicate.delivery
+        https://*.mux.com https://*.gstatic.com https://*.sentry.io; worker-src ''none'';
+        font-src ''report-sample'' ''self'' data: https://fonts.replicate.ai https://fonts.gstatic.com;
+        img-src ''report-sample'' ''self'' data: https://replicate.delivery https://*.replicate.delivery
+        https://*.githubusercontent.com https://github.com; default-src ''self'';
+        style-src ''report-sample'' ''self'' ''unsafe-inline'' https://fonts.googleapis.com;
+        report-uri'
+      cross-origin-opener-policy:
+      - same-origin
+      ratelimit-remaining:
+      - '2999'
+      ratelimit-reset:
+      - '1'
+      referrer-policy:
+      - same-origin
+      vary:
+      - Cookie, origin
+      via:
+      - 1.1 vegur, 1.1 google
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - DENY
+    http_version: HTTP/1.1
+    status_code: 200
+- request:
+    body: '{"version": "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5",
+      "input": {"prompt": "a studio photo of a rainbow colored corgi", "width": 512,
+      "height": 512, "seed": 42069}}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '189'
+      content-type:
+      - application/json
+      host:
+      - api.replicate.com
+      user-agent:
+      - replicate-python/0.11.0
+    method: POST
+    uri: https://api.replicate.com/v1/predictions
+  response:
+    content: '{"id":"y2g33ldbzvs67axlha5okvj5iy","version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","input":{"height":512,"prompt":"a
+      studio photo of a rainbow colored corgi","seed":42069,"width":512},"logs":"","error":null,"status":"starting","created_at":"2023-08-28T11:36:21.122842697Z","urls":{"cancel":"https://api.replicate.com/v1/predictions/y2g33ldbzvs67axlha5okvj5iy/cancel","get":"https://api.replicate.com/v1/predictions/y2g33ldbzvs67axlha5okvj5iy"}}
+
+      '
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 7fdc418b8862ec40-SEA
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '474'
+      Content-Type:
+      - application/json
+      Date:
+      - Mon, 28 Aug 2023 11:36:21 GMT
+      NEL:
+      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+      Report-To:
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=wmbLLaubdqH7HaCB9xaZxNpXA3lfChYWhqn586GnW4ivXDDWZL8bktFfsBXQBQ0D3%2Bl5dEJssDj6bBmMlz7%2FW2RDG%2BgCWmZO4SDYglWWWdNUrOabBjSWg%2BgY1mC2oCNcMGQm"}],"group":"cf-nel","max_age":604800}'
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000
+      ratelimit-remaining:
+      - '599'
+      ratelimit-reset:
+      - '1'
+      via:
+      - 1.1 google
+    http_version: HTTP/1.1
+    status_code: 201
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '0'
+      host:
+      - api.replicate.com
+      user-agent:
+      - replicate-python/0.11.0
+    method: POST
+    uri: https://api.replicate.com/v1/predictions/y2g33ldbzvs67axlha5okvj5iy/cancel
+  response:
+    content: '{"completed_at":"2023-08-28T11:36:21.260580Z","created_at":"2023-08-28T11:36:21.152559Z","error":null,"id":"y2g33ldbzvs67axlha5okvj5iy","input":{"seed":42069,"width":512,"height":512,"prompt":"a
+      studio photo of a rainbow colored corgi"},"logs":null,"metrics":{"predict_time":3e-06},"output":null,"started_at":"2023-08-28T11:36:21.260577Z","status":"canceled","urls":{"get":"https://api.replicate.com/v1/predictions/y2g33ldbzvs67axlha5okvj5iy","cancel":"https://api.replicate.com/v1/predictions/y2g33ldbzvs67axlha5okvj5iy/cancel"},"version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","webhook_completed":null}'
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 7fdc418c59a7ec40-SEA
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Mon, 28 Aug 2023 11:36:21 GMT
+      NEL:
+      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+      Report-To:
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=fjfXJvcir8dpDloM2PNGu1DyOaC4JM1AIGN0xiO4W0IwjfeEsj7TCXwIoG0pJp84OV51jWcLCL9dRB28WLxlUo4Pq6YNVlaoC1pXFa6%2BwahFS5LHHXunLKc4O1OZZkfMCD0R"}],"group":"cf-nel","max_age":604800}'
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000
+      Transfer-Encoding:
+      - chunked
+      ratelimit-remaining:
+      - '2999'
+      ratelimit-reset:
+      - '1'
+      via:
+      - 1.1 google
+    http_version: HTTP/1.1
+    status_code: 200
 version: 1

@@ -3,40 +3,41 @@ interactions:
     body: '{"input": {"input_images": "https://replicate.delivery/pbxt/JMV5OrEWpBAC5gO8rre0tPOyJIOkaXvG0TWfVJ9b4zhLeEUY/data.zip",
       "use_face_detection_instead": true}, "destination": "replicate/dreambooth-sdxl"}'
     headers:
-      Accept:
+      accept:
       - '*/*'
-      Accept-Encoding:
+      accept-encoding:
       - gzip, deflate
-      Connection:
+      connection:
       - keep-alive
-      Content-Length:
+      content-length:
       - '196'
-      Content-Type:
+      content-type:
       - application/json
-      User-Agent:
+      host:
+      - api.replicate.com
+      user-agent:
       - replicate-python/0.11.0
     method: POST
     uri: https://api.replicate.com/v1/models/stability-ai/sdxl/versions/a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5/trainings
   response:
-    body:
-      string: '{"id":"a3744vdbb2ebu2d5mfvpew4t54","version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","input":{"input_images":"https://replicate.delivery/pbxt/JMV5OrEWpBAC5gO8rre0tPOyJIOkaXvG0TWfVJ9b4zhLeEUY/data.zip","use_face_detection_instead":true},"logs":"","error":null,"status":"starting","created_at":"2023-08-28T10:39:49.650250048Z","urls":{"cancel":"https://api.replicate.com/v1/predictions/a3744vdbb2ebu2d5mfvpew4t54/cancel","get":"https://api.replicate.com/v1/predictions/a3744vdbb2ebu2d5mfvpew4t54"}}
+    content: '{"id":"xxi2kydbnla3ocjp64sclkewku","version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","input":{"input_images":"https://replicate.delivery/pbxt/JMV5OrEWpBAC5gO8rre0tPOyJIOkaXvG0TWfVJ9b4zhLeEUY/data.zip","use_face_detection_instead":true},"logs":"","error":null,"status":"starting","created_at":"2023-08-16T19:33:27.07526337Z","urls":{"cancel":"https://api.replicate.com/v1/predictions/xxi2kydbnla3ocjp64sclkewku/cancel","get":"https://api.replicate.com/v1/predictions/xxi2kydbnla3ocjp64sclkewku"}}
 
-        '
+      '
     headers:
       CF-Cache-Status:
       - DYNAMIC
       CF-RAY:
-      - 7fdbeebecebac396-SEA
+      - 7f7c1bebbefb279c-SEA
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Mon, 28 Aug 2023 10:39:49 GMT
+      - Wed, 16 Aug 2023 19:33:27 GMT
       NEL:
       - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
       Report-To:
-      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=Nsu4w6U98QSchFnw67nmUulD4OfQt9e5NMgZzYcDnRNpPwvCXlcM7ErkL%2FpVDeJAVX2gc5setZQMLy6%2FqzfQCCDZu8cqUu1%2FexFfIZ5T2G0ENc6rPfiL%2FnLrtS5LhDk7IYMP"}],"group":"cf-nel","max_age":604800}'
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=8nwXblNwwv%2B3MNruaLvo105IDtUra2KhqpdDIxWIzz0LXn8aAFXd3LaW1jyNse6YOfiuX5%2BFuBrA4%2FdFnF%2FmnqqTC58iRNJw8qlNjr8ZvnEXwJrJqxDEWa%2FtzJGC8wVt%2BQko"}],"group":"cf-nel","max_age":604800}'
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -49,32 +50,32 @@ interactions:
       - '1'
       via:
       - 1.1 google
-    status:
-      code: 201
-      message: Created
+    http_version: HTTP/1.1
+    status_code: 201
 - request:
-    body: null
+    body: ''
     headers:
-      Accept:
+      accept:
       - '*/*'
-      Accept-Encoding:
+      accept-encoding:
       - gzip, deflate
-      Connection:
+      connection:
       - keep-alive
-      Content-Length:
+      content-length:
       - '0'
-      User-Agent:
+      host:
+      - api.replicate.com
+      user-agent:
       - replicate-python/0.11.0
     method: POST
-    uri: https://api.replicate.com/v1/trainings/a3744vdbb2ebu2d5mfvpew4t54/cancel
+    uri: https://api.replicate.com/v1/trainings/xxi2kydbnla3ocjp64sclkewku/cancel
   response:
-    body:
-      string: '{"completed_at":"2023-08-28T10:39:49.822365Z","created_at":"2023-08-28T10:39:49.712635Z","error":null,"id":"a3744vdbb2ebu2d5mfvpew4t54","input":{"input_images":"https://replicate.delivery/pbxt/JMV5OrEWpBAC5gO8rre0tPOyJIOkaXvG0TWfVJ9b4zhLeEUY/data.zip","use_face_detection_instead":true},"logs":null,"metrics":{"predict_time":2e-06},"output":null,"started_at":"2023-08-28T10:39:49.822363Z","status":"canceled","urls":{"get":"https://api.replicate.com/v1/predictions/a3744vdbb2ebu2d5mfvpew4t54","cancel":"https://api.replicate.com/v1/predictions/a3744vdbb2ebu2d5mfvpew4t54/cancel"},"version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","webhook_completed":null}'
+    content: '{"completed_at":"2023-08-16T19:33:27.215203Z","created_at":"2023-08-16T19:33:27.135361Z","error":null,"id":"xxi2kydbnla3ocjp64sclkewku","input":{"input_images":"https://replicate.delivery/pbxt/JMV5OrEWpBAC5gO8rre0tPOyJIOkaXvG0TWfVJ9b4zhLeEUY/data.zip","use_face_detection_instead":true},"logs":null,"metrics":{"predict_time":3e-06},"output":null,"started_at":"2023-08-16T19:33:27.215200Z","status":"canceled","urls":{"get":"https://api.replicate.com/v1/predictions/xxi2kydbnla3ocjp64sclkewku","cancel":"https://api.replicate.com/v1/predictions/xxi2kydbnla3ocjp64sclkewku/cancel"},"version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","webhook_completed":null}'
     headers:
       CF-Cache-Status:
       - DYNAMIC
       CF-RAY:
-      - 7fdbeebfee29306c-SEA
+      - 7f7c1bec8813279c-SEA
       Connection:
       - keep-alive
       Content-Encoding:
@@ -82,11 +83,11 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Mon, 28 Aug 2023 10:39:49 GMT
+      - Wed, 16 Aug 2023 19:33:27 GMT
       NEL:
       - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
       Report-To:
-      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=s6quPtNUNf1JO%2FjdvK5dmNKRe9dqfArAvmtfmxQjwoRiFmNWPnzUangLf%2FfOQ3AGGV4qD6zNQrgaN%2BrXwA7SuDKBltqxmjGFXWXVR1FNfnzUJgpFeeYial%2Ffg805mIIrL1ng"}],"group":"cf-nel","max_age":604800}'
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=Y93Ig0lcI3wRbWLTTyTwQuz%2FQPzwlzM%2FI79Q17bYeJIu382PgqxEwZxl3dduPP%2FYm91xCRzfjW41b44fxB0YD6XXF%2FSMKmO19I1LpI%2FMd3p0jwepg7i3B1cNsCc6Rfpo0qN%2B"}],"group":"cf-nel","max_age":604800}'
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -99,78 +100,6 @@ interactions:
       - '1'
       via:
       - 1.1 google
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Connection:
-      - keep-alive
-      User-Agent:
-      - replicate-python/0.11.0
-    method: GET
-    uri: https://api.replicate.com/v1/trainings/a3744vdbb2ebu2d5mfvpew4t54
-  response:
-    body:
-      string: '{"completed_at":"2023-08-28T10:39:49.822365Z","created_at":"2023-08-28T10:39:49.712635Z","error":null,"id":"a3744vdbb2ebu2d5mfvpew4t54","input":{"input_images":"https://replicate.delivery/pbxt/JMV5OrEWpBAC5gO8rre0tPOyJIOkaXvG0TWfVJ9b4zhLeEUY/data.zip","use_face_detection_instead":true},"logs":null,"metrics":{"predict_time":2e-06},"output":null,"started_at":"2023-08-28T10:39:49.822363Z","status":"canceled","urls":{"get":"https://api.replicate.com/v1/trainings/a3744vdbb2ebu2d5mfvpew4t54","cancel":"https://api.replicate.com/v1/trainings/a3744vdbb2ebu2d5mfvpew4t54/cancel"},"version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","webhook_completed":null}'
-    headers:
-      CF-Cache-Status:
-      - DYNAMIC
-      CF-RAY:
-      - 7fdbeec0fe5027f2-SEA
-      Connection:
-      - keep-alive
-      Content-Encoding:
-      - gzip
-      Content-Type:
-      - application/json
-      Date:
-      - Mon, 28 Aug 2023 10:39:50 GMT
-      NEL:
-      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
-      Report-To:
-      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=pEeiZw9XQTcjT%2BdGvzkrXZ40Sv35Di99I5cJJATKJ3q86rvQlPsJRmy5XHUodrZKWtiLCr%2BoYMEaxFAaBjBJ%2FDQwHsSIWl%2F6nYpZQwnBjWUdJkU7daM7ENIDJZV7zIiubw4v"}],"group":"cf-nel","max_age":604800}'
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=15552000
-      Transfer-Encoding:
-      - chunked
-      allow:
-      - GET, OPTIONS
-      content-security-policy-report-only:
-      - 'media-src ''report-sample'' ''self'' https://replicate.delivery https://*.replicate.delivery
-        https://*.mux.com https://*.gstatic.com https://*.sentry.io; connect-src ''report-sample''
-        ''self'' https://replicate.delivery https://*.replicate.delivery https://*.rudderlabs.com
-        https://*.rudderstack.com https://*.mux.com https://*.sentry.io; font-src
-        ''report-sample'' ''self'' data: https://fonts.replicate.ai https://fonts.gstatic.com;
-        script-src ''report-sample'' ''self'' https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js;
-        worker-src ''none''; img-src ''report-sample'' ''self'' data: https://replicate.delivery
-        https://*.replicate.delivery https://*.githubusercontent.com https://github.com;
-        style-src ''report-sample'' ''self'' ''unsafe-inline'' https://fonts.googleapis.com;
-        default-src ''self''; report-uri'
-      cross-origin-opener-policy:
-      - same-origin
-      ratelimit-remaining:
-      - '2999'
-      ratelimit-reset:
-      - '1'
-      referrer-policy:
-      - same-origin
-      vary:
-      - Cookie, origin
-      via:
-      - 1.1 vegur, 1.1 google
-      x-content-type-options:
-      - nosniff
-      x-frame-options:
-      - DENY
-    status:
-      code: 200
-      message: OK
+    http_version: HTTP/1.1
+    status_code: 200
 version: 1

@@ -3,30 +3,31 @@ interactions:
     body: '{"input": {"input_images": "https://replicate.delivery/pbxt/JMV5OrEWpBAC5gO8rre0tPOyJIOkaXvG0TWfVJ9b4zhLeEUY/data.zip"},
       "destination": "<invalid>"}'
     headers:
-      Accept:
+      accept:
       - '*/*'
-      Accept-Encoding:
+      accept-encoding:
       - gzip, deflate
-      Connection:
+      connection:
       - keep-alive
-      Content-Length:
+      content-length:
       - '148'
-      Content-Type:
+      content-type:
       - application/json
-      User-Agent:
+      host:
+      - api.replicate.com
+      user-agent:
       - replicate-python/0.11.0
     method: POST
     uri: https://api.replicate.com/v1/models/stability-ai/sdxl/versions/a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5/trainings
   response:
-    body:
-      string: '{"detail":"The specified training destination does not exist","status":404}
+    content: '{"detail":"The specified training destination does not exist","status":404}
 
-        '
+      '
     headers:
       CF-Cache-Status:
       - DYNAMIC
       CF-RAY:
-      - 7fdbeebbf9d830ec-SEA
+      - 7f7c2190ed8c281a-SEA
       Connection:
       - keep-alive
       Content-Length:
@@ -34,11 +35,11 @@ interactions:
       Content-Type:
       - application/problem+json
       Date:
-      - Mon, 28 Aug 2023 10:39:49 GMT
+      - Wed, 16 Aug 2023 19:37:18 GMT
       NEL:
       - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
       Report-To:
-      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=taj3Swm7Drwon8liNhr2%2Bm4jj4m92erkPAH%2FZyxdYXPHJVKtA554hzQFf6Bn7YIfZcEjJhV6nF8A7Nk0EongoR4faHt%2FPQTGVB69L2mgoYimRG0EM2Iid3Iu1%2BRP1lpBtZ4f"}],"group":"cf-nel","max_age":604800}'
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=0vMWFlGDyffyF0A%2FL4%2FH830OVHnZd0gZDww4oocSSHq7eMAt327ut6v%2B2qAda7fThmH4WcElLTM%2B3PFyrsa1w1SHgfEdWyJSv8TYYi2nWXMqeP5EJc1SDjV958HGKSKDnjH5"}],"group":"cf-nel","max_age":604800}'
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -49,7 +50,6 @@ interactions:
       - '1'
       via:
       - 1.1 google
-    status:
-      code: 404
-      message: Not Found
+    http_version: HTTP/1.1
+    status_code: 404
 version: 1

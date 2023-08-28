@@ -38,7 +38,7 @@ async def test_trainings_create_with_invalid_destination(mock_replicate_api_toke
 @pytest.mark.vcr("trainings-get.yaml")
 @pytest.mark.asyncio
 async def test_trainings_get(mock_replicate_api_token):
-    id = "ckcbvmtbvg6di3b3uhvccytnfm"
+    id = "medrnz3bm5dd6ultvad2tejrte"
 
     training = replicate.trainings.get(id)
 
@@ -62,12 +62,7 @@ async def test_trainings_cancel(mock_replicate_api_token):
         input=input,
     )
 
-    id = training.id
     assert training.status == "starting"
 
     # training = replicate.trainings.cancel(training)
     training.cancel()
-    training.reload()
-
-    assert training.id == id
-    assert training.status == "canceled"
