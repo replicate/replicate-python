@@ -1,175 +1,73 @@
-import responses
-from responses import matchers
+import pytest
 
-from .factories import create_client, create_version
+import replicate
+from replicate.exceptions import ReplicateException
+
+input_images_url = "https://replicate.delivery/pbxt/JMV5OrEWpBAC5gO8rre0tPOyJIOkaXvG0TWfVJ9b4zhLeEUY/data.zip"
 
 
-@responses.activate
-def test_create_works_with_webhooks():
-    client = create_client()
-    version = create_version(client)
-
-    rsp = responses.post(
-        "https://api.replicate.com/v1/models/owner/model/versions/v1/trainings",
-        match=[
-            matchers.json_params_matcher(
-                {
-                    "input": {"data": "..."},
-                    "destination": "new_owner/new_model",
-                    "webhook": "https://example.com/webhook",
-                    "webhook_events_filter": ["completed"],
-                }
-            ),
-        ],
-        json={
-            "id": "t1",
-            "version": "v1",
-            "urls": {
-                "get": "https://api.replicate.com/v1/trainings/t1",
-                "cancel": "https://api.replicate.com/v1/trainings/t1/cancel",
-            },
-            "created_at": "2022-04-26T20:00:40.658234Z",
-            "completed_at": "2022-04-26T20:02:27.648305Z",
-            "source": "api",
-            "status": "processing",
-            "input": {"data": "..."},
-            "output": None,
-            "error": None,
-            "logs": "",
+@pytest.mark.vcr("trainings-create.yaml")
+@pytest.mark.asyncio
+async def test_trainings_create():
+    training = replicate.trainings.create(
+        "stability-ai/sdxl:a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5",
+        input={
+            "input_images": input_images_url,
+            "use_face_detection_instead": True,
         },
+        destination="replicate/dreambooth-sdxl",
     )
 
-    client.trainings.create(
-        version=f"owner/model:{version.id}",
-        input={"data": "..."},
-        destination="new_owner/new_model",
-        webhook="https://example.com/webhook",
-        webhook_events_filter=["completed"],
-    )
-
-    assert rsp.call_count == 1
+    assert training.id is not None
+    assert training.status == "starting"
 
 
-@responses.activate
-def test_cancel():
-    client = create_client()
-    version = create_version(client)
-
-    responses.post(
-        "https://api.replicate.com/v1/models/owner/model/versions/v1/trainings",
-        match=[
-            matchers.json_params_matcher(
-                {
-                    "input": {"data": "..."},
-                    "destination": "new_owner/new_model",
-                    "webhook": "https://example.com/webhook",
-                    "webhook_events_filter": ["completed"],
-                }
-            ),
-        ],
-        json={
-            "id": "t1",
-            "version": "v1",
-            "urls": {
-                "get": "https://api.replicate.com/v1/trainings/t1",
-                "cancel": "https://api.replicate.com/v1/trainings/t1/cancel",
+@pytest.mark.vcr("trainings-create__invalid-destination.yaml")
+@pytest.mark.asyncio
+async def test_trainings_create_with_invalid_destination():
+    with pytest.raises(ReplicateException):
+        replicate.trainings.create(
+            "stability-ai/sdxl:a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5",
+            input={
+                "input_images": input_images_url,
             },
-            "created_at": "2022-04-26T20:00:40.658234Z",
-            "completed_at": "2022-04-26T20:02:27.648305Z",
-            "source": "api",
-            "status": "processing",
-            "input": {"data": "..."},
-            "output": None,
-            "error": None,
-            "logs": "",
-        },
+            destination="<invalid>",
+        )
+
+
+@pytest.mark.vcr("trainings-get.yaml")
+@pytest.mark.asyncio
+async def test_trainings_get():
+    id = "ckcbvmtbvg6di3b3uhvccytnfm"
+
+    training = replicate.trainings.get(id)
+
+    assert training.id == id
+    assert training.status == "processing"
+
+
+@pytest.mark.vcr("trainings-cancel.yaml")
+@pytest.mark.asyncio
+async def test_trainings_cancel():
+    input = {
+        "input_images": input_images_url,
+        "use_face_detection_instead": True,
+    }
+
+    destination = "replicate/dreambooth-sdxl"
+
+    training = replicate.trainings.create(
+        "stability-ai/sdxl:a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5",
+        destination=destination,
+        input=input,
     )
 
-    training = client.trainings.create(
-        version=f"owner/model:{version.id}",
-        input={"data": "..."},
-        destination="new_owner/new_model",
-        webhook="https://example.com/webhook",
-        webhook_events_filter=["completed"],
-    )
+    id = training.id
+    assert training.status == "starting"
 
-    rsp = responses.post("https://api.replicate.com/v1/trainings/t1/cancel", json={})
+    # training = replicate.trainings.cancel(training)
     training.cancel()
-    assert rsp.call_count == 1
-
-
-@responses.activate
-def test_async_timings():
-    client = create_client()
-    version = create_version(client)
-
-    responses.post(
-        "https://api.replicate.com/v1/models/owner/model/versions/v1/trainings",
-        match=[
-            matchers.json_params_matcher(
-                {
-                    "input": {"data": "..."},
-                    "destination": "new_owner/new_model",
-                    "webhook": "https://example.com/webhook",
-                    "webhook_events_filter": ["completed"],
-                }
-            ),
-        ],
-        json={
-            "id": "t1",
-            "version": "v1",
-            "urls": {
-                "get": "https://api.replicate.com/v1/trainings/t1",
-                "cancel": "https://api.replicate.com/v1/trainings/t1/cancel",
-            },
-            "created_at": "2022-04-26T20:00:40.658234Z",
-            "source": "api",
-            "status": "processing",
-            "input": {"data": "..."},
-            "output": None,
-            "error": None,
-            "logs": "",
-        },
-    )
-
-    responses.get(
-        "https://api.replicate.com/v1/trainings/t1",
-        json={
-            "id": "t1",
-            "version": "v1",
-            "urls": {
-                "get": "https://api.replicate.com/v1/trainings/t1",
-                "cancel": "https://api.replicate.com/v1/trainings/t1/cancel",
-            },
-            "created_at": "2022-04-26T20:00:40.658234Z",
-            "completed_at": "2022-04-26T20:02:27.648305Z",
-            "source": "api",
-            "status": "succeeded",
-            "input": {"data": "..."},
-            "output": {
-                "weights": "https://delivery.replicate.com/weights.tgz",
-                "version": "v2",
-            },
-            "error": None,
-            "logs": "",
-        },
-    )
-
-    training = client.trainings.create(
-        version=f"owner/model:{version.id}",
-        input={"data": "..."},
-        destination="new_owner/new_model",
-        webhook="https://example.com/webhook",
-        webhook_events_filter=["completed"],
-    )
-
-    assert training.created_at == "2022-04-26T20:00:40.658234Z"
-    assert training.completed_at is None
-    assert training.output is None
-
-    # trainings don't have a wait method, so simulate it by calling reload
     training.reload()
-    assert training.created_at == "2022-04-26T20:00:40.658234Z"
-    assert training.completed_at == "2022-04-26T20:02:27.648305Z"
-    assert training.output["weights"] == "https://delivery.replicate.com/weights.tgz"
-    assert training.output["version"] == "v2"
+
+    assert training.id == id
+    assert training.status == "canceled"
