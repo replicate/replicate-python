@@ -1,7 +1,9 @@
 import asyncio
 import os
+import random
 import time
-from typing import Optional
+from datetime import datetime
+from typing import Iterable, Mapping, Optional, Union
 
 import httpx
 
@@ -48,7 +50,7 @@ class Client:
         )
 
     def _build_client(self, **kwargs) -> httpx.Client:
-        return httpx.Client(**kwargs)
+        return httpx.Client(transport=RetryTransport(httpx.HTTPTransport()), **kwargs)
 
     def request(self, method: str, path: str, **kwargs) -> httpx.Response:
         resp = self._client.request(method, path, **kwargs)
@@ -137,7 +139,9 @@ class AsyncClient(Client):
     """An asynchronous Replicate API client library"""
 
     def _build_client(self, **kwargs) -> httpx.AsyncClient:
-        return httpx.AsyncClient(**kwargs)
+        return httpx.AsyncClient(
+            transport=RetryTransport(httpx.HTTPTransport()), **kwargs
+        )
 
     async def request(self, method: str, path: str, **kwargs) -> httpx.Response:
         resp = await self._client.request(method, path, **kwargs)
@@ -201,3 +205,126 @@ class AsyncClient(Client):
             prediction = await self.predictions.get(prediction.id)
 
         return prediction
+
+
+# Adapted from https://github.com/encode/httpx/issues/108#issuecomment-1132753155
+class RetryTransport(httpx.AsyncBaseTransport, httpx.BaseTransport):
+    """A custom HTTP transport that automatically retries requests using an exponential backoff strategy
+    for specific HTTP status codes and request methods.
+    """
+
+    RETRYABLE_METHODS = frozenset(["HEAD", "GET", "PUT", "DELETE", "OPTIONS", "TRACE"])
+    RETRYABLE_STATUS_CODES = frozenset([413, 429, 503, 504])
+    MAX_BACKOFF_WAIT = 60
+
+    def __init__(
+        self,
+        wrapped_transport: Union[httpx.BaseTransport, httpx.AsyncBaseTransport],
+        max_attempts: int = 10,
+        max_backoff_wait: float = MAX_BACKOFF_WAIT,
+        backoff_factor: float = 0.1,
+        jitter_ratio: float = 0.1,
+        retryable_methods: Iterable[str] = None,
+        retry_status_codes: Iterable[int] = None,
+    ) -> None:
+        self.wrapped_transport = wrapped_transport
+        if jitter_ratio < 0 or jitter_ratio > 0.5:
+            raise ValueError(
+                f"jitter ratio should be between 0 and 0.5, actual {jitter_ratio}"
+            )
+
+        self.max_attempts = max_attempts
+        self.backoff_factor = backoff_factor
+        self.retryable_methods = (
+            frozenset(retryable_methods)
+            if retryable_methods
+            else self.RETRYABLE_METHODS
+        )
+        self.retry_status_codes = (
+            frozenset(retry_status_codes)
+            if retry_status_codes
+            else self.RETRYABLE_STATUS_CODES
+        )
+        self.jitter_ratio = jitter_ratio
+        self.max_backoff_wait = max_backoff_wait
+
+    def _calculate_sleep(
+        self, attempts_made: int, headers: Union[httpx.Headers, Mapping[str, str]]
+    ) -> float:
+        retry_after_header = (headers.get("Retry-After") or "").strip()
+        if retry_after_header:
+            if retry_after_header.isdigit():
+                return float(retry_after_header)
+
+            try:
+                parsed_date = datetime.fromisoformat(retry_after_header).astimezone()
+                diff = (parsed_date - datetime.now().astimezone()).total_seconds()
+                if diff > 0:
+                    return min(diff, self.max_backoff_wait)
+            except ValueError:
+                pass
+
+        backoff = self.backoff_factor * (2 ** (attempts_made - 1))
+        jitter = (backoff * self.jitter_ratio) * random.choice([1, -1])
+        total_backoff = backoff + jitter
+        return min(total_backoff, self.max_backoff_wait)
+
+    def handle_request(self, request: httpx.Request) -> httpx.Response:
+        response = self.wrapped_transport.handle_request(request)
+
+        if request.method not in self.retryable_methods:
+            return response
+
+        remaining_attempts = self.max_attempts - 1
+        attempts_made = 1
+
+        while True:
+            if (
+                remaining_attempts < 1
+                or response.status_code not in self.retry_status_codes
+            ):
+                return response
+
+            response.close()
+
+            sleep_for = self._calculate_sleep(attempts_made, response.headers)
+            time.sleep(sleep_for)
+
+            response = self.wrapped_transport.handle_request(request)
+
+            attempts_made += 1
+            remaining_attempts -= 1
+
+    async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+        response = await self.wrapped_transport.handle_async_request(request)
+
+        if request.method not in self.retryable_methods:
+            return response
+
+        remaining_attempts = self.max_attempts - 1
+        attempts_made = 1
+
+        while True:
+            if (
+                remaining_attempts < 1
+                or response.status_code not in self.retry_status_codes
+            ):
+                return response
+
+            response.close()
+
+            sleep_for = self._calculate_sleep(attempts_made, response.headers)
+            time.sleep(sleep_for)
+
+            response = await self.wrapped_transport.handle_async_request(request)
+
+            attempts_made += 1
+            remaining_attempts -= 1
+
+    async def aclose(self) -> None:
+        transport: httpx.AsyncBaseTransport = self._wrapped_transport
+        await transport.aclose()
+
+    def close(self) -> None:
+        transport: httpx.BaseTransport = self._wrapped_transport
+        transport.close()

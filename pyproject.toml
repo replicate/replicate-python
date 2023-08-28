@@ -51,6 +51,7 @@ select = [
 ignore = [
     "E501",   # Line too long
     "S113",   # Probable use of requests call without timeout
+    "S311",   # Standard pseudo-random generators are not suitable for security/cryptographic purposes
     "ANN001", # Missing type annotation for function argument
     "ANN002", # Missing type annotation for `*args`
     "ANN003", # Missing type annotation for `**kwargs`

@@ -3,7 +3,7 @@ from typing import Optional
 from replicate.resource import Namespace, Resource
 
 from .prediction import Prediction
-from .version import Version, Versions, AsyncVersions
+from .version import AsyncVersions, Version, Versions
 
 
 class Model(Resource):
@@ -60,7 +60,7 @@ class AsyncModels(Models):
         resp = await self._client.request("GET", f"/models/{owner_name}/{model_name}")
 
         return Model(**resp.json())
-    
+
     @property
     def versions(self) -> AsyncVersions:
         return AsyncVersions(client=self._client)
