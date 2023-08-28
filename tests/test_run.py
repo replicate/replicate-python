@@ -6,7 +6,7 @@ from replicate.exceptions import ReplicateError
 
 @pytest.mark.vcr("run.yaml")
 @pytest.mark.asyncio
-async def test_run():
+async def test_run(mock_replicate_api_token):
     version = "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5"
 
     input = {
@@ -28,6 +28,6 @@ async def test_run():
 
 
 @pytest.mark.vcr
-def test_run_with_invalid_identifier():
+def test_run_with_invalid_identifier(mock_replicate_api_token):
     with pytest.raises(ReplicateError):
         replicate.run("invalid")

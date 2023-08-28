@@ -5,7 +5,7 @@ import replicate
 
 @pytest.mark.vcr("predictions-create.yaml")
 @pytest.mark.asyncio
-async def test_predictions_create():
+async def test_predictions_create(mock_replicate_api_token):
     input = {
         "prompt": "a studio photo of a rainbow colored corgi",
         "width": 512,
@@ -29,7 +29,7 @@ async def test_predictions_create():
 
 @pytest.mark.vcr("predictions-get.yaml")
 @pytest.mark.asyncio
-async def test_predictions_get():
+async def test_predictions_get(mock_replicate_api_token):
     id = "vgcm4plb7tgzlyznry5d5jkgvu"
 
     prediction = replicate.predictions.get(id)
@@ -39,7 +39,7 @@ async def test_predictions_get():
 
 @pytest.mark.vcr("predictions-cancel.yaml")
 @pytest.mark.asyncio
-async def test_predictions_cancel():
+async def test_predictions_cancel(mock_replicate_api_token):
     input = {
         "prompt": "a studio photo of a rainbow colored corgi",
         "width": 512,

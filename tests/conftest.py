@@ -1,6 +1,16 @@
 import os
+from unittest import mock
 
 import pytest
+
+
+@pytest.fixture(scope="session")
+def mock_replicate_api_token(scope="class"):
+    if os.environ.get("REPLICATE_API_TOKEN", "") != "":
+        yield
+    else:
+        with mock.patch.dict(os.environ, {"REPLICATE_API_TOKEN": "test-token"}):
+            yield
 
 
 @pytest.fixture(scope="module")
