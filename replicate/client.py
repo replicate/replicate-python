@@ -188,7 +188,7 @@ class RetryTransport(httpx.AsyncBaseTransport, httpx.BaseTransport):
                 pass
 
         backoff = self.backoff_factor * (2 ** (attempts_made - 1))
-        jitter = (backoff * self.jitter_ratio) * random.choice([1, -1])
+        jitter = (backoff * self.jitter_ratio) * random.choice([1, -1])  # noqa: S311
         total_backoff = backoff + jitter
         return min(total_backoff, self.max_backoff_wait)
 
