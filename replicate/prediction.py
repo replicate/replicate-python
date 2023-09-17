@@ -1,4 +1,6 @@
+import re
 import time
+from dataclasses import dataclass
 from typing import Any, Dict, Iterator, List, Optional
 
 from replicate.base_model import BaseModel
@@ -55,6 +57,37 @@ class Prediction(BaseModel):
     - `get`: A URL to fetch the prediction.
     - `cancel`: A URL to cancel the prediction.
     """
+
+    @dataclass
+    class Progress:
+        percentage: float
+        """The percentage of the prediction that has completed."""
+
+        current: int
+        """The number of items that have been processed."""
+
+        total: int
+        """The total number of items to process."""
+
+    @property
+    def progress(self) -> Optional[Progress]:
+        if self.logs is None or self.logs == "":
+            return None
+
+        pattern = (
+            r"^\s*(?P<percentage>\d+)%\s*\|.+?\|\s*(?P<current>\d+)\/(?P<total>\d+)"
+        )
+        re_compiled = re.compile(pattern)
+
+        lines = self.logs.split("\n")
+        for i in reversed(range(len(lines))):
+            line = lines[i].strip()
+            if re_compiled.match(line):
+                matches = re_compiled.findall(line)
+                if len(matches) == 1:
+                    percentage, current, total = map(int, matches[0])
+                    return Prediction.Progress(percentage / 100.0, current, total)
+        return None
 
     def wait(self) -> None:
         """
