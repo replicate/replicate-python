@@ -69,25 +69,32 @@ class Prediction(BaseModel):
         total: int
         """The total number of items to process."""
 
+        _pattern = re.compile(
+            r"^\s*(?P<percentage>\d+)%\s*\|.+?\|\s*(?P<current>\d+)\/(?P<total>\d+)"
+        )
+
+        @classmethod
+        def parse(cls, logs: str) -> Optional["Prediction.Progress"]:
+            lines = logs.split("\n")
+            for i in reversed(range(len(lines))):
+                line = lines[i].strip()
+                if cls._pattern.match(line):
+                    matches = cls._pattern.findall(line)
+                    if len(matches) == 1:
+                        percentage, current, total = map(int, matches[0])
+                        return cls(percentage / 100.0, current, total)
+
+            return None
+
     @property
     def progress(self) -> Optional[Progress]:
+        """
+        The progress of the prediction, if available.
+        """
         if self.logs is None or self.logs == "":
             return None
 
-        pattern = (
-            r"^\s*(?P<percentage>\d+)%\s*\|.+?\|\s*(?P<current>\d+)\/(?P<total>\d+)"
-        )
-        re_compiled = re.compile(pattern)
-
-        lines = self.logs.split("\n")
-        for i in reversed(range(len(lines))):
-            line = lines[i].strip()
-            if re_compiled.match(line):
-                matches = re_compiled.findall(line)
-                if len(matches) == 1:
-                    percentage, current, total = map(int, matches[0])
-                    return Prediction.Progress(percentage / 100.0, current, total)
-        return None
+        return Prediction.Progress.parse(self.logs)
 
     def wait(self) -> None:
         """
