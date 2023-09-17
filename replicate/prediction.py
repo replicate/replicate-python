@@ -75,6 +75,8 @@ class Prediction(BaseModel):
 
         @classmethod
         def parse(cls, logs: str) -> Optional["Prediction.Progress"]:
+            """Parse the progress from the logs of a prediction."""
+
             lines = logs.split("\n")
             for i in reversed(range(len(lines))):
                 line = lines[i].strip()
