@@ -6,6 +6,9 @@ This is a Python client for [Replicate](https://replicate.com). It lets you run 
 >
 >  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1K91q4p-OhL96FHBAVLsv9FlwFdu6Pn3c)
 
+## Requirements
+
+- Python 3.8+
 
 ## Install
 
