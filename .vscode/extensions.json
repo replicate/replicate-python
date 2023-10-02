@@ -3,6 +3,7 @@
     "charliermarsh.ruff",
     "ms-python.black-formatter",
     "ms-python.python",
-    "ms-python.vscode-pylance"
+    "ms-python.vscode-pylance",
+    "ms-python.mypy-type-checker"
   ]
 }

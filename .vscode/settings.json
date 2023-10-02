@@ -7,19 +7,25 @@
   "files.insertFinalNewline": true,
   "files.trimFinalNewlines": true,
   "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
       "source.fixAll": true,
       "source.organizeImports": true
     },
-    "editor.defaultFormatter": null
   },
   "python.languageServer": "Pylance",
-  "python.testing.pytestArgs": ["-vvv", "python"],
+  "python.testing.pytestArgs": [
+    "-vvv",
+    "python"
+  ],
   "python.testing.unittestEnabled": false,
   "python.testing.pytestEnabled": true,
-  "python.formatting.provider": "black",
-  "python.linting.mypyEnabled": true,
-  "python.linting.mypyArgs": ["--show-column-numbers", "--no-pretty"],
-  "ruff.args": ["--config=pyproject.toml"]
+  "mypy-type-checker.args": [
+    "--show-column-numbers",
+    "--no-pretty"
+  ],
+  "ruff.args": [
+    "--config=pyproject.toml"
+  ],
 }
