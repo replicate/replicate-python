@@ -32,7 +32,7 @@ class Client:
             total=5,
             backoff_factor=2,
             # Only retry 500s on GET so we don't unintionally mutute data
-            allowed_methods=["GET"],
+            # allowed_methods=["GET"],
             # https://support.cloudflare.com/hc/en-us/articles/115003011431-Troubleshooting-Cloudflare-5XX-errors
             status_forcelist=[
                 429,
@@ -56,7 +56,7 @@ class Client:
         write_retries = Retry(
             total=5,
             backoff_factor=2,
-            allowed_methods=["POST", "PUT"],
+            # allowed_methods=["POST", "PUT"],
             # Only retry POST/PUT requests on rate limits, so we don't unintionally mutute data
             status_forcelist=[429],
         )
