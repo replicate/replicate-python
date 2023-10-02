@@ -58,7 +58,7 @@ typing-extensions==4.7.1
     #   mypy
     #   pydantic
     #   pydantic-core
-urllib3==2.0.3
+urllib3==2.0.6
     # via
     #   requests
     #   responses
