@@ -6,23 +6,34 @@
 #
 annotated-types==0.5.0
     # via pydantic
+anyio==3.7.1
+    # via httpcore
 certifi==2023.7.22
-    # via requests
-charset-normalizer==3.2.0
-    # via requests
+    # via
+    #   httpcore
+    #   httpx
+h11==0.14.0
+    # via httpcore
+httpcore==0.17.3
+    # via httpx
+httpx==0.24.1
+    # via replicate (pyproject.toml)
 idna==3.4
-    # via requests
+    # via
+    #   anyio
+    #   httpx
 packaging==23.1
     # via replicate (pyproject.toml)
 pydantic==2.0.3
     # via replicate (pyproject.toml)
 pydantic-core==2.3.0
     # via pydantic
-requests==2.31.0
-    # via replicate (pyproject.toml)
+sniffio==1.3.0
+    # via
+    #   anyio
+    #   httpcore
+    #   httpx
 typing-extensions==4.7.1
     # via
     #   pydantic
     #   pydantic-core
-urllib3==2.0.3
-    # via requests

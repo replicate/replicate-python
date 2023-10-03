@@ -1,0 +1,73 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - api.replicate.com
+      user-agent:
+      - replicate-python/0.11.0
+    method: GET
+    uri: https://api.replicate.com/v1/trainings/medrnz3bm5dd6ultvad2tejrte
+  response:
+    content: '{"completed_at":null,"created_at":"2023-08-16T19:33:26.906823Z","error":null,"id":"medrnz3bm5dd6ultvad2tejrte","input":{"input_images":"https://replicate.delivery/pbxt/JMV5OrEWpBAC5gO8rre0tPOyJIOkaXvG0TWfVJ9b4zhLeEUY/data.zip","use_face_detection_instead":true},"logs":null,"metrics":{},"output":null,"started_at":"2023-08-16T19:33:42.114513Z","status":"processing","urls":{"get":"https://api.replicate.com/v1/trainings/medrnz3bm5dd6ultvad2tejrte","cancel":"https://api.replicate.com/v1/trainings/medrnz3bm5dd6ultvad2tejrte/cancel"},"version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","webhook_completed":null}'
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 7f7c1beaedff279c-SEA
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 16 Aug 2023 19:33:26 GMT
+      NEL:
+      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+      Report-To:
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=SntiwLHCR4wiv49Qmn%2BR1ZblcX%2FgoVlIgsek4yZliZiWts2SqPjqTjrSkB%2Bwch8oHqR%2BBNVs1cSbihlHd8MWPXsbwC2uShz0c6tD4nclaecblb3FnEp4Mccy9hlZ39izF9Tm"}],"group":"cf-nel","max_age":604800}'
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000
+      Transfer-Encoding:
+      - chunked
+      allow:
+      - OPTIONS, GET
+      content-security-policy-report-only:
+      - 'style-src ''report-sample'' ''self'' ''unsafe-inline'' https://fonts.googleapis.com;
+        img-src ''report-sample'' ''self'' data: https://replicate.delivery https://*.replicate.delivery
+        https://*.githubusercontent.com https://github.com; worker-src ''none''; media-src
+        ''report-sample'' ''self'' https://replicate.delivery https://*.replicate.delivery
+        https://*.mux.com https://*.gstatic.com https://*.sentry.io; connect-src ''report-sample''
+        ''self'' https://replicate.delivery https://*.replicate.delivery https://*.rudderlabs.com
+        https://*.rudderstack.com https://*.mux.com https://*.sentry.io; script-src
+        ''report-sample'' ''self'' https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js;
+        font-src ''report-sample'' ''self'' data: https://fonts.replicate.ai https://fonts.gstatic.com;
+        default-src ''self''; report-uri'
+      cross-origin-opener-policy:
+      - same-origin
+      ratelimit-remaining:
+      - '2999'
+      ratelimit-reset:
+      - '1'
+      referrer-policy:
+      - same-origin
+      vary:
+      - Cookie, origin
+      via:
+      - 1.1 vegur, 1.1 google
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - DENY
+    http_version: HTTP/1.1
+    status_code: 200
+version: 1

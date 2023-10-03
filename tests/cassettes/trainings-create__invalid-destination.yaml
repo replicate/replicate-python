@@ -1,0 +1,55 @@
+interactions:
+- request:
+    body: '{"input": {"input_images": "https://replicate.delivery/pbxt/JMV5OrEWpBAC5gO8rre0tPOyJIOkaXvG0TWfVJ9b4zhLeEUY/data.zip"},
+      "destination": "<invalid>"}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '148'
+      content-type:
+      - application/json
+      host:
+      - api.replicate.com
+      user-agent:
+      - replicate-python/0.11.0
+    method: POST
+    uri: https://api.replicate.com/v1/models/stability-ai/sdxl/versions/a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5/trainings
+  response:
+    content: '{"detail":"The specified training destination does not exist","status":404}
+
+      '
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 7f7c2190ed8c281a-SEA
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '76'
+      Content-Type:
+      - application/problem+json
+      Date:
+      - Wed, 16 Aug 2023 19:37:18 GMT
+      NEL:
+      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+      Report-To:
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=0vMWFlGDyffyF0A%2FL4%2FH830OVHnZd0gZDww4oocSSHq7eMAt327ut6v%2B2qAda7fThmH4WcElLTM%2B3PFyrsa1w1SHgfEdWyJSv8TYYi2nWXMqeP5EJc1SDjV958HGKSKDnjH5"}],"group":"cf-nel","max_age":604800}'
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000
+      ratelimit-remaining:
+      - '2999'
+      ratelimit-reset:
+      - '1'
+      via:
+      - 1.1 google
+    http_version: HTTP/1.1
+    status_code: 404
+version: 1
