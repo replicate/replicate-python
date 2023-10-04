@@ -110,7 +110,17 @@ class ModelCollection(Collection):
     model = Model
 
     def list(self) -> List[Model]:
-        raise NotImplementedError()
+        """
+        List all public models.
+
+        Returns:
+            A list of models.
+        """
+
+        resp = self._client._request("GET", "/v1/models")
+        # TODO: paginate
+        models = resp.json()["results"]
+        return [self.prepare_model(obj) for obj in models]
 
     def get(self, key: str) -> Model:
         """
