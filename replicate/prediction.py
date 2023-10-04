@@ -1,7 +1,7 @@
 import re
 import time
 from dataclasses import dataclass
-from typing import Any, Dict, Iterator, List, Optional
+from typing import Any, Dict, Iterator, List, Optional, Union
 
 from replicate.base_model import BaseModel
 from replicate.collection import Collection
@@ -169,7 +169,7 @@ class PredictionCollection(Collection):
 
     def create(  # type: ignore
         self,
-        version: Version | str,
+        version: Union[Version, str],
         input: Dict[str, Any],
         webhook: Optional[str] = None,
         webhook_completed: Optional[str] = None,
