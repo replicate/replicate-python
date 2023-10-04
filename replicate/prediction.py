@@ -1,7 +1,7 @@
 import re
 import time
 from dataclasses import dataclass
-from typing import Any, Dict, Iterator, List, Optional
+from typing import Any, Dict, Iterator, List, Optional, Union
 
 from replicate.base_model import BaseModel
 from replicate.collection import Collection
@@ -169,7 +169,7 @@ class PredictionCollection(Collection):
 
     def create(  # type: ignore
         self,
-        version: Version,
+        version: Union[Version, str],
         input: Dict[str, Any],
         webhook: Optional[str] = None,
         webhook_completed: Optional[str] = None,
@@ -195,7 +195,7 @@ class PredictionCollection(Collection):
 
         input = encode_json(input, upload_file=upload_file)
         body = {
-            "version": version.id,
+            "version": version if isinstance(version, str) else version.id,
             "input": input,
         }
         if webhook is not None:
@@ -213,5 +213,9 @@ class PredictionCollection(Collection):
             json=body,
         )
         obj = resp.json()
-        obj["version"] = version
+        if isinstance(version, Version):
+            obj["version"] = version
+        else:
+            del obj["version"]
+
         return self.prepare_model(obj)

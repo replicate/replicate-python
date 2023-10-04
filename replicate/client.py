@@ -20,6 +20,7 @@ from .exceptions import ModelError, ReplicateError
 from .model import ModelCollection
 from .prediction import PredictionCollection
 from .training import TrainingCollection
+from .version import Version
 
 
 class Client:
@@ -100,26 +101,41 @@ class Client:
             The output of the model
         """
         # Split model_version into owner, name, version in format owner/name:version
-        m = re.match(r"^(?P<model>[^/]+/[^:]+):(?P<version>.+)$", model_version)
-        if not m:
+        match = re.match(
+            r"^(?P<owner>[^/]+)/(?P<name>[^:]+):(?P<version>.+)$", model_version
+        )
+        if not match:
             raise ReplicateError(
                 f"Invalid model_version: {model_version}. Expected format: owner/name:version"
             )
-        model = self.models.get(m.group("model"))
-        version = model.versions.get(m.group("version"))
-        prediction = self.predictions.create(version=version, **kwargs)
-        # Return an iterator of the output
-        schema = version.get_transformed_schema()
-        output = schema["components"]["schemas"]["Output"]
-        if (
-            output.get("type") == "array"
-            and output.get("x-cog-array-type") == "iterator"
-        ):
-            return prediction.output_iterator()
+
+        owner = match.group("owner")
+        name = match.group("name")
+        version_id = match.group("version")
+
+        prediction = self.predictions.create(version=version_id, **kwargs)
+
+        if owner and name:
+            # FIXME: There should be a method for fetching a version without first fetching its model
+            resp = self._request(
+                "GET", f"/v1/models/{owner}/{name}/versions/{version_id}"
+            )
+            version = Version(**resp.json())
+
+            # Return an iterator of the output
+            schema = version.get_transformed_schema()
+            output = schema["components"]["schemas"]["Output"]
+            if (
+                output.get("type") == "array"
+                and output.get("x-cog-array-type") == "iterator"
+            ):
+                return prediction.output_iterator()
 
         prediction.wait()
+
         if prediction.status == "failed":
             raise ModelError(prediction.error)
+
         return prediction.output
 
 
