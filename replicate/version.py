@@ -87,7 +87,7 @@ class VersionCollection(Collection):
             The model version.
         """
         resp = self._client._request(
-            "GET", f"/v1/models/{self._model.username}/{self._model.name}/versions/{id}"
+            "GET", f"/v1/models/{self._model.owner}/{self._model.name}/versions/{id}"
         )
         return self.prepare_model(resp.json())
 
@@ -102,6 +102,6 @@ class VersionCollection(Collection):
             List[Version]: A list of version objects.
         """
         resp = self._client._request(
-            "GET", f"/v1/models/{self._model.username}/{self._model.name}/versions"
+            "GET", f"/v1/models/{self._model.owner}/{self._model.name}/versions"
         )
         return [self.prepare_model(obj) for obj in resp.json()["results"]]
