@@ -143,7 +143,13 @@ class ModelCollection(Collection):
             attrs.id = f"{attrs.owner}/{attrs.name}"
         elif isinstance(attrs, dict):
             attrs["id"] = f"{attrs['owner']}/{attrs['name']}"
-            attrs.get("default_example", {}).pop("version", None)
+
+            if attrs is not None:
+                if "default_example" in attrs and attrs["default_example"]:
+                    attrs["default_example"].pop("version")
+
+                if "latest_version" in attrs and attrs["latest_version"] == {}:
+                    attrs.pop("latest_version")
 
         model = super().prepare_model(attrs)
 
