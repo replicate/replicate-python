@@ -139,9 +139,11 @@ class ModelCollection(Collection):
         raise NotImplementedError()
 
     def prepare_model(self, attrs: Union[Model, Dict]) -> Model:
-        attrs["id"] = f"{attrs['owner']}/{attrs['name']}"
-
-        attrs.get("default_example", {}).pop("version", None)
+        if isinstance(attrs, BaseModel):
+            attrs.id = f"{attrs.owner}/{attrs.name}"
+        elif isinstance(attrs, dict):
+            attrs["id"] = f"{attrs['owner']}/{attrs['name']}"
+            attrs.get("default_example", {}).pop("version", None)
 
         model = super().prepare_model(attrs)
 
