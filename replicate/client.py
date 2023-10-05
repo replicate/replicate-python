@@ -49,9 +49,11 @@ class Client:
         self.poll_interval = float(os.environ.get("REPLICATE_POLL_INTERVAL", "0.5"))
 
         headers = {
-            "Authorization": f"Token {api_token}",
             "User-Agent": f"replicate-python/{__version__}",
         }
+
+        if api_token is not None and api_token != "":
+            headers["Authorization"] = f"Token {api_token}"
 
         transport = kwargs.pop("transport", httpx.HTTPTransport())
 
