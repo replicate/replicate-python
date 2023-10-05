@@ -30,10 +30,29 @@ async def test_run(mock_replicate_api_token):
     assert output[0].startswith("https://")
 
 
-@pytest.mark.vcr
-def test_run_with_invalid_identifier(mock_replicate_api_token):
+@pytest.mark.vcr("run.yaml")
+@pytest.mark.asyncio
+async def test_run_with_invalid_identifier(mock_replicate_api_token):
     with pytest.raises(ReplicateError):
         replicate.run("invalid")
+
+
+@pytest.mark.vcr("run.yaml")
+@pytest.mark.asyncio
+async def test_run_without_token():
+    with pytest.raises(ReplicateError) as excinfo:
+        version = "01d17250ffa554142c31e96e7dc0e4d313d62006e15684062c84d2eadb13bf11"
+
+        input = {
+            "prompt": "write a haiku about camelids",
+        }
+
+        replicate.run(
+            f"meta/codellama-13b:{version}",
+            input=input,
+        )
+
+    assert "You did not pass an authentication token" in str(excinfo.value)
 
 
 @pytest.mark.asyncio
