@@ -14,12 +14,34 @@ from replicate.schema import make_schema_backwards_compatible
 
 
 class Version(BaseModel):
+    """
+    A version of a model.
+    """
+
     id: str
+    """The unique ID of the version."""
+
     created_at: datetime.datetime
+    """When the version was created."""
+
     cog_version: str
+    """The version of the Cog used to create the version."""
+
     openapi_schema: dict
+    """An OpenAPI description of the model inputs and outputs."""
 
     def predict(self, **kwargs) -> Union[Any, Iterator[Any]]:
+        """
+        DEPRECATED: Use `replicate.run()` instead.
+
+        Create a prediction using this model version.
+
+        Args:
+            kwargs: The input to the model.
+        Returns:
+            The output of the model.
+        """
+
         warnings.warn(
             "version.predict() is deprecated. Use replicate.run() instead. It will be removed before version 1.0.",
             DeprecationWarning,
@@ -57,10 +79,15 @@ class VersionCollection(Collection):
     # doesn't exist yet
     def get(self, id: str) -> Version:
         """
-        Get a specific version.
+        Get a specific model version.
+
+        Args:
+            id: The version ID.
+        Returns:
+            The model version.
         """
         resp = self._client._request(
-            "GET", f"/v1/models/{self._model.username}/{self._model.name}/versions/{id}"
+            "GET", f"/v1/models/{self._model.owner}/{self._model.name}/versions/{id}"
         )
         return self.prepare_model(resp.json())
 
@@ -70,8 +97,11 @@ class VersionCollection(Collection):
     def list(self) -> List[Version]:
         """
         Return a list of all versions for a model.
+
+        Returns:
+            List[Version]: A list of version objects.
         """
         resp = self._client._request(
-            "GET", f"/v1/models/{self._model.username}/{self._model.name}/versions"
+            "GET", f"/v1/models/{self._model.owner}/{self._model.name}/versions"
         )
         return [self.prepare_model(obj) for obj in resp.json()["results"]]

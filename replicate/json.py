@@ -15,8 +15,10 @@ def encode_json(
     obj: Any, upload_file: Callable[[io.IOBase], str]  # noqa: ANN401
 ) -> Any:  # noqa: ANN401
     """
-    Returns a JSON-compatible version of the object. Effectively the same thing as cog.json.encode_json.
+    Return a JSON-compatible version of the object.
     """
+    # Effectively the same thing as cog.json.encode_json.
+
     if isinstance(obj, dict):
         return {key: encode_json(value, upload_file) for key, value in obj.items()}
     if isinstance(obj, (list, set, frozenset, GeneratorType, tuple)):

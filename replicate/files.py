@@ -4,19 +4,27 @@ import mimetypes
 import os
 from typing import Optional
 
-import requests
+import httpx
 
 
 def upload_file(fh: io.IOBase, output_file_prefix: Optional[str] = None) -> str:
     """
-    Lifted straight from cog.files
+    Upload a file to the server.
+
+    Args:
+        fh: A file handle to upload.
+        output_file_prefix: A string to prepend to the output file name.
+    Returns:
+        str: A URL to the uploaded file.
     """
+    # Lifted straight from cog.files
+
     fh.seek(0)
 
     if output_file_prefix is not None:
         name = getattr(fh, "name", "output")
         url = output_file_prefix + os.path.basename(name)
-        resp = requests.put(url, files={"file": fh}, timeout=None)
+        resp = httpx.put(url, files={"file": fh}, timeout=None)  # type: ignore
         resp.raise_for_status()
         return url
 
