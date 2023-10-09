@@ -39,8 +39,10 @@ class Client:
         super().__init__()
 
         self._api_token = api_token
-        self._base_url = base_url or os.environ.get(
-            "REPLICATE_API_BASE_URL", "https://api.replicate.com"
+        self._base_url = (
+            base_url
+            or os.environ.get("REPLICATE_API_BASE_URL")
+            or "https://api.replicate.com"
         )
         self._timeout = timeout or httpx.Timeout(
             5.0, read=30.0, write=30.0, connect=5.0, pool=10.0
