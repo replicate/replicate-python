@@ -48,7 +48,7 @@ class Version(BaseModel):
             stacklevel=1,
         )
 
-        prediction = self._client.predictions.create(version=self, input=kwargs)
+        prediction = self._client.predictions.create(version=self, input=kwargs)  # pylint: disable=no-member
         # Return an iterator of the output
         schema = self.get_transformed_schema()
         output = schema["components"]["schemas"]["Output"]
