@@ -8,6 +8,10 @@ echo "Running mypy"
 python -m mypy replicate || STATUS=$?
 echo ""
 
+echo "Running pylint"
+python -m pylint --exit-zero replicate || STATUS=$?
+echo ""
+
 echo "Running ruff check"
 python -m ruff . || STATUS=$?
 echo ""
