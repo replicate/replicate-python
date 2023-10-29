@@ -30,7 +30,7 @@ class Version(BaseModel):
     openapi_schema: dict
     """An OpenAPI description of the model inputs and outputs."""
 
-    def predict(self, **kwargs) -> Union[Any, Iterator[Any]]:
+    def predict(self, **kwargs) -> Union[Any, Iterator[Any]]:  # noqa: ANN401
         """
         DEPRECATED: Use `replicate.run()` instead.
 
