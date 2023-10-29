@@ -11,6 +11,7 @@ except ImportError:
     HAS_NUMPY = False
 
 
+# pylint: disable=too-many-return-statements
 def encode_json(
     obj: Any,  # noqa: ANN401
     upload_file: Callable[[io.IOBase], str],
