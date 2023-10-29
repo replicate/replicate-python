@@ -194,7 +194,7 @@ class PredictionCollection(Collection):
         """
 
         input = encode_json(input, upload_file=upload_file)
-        body = {
+        body: Dict[str, Any] = {
             "version": version if isinstance(version, str) else version.id,
             "input": input,
         }
