@@ -24,15 +24,15 @@ class Collection(abc.ABC, Generic[Model]):
         pass
 
     @abc.abstractmethod
-    def list(self) -> List[Model]:
+    def list(self) -> List[Model]:  # pylint: disable=missing-function-docstring
         pass
 
     @abc.abstractmethod
-    def get(self, key: str) -> Model:
+    def get(self, key: str) -> Model:  # pylint: disable=missing-function-docstring
         pass
 
     @abc.abstractmethod
-    def create(self, **kwargs) -> Model:
+    def create(self, **kwargs) -> Model:  # pylint: disable=missing-function-docstring
         pass
 
     def prepare_model(self, attrs: Union[Model, Dict]) -> Model:
