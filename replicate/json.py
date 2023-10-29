@@ -25,8 +25,8 @@ def encode_json(
     if isinstance(obj, (list, set, frozenset, GeneratorType, tuple)):
         return [encode_json(value, upload_file) for value in obj]
     if isinstance(obj, Path):
-        with obj.open("rb") as f:
-            return upload_file(f)
+        with obj.open("rb") as file:
+            return upload_file(file)
     if isinstance(obj, io.IOBase):
         return upload_file(obj)
     if HAS_NUMPY:
