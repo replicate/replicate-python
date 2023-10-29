@@ -5,6 +5,7 @@ if TYPE_CHECKING:
     from replicate.client import Client
 
 from replicate.base_model import BaseModel
+from replicate.exceptions import ReplicateException
 
 Model = TypeVar("Model", bound=BaseModel)
 
@@ -51,4 +52,4 @@ class Collection(abc.ABC, Generic[Model]):
             return model
         else:
             name = self.model.__name__ if hasattr(self.model, "__name__") else "model"
-            raise Exception(f"Can't create {name} from {attrs}")
+            raise ReplicateException(f"Can't create {name} from {attrs}")
