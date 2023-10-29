@@ -7,12 +7,12 @@
   "files.insertFinalNewline": true,
   "files.trimFinalNewlines": true,
   "[python]": {
-    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.defaultFormatter": "charliermarsh.ruff",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
       "source.fixAll": true,
       "source.organizeImports": true
-    },
+    }
   },
   "python.languageServer": "Pylance",
   "python.testing.pytestArgs": [
@@ -25,7 +25,10 @@
     "--show-column-numbers",
     "--no-pretty"
   ],
-  "ruff.args": [
+  "ruff.lint.args": [
+    "--config=pyproject.toml"
+  ],
+  "ruff.format.args": [
     "--config=pyproject.toml"
   ],
 }
