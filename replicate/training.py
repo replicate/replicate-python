@@ -58,10 +58,14 @@ class Training(BaseModel):
 
     def cancel(self) -> None:
         """Cancel a running training"""
-        self._client._request("POST", f"/v1/trainings/{self.id}/cancel")
+        self._client._request("POST", f"/v1/trainings/{self.id}/cancel")  # pylint: disable=no-member
 
 
 class TrainingCollection(Collection):
+    """
+    Namespace for operations related to trainings.
+    """
+
     model = Training
 
     def list(self) -> List[Training]:

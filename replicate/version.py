@@ -48,7 +48,7 @@ class Version(BaseModel):
             stacklevel=1,
         )
 
-        prediction = self._client.predictions.create(version=self, input=kwargs)
+        prediction = self._client.predictions.create(version=self, input=kwargs)  # pylint: disable=no-member
         # Return an iterator of the output
         schema = self.get_transformed_schema()
         output = schema["components"]["schemas"]["Output"]
@@ -70,13 +70,16 @@ class Version(BaseModel):
 
 
 class VersionCollection(Collection):
+    """
+    Namespace for operations related to model versions.
+    """
+
     model = Version
 
     def __init__(self, client: "Client", model: "Model") -> None:
         super().__init__(client=client)
         self._model = model
 
-    # doesn't exist yet
     def get(self, id: str) -> Version:
         """
         Get a specific model version.
@@ -92,6 +95,12 @@ class VersionCollection(Collection):
         return self.prepare_model(resp.json())
 
     def create(self, **kwargs) -> Version:
+        """
+        Create a model version.
+
+        Raises:
+            NotImplementedError: This method is not implemented.
+        """
         raise NotImplementedError()
 
     def list(self) -> List[Version]:

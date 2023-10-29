@@ -35,9 +35,19 @@ class Deployment(BaseModel):
 
 
 class DeploymentCollection(Collection):
+    """
+    Namespace for operations related to deployments.
+    """
+
     model = Deployment
 
     def list(self) -> List[Deployment]:
+        """
+        List deployments.
+
+        Raises:
+            NotImplementedError: This method is not implemented.
+        """
         raise NotImplementedError()
 
     def get(self, name: str) -> Deployment:
@@ -56,6 +66,12 @@ class DeploymentCollection(Collection):
         return self.prepare_model({"username": username, "name": name})
 
     def create(self, **kwargs) -> Deployment:
+        """
+        Create a deployment.
+
+        Raises:
+            NotImplementedError: This method is not implemented.
+        """
         raise NotImplementedError()
 
     def prepare_model(self, attrs: Union[Deployment, Dict]) -> Deployment:
@@ -74,6 +90,12 @@ class DeploymentPredictionCollection(Collection):
         self._deployment = deployment
 
     def list(self) -> List[Prediction]:
+        """
+        List predictions in a deployment.
+
+        Raises:
+            NotImplementedError: This method is not implemented.
+        """
         raise NotImplementedError()
 
     def get(self, id: str) -> Prediction:

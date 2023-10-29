@@ -107,6 +107,10 @@ class Model(BaseModel):
 
 
 class ModelCollection(Collection):
+    """
+    Namespace for operations related to models.
+    """
+
     model = Model
 
     def list(self) -> List[Model]:
@@ -136,6 +140,12 @@ class ModelCollection(Collection):
         return self.prepare_model(resp.json())
 
     def create(self, **kwargs) -> Model:
+        """
+        Create a model.
+
+        Raises:
+            NotImplementedError: This method is not implemented.
+        """
         raise NotImplementedError()
 
     def prepare_model(self, attrs: Union[Model, Dict]) -> Model:

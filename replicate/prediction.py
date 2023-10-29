@@ -103,7 +103,7 @@ class Prediction(BaseModel):
         Wait for prediction to finish.
         """
         while self.status not in ["succeeded", "failed", "canceled"]:
-            time.sleep(self._client.poll_interval)
+            time.sleep(self._client.poll_interval)  # pylint: disable=no-member
             self.reload()
 
     def output_iterator(self) -> Iterator[Any]:
@@ -114,7 +114,7 @@ class Prediction(BaseModel):
             new_output = output[len(previous_output) :]
             yield from new_output
             previous_output = output
-            time.sleep(self._client.poll_interval)
+            time.sleep(self._client.poll_interval)  # pylint: disable=no-member
             self.reload()
 
         if self.status == "failed":
@@ -129,10 +129,14 @@ class Prediction(BaseModel):
         """
         Cancels a running prediction.
         """
-        self._client._request("POST", f"/v1/predictions/{self.id}/cancel")
+        self._client._request("POST", f"/v1/predictions/{self.id}/cancel")  # pylint: disable=no-member
 
 
 class PredictionCollection(Collection):
+    """
+    Namespace for operations related to predictions.
+    """
+
     model = Prediction
 
     def list(self) -> List[Prediction]:

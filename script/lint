@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -e
+
+STATUS=0
+
+echo "Running mypy"
+python -m mypy replicate || STATUS=$?
+echo ""
+
+echo "Running pylint"
+python -m pylint --exit-zero replicate || STATUS=$?
+echo ""
+
+echo "Running ruff check"
+python -m ruff . || STATUS=$?
+echo ""
+
+echo "Running ruff format check"
+python -m ruff format --check . || STATUS=$?
+echo ""
+
+exit $STATUS
