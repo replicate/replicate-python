@@ -1,0 +1,311 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - api.replicate.com
+      user-agent:
+      - replicate-python/0.15.4
+    method: GET
+    uri: https://api.replicate.com/v1/models/meta/llama-2-70b-chat
+  response:
+    content: '{"url":"https://replicate.com/meta/llama-2-70b-chat","owner":"meta","name":"llama-2-70b-chat","description":"A
+      70 billion parameter language model from Meta, fine tuned for chat completions","visibility":"public","github_url":"https://github.com/a16z-infra/cog-llama-template","paper_url":"https://ai.meta.com/research/publications/llama-2-open-foundation-and-fine-tuned-chat-models/","license_url":"https://ai.meta.com/resources/models-and-libraries/llama-downloads/","run_count":1847452,"cover_image_url":"https://tjzk.replicate.delivery/models_models_cover_image/264ff5d2-0672-4eb4-9f2c-cea13af0ccbf/future-llama-70b-chat.png","default_example":{"completed_at":"2023-07-21T21:01:26.105194Z","created_at":"2023-07-21T20:59:39.761803Z","error":null,"id":"lcugc4dbrucyanpbgo6mokdwpu","input":{"top_p":1,"prompt":"Can
+      you write a poem about open source machine learning? Let''s make it in the style
+      of E. E. Cummings.","temperature":0.5,"system_prompt":"You are a helpful, respectful
+      and honest assistant. Always answer as helpfully as possible, while being safe.
+      Your answers should not include any harmful, unethical, racist, sexist, toxic,
+      dangerous, or illegal content. Please ensure that your responses are socially
+      unbiased and positive in nature.\n\nIf a question does not make any sense, or
+      is not factually coherent, explain why instead of answering something not correct.
+      If you don''t know the answer to a question, please don''t share false information.","max_new_tokens":500,"repetition_penalty":1},"logs":null,"metrics":{"predict_time":43.376231},"output":["","
+      Sure!"," Here''s"," a"," poem"," about"," open"," source"," machine"," learning","
+      in"," the"," style"," of"," E."," E."," Cummings:\n\nopen"," source"," machine","
+      learning\na"," gift"," to"," the"," world,"," a"," treasure"," to"," share\na","
+      way"," to"," learn,"," to"," grow,"," to"," create\nwithout"," limits,"," without","
+      bounds,"," without"," care\n\na"," community"," built"," on"," collaboration\na","
+      culture"," of"," sharing,"," of"," giving"," and"," taking\na"," space"," where","
+      ideas"," flow"," free\na"," movement"," that''s"," constantly"," making\n\nmodels","
+      and"," algorithms,"," a"," work"," of"," art\na"," symphony"," of"," code,","
+      a"," masterpiece"," from"," the"," heart\na"," tool"," that"," can"," change,","
+      a"," force"," that"," can"," shift\na"," way"," to"," see,"," to"," know,","
+      to"," lift\n\nthe"," veil"," of"," mystery,"," the"," shroud"," of"," doubt\na","
+      path"," that''s"," clear,"," a"," journey"," without"," a"," rout\na"," world","
+      of"," knowledge,"," a"," sea"," of"," data\na"," treasure"," trove,"," a","
+      playground"," to"," play"," and"," prance\n\nso"," come"," and"," join,"," don''t","
+      be"," shy\na"," world"," of"," open"," source,"," a"," sky"," to"," fly\na","
+      chance"," to"," learn,"," to"," grow,"," to"," share\na"," community"," that''s","
+      waiting,"," a"," family"," that"," cares."],"started_at":"2023-07-21T21:00:42.728963Z","status":"succeeded","urls":{"get":"https://api.replicate.com/v1/predictions/lcugc4dbrucyanpbgo6mokdwpu","cancel":"https://api.replicate.com/v1/predictions/lcugc4dbrucyanpbgo6mokdwpu/cancel"},"version":"2d19859030ff705a87c746f7e96eea03aefb71f166725aee39692f1476566d48","webhook_completed":null},"latest_version":{"id":"02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3","created_at":"2023-09-13T15:41:34.688650Z","cog_version":"0.8.1","openapi_schema":{"info":{"title":"Cog","version":"0.1.0"},"paths":{"/":{"get":{"summary":"Root","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Root  Get"}}},"description":"Successful Response"}},"operationId":"root__get"}},"/shutdown":{"post":{"summary":"Start
+      Shutdown","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Start Shutdown Shutdown Post"}}},"description":"Successful Response"}},"operationId":"start_shutdown_shutdown_post"}},"/predictions":{"post":{"summary":"Predict","responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionResponse"}}},"description":"Successful
+      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+      Error"}},"parameters":[{"in":"header","name":"prefer","schema":{"type":"string","title":"Prefer"},"required":false}],"description":"Run
+      a single prediction on the model","operationId":"predict_predictions_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionRequest"}}}}}},"/health-check":{"get":{"summary":"Healthcheck","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Healthcheck Health Check Get"}}},"description":"Successful Response"}},"operationId":"healthcheck_health_check_get"}},"/predictions/{prediction_id}":{"put":{"summary":"Predict
+      Idempotent","responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionResponse"}}},"description":"Successful
+      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+      Error"}},"parameters":[{"in":"path","name":"prediction_id","schema":{"type":"string","title":"Prediction
+      ID"},"required":true},{"in":"header","name":"prefer","schema":{"type":"string","title":"Prefer"},"required":false}],"description":"Run
+      a single prediction on the model (idempotent creation).","operationId":"predict_idempotent_predictions__prediction_id__put","requestBody":{"content":{"application/json":{"schema":{"allOf":[{"$ref":"#/components/schemas/PredictionRequest"}],"title":"Prediction
+      Request"}}},"required":true}}},"/predictions/{prediction_id}/cancel":{"post":{"summary":"Cancel","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Cancel Predictions  Prediction Id  Cancel Post"}}},"description":"Successful
+      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+      Error"}},"parameters":[{"in":"path","name":"prediction_id","schema":{"type":"string","title":"Prediction
+      ID"},"required":true}],"description":"Cancel a running prediction","operationId":"cancel_predictions__prediction_id__cancel_post"}}},"openapi":"3.0.2","components":{"schemas":{"Input":{"type":"object","title":"Input","required":["prompt"],"properties":{"seed":{"type":"integer","title":"Seed","x-order":8,"description":"Random
+      seed. Leave blank to randomize the seed"},"debug":{"type":"boolean","title":"Debug","default":false,"x-order":9,"description":"provide
+      debugging output in logs"},"top_k":{"type":"integer","title":"Top K","default":50,"minimum":0.0,"x-order":6,"description":"When
+      decoding text, samples from the top k most likely tokens; lower to ignore less
+      likely tokens"},"top_p":{"type":"number","title":"Top P","default":0.9,"maximum":1.0,"minimum":0.0,"x-order":5,"description":"When
+      decoding text, samples from the top p percentage of most likely tokens; lower
+      to ignore less likely tokens"},"prompt":{"type":"string","title":"Prompt","x-order":0,"description":"Prompt
+      to send to the model."},"temperature":{"type":"number","title":"Temperature","default":0.75,"maximum":5.0,"minimum":0.01,"x-order":4,"description":"Adjusts
+      randomness of outputs, greater than 1 is random and 0 is deterministic, 0.75
+      is a good starting value."},"system_prompt":{"type":"string","title":"System
+      Prompt","default":"You are a helpful assistant.","x-order":1,"description":"System
+      prompt to send to the model. This is prepended to the prompt and helps guide
+      system behavior."},"max_new_tokens":{"type":"integer","title":"Max New Tokens","default":128,"minimum":1.0,"x-order":2,"description":"Maximum
+      number of tokens to generate. A word is generally 2-3 tokens"},"min_new_tokens":{"type":"integer","title":"Min
+      New Tokens","default":-1,"minimum":-1.0,"x-order":3,"description":"Minimum number
+      of tokens to generate. To disable, set to -1. A word is generally 2-3 tokens."},"stop_sequences":{"type":"string","title":"Stop
+      Sequences","x-order":7,"description":"A comma-separated list of sequences to
+      stop generation at. For example, ''<end>,<stop>'' will stop generation at the
+      first instance of ''end'' or ''<stop>''."},"replicate_weights":{"type":"string","title":"Replicate
+      Weights","x-order":10,"description":"Path to fine-tuned weights produced by
+      a Replicate fine-tune job."}}},"Output":{"type":"array","items":{"type":"string"},"title":"Output","x-cog-array-type":"iterator","x-cog-array-display":"concatenate"},"Status":{"enum":["starting","processing","succeeded","canceled","failed"],"type":"string","title":"Status","description":"An
+      enumeration."},"WebhookEvent":{"enum":["start","output","logs","completed"],"type":"string","title":"WebhookEvent","description":"An
+      enumeration."},"ValidationError":{"type":"object","title":"ValidationError","required":["loc","msg","type"],"properties":{"loc":{"type":"array","items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error
+      Type"}}},"PredictionRequest":{"type":"object","title":"PredictionRequest","properties":{"id":{"type":"string","title":"Id"},"input":{"$ref":"#/components/schemas/Input"},"webhook":{"type":"string","title":"Webhook","format":"uri","maxLength":65536,"minLength":1},"created_at":{"type":"string","title":"Created
+      At","format":"date-time"},"output_file_prefix":{"type":"string","title":"Output
+      File Prefix"},"webhook_events_filter":{"type":"array","items":{"$ref":"#/components/schemas/WebhookEvent"},"default":["start","output","logs","completed"]}}},"PredictionResponse":{"type":"object","title":"PredictionResponse","properties":{"id":{"type":"string","title":"Id"},"logs":{"type":"string","title":"Logs","default":""},"error":{"type":"string","title":"Error"},"input":{"$ref":"#/components/schemas/Input"},"output":{"$ref":"#/components/schemas/Output"},"status":{"$ref":"#/components/schemas/Status"},"metrics":{"type":"object","title":"Metrics"},"version":{"type":"string","title":"Version"},"created_at":{"type":"string","title":"Created
+      At","format":"date-time"},"started_at":{"type":"string","title":"Started At","format":"date-time"},"completed_at":{"type":"string","title":"Completed
+      At","format":"date-time"}}},"HTTPValidationError":{"type":"object","title":"HTTPValidationError","properties":{"detail":{"type":"array","items":{"$ref":"#/components/schemas/ValidationError"},"title":"Detail"}}}}}}}}'
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 81db06d2fd43c5b4-SEA
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 29 Oct 2023 11:19:59 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000
+      Transfer-Encoding:
+      - chunked
+      allow:
+      - GET, HEAD, OPTIONS
+      content-security-policy-report-only:
+      - 'connect-src ''report-sample'' ''self'' https://replicate.delivery https://*.replicate.delivery
+        https://*.rudderlabs.com https://*.rudderstack.com https://*.mux.com https://*.sentry.io;
+        font-src ''report-sample'' ''self'' data:; img-src ''report-sample'' ''self''
+        data: https://replicate.delivery https://*.replicate.delivery https://*.githubusercontent.com
+        https://github.com; script-src ''report-sample'' ''self'' https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js;
+        default-src ''self''; style-src ''report-sample'' ''self'' ''unsafe-inline'';
+        media-src ''report-sample'' ''self'' https://replicate.delivery https://*.replicate.delivery
+        https://*.mux.com https://*.sentry.io; worker-src ''none''; report-uri'
+      cross-origin-opener-policy:
+      - same-origin
+      nel:
+      - '{"report_to":"heroku-nel","max_age":3600,"success_fraction":0.005,"failure_fraction":0.05,"response_headers":["Via"]}'
+      ratelimit-remaining:
+      - '2999'
+      ratelimit-reset:
+      - '1'
+      referrer-policy:
+      - same-origin
+      report-to:
+      - '{"group":"heroku-nel","max_age":3600,"endpoints":[{"url":"https://nel.heroku.com/reports?ts=1698578399&sid=1b10b0ff-8a76-4548-befa-353fc6c6c045&s=bzKJCGdBCGHxEz%2B0XxaPOeBKpz8Ck43qYRyRmqnzWvg%3D"}]}'
+      reporting-endpoints:
+      - heroku-nel=https://nel.heroku.com/reports?ts=1698578399&sid=1b10b0ff-8a76-4548-befa-353fc6c6c045&s=bzKJCGdBCGHxEz%2B0XxaPOeBKpz8Ck43qYRyRmqnzWvg%3D
+      vary:
+      - Cookie, origin
+      via:
+      - 1.1 vegur, 1.1 google
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - DENY
+    http_version: HTTP/1.1
+    status_code: 200
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - api.replicate.com
+      user-agent:
+      - replicate-python/0.15.4
+    method: GET
+    uri: https://api.replicate.com/v1/models/meta/llama-2-70b-chat/versions/02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3
+  response:
+    content: '{"id":"02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3","created_at":"2023-09-13T15:41:34.688650Z","cog_version":"0.8.1","openapi_schema":{"info":{"title":"Cog","version":"0.1.0"},"paths":{"/":{"get":{"summary":"Root","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Root  Get"}}},"description":"Successful Response"}},"operationId":"root__get"}},"/shutdown":{"post":{"summary":"Start
+      Shutdown","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Start Shutdown Shutdown Post"}}},"description":"Successful Response"}},"operationId":"start_shutdown_shutdown_post"}},"/predictions":{"post":{"summary":"Predict","responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionResponse"}}},"description":"Successful
+      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+      Error"}},"parameters":[{"in":"header","name":"prefer","schema":{"type":"string","title":"Prefer"},"required":false}],"description":"Run
+      a single prediction on the model","operationId":"predict_predictions_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionRequest"}}}}}},"/health-check":{"get":{"summary":"Healthcheck","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Healthcheck Health Check Get"}}},"description":"Successful Response"}},"operationId":"healthcheck_health_check_get"}},"/predictions/{prediction_id}":{"put":{"summary":"Predict
+      Idempotent","responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionResponse"}}},"description":"Successful
+      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+      Error"}},"parameters":[{"in":"path","name":"prediction_id","schema":{"type":"string","title":"Prediction
+      ID"},"required":true},{"in":"header","name":"prefer","schema":{"type":"string","title":"Prefer"},"required":false}],"description":"Run
+      a single prediction on the model (idempotent creation).","operationId":"predict_idempotent_predictions__prediction_id__put","requestBody":{"content":{"application/json":{"schema":{"allOf":[{"$ref":"#/components/schemas/PredictionRequest"}],"title":"Prediction
+      Request"}}},"required":true}}},"/predictions/{prediction_id}/cancel":{"post":{"summary":"Cancel","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+      Cancel Predictions  Prediction Id  Cancel Post"}}},"description":"Successful
+      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+      Error"}},"parameters":[{"in":"path","name":"prediction_id","schema":{"type":"string","title":"Prediction
+      ID"},"required":true}],"description":"Cancel a running prediction","operationId":"cancel_predictions__prediction_id__cancel_post"}}},"openapi":"3.0.2","components":{"schemas":{"Input":{"type":"object","title":"Input","required":["prompt"],"properties":{"seed":{"type":"integer","title":"Seed","x-order":8,"description":"Random
+      seed. Leave blank to randomize the seed"},"debug":{"type":"boolean","title":"Debug","default":false,"x-order":9,"description":"provide
+      debugging output in logs"},"top_k":{"type":"integer","title":"Top K","default":50,"minimum":0.0,"x-order":6,"description":"When
+      decoding text, samples from the top k most likely tokens; lower to ignore less
+      likely tokens"},"top_p":{"type":"number","title":"Top P","default":0.9,"maximum":1.0,"minimum":0.0,"x-order":5,"description":"When
+      decoding text, samples from the top p percentage of most likely tokens; lower
+      to ignore less likely tokens"},"prompt":{"type":"string","title":"Prompt","x-order":0,"description":"Prompt
+      to send to the model."},"temperature":{"type":"number","title":"Temperature","default":0.75,"maximum":5.0,"minimum":0.01,"x-order":4,"description":"Adjusts
+      randomness of outputs, greater than 1 is random and 0 is deterministic, 0.75
+      is a good starting value."},"system_prompt":{"type":"string","title":"System
+      Prompt","default":"You are a helpful assistant.","x-order":1,"description":"System
+      prompt to send to the model. This is prepended to the prompt and helps guide
+      system behavior."},"max_new_tokens":{"type":"integer","title":"Max New Tokens","default":128,"minimum":1.0,"x-order":2,"description":"Maximum
+      number of tokens to generate. A word is generally 2-3 tokens"},"min_new_tokens":{"type":"integer","title":"Min
+      New Tokens","default":-1,"minimum":-1.0,"x-order":3,"description":"Minimum number
+      of tokens to generate. To disable, set to -1. A word is generally 2-3 tokens."},"stop_sequences":{"type":"string","title":"Stop
+      Sequences","x-order":7,"description":"A comma-separated list of sequences to
+      stop generation at. For example, ''<end>,<stop>'' will stop generation at the
+      first instance of ''end'' or ''<stop>''."},"replicate_weights":{"type":"string","title":"Replicate
+      Weights","x-order":10,"description":"Path to fine-tuned weights produced by
+      a Replicate fine-tune job."}}},"Output":{"type":"array","items":{"type":"string"},"title":"Output","x-cog-array-type":"iterator","x-cog-array-display":"concatenate"},"Status":{"enum":["starting","processing","succeeded","canceled","failed"],"type":"string","title":"Status","description":"An
+      enumeration."},"WebhookEvent":{"enum":["start","output","logs","completed"],"type":"string","title":"WebhookEvent","description":"An
+      enumeration."},"ValidationError":{"type":"object","title":"ValidationError","required":["loc","msg","type"],"properties":{"loc":{"type":"array","items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error
+      Type"}}},"PredictionRequest":{"type":"object","title":"PredictionRequest","properties":{"id":{"type":"string","title":"Id"},"input":{"$ref":"#/components/schemas/Input"},"webhook":{"type":"string","title":"Webhook","format":"uri","maxLength":65536,"minLength":1},"created_at":{"type":"string","title":"Created
+      At","format":"date-time"},"output_file_prefix":{"type":"string","title":"Output
+      File Prefix"},"webhook_events_filter":{"type":"array","items":{"$ref":"#/components/schemas/WebhookEvent"},"default":["start","output","logs","completed"]}}},"PredictionResponse":{"type":"object","title":"PredictionResponse","properties":{"id":{"type":"string","title":"Id"},"logs":{"type":"string","title":"Logs","default":""},"error":{"type":"string","title":"Error"},"input":{"$ref":"#/components/schemas/Input"},"output":{"$ref":"#/components/schemas/Output"},"status":{"$ref":"#/components/schemas/Status"},"metrics":{"type":"object","title":"Metrics"},"version":{"type":"string","title":"Version"},"created_at":{"type":"string","title":"Created
+      At","format":"date-time"},"started_at":{"type":"string","title":"Started At","format":"date-time"},"completed_at":{"type":"string","title":"Completed
+      At","format":"date-time"}}},"HTTPValidationError":{"type":"object","title":"HTTPValidationError","properties":{"detail":{"type":"array","items":{"$ref":"#/components/schemas/ValidationError"},"title":"Detail"}}}}}}}'
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 81db06d3ee13c5b4-SEA
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 29 Oct 2023 11:19:59 GMT
+      NEL:
+      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+      Report-To:
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=VrTT5hg7k0P2UU2gu8RgmVrlY9dlJBazQbB1%2F0%2FO%2BB4F0n1xPQLPKFJxh%2BxVsOfjh0%2BYmT972G4RrKT6P1R%2B4R4WE2v6M0CkukGZLSlBjr7hydGiUTdhCAF85b%2BNz4Zn1mls"}],"group":"cf-nel","max_age":604800}'
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000
+      Transfer-Encoding:
+      - chunked
+      allow:
+      - GET, DELETE, HEAD, OPTIONS
+      content-security-policy-report-only:
+      - 'style-src ''report-sample'' ''self'' ''unsafe-inline''; connect-src ''report-sample''
+        ''self'' https://replicate.delivery https://*.replicate.delivery https://*.rudderlabs.com
+        https://*.rudderstack.com https://*.mux.com https://*.sentry.io; default-src
+        ''self''; font-src ''report-sample'' ''self'' data:; script-src ''report-sample''
+        ''self'' https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js; worker-src
+        ''none''; media-src ''report-sample'' ''self'' https://replicate.delivery
+        https://*.replicate.delivery https://*.mux.com https://*.sentry.io; img-src
+        ''report-sample'' ''self'' data: https://replicate.delivery https://*.replicate.delivery
+        https://*.githubusercontent.com https://github.com; report-uri'
+      cross-origin-opener-policy:
+      - same-origin
+      ratelimit-remaining:
+      - '2999'
+      ratelimit-reset:
+      - '1'
+      referrer-policy:
+      - same-origin
+      vary:
+      - Cookie, origin
+      via:
+      - 1.1 vegur, 1.1 google
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - DENY
+    http_version: HTTP/1.1
+    status_code: 200
+- request:
+    body: '{"version": "02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3",
+      "input": {"prompt": "write a sonnet about camelids"}, "stream": true}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '149'
+      content-type:
+      - application/json
+      host:
+      - api.replicate.com
+      user-agent:
+      - replicate-python/0.15.4
+    method: POST
+    uri: https://api.replicate.com/v1/predictions
+  response:
+    content: '{"id":"4awn473bsrztjzlx2b6ufoxkkm","version":"02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3","input":{"prompt":"write
+      a sonnet about camelids"},"logs":"","error":null,"status":"starting","created_at":"2023-10-29T11:19:59.558752983Z","stream":true,"urls":{"cancel":"https://api.replicate.com/v1/predictions/4awn473bsrztjzlx2b6ufoxkkm/cancel","get":"https://api.replicate.com/v1/predictions/4awn473bsrztjzlx2b6ufoxkkm","stream":"https://streaming-api.svc.us.c.replicate.net/v1/predictions/4awn473bsrztjzlx2b6ufoxkkm"}}
+
+      '
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 81db06d4bef6c5b4-SEA
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 29 Oct 2023 11:19:59 GMT
+      NEL:
+      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+      Report-To:
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=4lxFn6ksshWV14QBEz5X2At5u2dXcvHOP9r1t7q73OoyJ%2BzqZeivy3vq2UiDHUtNHR2ePbVof9iz2%2FWqp1G8v%2Fe2ZVc8ZGst2ocHhGDnh%2FBzKCP1hd7yO1GegiJNc6A%2FWIwG"}],"group":"cf-nel","max_age":604800}'
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000
+      Transfer-Encoding:
+      - chunked
+      ratelimit-remaining:
+      - '599'
+      ratelimit-reset:
+      - '1'
+      via:
+      - 1.1 google
+    http_version: HTTP/1.1
+    status_code: 201
+version: 1

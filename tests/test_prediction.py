@@ -63,6 +63,29 @@ async def test_predictions_cancel(mock_replicate_api_token):
     prediction.cancel()
 
 
+@pytest.mark.vcr("predictions-stream.yaml")
+@pytest.mark.asyncio
+async def test_predictions_stream(mock_replicate_api_token):
+    input = {
+        "prompt": "write a sonnet about camelids",
+    }
+
+    model = replicate.models.get("meta/llama-2-70b-chat")
+    version = model.versions.get(
+        "02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3"
+    )
+    prediction = replicate.predictions.create(
+        version=version,
+        input=input,
+        stream=True,
+    )
+
+    assert prediction.id is not None
+    assert prediction.version == version
+    assert prediction.status == "starting"
+    assert prediction.urls["stream"] is not None
+
+
 # @responses.activate
 # def test_stream():
 #     client = create_client()
