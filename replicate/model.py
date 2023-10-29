@@ -107,6 +107,10 @@ class Model(BaseModel):
 
 
 class ModelCollection(Collection):
+    """
+    Namespace for operations related to models.
+    """
+
     model = Model
 
     def list(self) -> List[Model]:

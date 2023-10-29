@@ -133,6 +133,10 @@ class Prediction(BaseModel):
 
 
 class PredictionCollection(Collection):
+    """
+    Namespace for operations related to predictions.
+    """
+
     model = Prediction
 
     def list(self) -> List[Prediction]:

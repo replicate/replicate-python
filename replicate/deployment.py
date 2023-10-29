@@ -35,6 +35,10 @@ class Deployment(BaseModel):
 
 
 class DeploymentCollection(Collection):
+    """
+    Namespace for operations related to deployments.
+    """
+
     model = Deployment
 
     def list(self) -> List[Deployment]:

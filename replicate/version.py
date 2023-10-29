@@ -70,6 +70,10 @@ class Version(BaseModel):
 
 
 class VersionCollection(Collection):
+    """
+    Namespace for operations related to model versions.
+    """
+
     model = Version
 
     def __init__(self, client: "Client", model: "Model") -> None:

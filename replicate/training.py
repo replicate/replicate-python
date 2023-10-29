@@ -62,6 +62,10 @@ class Training(BaseModel):
 
 
 class TrainingCollection(Collection):
+    """
+    Namespace for operations related to trainings.
+    """
+
     model = Training
 
     def list(self) -> List[Training]:
