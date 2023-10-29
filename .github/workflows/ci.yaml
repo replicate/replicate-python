@@ -32,8 +32,9 @@ jobs:
       - name: Setup
         run: ./script/setup
 
-      - name: Lint
-        run: |
-          ./script/lint
       - name: Test
         run: ./script/test
+
+      - name: Lint
+        run: ./script/lint
+        
