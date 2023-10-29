@@ -7,36 +7,34 @@ from typing import Optional
 import httpx
 
 
-def upload_file(fh: io.IOBase, output_file_prefix: Optional[str] = None) -> str:
+def upload_file(file: io.IOBase, output_file_prefix: Optional[str] = None) -> str:
     """
     Upload a file to the server.
 
     Args:
-        fh: A file handle to upload.
+        file: A file handle to upload.
         output_file_prefix: A string to prepend to the output file name.
     Returns:
         str: A URL to the uploaded file.
     """
     # Lifted straight from cog.files
 
-    fh.seek(0)
+    file.seek(0)
 
     if output_file_prefix is not None:
-        name = getattr(fh, "name", "output")
+        name = getattr(file, "name", "output")
         url = output_file_prefix + os.path.basename(name)
-        resp = httpx.put(url, files={"file": fh}, timeout=None)  # type: ignore
+        resp = httpx.put(url, files={"file": file}, timeout=None)  # type: ignore
         resp.raise_for_status()
+
         return url
 
-    b = fh.read()
-    # The file handle is strings, not bytes
-    if isinstance(b, str):
-        b = b.encode("utf-8")
-    encoded_body = base64.b64encode(b)
-    if getattr(fh, "name", None):
-        # despite doing a getattr check here, mypy complains that io.IOBase has no attribute name
-        mime_type = mimetypes.guess_type(fh.name)[0]  # type: ignore
-    else:
-        mime_type = "application/octet-stream"
-    s = encoded_body.decode("utf-8")
-    return f"data:{mime_type};base64,{s}"
+    body = file.read()
+    # Ensure the file handle is in bytes
+    body = body.encode("utf-8") if isinstance(body, str) else body
+    encoded_body = base64.b64encode(body).decode("utf-8")
+    # Use getattr to avoid mypy complaints about io.IOBase having no attribute name
+    mime_type = (
+        mimetypes.guess_type(getattr(file, "name", ""))[0] or "application/octet-stream"
+    )
+    return f"data:{mime_type};base64,{encoded_body}"
