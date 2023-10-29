@@ -39,6 +39,16 @@ py-modules = []
 plugins = "pydantic.mypy"
 exclude = ["tests/"]
 
+[tool.pylint.main]
+disable = [
+    "C0301", # Line too long
+    "C0413", # Import should be placed at the top of the module
+    "C0114", # Missing module docstring
+    "R0801", # Similar lines in N files
+    "W0212", # Access to a protected member
+    "W0622", # Redefining built-in
+]
+
 [tool.ruff]
 select = [
     "E",   # pycodestyle error
