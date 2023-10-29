@@ -26,5 +26,5 @@ class BaseModel(pydantic.BaseModel):
         """
 
         new_model = self._collection.get(self.id)  # pylint: disable=no-member
-        for k, v in new_model.dict().items():
+        for k, v in new_model.dict().items():  # pylint: disable=invalid-name
             setattr(self, k, v)
