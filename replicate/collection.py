@@ -43,13 +43,12 @@ class Collection(abc.ABC, Generic[Model]):
             attrs._client = self._client
             attrs._collection = self
             return cast(Model, attrs)
-        elif (
-            isinstance(attrs, dict) and self.model is not None and callable(self.model)
-        ):
+
+        if isinstance(attrs, dict) and self.model is not None and callable(self.model):
             model = self.model(**attrs)
             model._client = self._client
             model._collection = self
             return model
-        else:
-            name = self.model.__name__ if hasattr(self.model, "__name__") else "model"
-            raise ReplicateException(f"Can't create {name} from {attrs}")
+
+        name = self.model.__name__ if hasattr(self.model, "__name__") else "model"
+        raise ReplicateException(f"Can't create {name} from {attrs}")
