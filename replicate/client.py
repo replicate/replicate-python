@@ -98,7 +98,7 @@ class Client:
     def deployments(self) -> DeploymentCollection:
         return DeploymentCollection(client=self)
 
-    def run(self, model_version: str, **kwargs) -> Union[Any, Iterator[Any]]:
+    def run(self, model_version: str, **kwargs) -> Union[Any, Iterator[Any]]:  # noqa: ANN401
         """
         Run a model and wait for its output.
 

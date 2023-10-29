@@ -12,13 +12,12 @@ authors = [{ name = "Replicate, Inc." }]
 requires-python = ">=3.8"
 dependencies = ["packaging", "pydantic>1", "httpx>=0.21.0,<1"]
 optional-dependencies = { dev = [
-    "black",
     "mypy",
     "pytest",
     "pytest-asyncio",
     "pytest-recording",
     "respx",
-    "ruff",
+    "ruff>=0.1.3",
 ] }
 
 [project.urls]
@@ -56,6 +55,7 @@ ignore = [
     "ANN003", # Missing type annotation for `**kwargs`
     "ANN101", # Missing type annotation for self in method
     "ANN102", # Missing type annotation for cls in classmethod
+    "W191",   # Indentation contains tabs
 ]
 
 [tool.ruff.per-file-ignores]
