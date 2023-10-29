@@ -76,7 +76,6 @@ class VersionCollection(Collection):
         super().__init__(client=client)
         self._model = model
 
-    # doesn't exist yet
     def get(self, id: str) -> Version:
         """
         Get a specific model version.
@@ -92,6 +91,12 @@ class VersionCollection(Collection):
         return self.prepare_model(resp.json())
 
     def create(self, **kwargs) -> Version:
+        """
+        Create a model version.
+
+        Raises:
+            NotImplementedError: This method is not implemented.
+        """
         raise NotImplementedError()
 
     def list(self) -> List[Version]:

@@ -84,18 +84,30 @@ class Client:
 
     @property
     def models(self) -> ModelCollection:
+        """
+        Namespace for operations related to models.
+        """
         return ModelCollection(client=self)
 
     @property
     def predictions(self) -> PredictionCollection:
+        """
+        Namespace for operations related to predictions.
+        """
         return PredictionCollection(client=self)
 
     @property
     def trainings(self) -> TrainingCollection:
+        """
+        Namespace for operations related to trainings.
+        """
         return TrainingCollection(client=self)
 
     @property
     def deployments(self) -> DeploymentCollection:
+        """
+        Namespace for operations related to deployments.
+        """
         return DeploymentCollection(client=self)
 
     def run(self, model_version: str, **kwargs) -> Union[Any, Iterator[Any]]:  # noqa: ANN401
