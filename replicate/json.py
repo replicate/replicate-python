@@ -12,7 +12,8 @@ except ImportError:
 
 
 def encode_json(
-    obj: Any, upload_file: Callable[[io.IOBase], str]  # noqa: ANN401
+    obj: Any,
+    upload_file: Callable[[io.IOBase], str],  # noqa: ANN401
 ) -> Any:  # noqa: ANN401
     """
     Return a JSON-compatible version of the object.
