@@ -6,9 +6,9 @@ from typing import Any, Callable
 try:
     import numpy as np  # type: ignore
 
-    has_numpy = True
+    HAS_NUMPY = True
 except ImportError:
-    has_numpy = False
+    HAS_NUMPY = False
 
 
 def encode_json(
@@ -29,7 +29,7 @@ def encode_json(
             return upload_file(f)
     if isinstance(obj, io.IOBase):
         return upload_file(obj)
-    if has_numpy:
+    if HAS_NUMPY:
         if isinstance(obj, np.integer):
             return int(obj)
         if isinstance(obj, np.floating):
