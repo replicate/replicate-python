@@ -34,8 +34,6 @@ jobs:
 
       - name: Lint
         run: |
-          python -m mypy replicate
-          python -m ruff .
-          python -m ruff format --check .
+          ./script/lint
       - name: Test
         run: python -m pytest
