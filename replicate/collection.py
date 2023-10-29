@@ -17,8 +17,9 @@ class Collection(abc.ABC, Generic[Model]):
     def __init__(self, client: "Client") -> None:
         self._client = client
 
-    @abc.abstractproperty
-    def model(self) -> Model:
+    @property
+    @abc.abstractmethod
+    def model(self) -> Model:  # pylint: disable=missing-function-docstring
         pass
 
     @abc.abstractmethod
