@@ -194,7 +194,7 @@ class PredictionCollection(Collection):
         """
 
         input = encode_json(input, upload_file=upload_file)
-        body = {
+        body: Dict[str, Any] = {
             "version": version if isinstance(version, str) else version.id,
             "input": input,
         }
@@ -205,7 +205,7 @@ class PredictionCollection(Collection):
         if webhook_events_filter is not None:
             body["webhook_events_filter"] = webhook_events_filter
         if stream is True:
-            body["stream"] = "true"
+            body["stream"] = True
 
         resp = self._client._request(
             "POST",
