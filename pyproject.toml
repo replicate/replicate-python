@@ -56,6 +56,7 @@ ignore = [
     "ANN003", # Missing type annotation for `**kwargs`
     "ANN101", # Missing type annotation for self in method
     "ANN102", # Missing type annotation for cls in classmethod
+    "W191",   # Indentation contains tabs
 ]
 
 [tool.ruff.per-file-ignores]
