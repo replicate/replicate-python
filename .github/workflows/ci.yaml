@@ -36,4 +36,4 @@ jobs:
         run: |
           ./script/lint
       - name: Test
-        run: python -m pytest
+        run: ./script/test
