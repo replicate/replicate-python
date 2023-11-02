@@ -29,8 +29,7 @@ repository = "https://github.com/replicate/replicate-python"
 testpaths = "tests/"
 
 [tool.setuptools]
-# See https://github.com/pypa/setuptools/issues/3197#issuecomment-1078770109
-py-modules = []
+packages = ["replicate"]
 
 [tool.setuptools.package-data]
 "replicate" = ["py.typed"]
