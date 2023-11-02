@@ -139,7 +139,11 @@ class ModelCollection(Collection):
         resp = self._client._request("GET", f"/v1/models/{key}")
         return self.prepare_model(resp.json())
 
-    def create(self, **kwargs) -> Model:
+    def create(
+        self,
+        *args,
+        **kwargs,
+    ) -> Model:
         """
         Create a model.
 

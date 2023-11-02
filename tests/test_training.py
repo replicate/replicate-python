@@ -10,12 +10,28 @@ input_images_url = "https://replicate.delivery/pbxt/JMV5OrEWpBAC5gO8rre0tPOyJIOk
 @pytest.mark.asyncio
 async def test_trainings_create(mock_replicate_api_token):
     training = replicate.trainings.create(
-        "stability-ai/sdxl:a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5",
+        version="stability-ai/sdxl:a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5",
         input={
             "input_images": input_images_url,
             "use_face_detection_instead": True,
         },
         destination="replicate/dreambooth-sdxl",
+    )
+
+    assert training.id is not None
+    assert training.status == "starting"
+
+
+@pytest.mark.vcr("trainings-create.yaml")
+@pytest.mark.asyncio
+async def test_trainings_create_with_positional_argument(mock_replicate_api_token):
+    training = replicate.trainings.create(
+        "stability-ai/sdxl:a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5",
+        {
+            "input_images": input_images_url,
+            "use_face_detection_instead": True,
+        },
+        "replicate/dreambooth-sdxl",
     )
 
     assert training.id is not None
@@ -57,7 +73,7 @@ async def test_trainings_cancel(mock_replicate_api_token):
     destination = "replicate/dreambooth-sdxl"
 
     training = replicate.trainings.create(
-        "stability-ai/sdxl:a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5",
+        version="stability-ai/sdxl:a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5",
         destination=destination,
         input=input,
     )

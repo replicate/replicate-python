@@ -1,7 +1,9 @@
 import re
 import time
 from dataclasses import dataclass
-from typing import Any, Dict, Iterator, List, Optional, Union
+from typing import Any, Dict, Iterator, List, Optional, TypedDict, Union, overload
+
+from typing_extensions import Unpack
 
 from replicate.base_model import BaseModel
 from replicate.collection import Collection
@@ -137,6 +139,16 @@ class PredictionCollection(Collection):
     Namespace for operations related to predictions.
     """
 
+    class CreateParams(TypedDict):
+        """Parameters for creating a prediction."""
+
+        version: Union[Version, str]
+        input: Dict[str, Any]
+        webhook: Optional[str]
+        webhook_completed: Optional[str]
+        webhook_events_filter: Optional[List[str]]
+        stream: Optional[bool]
+
     model = Prediction
 
     def list(self) -> List[Prediction]:
@@ -171,16 +183,36 @@ class PredictionCollection(Collection):
         del obj["version"]
         return self.prepare_model(obj)
 
-    def create(  # type: ignore
+    @overload
+    def create(  # pylint: disable=arguments-differ disable=too-many-arguments
         self,
+        version: Union[Version, str],
+        input: Dict[str, Any],
+        *,
+        webhook: Optional[str] = None,
+        webhook_completed: Optional[str] = None,
+        webhook_events_filter: Optional[List[str]] = None,
+        stream: Optional[bool] = None,
+    ) -> Prediction:
+        ...
+
+    @overload
+    def create(  # pylint: disable=arguments-differ disable=too-many-arguments
+        self,
+        *,
         version: Union[Version, str],
         input: Dict[str, Any],
         webhook: Optional[str] = None,
         webhook_completed: Optional[str] = None,
         webhook_events_filter: Optional[List[str]] = None,
-        *,
         stream: Optional[bool] = None,
-        **kwargs,
+    ) -> Prediction:
+        ...
+
+    def create(
+        self,
+        *args,
+        **kwargs: Unpack[CreateParams],  # type: ignore[misc]
     ) -> Prediction:
         """
         Create a new prediction for the specified model version.
@@ -197,19 +229,28 @@ class PredictionCollection(Collection):
             Prediction: The created prediction object.
         """
 
-        input = encode_json(input, upload_file=upload_file)
-        body: Dict[str, Any] = {
+        # Support positional arguments for backwards compatibility
+        version = args[0] if args else kwargs.get("version")
+        if version is None:
+            raise ValueError(
+                "A version identifier must be provided as a positional or keyword argument."
+            )
+
+        input = args[1] if len(args) > 1 else kwargs.get("input")
+        if input is None:
+            raise ValueError(
+                "An input must be provided as a positional or keyword argument."
+            )
+
+        body = {
             "version": version if isinstance(version, str) else version.id,
-            "input": input,
+            "input": encode_json(input, upload_file=upload_file),
         }
-        if webhook is not None:
-            body["webhook"] = webhook
-        if webhook_completed is not None:
-            body["webhook_completed"] = webhook_completed
-        if webhook_events_filter is not None:
-            body["webhook_events_filter"] = webhook_events_filter
-        if stream is True:
-            body["stream"] = True
+
+        for key in ["webhook", "webhook_completed", "webhook_events_filter", "stream"]:
+            value = kwargs.get(key)
+            if value is not None:
+                body[key] = value
 
         resp = self._client._request(
             "POST",

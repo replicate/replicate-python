@@ -94,7 +94,11 @@ class VersionCollection(Collection):
         )
         return self.prepare_model(resp.json())
 
-    def create(self, **kwargs) -> Version:
+    def create(
+        self,
+        *args,
+        **kwargs,
+    ) -> Version:
         """
         Create a model version.
 

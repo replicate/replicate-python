@@ -32,7 +32,9 @@ class Collection(abc.ABC, Generic[Model]):
         pass
 
     @abc.abstractmethod
-    def create(self, **kwargs) -> Model:  # pylint: disable=missing-function-docstring
+    def create(  # pylint: disable=missing-function-docstring
+        self, *args, **kwargs
+    ) -> Model:
         pass
 
     def prepare_model(self, attrs: Union[Model, Dict]) -> Model:

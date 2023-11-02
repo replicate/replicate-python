@@ -1,5 +1,7 @@
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, TypedDict, Union
+
+from typing_extensions import NotRequired, Unpack, overload
 
 from replicate.base_model import BaseModel
 from replicate.collection import Collection
@@ -68,6 +70,16 @@ class TrainingCollection(Collection):
 
     model = Training
 
+    class CreateParams(TypedDict):
+        """Parameters for creating a prediction."""
+
+        version: Union[Version, str]
+        destination: str
+        input: Dict[str, Any]
+        webhook: NotRequired[str]
+        webhook_completed: NotRequired[str]
+        webhook_events_filter: NotRequired[List[str]]
+
     def list(self) -> List[Training]:
         """
         List your trainings.
@@ -103,14 +115,36 @@ class TrainingCollection(Collection):
         del obj["version"]
         return self.prepare_model(obj)
 
-    def create(  # type: ignore
+    @overload
+    def create(  # pylint: disable=arguments-differ disable=too-many-arguments
         self,
-        version: str,
+        version: Union[Version, str],
+        input: Dict[str, Any],
+        destination: str,
+        *,
+        webhook: Optional[str] = None,
+        webhook_completed: Optional[str] = None,
+        webhook_events_filter: Optional[List[str]] = None,
+    ) -> Training:
+        ...
+
+    @overload
+    def create(  # pylint: disable=arguments-differ disable=too-many-arguments
+        self,
+        *,
+        version: Union[Version, str],
         input: Dict[str, Any],
         destination: str,
         webhook: Optional[str] = None,
+        webhook_completed: Optional[str] = None,
         webhook_events_filter: Optional[List[str]] = None,
-        **kwargs,
+    ) -> Training:
+        ...
+
+    def create(
+        self,
+        *args,
+        **kwargs: Unpack[CreateParams],  # type: ignore[misc]
     ) -> Training:
         """
         Create a new training using the specified model version as a base.
@@ -120,24 +154,45 @@ class TrainingCollection(Collection):
             input: The input to the training.
             destination: The desired model to push to in the format `{owner}/{model_name}`. This should be an existing model owned by the user or organization making the API request.
             webhook: The URL to send a POST request to when the training is completed. Defaults to None.
+            webhook_completed: The URL to receive a POST request when the prediction is completed.
             webhook_events_filter: The events to send to the webhook. Defaults to None.
         Returns:
             The training object.
         """
 
-        input = encode_json(input, upload_file=upload_file)
+        # Support positional arguments for backwards compatibility
+        version = args[0] if args else kwargs.get("version")
+        if version is None:
+            raise ValueError(
+                "A version identifier must be provided as a positional or keyword argument."
+            )
+
+        destination = args[1] if len(args) > 1 else kwargs.get("destination")
+        if destination is None:
+            raise ValueError(
+                "A destination must be provided as a positional or keyword argument."
+            )
+
+        input = args[2] if len(args) > 2 else kwargs.get("input")
+        if input is None:
+            raise ValueError(
+                "An input must be provided as a positional or keyword argument."
+            )
+
         body = {
-            "input": input,
+            "input": encode_json(input, upload_file=upload_file),
             "destination": destination,
         }
-        if webhook is not None:
-            body["webhook"] = webhook
-        if webhook_events_filter is not None:
-            body["webhook_events_filter"] = webhook_events_filter
+
+        for key in ["webhook", "webhook_completed", "webhook_events_filter"]:
+            value = kwargs.get(key)
+            if value is not None:
+                body[key] = value
 
         # Split version in format "username/model_name:version_id"
         match = re.match(
-            r"^(?P<username>[^/]+)/(?P<model_name>[^:]+):(?P<version_id>.+)$", version
+            r"^(?P<username>[^/]+)/(?P<model_name>[^:]+):(?P<version_id>.+)$",
+            version.id if isinstance(version, Version) else version,
         )
         if not match:
             raise ReplicateException(
