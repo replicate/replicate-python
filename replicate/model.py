@@ -145,7 +145,7 @@ class ModelCollection(Collection):
         **kwargs: Unpack[TypedDict],  # type: ignore[misc]
     ) -> Model:
         """
-        Creates a model.
+        Create a model.
 
         Raises:
             NotImplementedError: This method is not implemented.
