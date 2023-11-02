@@ -79,7 +79,6 @@ class TrainingCollection(Collection):
         webhook: NotRequired[str]
         webhook_completed: NotRequired[str]
         webhook_events_filter: NotRequired[List[str]]
-        stream: NotRequired[bool]
 
     def list(self) -> List[Training]:
         """
