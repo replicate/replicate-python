@@ -2,6 +2,8 @@ import datetime
 import warnings
 from typing import TYPE_CHECKING, Any, Iterator, List, Union
 
+from typing_extensions import TypedDict, Unpack
+
 if TYPE_CHECKING:
     from replicate.client import Client
     from replicate.model import Model
@@ -94,7 +96,11 @@ class VersionCollection(Collection):
         )
         return self.prepare_model(resp.json())
 
-    def create(self, **kwargs) -> Version:
+    def create(
+        self,
+        *args,
+        **kwargs: Unpack[TypedDict],  # type: ignore[misc]
+    ) -> Version:
         """
         Create a model version.
 

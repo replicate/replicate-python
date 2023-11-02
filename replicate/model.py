@@ -1,6 +1,6 @@
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, TypedDict, Union
 
-from typing_extensions import deprecated
+from typing_extensions import TypedDict, Unpack, deprecated
 
 from replicate.base_model import BaseModel
 from replicate.collection import Collection
@@ -139,9 +139,13 @@ class ModelCollection(Collection):
         resp = self._client._request("GET", f"/v1/models/{key}")
         return self.prepare_model(resp.json())
 
-    def create(self, **kwargs) -> Model:
+    def create(
+        self,
+        *args,
+        **kwargs: Unpack[TypedDict],  # type: ignore[misc]
+    ) -> Model:
         """
-        Create a model.
+        Creates a model.
 
         Raises:
             NotImplementedError: This method is not implemented.

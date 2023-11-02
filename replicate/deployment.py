@@ -1,10 +1,12 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Union
+
+from typing_extensions import TypedDict, Unpack
 
 from replicate.base_model import BaseModel
 from replicate.collection import Collection
 from replicate.files import upload_file
 from replicate.json import encode_json
-from replicate.prediction import Prediction
+from replicate.prediction import Prediction, PredictionCollection
 
 if TYPE_CHECKING:
     from replicate.client import Client
@@ -65,7 +67,11 @@ class DeploymentCollection(Collection):
         username, name = name.split("/")
         return self.prepare_model({"username": username, "name": name})
 
-    def create(self, **kwargs) -> Deployment:
+    def create(
+        self,
+        *args,
+        **kwargs: Unpack[TypedDict],  # type: ignore[misc]
+    ) -> Deployment:
         """
         Create a deployment.
 
@@ -114,15 +120,10 @@ class DeploymentPredictionCollection(Collection):
         del obj["version"]
         return self.prepare_model(obj)
 
-    def create(  # type: ignore
+    def create(
         self,
-        input: Dict[str, Any],
-        webhook: Optional[str] = None,
-        webhook_completed: Optional[str] = None,
-        webhook_events_filter: Optional[List[str]] = None,
-        *,
-        stream: Optional[bool] = None,
-        **kwargs,
+        *args,
+        **kwargs: Unpack[PredictionCollection.CreateParams],  # type: ignore[misc]
     ) -> Prediction:
         """
         Create a new prediction with the deployment.
@@ -138,14 +139,16 @@ class DeploymentPredictionCollection(Collection):
             Prediction: The created prediction object.
         """
 
-        input = encode_json(input, upload_file=upload_file)
+        webhook = kwargs.get("webhook")
+        webhook_events_filter = kwargs.get("webhook_events_filter")
+        stream = kwargs.get("stream")
+
+        input = encode_json(kwargs.get("input"), upload_file=upload_file)
         body: Dict[str, Any] = {
             "input": input,
         }
         if webhook is not None:
             body["webhook"] = webhook
-        if webhook_completed is not None:
-            body["webhook_completed"] = webhook_completed
         if webhook_events_filter is not None:
             body["webhook_events_filter"] = webhook_events_filter
         if stream is True:
