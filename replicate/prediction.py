@@ -1,9 +1,9 @@
 import re
 import time
 from dataclasses import dataclass
-from typing import Any, Dict, Iterator, List, Optional, Union
+from typing import Any, Dict, Iterator, List, Optional, TypedDict, Union, overload
 
-from typing_extensions import TypedDict, Unpack
+from typing_extensions import Unpack
 
 from replicate.base_model import BaseModel
 from replicate.collection import Collection
@@ -182,6 +182,32 @@ class PredictionCollection(Collection):
         # HACK: resolve this? make it lazy somehow?
         del obj["version"]
         return self.prepare_model(obj)
+
+    @overload
+    def create(  # pylint: disable=arguments-differ disable=too-many-arguments
+        self,
+        version: Union[Version, str],
+        input: Dict[str, Any],
+        *,
+        webhook: Optional[str] = None,
+        webhook_completed: Optional[str] = None,
+        webhook_events_filter: Optional[List[str]] = None,
+        stream: Optional[bool] = None,
+    ) -> Prediction:
+        ...
+
+    @overload
+    def create(  # pylint: disable=arguments-differ disable=too-many-arguments
+        self,
+        *,
+        version: Union[Version, str],
+        input: Dict[str, Any],
+        webhook: Optional[str] = None,
+        webhook_completed: Optional[str] = None,
+        webhook_events_filter: Optional[List[str]] = None,
+        stream: Optional[bool] = None,
+    ) -> Prediction:
+        ...
 
     def create(
         self,

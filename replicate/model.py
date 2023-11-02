@@ -1,6 +1,6 @@
 from typing import Dict, List, Optional, Union
 
-from typing_extensions import TypedDict, Unpack, deprecated
+from typing_extensions import deprecated
 
 from replicate.base_model import BaseModel
 from replicate.collection import Collection
@@ -142,7 +142,7 @@ class ModelCollection(Collection):
     def create(
         self,
         *args,
-        **kwargs: Unpack[TypedDict],  # type: ignore[misc]
+        **kwargs,
     ) -> Model:
         """
         Create a model.

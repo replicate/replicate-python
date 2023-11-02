@@ -1,6 +1,6 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, overload
 
-from typing_extensions import TypedDict, Unpack
+from typing_extensions import Unpack
 
 from replicate.base_model import BaseModel
 from replicate.collection import Collection
@@ -70,7 +70,7 @@ class DeploymentCollection(Collection):
     def create(
         self,
         *args,
-        **kwargs: Unpack[TypedDict],  # type: ignore[misc]
+        **kwargs,
     ) -> Deployment:
         """
         Create a deployment.
@@ -120,6 +120,30 @@ class DeploymentPredictionCollection(Collection):
         del obj["version"]
         return self.prepare_model(obj)
 
+    @overload
+    def create(  # pylint: disable=arguments-differ disable=too-many-arguments
+        self,
+        input: Dict[str, Any],
+        *,
+        webhook: Optional[str] = None,
+        webhook_completed: Optional[str] = None,
+        webhook_events_filter: Optional[List[str]] = None,
+        stream: Optional[bool] = None,
+    ) -> Prediction:
+        ...
+
+    @overload
+    def create(  # pylint: disable=arguments-differ disable=too-many-arguments
+        self,
+        *,
+        input: Dict[str, Any],
+        webhook: Optional[str] = None,
+        webhook_completed: Optional[str] = None,
+        webhook_events_filter: Optional[List[str]] = None,
+        stream: Optional[bool] = None,
+    ) -> Prediction:
+        ...
+
     def create(
         self,
         *args,
@@ -139,20 +163,20 @@ class DeploymentPredictionCollection(Collection):
             Prediction: The created prediction object.
         """
 
-        webhook = kwargs.get("webhook")
-        webhook_events_filter = kwargs.get("webhook_events_filter")
-        stream = kwargs.get("stream")
+        input = args[0] if len(args) > 0 else kwargs.get("input")
+        if input is None:
+            raise ValueError(
+                "An input must be provided as a positional or keyword argument."
+            )
 
-        input = encode_json(kwargs.get("input"), upload_file=upload_file)
-        body: Dict[str, Any] = {
-            "input": input,
+        body = {
+            "input": encode_json(input, upload_file=upload_file),
         }
-        if webhook is not None:
-            body["webhook"] = webhook
-        if webhook_events_filter is not None:
-            body["webhook_events_filter"] = webhook_events_filter
-        if stream is True:
-            body["stream"] = True
+
+        for key in ["webhook", "webhook_completed", "webhook_events_filter", "stream"]:
+            value = kwargs.get(key)
+            if value is not None:
+                body[key] = value
 
         resp = self._client._request(
             "POST",

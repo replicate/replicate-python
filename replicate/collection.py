@@ -1,8 +1,6 @@
 import abc
 from typing import TYPE_CHECKING, Dict, Generic, List, TypeVar, Union, cast
 
-from typing_extensions import TypedDict, Unpack
-
 if TYPE_CHECKING:
     from replicate.client import Client
 
@@ -10,10 +8,9 @@ from replicate.base_model import BaseModel
 from replicate.exceptions import ReplicateException
 
 Model = TypeVar("Model", bound=BaseModel)
-CreateParams = TypeVar("CreateParams", bound=TypedDict)
 
 
-class Collection(abc.ABC, Generic[Model, CreateParams]):
+class Collection(abc.ABC, Generic[Model]):
     """
     A base class for representing objects of a particular type on the server.
     """
@@ -36,9 +33,7 @@ class Collection(abc.ABC, Generic[Model, CreateParams]):
 
     @abc.abstractmethod
     def create(  # pylint: disable=missing-function-docstring
-        self,
-        *args,
-        **kwargs: Unpack[CreateParams],  # type: ignore[misc]
+        self, *args, **kwargs
     ) -> Model:
         pass
 
