@@ -1,6 +1,4 @@
-import httpx
 import pytest
-import respx
 
 import replicate
 
