@@ -14,14 +14,14 @@ from typing import (
 
 import httpx
 
-from .__about__ import __version__
-from .deployment import DeploymentCollection
-from .exceptions import ModelError, ReplicateError
-from .model import ModelCollection
-from .prediction import PredictionCollection
-from .schema import make_schema_backwards_compatible
-from .training import TrainingCollection
-from .version import Version
+from replicate.__about__ import __version__
+from replicate.deployment import DeploymentCollection
+from replicate.exceptions import ModelError, ReplicateError
+from replicate.model import ModelCollection
+from replicate.prediction import PredictionCollection
+from replicate.schema import make_schema_backwards_compatible
+from replicate.training import TrainingCollection
+from replicate.version import Version
 
 
 class Client:
