@@ -15,13 +15,11 @@ class Collection(abc.ABC, Generic[Model]):
     A base class for representing objects of a particular type on the server.
     """
 
+    _client: "Client"
+    model: Model
+
     def __init__(self, client: "Client") -> None:
         self._client = client
-
-    @property
-    @abc.abstractmethod
-    def model(self) -> Model:  # pylint: disable=missing-function-docstring
-        pass
 
     def _prepare_model(self, attrs: Union[Model, Dict]) -> Model:
         """
