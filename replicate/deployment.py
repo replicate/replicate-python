@@ -67,13 +67,17 @@ class DeploymentCollection(Collection):
 
 
 class DeploymentPredictionCollection(Collection):
+    """
+    Namespace for operations related to predictions in a deployment.
+    """
+
     model = Prediction
 
     def __init__(self, client: "Client", deployment: Deployment) -> None:
         super().__init__(client=client)
         self._deployment = deployment
 
-    def get(self, id: str) -> Prediction:
+    def get(self, id: str) -> Prediction:  # pylint: disable=invalid-name
         """
         Get a prediction by ID.
 

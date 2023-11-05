@@ -62,6 +62,10 @@ class Prediction(BaseModel):
 
     @dataclass
     class Progress:
+        """
+        The progress of a prediction.
+        """
+
         percentage: float
         """The percentage of the prediction that has completed."""
 
@@ -109,6 +113,10 @@ class Prediction(BaseModel):
             self.reload()
 
     def output_iterator(self) -> Iterator[Any]:
+        """
+        Return an iterator of the prediction output.
+        """
+
         # TODO: check output is list
         previous_output = self.output or []
         while self.status not in ["succeeded", "failed", "canceled"]:
@@ -166,7 +174,7 @@ class PredictionCollection(Collection):
             del prediction["version"]
         return [self._prepare_model(obj) for obj in predictions]
 
-    def get(self, id: str) -> Prediction:
+    def get(self, id: str) -> Prediction:  # pylint: disable=invalid-name
         """
         Get a prediction by ID.
 

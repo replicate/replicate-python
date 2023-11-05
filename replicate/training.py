@@ -107,7 +107,7 @@ class TrainingCollection(Collection):
             del training["version"]
         return [self._prepare_model(obj) for obj in trainings]
 
-    def get(self, id: str) -> Training:
+    def get(self, id: str) -> Training:  # pylint: disable=invalid-name
         """
         Get a training by ID.
 

@@ -178,9 +178,10 @@ class RetryTransport(httpx.AsyncBaseTransport, httpx.BaseTransport):
     )
     MAX_BACKOFF_WAIT = 60
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         wrapped_transport: Union[httpx.BaseTransport, httpx.AsyncBaseTransport],
+        *,
         max_attempts: int = 10,
         max_backoff_wait: float = MAX_BACKOFF_WAIT,
         backoff_factor: float = 0.1,

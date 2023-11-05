@@ -86,7 +86,7 @@ class VersionCollection(Collection):
         super().__init__(client=client)
         self._model = model
 
-    def get(self, id: str) -> Version:
+    def get(self, id: str) -> Version:  # pylint: disable=invalid-name
         """
         Get a specific model version.
 

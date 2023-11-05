@@ -1,5 +1,5 @@
 class ReplicateException(Exception):
-    pass
+    """A base class for all Replicate exceptions."""
 
 
 class ModelError(ReplicateException):
