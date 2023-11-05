@@ -1,12 +1,10 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, overload
-
-from typing_extensions import Unpack
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from replicate.base_model import BaseModel
 from replicate.collection import Collection
 from replicate.files import upload_file
 from replicate.json import encode_json
-from replicate.prediction import Prediction, PredictionCollection
+from replicate.prediction import Prediction
 
 if TYPE_CHECKING:
     from replicate.client import Client
@@ -120,34 +118,14 @@ class DeploymentPredictionCollection(Collection):
         del obj["version"]
         return self.prepare_model(obj)
 
-    @overload
-    def create(  # pylint: disable=arguments-differ disable=too-many-arguments
-        self,
-        input: Dict[str, Any],
-        *,
-        webhook: Optional[str] = None,
-        webhook_completed: Optional[str] = None,
-        webhook_events_filter: Optional[List[str]] = None,
-        stream: Optional[bool] = None,
-    ) -> Prediction:
-        ...
-
-    @overload
-    def create(  # pylint: disable=arguments-differ disable=too-many-arguments
-        self,
-        *,
-        input: Dict[str, Any],
-        webhook: Optional[str] = None,
-        webhook_completed: Optional[str] = None,
-        webhook_events_filter: Optional[List[str]] = None,
-        stream: Optional[bool] = None,
-    ) -> Prediction:
-        ...
-
     def create(
         self,
-        *args,
-        **kwargs: Unpack[PredictionCollection.CreateParams],  # type: ignore[misc]
+        input: Dict[str, Any],
+        *,
+        webhook: Optional[str] = None,
+        webhook_completed: Optional[str] = None,
+        webhook_events_filter: Optional[List[str]] = None,
+        stream: Optional[bool] = None,
     ) -> Prediction:
         """
         Create a new prediction with the deployment.
@@ -163,20 +141,21 @@ class DeploymentPredictionCollection(Collection):
             Prediction: The created prediction object.
         """
 
-        input = args[0] if len(args) > 0 else kwargs.get("input")
-        if input is None:
-            raise ValueError(
-                "An input must be provided as a positional or keyword argument."
-            )
-
         body = {
             "input": encode_json(input, upload_file=upload_file),
         }
 
-        for key in ["webhook", "webhook_completed", "webhook_events_filter", "stream"]:
-            value = kwargs.get(key)
-            if value is not None:
-                body[key] = value
+        if webhook is not None:
+            body["webhook"] = webhook
+
+        if webhook_completed is not None:
+            body["webhook_completed"] = webhook_completed
+
+        if webhook_events_filter is not None:
+            body["webhook_events_filter"] = webhook_events_filter
+
+        if stream is not None:
+            body["stream"] = stream
 
         resp = self._client._request(
             "POST",
