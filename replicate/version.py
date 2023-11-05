@@ -18,6 +18,8 @@ class Version(BaseModel):
     A version of a model.
     """
 
+    _collection: "VersionCollection"
+
     id: str
     """The unique ID of the version."""
 
@@ -50,7 +52,7 @@ class Version(BaseModel):
 
         prediction = self._client.predictions.create(version=self, input=kwargs)  # pylint: disable=no-member
         # Return an iterator of the output
-        schema = self.get_transformed_schema()
+        schema = make_schema_backwards_compatible(self.openapi_schema, self.cog_version)
         output = schema["components"]["schemas"]["Output"]
         if (
             output.get("type") == "array"
@@ -63,10 +65,14 @@ class Version(BaseModel):
             raise ModelError(prediction.error)
         return prediction.output
 
-    def get_transformed_schema(self) -> dict:
-        schema = self.openapi_schema
-        schema = make_schema_backwards_compatible(schema, self.cog_version)
-        return schema
+    def reload(self) -> None:
+        """
+        Load this object from the server.
+        """
+
+        obj = self._collection.get(self.id)  # pylint: disable=no-member
+        for name, value in obj.dict().items():
+            setattr(self, name, value)
 
 
 class VersionCollection(Collection):
@@ -80,7 +86,7 @@ class VersionCollection(Collection):
         super().__init__(client=client)
         self._model = model
 
-    def get(self, id: str) -> Version:
+    def get(self, id: str) -> Version:  # pylint: disable=invalid-name
         """
         Get a specific model version.
 
@@ -92,20 +98,7 @@ class VersionCollection(Collection):
         resp = self._client._request(
             "GET", f"/v1/models/{self._model.owner}/{self._model.name}/versions/{id}"
         )
-        return self.prepare_model(resp.json())
-
-    def create(
-        self,
-        *args,
-        **kwargs,
-    ) -> Version:
-        """
-        Create a model version.
-
-        Raises:
-            NotImplementedError: This method is not implemented.
-        """
-        raise NotImplementedError()
+        return self._prepare_model(resp.json())
 
     def list(self) -> List[Version]:
         """
@@ -117,4 +110,4 @@ class VersionCollection(Collection):
         resp = self._client._request(
             "GET", f"/v1/models/{self._model.owner}/{self._model.name}/versions"
         )
-        return [self.prepare_model(obj) for obj in resp.json()["results"]]
+        return [self._prepare_model(obj) for obj in resp.json()["results"]]

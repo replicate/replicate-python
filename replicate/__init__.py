@@ -1,4 +1,4 @@
-from .client import Client
+from replicate.client import Client
 
 default_client = Client()
 run = default_client.run

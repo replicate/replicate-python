@@ -14,6 +14,8 @@ class Model(BaseModel):
     A machine learning model hosted on Replicate.
     """
 
+    _collection: "ModelCollection"
+
     url: str
     """
     The URL of the model.
@@ -105,6 +107,15 @@ class Model(BaseModel):
 
         return VersionCollection(client=self._client, model=self)
 
+    def reload(self) -> None:
+        """
+        Load this object from the server.
+        """
+
+        obj = self._collection.get(f"{self.owner}/{self.name}")  # pylint: disable=no-member
+        for name, value in obj.dict().items():
+            setattr(self, name, value)
+
 
 class ModelCollection(Collection):
     """
@@ -124,7 +135,7 @@ class ModelCollection(Collection):
         resp = self._client._request("GET", "/v1/models")
         # TODO: paginate
         models = resp.json()["results"]
-        return [self.prepare_model(obj) for obj in models]
+        return [self._prepare_model(obj) for obj in models]
 
     def get(self, key: str) -> Model:
         """
@@ -137,22 +148,9 @@ class ModelCollection(Collection):
         """
 
         resp = self._client._request("GET", f"/v1/models/{key}")
-        return self.prepare_model(resp.json())
+        return self._prepare_model(resp.json())
 
-    def create(
-        self,
-        *args,
-        **kwargs,
-    ) -> Model:
-        """
-        Create a model.
-
-        Raises:
-            NotImplementedError: This method is not implemented.
-        """
-        raise NotImplementedError()
-
-    def prepare_model(self, attrs: Union[Model, Dict]) -> Model:
+    def _prepare_model(self, attrs: Union[Model, Dict]) -> Model:
         if isinstance(attrs, BaseModel):
             attrs.id = f"{attrs.owner}/{attrs.name}"
         elif isinstance(attrs, dict):
@@ -165,7 +163,7 @@ class ModelCollection(Collection):
                 if "latest_version" in attrs and attrs["latest_version"] == {}:
                     attrs.pop("latest_version")
 
-        model = super().prepare_model(attrs)
+        model = super()._prepare_model(attrs)
 
         if model.default_example is not None:
             model.default_example._client = self._client

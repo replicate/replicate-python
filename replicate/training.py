@@ -16,6 +16,8 @@ class Training(BaseModel):
     A training made for a model hosted on Replicate.
     """
 
+    _collection: "TrainingCollection"
+
     id: str
     """The unique ID of the training."""
 
@@ -62,6 +64,15 @@ class Training(BaseModel):
         """Cancel a running training"""
         self._client._request("POST", f"/v1/trainings/{self.id}/cancel")  # pylint: disable=no-member
 
+    def reload(self) -> None:
+        """
+        Load the training from the server.
+        """
+
+        obj = self._collection.get(self.id)  # pylint: disable=no-member
+        for name, value in obj.dict().items():
+            setattr(self, name, value)
+
 
 class TrainingCollection(Collection):
     """
@@ -94,9 +105,9 @@ class TrainingCollection(Collection):
         for training in trainings:
             # HACK: resolve this? make it lazy somehow?
             del training["version"]
-        return [self.prepare_model(obj) for obj in trainings]
+        return [self._prepare_model(obj) for obj in trainings]
 
-    def get(self, id: str) -> Training:
+    def get(self, id: str) -> Training:  # pylint: disable=invalid-name
         """
         Get a training by ID.
 
@@ -113,7 +124,7 @@ class TrainingCollection(Collection):
         obj = resp.json()
         # HACK: resolve this? make it lazy somehow?
         del obj["version"]
-        return self.prepare_model(obj)
+        return self._prepare_model(obj)
 
     @overload
     def create(  # pylint: disable=arguments-differ disable=too-many-arguments
@@ -209,4 +220,4 @@ class TrainingCollection(Collection):
         )
         obj = resp.json()
         del obj["version"]
-        return self.prepare_model(obj)
+        return self._prepare_model(obj)

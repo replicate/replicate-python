@@ -46,6 +46,7 @@ disable = [
     "R0801", # Similar lines in N files
     "W0212", # Access to a protected member
     "W0622", # Redefining built-in
+    "R0903", # Too few public methods
 ]
 
 [tool.ruff]

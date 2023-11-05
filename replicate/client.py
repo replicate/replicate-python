@@ -14,13 +14,14 @@ from typing import (
 
 import httpx
 
-from .__about__ import __version__
-from .deployment import DeploymentCollection
-from .exceptions import ModelError, ReplicateError
-from .model import ModelCollection
-from .prediction import PredictionCollection
-from .training import TrainingCollection
-from .version import Version
+from replicate.__about__ import __version__
+from replicate.deployment import DeploymentCollection
+from replicate.exceptions import ModelError, ReplicateError
+from replicate.model import ModelCollection
+from replicate.prediction import PredictionCollection
+from replicate.schema import make_schema_backwards_compatible
+from replicate.training import TrainingCollection
+from replicate.version import Version
 
 
 class Client:
@@ -143,7 +144,9 @@ class Client:
             version = Version(**resp.json())
 
             # Return an iterator of the output
-            schema = version.get_transformed_schema()
+            schema = make_schema_backwards_compatible(
+                version.openapi_schema, version.cog_version
+            )
             output = schema["components"]["schemas"]["Output"]
             if (
                 output.get("type") == "array"
@@ -175,9 +178,10 @@ class RetryTransport(httpx.AsyncBaseTransport, httpx.BaseTransport):
     )
     MAX_BACKOFF_WAIT = 60
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         wrapped_transport: Union[httpx.BaseTransport, httpx.AsyncBaseTransport],
+        *,
         max_attempts: int = 10,
         max_backoff_wait: float = MAX_BACKOFF_WAIT,
         backoff_factor: float = 0.1,
