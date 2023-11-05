@@ -10,6 +10,8 @@ from replicate.exceptions import ReplicateError
 @pytest.mark.vcr("run.yaml")
 @pytest.mark.asyncio
 async def test_run(mock_replicate_api_token):
+    replicate.default_client.poll_interval = 0.001
+
     version = "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5"
 
     input = {
