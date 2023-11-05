@@ -77,22 +77,6 @@ class DeploymentPredictionCollection(Collection):
         super().__init__(client=client)
         self._deployment = deployment
 
-    def get(self, id: str) -> Prediction:  # pylint: disable=invalid-name
-        """
-        Get a prediction by ID.
-
-        Args:
-            id: The ID of the prediction.
-        Returns:
-            Prediction: The prediction object.
-        """
-
-        resp = self._client._request("GET", f"/v1/predictions/{id}")
-        obj = resp.json()
-        # HACK: resolve this? make it lazy somehow?
-        del obj["version"]
-        return self._prepare_model(obj)
-
     def create(
         self,
         input: Dict[str, Any],
