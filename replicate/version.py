@@ -68,6 +68,15 @@ class Version(BaseModel):
         schema = make_schema_backwards_compatible(schema, self.cog_version)
         return schema
 
+    def reload(self) -> None:
+        """
+        Load this object from the server.
+        """
+
+        obj = self._collection.get(self.id)  # pylint: disable=no-member
+        for name, value in obj.dict().items():
+            setattr(self, name, value)
+
 
 class VersionCollection(Collection):
     """

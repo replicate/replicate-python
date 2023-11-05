@@ -62,6 +62,15 @@ class Training(BaseModel):
         """Cancel a running training"""
         self._client._request("POST", f"/v1/trainings/{self.id}/cancel")  # pylint: disable=no-member
 
+    def reload(self) -> None:
+        """
+        Load the training from the server.
+        """
+
+        obj = self._collection.get(self.id)  # pylint: disable=no-member
+        for name, value in obj.dict().items():
+            setattr(self, name, value)
+
 
 class TrainingCollection(Collection):
     """

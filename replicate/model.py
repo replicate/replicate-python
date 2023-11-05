@@ -105,6 +105,15 @@ class Model(BaseModel):
 
         return VersionCollection(client=self._client, model=self)
 
+    def reload(self) -> None:
+        """
+        Load this object from the server.
+        """
+
+        obj = self._collection.get(f"{self.owner}/{self.name}")  # pylint: disable=no-member
+        for name, value in obj.dict().items():
+            setattr(self, name, value)
+
 
 class ModelCollection(Collection):
     """
