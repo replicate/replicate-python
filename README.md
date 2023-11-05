@@ -178,6 +178,29 @@ urlretrieve(out[0], "/tmp/out.png")
 background = Image.open("/tmp/out.png")
 ```
 
+## Create a model
+
+You can create a model for a user or organization
+with a given name, visibility, and hardware SKU:
+
+```python
+import replicate
+
+model = replicate.models.create(
+    owner="your-username",
+    name="my-model",
+    visibility="public",
+    hardware="gpu-a40-large"
+)
+```
+
+Here's how to list of all the available hardware for running models on Replicate:
+
+```python
+>>> [hw.sku for hw in replicate.hardware.list()]
+['cpu', 'gpu-t4', 'gpu-a40-small', 'gpu-a40-large']
+```
+
 ## Development
 
 See [CONTRIBUTING.md](CONTRIBUTING.md)
