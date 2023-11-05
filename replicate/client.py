@@ -19,6 +19,7 @@ from .deployment import DeploymentCollection
 from .exceptions import ModelError, ReplicateError
 from .model import ModelCollection
 from .prediction import PredictionCollection
+from .schema import make_schema_backwards_compatible
 from .training import TrainingCollection
 from .version import Version
 
@@ -143,7 +144,9 @@ class Client:
             version = Version(**resp.json())
 
             # Return an iterator of the output
-            schema = version.get_transformed_schema()
+            schema = make_schema_backwards_compatible(
+                version.openapi_schema, version.cog_version
+            )
             output = schema["components"]["schemas"]["Output"]
             if (
                 output.get("type") == "array"

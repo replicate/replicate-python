@@ -50,7 +50,7 @@ class Version(BaseModel):
 
         prediction = self._client.predictions.create(version=self, input=kwargs)  # pylint: disable=no-member
         # Return an iterator of the output
-        schema = self.get_transformed_schema()
+        schema = make_schema_backwards_compatible(self.openapi_schema, self.cog_version)
         output = schema["components"]["schemas"]["Output"]
         if (
             output.get("type") == "array"
@@ -62,11 +62,6 @@ class Version(BaseModel):
         if prediction.status == "failed":
             raise ModelError(prediction.error)
         return prediction.output
-
-    def get_transformed_schema(self) -> dict:
-        schema = self.openapi_schema
-        schema = make_schema_backwards_compatible(schema, self.cog_version)
-        return schema
 
     def reload(self) -> None:
         """
