@@ -139,19 +139,6 @@ class ModelCollection(Collection):
         resp = self._client._request("GET", f"/v1/models/{key}")
         return self.prepare_model(resp.json())
 
-    def create(
-        self,
-        *args,
-        **kwargs,
-    ) -> Model:
-        """
-        Create a model.
-
-        Raises:
-            NotImplementedError: This method is not implemented.
-        """
-        raise NotImplementedError()
-
     def prepare_model(self, attrs: Union[Model, Dict]) -> Model:
         if isinstance(attrs, BaseModel):
             attrs.id = f"{attrs.owner}/{attrs.name}"

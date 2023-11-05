@@ -41,15 +41,6 @@ class DeploymentCollection(Collection):
 
     model = Deployment
 
-    def list(self) -> List[Deployment]:
-        """
-        List deployments.
-
-        Raises:
-            NotImplementedError: This method is not implemented.
-        """
-        raise NotImplementedError()
-
     def get(self, name: str) -> Deployment:
         """
         Get a deployment by name.
@@ -65,19 +56,6 @@ class DeploymentCollection(Collection):
         username, name = name.split("/")
         return self.prepare_model({"username": username, "name": name})
 
-    def create(
-        self,
-        *args,
-        **kwargs,
-    ) -> Deployment:
-        """
-        Create a deployment.
-
-        Raises:
-            NotImplementedError: This method is not implemented.
-        """
-        raise NotImplementedError()
-
     def prepare_model(self, attrs: Union[Deployment, Dict]) -> Deployment:
         if isinstance(attrs, BaseModel):
             attrs.id = f"{attrs.username}/{attrs.name}"
@@ -92,15 +70,6 @@ class DeploymentPredictionCollection(Collection):
     def __init__(self, client: "Client", deployment: Deployment) -> None:
         super().__init__(client=client)
         self._deployment = deployment
-
-    def list(self) -> List[Prediction]:
-        """
-        List predictions in a deployment.
-
-        Raises:
-            NotImplementedError: This method is not implemented.
-        """
-        raise NotImplementedError()
 
     def get(self, id: str) -> Prediction:
         """

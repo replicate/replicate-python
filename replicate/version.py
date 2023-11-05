@@ -94,19 +94,6 @@ class VersionCollection(Collection):
         )
         return self.prepare_model(resp.json())
 
-    def create(
-        self,
-        *args,
-        **kwargs,
-    ) -> Version:
-        """
-        Create a model version.
-
-        Raises:
-            NotImplementedError: This method is not implemented.
-        """
-        raise NotImplementedError()
-
     def list(self) -> List[Version]:
         """
         Return a list of all versions for a model.
