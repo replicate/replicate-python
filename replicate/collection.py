@@ -23,7 +23,7 @@ class Collection(abc.ABC, Generic[Model]):
     def model(self) -> Model:  # pylint: disable=missing-function-docstring
         pass
 
-    def prepare_model(self, attrs: Union[Model, Dict]) -> Model:
+    def _prepare_model(self, attrs: Union[Model, Dict]) -> Model:
         """
         Create a model from a set of attributes.
         """

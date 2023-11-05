@@ -124,7 +124,7 @@ class ModelCollection(Collection):
         resp = self._client._request("GET", "/v1/models")
         # TODO: paginate
         models = resp.json()["results"]
-        return [self.prepare_model(obj) for obj in models]
+        return [self._prepare_model(obj) for obj in models]
 
     def get(self, key: str) -> Model:
         """
@@ -137,9 +137,9 @@ class ModelCollection(Collection):
         """
 
         resp = self._client._request("GET", f"/v1/models/{key}")
-        return self.prepare_model(resp.json())
+        return self._prepare_model(resp.json())
 
-    def prepare_model(self, attrs: Union[Model, Dict]) -> Model:
+    def _prepare_model(self, attrs: Union[Model, Dict]) -> Model:
         if isinstance(attrs, BaseModel):
             attrs.id = f"{attrs.owner}/{attrs.name}"
         elif isinstance(attrs, dict):
@@ -152,7 +152,7 @@ class ModelCollection(Collection):
                 if "latest_version" in attrs and attrs["latest_version"] == {}:
                     attrs.pop("latest_version")
 
-        model = super().prepare_model(attrs)
+        model = super()._prepare_model(attrs)
 
         if model.default_example is not None:
             model.default_example._client = self._client

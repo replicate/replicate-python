@@ -153,7 +153,7 @@ class PredictionCollection(Collection):
         for prediction in predictions:
             # HACK: resolve this? make it lazy somehow?
             del prediction["version"]
-        return [self.prepare_model(obj) for obj in predictions]
+        return [self._prepare_model(obj) for obj in predictions]
 
     def get(self, id: str) -> Prediction:
         """
@@ -169,7 +169,7 @@ class PredictionCollection(Collection):
         obj = resp.json()
         # HACK: resolve this? make it lazy somehow?
         del obj["version"]
-        return self.prepare_model(obj)
+        return self._prepare_model(obj)
 
     def create(
         self,
@@ -224,4 +224,4 @@ class PredictionCollection(Collection):
         else:
             del obj["version"]
 
-        return self.prepare_model(obj)
+        return self._prepare_model(obj)

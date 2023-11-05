@@ -54,14 +54,14 @@ class DeploymentCollection(Collection):
         # TODO: fetch model from server
         # TODO: support permanent IDs
         username, name = name.split("/")
-        return self.prepare_model({"username": username, "name": name})
+        return self._prepare_model({"username": username, "name": name})
 
-    def prepare_model(self, attrs: Union[Deployment, Dict]) -> Deployment:
+    def _prepare_model(self, attrs: Union[Deployment, Dict]) -> Deployment:
         if isinstance(attrs, BaseModel):
             attrs.id = f"{attrs.username}/{attrs.name}"
         elif isinstance(attrs, dict):
             attrs["id"] = f"{attrs['username']}/{attrs['name']}"
-        return super().prepare_model(attrs)
+        return super()._prepare_model(attrs)
 
 
 class DeploymentPredictionCollection(Collection):
@@ -85,7 +85,7 @@ class DeploymentPredictionCollection(Collection):
         obj = resp.json()
         # HACK: resolve this? make it lazy somehow?
         del obj["version"]
-        return self.prepare_model(obj)
+        return self._prepare_model(obj)
 
     def create(
         self,
@@ -134,4 +134,4 @@ class DeploymentPredictionCollection(Collection):
         obj = resp.json()
         obj["deployment"] = self._deployment
         del obj["version"]
-        return self.prepare_model(obj)
+        return self._prepare_model(obj)

@@ -94,7 +94,7 @@ class TrainingCollection(Collection):
         for training in trainings:
             # HACK: resolve this? make it lazy somehow?
             del training["version"]
-        return [self.prepare_model(obj) for obj in trainings]
+        return [self._prepare_model(obj) for obj in trainings]
 
     def get(self, id: str) -> Training:
         """
@@ -113,7 +113,7 @@ class TrainingCollection(Collection):
         obj = resp.json()
         # HACK: resolve this? make it lazy somehow?
         del obj["version"]
-        return self.prepare_model(obj)
+        return self._prepare_model(obj)
 
     @overload
     def create(  # pylint: disable=arguments-differ disable=too-many-arguments
@@ -209,4 +209,4 @@ class TrainingCollection(Collection):
         )
         obj = resp.json()
         del obj["version"]
-        return self.prepare_model(obj)
+        return self._prepare_model(obj)
