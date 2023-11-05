@@ -16,6 +16,8 @@ class Prediction(BaseModel):
     A prediction made by a model hosted on Replicate.
     """
 
+    _collection: "PredictionCollection"
+
     id: str
     """The unique ID of the prediction."""
 

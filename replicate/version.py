@@ -18,6 +18,8 @@ class Version(BaseModel):
     A version of a model.
     """
 
+    _collection: "VersionCollection"
+
     id: str
     """The unique ID of the version."""
 

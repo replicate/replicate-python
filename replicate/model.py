@@ -14,6 +14,8 @@ class Model(BaseModel):
     A machine learning model hosted on Replicate.
     """
 
+    _collection: "ModelCollection"
+
     url: str
     """
     The URL of the model.

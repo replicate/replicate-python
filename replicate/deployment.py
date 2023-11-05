@@ -15,6 +15,8 @@ class Deployment(BaseModel):
     A deployment of a model hosted on Replicate.
     """
 
+    _collection: "DeploymentCollection"
+
     username: str
     """
     The name of the user or organization that owns the deployment.

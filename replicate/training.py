@@ -16,6 +16,8 @@ class Training(BaseModel):
     A training made for a model hosted on Replicate.
     """
 
+    _collection: "TrainingCollection"
+
     id: str
     """The unique ID of the training."""
 
