@@ -1,0 +1,80 @@
+interactions:
+- request:
+    body: '{"owner": "test", "name": "python-example", "visibility": "private", "hardware":
+      "cpu", "description": "An example model"}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '123'
+      content-type:
+      - application/json
+      host:
+      - api.replicate.com
+      user-agent:
+      - replicate-python/0.15.6
+    method: POST
+    uri: https://api.replicate.com/v1/models
+  response:
+    content: '{"url": "https://replicate.com/test/python-example", "owner": "test",
+      "name": "python-example", "description": "An example model", "visibility": "private",
+      "github_url": null, "paper_url": null, "license_url": null, "run_count": 0,
+      "cover_image_url": null, "default_example": null, "latest_version": null}'
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 81ff2e098ec0eb5b-SEA
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '307'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 02 Nov 2023 20:38:12 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000
+      allow:
+      - GET, POST, HEAD, OPTIONS
+      content-security-policy-report-only:
+      - 'font-src ''report-sample'' ''self'' data:; img-src ''report-sample'' ''self''
+        data: https://replicate.delivery https://*.replicate.delivery https://*.githubusercontent.com
+        https://github.com; script-src ''report-sample'' ''self'' https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js;
+        style-src ''report-sample'' ''self'' ''unsafe-inline''; connect-src ''report-sample''
+        ''self'' https://replicate.delivery https://*.replicate.delivery https://*.rudderlabs.com
+        https://*.rudderstack.com https://*.mux.com https://*.sentry.io; worker-src
+        ''none''; media-src ''report-sample'' ''self'' https://replicate.delivery
+        https://*.replicate.delivery https://*.mux.com https://*.sentry.io; default-src
+        ''self''; report-uri'
+      cross-origin-opener-policy:
+      - same-origin
+      nel:
+      - '{"report_to":"heroku-nel","max_age":3600,"success_fraction":0.005,"failure_fraction":0.05,"response_headers":["Via"]}'
+      ratelimit-remaining:
+      - '2999'
+      ratelimit-reset:
+      - '1'
+      referrer-policy:
+      - same-origin
+      report-to:
+      - '{"group":"heroku-nel","max_age":3600,"endpoints":[{"url":"https://nel.heroku.com/reports?ts=1698957492&sid=1b10b0ff-8a76-4548-befa-353fc6c6c045&s=m%2Fs583uNWdN4J4bm1G3JZoilUVMbh89egg%2FAEcTPZm4%3D"}]}'
+      reporting-endpoints:
+      - heroku-nel=https://nel.heroku.com/reports?ts=1698957492&sid=1b10b0ff-8a76-4548-befa-353fc6c6c045&s=m%2Fs583uNWdN4J4bm1G3JZoilUVMbh89egg%2FAEcTPZm4%3D
+      vary:
+      - Cookie, origin
+      via:
+      - 1.1 vegur, 1.1 google
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - DENY
+    http_version: HTTP/1.1
+    status_code: 201
+version: 1

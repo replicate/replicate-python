@@ -17,6 +17,7 @@ import httpx
 from replicate.__about__ import __version__
 from replicate.deployment import DeploymentCollection
 from replicate.exceptions import ModelError, ReplicateError
+from replicate.hardware import HardwareCollection
 from replicate.model import ModelCollection
 from replicate.prediction import PredictionCollection
 from replicate.schema import make_schema_backwards_compatible
@@ -84,6 +85,20 @@ class Client:
         return resp
 
     @property
+    def deployments(self) -> DeploymentCollection:
+        """
+        Namespace for operations related to deployments.
+        """
+        return DeploymentCollection(client=self)
+
+    @property
+    def hardware(self) -> HardwareCollection:
+        """
+        Namespace for operations related to hardware.
+        """
+        return HardwareCollection(client=self)
+
+    @property
     def models(self) -> ModelCollection:
         """
         Namespace for operations related to models.
@@ -103,13 +118,6 @@ class Client:
         Namespace for operations related to trainings.
         """
         return TrainingCollection(client=self)
-
-    @property
-    def deployments(self) -> DeploymentCollection:
-        """
-        Namespace for operations related to deployments.
-        """
-        return DeploymentCollection(client=self)
 
     def run(self, model_version: str, **kwargs) -> Union[Any, Iterator[Any]]:  # noqa: ANN401
         """
