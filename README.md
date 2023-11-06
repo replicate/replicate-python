@@ -4,7 +4,7 @@ This is a Python client for [Replicate](https://replicate.com). It lets you run 
 
 > **👋** Check out an interactive version of this tutorial on [Google Colab](https://colab.research.google.com/drive/1K91q4p-OhL96FHBAVLsv9FlwFdu6Pn3c).
 >
->  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1K91q4p-OhL96FHBAVLsv9FlwFdu6Pn3c)
+> [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1K91q4p-OhL96FHBAVLsv9FlwFdu6Pn3c)
 
 ## Requirements
 
@@ -97,8 +97,8 @@ iteration: 30, render:loss: -1.3994140625
 You can run a model and get a webhook when it completes, instead of waiting for it to finish:
 
 ```python
-model = replicate.models.get("kvfrans/clipdraw")
-version = model.versions.get("5797a99edc939ea0e9242d5e8c9cb3bc7d125b1eac21bda852e5cb79ede2cd9b")
+model = replicate.models.get("ai-forever/kandinsky-2.2")
+version = model.versions.get("ea1addaab376f4dc227f5368bbd8eff901820fd1cc14ed8cad63b29249e9d463")
 prediction = replicate.predictions.create(
     version=version,
     input={"prompt":"Watercolor painting of an underwater submarine"},
@@ -106,6 +106,8 @@ prediction = replicate.predictions.create(
     webhook_events_filter=["completed"]
 )
 ```
+
+For details on receiving webhooks, see [replicate.com/docs/webhooks](https://replicate.com/docs/webhooks).
 
 ## Compose models into a pipeline
 
