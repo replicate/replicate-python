@@ -17,8 +17,6 @@ class Resource(pydantic.BaseModel):
     A base class for representing a single object on the server.
     """
 
-    id: str
-
     _client: "Client" = pydantic.PrivateAttr()
     _namespace: "Namespace" = pydantic.PrivateAttr()
 

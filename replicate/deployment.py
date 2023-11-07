@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from replicate.files import upload_file
 from replicate.json import encode_json
@@ -25,6 +25,10 @@ class Deployment(Resource):
     """
     The name of the deployment.
     """
+
+    @property
+    def id(self) -> str:
+        return f"{self.username}/{self.name}"
 
     @property
     def predictions(self) -> "DeploymentPredictions":
@@ -56,13 +60,6 @@ class Deployments(Namespace):
         # TODO: support permanent IDs
         username, name = name.split("/")
         return self._prepare_model({"username": username, "name": name})
-
-    def _prepare_model(self, attrs: Union[Deployment, Dict]) -> Deployment:
-        if isinstance(attrs, Resource):
-            attrs.id = f"{attrs.username}/{attrs.name}"
-        elif isinstance(attrs, dict):
-            attrs["id"] = f"{attrs['username']}/{attrs['name']}"
-        return super()._prepare_model(attrs)
 
 
 class DeploymentPredictions(Namespace):

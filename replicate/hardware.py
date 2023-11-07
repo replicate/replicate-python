@@ -1,4 +1,6 @@
-from typing import Dict, List, Union
+from typing import List
+
+from typing_extensions import deprecated
 
 from replicate.resource import Namespace, Resource
 
@@ -18,6 +20,14 @@ class Hardware(Resource):
     The name of the hardware.
     """
 
+    @property
+    @deprecated("Use `sku` instead of `id`")
+    def id(self) -> str:
+        """
+        DEPRECATED: Use `sku` instead.
+        """
+        return self.sku
+
 
 class Hardwares(Namespace):
     """
@@ -36,11 +46,3 @@ class Hardwares(Namespace):
 
         resp = self._client._request("GET", "/v1/hardware")
         return [self._prepare_model(obj) for obj in resp.json()]
-
-    def _prepare_model(self, attrs: Union[Hardware, Dict]) -> Hardware:
-        if isinstance(attrs, Resource):
-            attrs.id = attrs.sku
-        elif isinstance(attrs, dict):
-            attrs["id"] = attrs["sku"]
-
-        return super()._prepare_model(attrs)
