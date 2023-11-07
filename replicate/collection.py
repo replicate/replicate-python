@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from typing_extensions import deprecated
 
@@ -97,9 +97,3 @@ class Collections(Namespace):
         resp = self._client._request("GET", f"/v1/collections/{slug}")
 
         return self._prepare_model(resp.json())
-
-    def _prepare_model(self, attrs: Dict) -> Collection:
-        if "models" in attrs:
-            attrs["models"] = [self._models._prepare_model(m) for m in attrs["models"]]
-
-        return super()._prepare_model(attrs)
