@@ -2,14 +2,14 @@ from typing import Dict, List, Optional, Union
 
 from typing_extensions import deprecated
 
-from replicate.base_model import BaseModel
 from replicate.collection import Collection
 from replicate.exceptions import ReplicateException
 from replicate.prediction import Prediction
+from replicate.resource import Resource
 from replicate.version import Version, VersionCollection
 
 
-class Model(BaseModel):
+class Model(Resource):
     """
     A machine learning model hosted on Replicate.
     """
@@ -208,7 +208,7 @@ class ModelCollection(Collection):
         return self._prepare_model(resp.json())
 
     def _prepare_model(self, attrs: Union[Model, Dict]) -> Model:
-        if isinstance(attrs, BaseModel):
+        if isinstance(attrs, Resource):
             attrs.id = f"{attrs.owner}/{attrs.name}"
         elif isinstance(attrs, dict):
             attrs["id"] = f"{attrs['owner']}/{attrs['name']}"

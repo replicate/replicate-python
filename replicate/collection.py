@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING, Dict, Generic, TypeVar, Union, cast
 if TYPE_CHECKING:
     from replicate.client import Client
 
-from replicate.base_model import BaseModel
 from replicate.exceptions import ReplicateException
+from replicate.resource import Resource
 
-Model = TypeVar("Model", bound=BaseModel)
+Model = TypeVar("Model", bound=Resource)
 
 
 class Collection(abc.ABC, Generic[Model]):
@@ -25,7 +25,7 @@ class Collection(abc.ABC, Generic[Model]):
         """
         Create a model from a set of attributes.
         """
-        if isinstance(attrs, BaseModel):
+        if isinstance(attrs, Resource):
             attrs._client = self._client
             attrs._collection = self
             return cast(Model, attrs)

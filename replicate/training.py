@@ -3,15 +3,15 @@ from typing import Any, Dict, List, Optional, TypedDict, Union
 
 from typing_extensions import NotRequired, Unpack, overload
 
-from replicate.base_model import BaseModel
 from replicate.collection import Collection
 from replicate.exceptions import ReplicateException
 from replicate.files import upload_file
 from replicate.json import encode_json
+from replicate.resource import Resource
 from replicate.version import Version
 
 
-class Training(BaseModel):
+class Training(Resource):
     """
     A training made for a model hosted on Replicate.
     """

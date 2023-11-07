@@ -10,7 +10,7 @@ except ImportError:
     import pydantic  # type: ignore
 
 
-class BaseModel(pydantic.BaseModel):
+class Resource(pydantic.BaseModel):
     """
     A base class for representing a single object on the server.
     """

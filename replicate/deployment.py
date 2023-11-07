@@ -1,16 +1,16 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
-from replicate.base_model import BaseModel
 from replicate.collection import Collection
 from replicate.files import upload_file
 from replicate.json import encode_json
 from replicate.prediction import Prediction
+from replicate.resource import Resource
 
 if TYPE_CHECKING:
     from replicate.client import Client
 
 
-class Deployment(BaseModel):
+class Deployment(Resource):
     """
     A deployment of a model hosted on Replicate.
     """
@@ -59,7 +59,7 @@ class DeploymentCollection(Collection):
         return self._prepare_model({"username": username, "name": name})
 
     def _prepare_model(self, attrs: Union[Deployment, Dict]) -> Deployment:
-        if isinstance(attrs, BaseModel):
+        if isinstance(attrs, Resource):
             attrs.id = f"{attrs.username}/{attrs.name}"
         elif isinstance(attrs, dict):
             attrs["id"] = f"{attrs['username']}/{attrs['name']}"

@@ -1,10 +1,10 @@
 from typing import Dict, List, Union
 
-from replicate.base_model import BaseModel
 from replicate.collection import Collection
+from replicate.resource import Resource
 
 
-class Hardware(BaseModel):
+class Hardware(Resource):
     """
     Hardware for running a model on Replicate.
     """
@@ -40,7 +40,7 @@ class HardwareCollection(Collection):
         return [self._prepare_model(obj) for obj in hardware]
 
     def _prepare_model(self, attrs: Union[Hardware, Dict]) -> Hardware:
-        if isinstance(attrs, BaseModel):
+        if isinstance(attrs, Resource):
             attrs.id = attrs.sku
         elif isinstance(attrs, dict):
             attrs["id"] = attrs["sku"]

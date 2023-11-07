@@ -7,13 +7,13 @@ if TYPE_CHECKING:
     from replicate.model import Model
 
 
-from replicate.base_model import BaseModel
 from replicate.collection import Collection
 from replicate.exceptions import ModelError
+from replicate.resource import Resource
 from replicate.schema import make_schema_backwards_compatible
 
 
-class Version(BaseModel):
+class Version(Resource):
     """
     A version of a model.
     """
