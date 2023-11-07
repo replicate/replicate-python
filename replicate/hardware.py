@@ -28,10 +28,10 @@ class Hardwares(Namespace):
 
     def list(self) -> List[Hardware]:
         """
-        List all public models.
+        List all hardware available for you to run models on Replicate.
 
         Returns:
-            A list of models.
+            List[Hardware]: A list of hardware.
         """
 
         resp = self._client._request("GET", "/v1/hardware")

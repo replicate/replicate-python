@@ -95,9 +95,16 @@ class Trainings(Namespace):
         """
         List your trainings.
 
+        Parameters:
+            cursor: The cursor to use for pagination. Use the value of `Page.next` or `Page.previous`.
         Returns:
-            List[Training]: A list of training objects.
+            Page[Training]: A page of trainings.
+        Raises:
+            ValueError: If `cursor` is `None`.
         """
+
+        if cursor is None:
+            raise ValueError("cursor cannot be None")
 
         resp = self._client._request(
             "GET", "/v1/trainings" if cursor is ... else cursor

@@ -128,9 +128,16 @@ class Models(Namespace):
         """
         List all public models.
 
+        Parameters:
+            cursor: The cursor to use for pagination. Use the value of `Page.next` or `Page.previous`.
         Returns:
-            A list of models.
+            Page[Model]: A page of of models.
+        Raises:
+            ValueError: If `cursor` is `None`.
         """
+
+        if cursor is None:
+            raise ValueError("cursor cannot be None")
 
         resp = self._client._request("GET", "/v1/models" if cursor is ... else cursor)
         return Page[Model](self._client, self, **resp.json())

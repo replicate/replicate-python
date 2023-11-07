@@ -162,9 +162,16 @@ class Predictions(Namespace):
         """
         List your predictions.
 
+        Parameters:
+            cursor: The cursor to use for pagination. Use the value of `Page.next` or `Page.previous`.
         Returns:
-            A list of prediction objects.
+            Page[Prediction]: A page of of predictions.
+        Raises:
+            ValueError: If `cursor` is `None`.
         """
+
+        if cursor is None:
+            raise ValueError("cursor cannot be None")
 
         resp = self._client._request(
             "GET", "/v1/predictions" if cursor is ... else cursor
