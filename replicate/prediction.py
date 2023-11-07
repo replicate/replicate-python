@@ -6,6 +6,7 @@ from typing import Any, Dict, Iterator, List, Optional, Union
 from replicate.exceptions import ModelError
 from replicate.files import upload_file
 from replicate.json import encode_json
+from replicate.pagination import Page
 from replicate.resource import Namespace, Resource
 from replicate.version import Version
 
@@ -157,7 +158,7 @@ class Predictions(Namespace):
 
     model = Prediction
 
-    def list(self) -> List[Prediction]:
+    def list(self) -> Page[Prediction]:
         """
         List your predictions.
 
@@ -166,12 +167,7 @@ class Predictions(Namespace):
         """
 
         resp = self._client._request("GET", "/v1/predictions")
-        # TODO: paginate
-        predictions = resp.json()["results"]
-        for prediction in predictions:
-            # HACK: resolve this? make it lazy somehow?
-            del prediction["version"]
-        return [self._prepare_model(obj) for obj in predictions]
+        return Page[Prediction](self._client, self, **resp.json())
 
     def get(self, id: str) -> Prediction:  # pylint: disable=invalid-name
         """

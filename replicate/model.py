@@ -1,8 +1,9 @@
-from typing import Dict, List, Optional, Union
+from typing import Dict, Optional, Union
 
 from typing_extensions import deprecated
 
 from replicate.exceptions import ReplicateException
+from replicate.pagination import Page
 from replicate.prediction import Prediction
 from replicate.resource import Namespace, Resource
 from replicate.version import Version, Versions
@@ -123,7 +124,7 @@ class Models(Namespace):
 
     model = Model
 
-    def list(self) -> List[Model]:
+    def list(self) -> Page[Model]:
         """
         List all public models.
 
@@ -132,9 +133,7 @@ class Models(Namespace):
         """
 
         resp = self._client._request("GET", "/v1/models")
-        # TODO: paginate
-        models = resp.json()["results"]
-        return [self._prepare_model(obj) for obj in models]
+        return Page[Model](self._client, self, **resp.json())
 
     def get(self, key: str) -> Model:
         """
