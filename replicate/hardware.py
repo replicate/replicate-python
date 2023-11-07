@@ -1,5 +1,7 @@
 from typing import List
 
+from typing_extensions import deprecated
+
 from replicate.resource import Namespace, Resource
 
 
@@ -19,6 +21,7 @@ class Hardware(Resource):
     """
 
     @property
+    @deprecated("Use `sku` instead of `id`")
     def id(self) -> str:
         """
         DEPRECATED: Use `sku` instead.

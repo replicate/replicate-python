@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
+from typing_extensions import deprecated
+
 from replicate.model import Model, Models
 from replicate.pagination import Page
 from replicate.resource import Namespace, Resource
@@ -26,6 +28,7 @@ class Collection(Resource):
     """The models in the collection."""
 
     @property
+    @deprecated("Use `slug` instead of `id`")
     def id(self) -> str:
         """
         DEPRECATED: Use `slug` instead.
