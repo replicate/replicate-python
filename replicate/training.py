@@ -1,5 +1,5 @@
 import re
-from typing import Any, Dict, List, Optional, TypedDict, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, TypedDict, Union
 
 from typing_extensions import NotRequired, Unpack, overload
 
@@ -15,13 +15,16 @@ try:
 except ImportError:
     pass  # type: ignore
 
+if TYPE_CHECKING:
+    from replicate.client import Client
+
 
 class Training(Resource):
     """
     A training made for a model hosted on Replicate.
     """
 
-    _namespace: "Trainings"
+    _client: "Client" = pydantic.PrivateAttr()
 
     id: str
     """The unique ID of the training."""
@@ -67,15 +70,15 @@ class Training(Resource):
 
     def cancel(self) -> None:
         """Cancel a running training"""
-        self._client._request("POST", f"/v1/trainings/{self.id}/cancel")  # pylint: disable=no-member
+        self._client.trainings.cancel(self.id)
 
     def reload(self) -> None:
         """
         Load the training from the server.
         """
 
-        obj = self._namespace.get(self.id)  # pylint: disable=no-member
-        for name, value in obj.dict().items():
+        updated = self._client.trainings.get(self.id)
+        for name, value in updated.dict().items():
             setattr(self, name, value)
 
 
@@ -114,7 +117,13 @@ class Trainings(Namespace):
         resp = self._client._request(
             "GET", "/v1/trainings" if cursor is ... else cursor
         )
-        return Page[Training](self._client, self, **resp.json())
+
+        obj = resp.json()
+        obj["results"] = [Training(**result) for result in obj["results"]]
+        for training in obj["results"]:
+            training._client = self._client
+
+        return Page[Training](**obj)
 
     def get(self, id: str) -> Training:  # pylint: disable=invalid-name
         """
@@ -130,7 +139,11 @@ class Trainings(Namespace):
             "GET",
             f"/v1/trainings/{id}",
         )
-        return self._prepare_model(resp.json())
+
+        training = Training(**resp.json())
+        training._client = self._client
+
+        return training
 
     @overload
     def create(  # pylint: disable=arguments-differ disable=too-many-arguments
@@ -224,4 +237,27 @@ class Trainings(Namespace):
             f"/v1/models/{username}/{model_name}/versions/{version_id}/trainings",
             json=body,
         )
-        return self._prepare_model(resp.json())
+        training = Training(**resp.json())
+        training._client = self._client
+
+        return training
+
+    def cancel(self, id: str) -> Training:
+        """
+        Cancel a training.
+
+        Args:
+            id: The ID of the training to cancel.
+        Returns:
+            Training: The canceled training object.
+        """
+
+        resp = self._client._request(
+            "POST",
+            f"/v1/trainings/{id}/cancel",
+        )
+
+        canceled = Training(**resp.json())
+        canceled._client = self._client
+
+        return canceled

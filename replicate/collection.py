@@ -74,7 +74,10 @@ class Collections(Namespace):
             "GET", "/v1/collections" if cursor is ... else cursor
         )
 
-        return Page[Collection](self._client, self, **resp.json())
+        obj = resp.json()
+        obj["results"] = [Collection(**result) for result in obj["results"]]
+
+        return Page[Collection](**obj)
 
     def get(self, slug: str) -> Collection:
         """Get a model by name.
@@ -87,4 +90,4 @@ class Collections(Namespace):
 
         resp = self._client._request("GET", f"/v1/collections/{slug}")
 
-        return self._prepare_model(resp.json())
+        return Collection(**resp.json())

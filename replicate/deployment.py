@@ -5,6 +5,12 @@ from replicate.json import encode_json
 from replicate.prediction import Prediction
 from replicate.resource import Namespace, Resource
 
+try:
+    from pydantic import v1 as pydantic  # type: ignore
+except ImportError:
+    pass  # type: ignore
+
+
 if TYPE_CHECKING:
     from replicate.client import Client
 
@@ -14,7 +20,7 @@ class Deployment(Resource):
     A deployment of a model hosted on Replicate.
     """
 
-    _namespace: "Deployments"
+    _client: "Client" = pydantic.PrivateAttr()
 
     username: str
     """
@@ -56,10 +62,12 @@ class Deployments(Namespace):
             The model.
         """
 
-        # TODO: fetch model from server
-        # TODO: support permanent IDs
         username, name = name.split("/")
-        return self._prepare_model({"username": username, "name": name})
+
+        deployment = Deployment(username=username, name=name)
+        deployment._client = self._client
+
+        return deployment
 
 
 class DeploymentPredictions(Namespace):
@@ -117,6 +125,8 @@ class DeploymentPredictions(Namespace):
             f"/v1/deployments/{self._deployment.username}/{self._deployment.name}/predictions",
             json=body,
         )
-        obj = resp.json()
-        obj["deployment"] = self._deployment
-        return self._prepare_model(obj)
+
+        prediction = Prediction(**resp.json())
+        prediction._client = self._client
+
+        return prediction

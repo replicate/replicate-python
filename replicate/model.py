@@ -1,4 +1,4 @@
-from typing import Dict, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 from typing_extensions import deprecated
 
@@ -8,13 +8,22 @@ from replicate.prediction import Prediction
 from replicate.resource import Namespace, Resource
 from replicate.version import Version, Versions
 
+try:
+    from pydantic import v1 as pydantic  # type: ignore
+except ImportError:
+    pass  # type: ignore
+
+
+if TYPE_CHECKING:
+    from replicate.client import Client
+
 
 class Model(Resource):
     """
     A machine learning model hosted on Replicate.
     """
 
-    _namespace: "Models"
+    _client: "Client" = pydantic.PrivateAttr()
 
     url: str
     """
@@ -116,7 +125,7 @@ class Model(Resource):
         Load this object from the server.
         """
 
-        obj = self._namespace.get(f"{self.owner}/{self.name}")  # pylint: disable=no-member
+        obj = self._client.models.get(f"{self.owner}/{self.name}")
         for name, value in obj.dict().items():
             setattr(self, name, value)
 
@@ -144,7 +153,15 @@ class Models(Namespace):
             raise ValueError("cursor cannot be None")
 
         resp = self._client._request("GET", "/v1/models" if cursor is ... else cursor)
-        return Page[Model](self._client, self, **resp.json())
+
+        obj = resp.json()
+        obj["results"] = [Model(**result) for result in obj["results"]]
+        for model in obj["results"]:
+            model._client = self._client
+            if model.default_example is not None:
+                model.default_example._client = self._client
+
+        return Page[Model](**obj)
 
     def get(self, key: str) -> Model:
         """
@@ -157,7 +174,13 @@ class Models(Namespace):
         """
 
         resp = self._client._request("GET", f"/v1/models/{key}")
-        return self._prepare_model(resp.json())
+
+        model = Model(**resp.json())
+        model._client = self._client
+        if model.default_example is not None:
+            model.default_example._client = self._client
+
+        return model
 
     def create(  # pylint: disable=arguments-differ disable=too-many-arguments
         self,
@@ -214,15 +237,9 @@ class Models(Namespace):
 
         resp = self._client._request("POST", "/v1/models", json=body)
 
-        return self._prepare_model(resp.json())
-
-    def _prepare_model(self, attrs: Dict) -> Model:
-        model = super()._prepare_model(attrs)
-
+        model = Model(**resp.json())
+        model._client = self._client
         if model.default_example is not None:
             model.default_example._client = self._client
-
-        if model.latest_version is not None:
-            model.latest_version._client = self._client
 
         return model

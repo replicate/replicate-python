@@ -1,6 +1,6 @@
 import datetime
 import warnings
-from typing import TYPE_CHECKING, Any, Iterator, List, Union
+from typing import TYPE_CHECKING, Any, Iterator, Union
 
 if TYPE_CHECKING:
     from replicate.client import Client
@@ -8,6 +8,7 @@ if TYPE_CHECKING:
 
 
 from replicate.exceptions import ModelError
+from replicate.pagination import Page
 from replicate.resource import Namespace, Resource
 from replicate.schema import make_schema_backwards_compatible
 
@@ -16,8 +17,6 @@ class Version(Resource):
     """
     A version of a model.
     """
-
-    _namespace: "Versions"
 
     id: str
     """The unique ID of the version."""
@@ -68,10 +67,7 @@ class Version(Resource):
         """
         Load this object from the server.
         """
-
-        obj = self._namespace.get(self.id)  # pylint: disable=no-member
-        for name, value in obj.dict().items():
-            setattr(self, name, value)
+        return
 
 
 class Versions(Namespace):
@@ -80,6 +76,7 @@ class Versions(Namespace):
     """
 
     model = Version
+    _model: "Model"
 
     def __init__(self, client: "Client", model: "Model") -> None:
         super().__init__(client=client)
@@ -94,19 +91,23 @@ class Versions(Namespace):
         Returns:
             The model version.
         """
+
         resp = self._client._request(
             "GET", f"/v1/models/{self._model.owner}/{self._model.name}/versions/{id}"
         )
-        return self._prepare_model(resp.json())
 
-    def list(self) -> List[Version]:
+        return Version(**resp.json())
+
+    def list(self) -> Page[Version]:
         """
         Return a list of all versions for a model.
 
         Returns:
             List[Version]: A list of version objects.
         """
+
         resp = self._client._request(
             "GET", f"/v1/models/{self._model.owner}/{self._model.name}/versions"
         )
-        return [self._prepare_model(obj) for obj in resp.json()["results"]]
+
+        return Page[Version](**resp.json())

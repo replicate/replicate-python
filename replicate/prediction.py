@@ -1,7 +1,7 @@
 import re
 import time
 from dataclasses import dataclass
-from typing import Any, Dict, Iterator, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Union
 
 from replicate.exceptions import ModelError
 from replicate.files import upload_file
@@ -10,13 +10,21 @@ from replicate.pagination import Page
 from replicate.resource import Namespace, Resource
 from replicate.version import Version
 
+try:
+    from pydantic import v1 as pydantic  # type: ignore
+except ImportError:
+    import pydantic  # type: ignore
+
+if TYPE_CHECKING:
+    from replicate.client import Client
+
 
 class Prediction(Resource):
     """
     A prediction made by a model hosted on Replicate.
     """
 
-    _namespace: "Predictions"
+    _client: "Client" = pydantic.PrivateAttr()
 
     id: str
     """The unique ID of the prediction."""
@@ -109,8 +117,26 @@ class Prediction(Resource):
         Wait for prediction to finish.
         """
         while self.status not in ["succeeded", "failed", "canceled"]:
-            time.sleep(self._client.poll_interval)  # pylint: disable=no-member
+            time.sleep(self._client.poll_interval)
             self.reload()
+
+    def cancel(self) -> None:
+        """
+        Cancels a running prediction.
+        """
+
+        canceled = self._client.predictions.cancel(self.id)
+        for name, value in canceled.dict().items():
+            setattr(self, name, value)
+
+    def reload(self) -> None:
+        """
+        Load this prediction from the server.
+        """
+
+        updated = self._client.predictions.get(self.id)
+        for name, value in updated.dict().items():
+            setattr(self, name, value)
 
     def output_iterator(self) -> Iterator[Any]:
         """
@@ -134,21 +160,6 @@ class Prediction(Resource):
         new_output = output[len(previous_output) :]
         for output in new_output:
             yield output
-
-    def cancel(self) -> None:
-        """
-        Cancels a running prediction.
-        """
-        self._client._request("POST", f"/v1/predictions/{self.id}/cancel")  # pylint: disable=no-member
-
-    def reload(self) -> None:
-        """
-        Load this prediction from the server.
-        """
-
-        obj = self._namespace.get(self.id)  # pylint: disable=no-member
-        for name, value in obj.dict().items():
-            setattr(self, name, value)
 
 
 class Predictions(Namespace):
@@ -176,9 +187,15 @@ class Predictions(Namespace):
         resp = self._client._request(
             "GET", "/v1/predictions" if cursor is ... else cursor
         )
-        return Page[Prediction](self._client, self, **resp.json())
 
-    def get(self, id: str) -> Prediction:  # pylint: disable=invalid-name
+        obj = resp.json()
+        obj["results"] = [Prediction(**result) for result in obj["results"]]
+        for prediction in obj["results"]:
+            prediction._client = self._client
+
+        return Page[Prediction](**obj)
+
+    def get(self, id: str) -> Prediction:
         """
         Get a prediction by ID.
 
@@ -189,7 +206,11 @@ class Predictions(Namespace):
         """
 
         resp = self._client._request("GET", f"/v1/predictions/{id}")
-        return self._prepare_model(resp.json())
+
+        prediction = Prediction(**resp.json())
+        prediction._client = self._client
+
+        return prediction
 
     def create(
         self,
@@ -239,4 +260,27 @@ class Predictions(Namespace):
             json=body,
         )
 
-        return self._prepare_model(resp.json())
+        prediction = Prediction(**resp.json())
+        prediction._client = self._client
+
+        return prediction
+
+    def cancel(self, id: str) -> Prediction:
+        """
+        Cancel a prediction.
+
+        Args:
+            id: The ID of the prediction to cancel.
+        Returns:
+            Prediction: The canceled prediction object.
+        """
+
+        resp = self._client._request(
+            "POST",
+            f"/v1/predictions/{id}/cancel",
+        )
+
+        canceled = Prediction(**resp.json())
+        canceled._client = self._client
+
+        return canceled

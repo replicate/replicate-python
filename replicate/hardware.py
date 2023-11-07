@@ -45,4 +45,6 @@ class Hardwares(Namespace):
         """
 
         resp = self._client._request("GET", "/v1/hardware")
-        return [self._prepare_model(obj) for obj in resp.json()]
+        obj = resp.json()
+
+        return [Hardware(**entry) for entry in obj]
