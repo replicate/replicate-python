@@ -75,7 +75,6 @@ class Versions(Namespace):
     Namespace for operations related to model versions.
     """
 
-    model = Version
     _model: "Model"
 
     def __init__(self, client: "Client", model: "Model") -> None:

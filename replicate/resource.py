@@ -1,5 +1,5 @@
 import abc
-from typing import TYPE_CHECKING, Generic, TypeVar
+from typing import TYPE_CHECKING
 
 try:
     from pydantic import v1 as pydantic  # type: ignore
@@ -16,16 +16,12 @@ class Resource(pydantic.BaseModel):
     """
 
 
-Model = TypeVar("Model", bound=Resource)
-
-
-class Namespace(abc.ABC, Generic[Model]):
+class Namespace(abc.ABC):
     """
     A base class for representing objects of a particular type on the server.
     """
 
     _client: "Client"
-    model: Model
 
     def __init__(self, client: "Client") -> None:
         self._client = client

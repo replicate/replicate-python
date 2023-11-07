@@ -34,8 +34,6 @@ class Hardwares(Namespace):
     Namespace for operations related to hardware.
     """
 
-    model = Hardware
-
     def list(self) -> List[Hardware]:
         """
         List all hardware available for you to run models on Replicate.

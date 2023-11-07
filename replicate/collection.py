@@ -53,8 +53,6 @@ class Collections(Namespace):
     A namespace for operations related to collections of models.
     """
 
-    model = Collection
-
     def list(self, cursor: Union[str, "ellipsis"] = ...) -> Page[Collection]:  # noqa: F821
         """
         List collections of models.

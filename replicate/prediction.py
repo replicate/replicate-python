@@ -167,8 +167,6 @@ class Predictions(Namespace):
     Namespace for operations related to predictions.
     """
 
-    model = Prediction
-
     def list(self, cursor: Union[str, "ellipsis"] = ...) -> Page[Prediction]:  # noqa: F821
         """
         List your predictions.

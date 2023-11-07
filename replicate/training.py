@@ -87,8 +87,6 @@ class Trainings(Namespace):
     Namespace for operations related to trainings.
     """
 
-    model = Training
-
     class CreateParams(TypedDict):
         """Parameters for creating a prediction."""
 

@@ -50,8 +50,6 @@ class Deployments(Namespace):
     Namespace for operations related to deployments.
     """
 
-    model = Deployment
-
     def get(self, name: str) -> Deployment:
         """
         Get a deployment by name.
@@ -74,8 +72,6 @@ class DeploymentPredictions(Namespace):
     """
     Namespace for operations related to predictions in a deployment.
     """
-
-    model = Prediction
 
     def __init__(self, client: "Client", deployment: Deployment) -> None:
         super().__init__(client=client)
