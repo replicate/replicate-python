@@ -7,9 +7,8 @@ if TYPE_CHECKING:
     from replicate.model import Model
 
 
-from replicate.collection import Collection
 from replicate.exceptions import ModelError
-from replicate.resource import Resource
+from replicate.resource import Namespace, Resource
 from replicate.schema import make_schema_backwards_compatible
 
 
@@ -18,7 +17,7 @@ class Version(Resource):
     A version of a model.
     """
 
-    _collection: "VersionCollection"
+    _namespace: "VersionCollection"
 
     id: str
     """The unique ID of the version."""
@@ -70,12 +69,12 @@ class Version(Resource):
         Load this object from the server.
         """
 
-        obj = self._collection.get(self.id)  # pylint: disable=no-member
+        obj = self._namespace.get(self.id)  # pylint: disable=no-member
         for name, value in obj.dict().items():
             setattr(self, name, value)
 
 
-class VersionCollection(Collection):
+class VersionCollection(Namespace):
     """
     Namespace for operations related to model versions.
     """

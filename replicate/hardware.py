@@ -1,7 +1,6 @@
 from typing import Dict, List, Union
 
-from replicate.collection import Collection
-from replicate.resource import Resource
+from replicate.resource import Namespace, Resource
 
 
 class Hardware(Resource):
@@ -20,7 +19,7 @@ class Hardware(Resource):
     """
 
 
-class HardwareCollection(Collection):
+class HardwareCollection(Namespace):
     """
     Namespace for operations related to hardware.
     """

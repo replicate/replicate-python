@@ -2,10 +2,9 @@ from typing import Dict, List, Optional, Union
 
 from typing_extensions import deprecated
 
-from replicate.collection import Collection
 from replicate.exceptions import ReplicateException
 from replicate.prediction import Prediction
-from replicate.resource import Resource
+from replicate.resource import Namespace, Resource
 from replicate.version import Version, VersionCollection
 
 
@@ -14,7 +13,7 @@ class Model(Resource):
     A machine learning model hosted on Replicate.
     """
 
-    _collection: "ModelCollection"
+    _namespace: "ModelCollection"
 
     url: str
     """
@@ -112,12 +111,12 @@ class Model(Resource):
         Load this object from the server.
         """
 
-        obj = self._collection.get(f"{self.owner}/{self.name}")  # pylint: disable=no-member
+        obj = self._namespace.get(f"{self.owner}/{self.name}")  # pylint: disable=no-member
         for name, value in obj.dict().items():
             setattr(self, name, value)
 
 
-class ModelCollection(Collection):
+class ModelCollection(Namespace):
     """
     Namespace for operations related to models.
     """

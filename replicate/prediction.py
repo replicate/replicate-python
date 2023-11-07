@@ -3,11 +3,10 @@ import time
 from dataclasses import dataclass
 from typing import Any, Dict, Iterator, List, Optional, Union
 
-from replicate.collection import Collection
 from replicate.exceptions import ModelError
 from replicate.files import upload_file
 from replicate.json import encode_json
-from replicate.resource import Resource
+from replicate.resource import Namespace, Resource
 from replicate.version import Version
 
 
@@ -16,7 +15,7 @@ class Prediction(Resource):
     A prediction made by a model hosted on Replicate.
     """
 
-    _collection: "PredictionCollection"
+    _namespace: "PredictionCollection"
 
     id: str
     """The unique ID of the prediction."""
@@ -146,12 +145,12 @@ class Prediction(Resource):
         Load this prediction from the server.
         """
 
-        obj = self._collection.get(self.id)  # pylint: disable=no-member
+        obj = self._namespace.get(self.id)  # pylint: disable=no-member
         for name, value in obj.dict().items():
             setattr(self, name, value)
 
 
-class PredictionCollection(Collection):
+class PredictionCollection(Namespace):
     """
     Namespace for operations related to predictions.
     """
