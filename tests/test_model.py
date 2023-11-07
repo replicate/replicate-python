@@ -29,6 +29,18 @@ async def test_models_list(mock_replicate_api_token):
     assert models[0].visibility == "public"
 
 
+@pytest.mark.vcr("models-list.yaml")
+@pytest.mark.asyncio
+async def test_models_list_pagination(mock_replicate_api_token):
+    page1 = replicate.models.list()
+    assert len(page1) > 0
+    assert page1.next is not None
+
+    page2 = replicate.models.list(cursor=page1.next)
+    assert len(page2) > 0
+    assert page2.previous is not None
+
+
 @pytest.mark.vcr("models-create.yaml")
 @pytest.mark.asyncio
 async def test_models_create(mock_replicate_api_token):
