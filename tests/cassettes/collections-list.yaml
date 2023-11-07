@@ -1,0 +1,245 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - api.replicate.com
+      user-agent:
+      - replicate-python/0.15.6
+    method: GET
+    uri: https://api.replicate.com/collections
+  response:
+    content: "response 404 (backend NotFound), service rules for the path non-existent
+      \n"
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 82253fddaa5630b7-SEA
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - text/plain; charset=utf-8
+      Date:
+      - Tue, 07 Nov 2023 11:31:21 GMT
+      NEL:
+      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+      Report-To:
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=uQfbIfp7jcTaOeMfw6BHB2jikbc2CC%2Fg96weVmmeYXUm5SblRi9QlWrSJVrVOzpUKMRTMYPJqlqXfeb57%2B19Sp%2BRjAejz94aldajmm3w%2F7dzpOL4rEebSCnushZtGz9ZDRbC"}],"group":"cf-nel","max_age":604800}'
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000
+      Transfer-Encoding:
+      - chunked
+      via:
+      - 1.1 google
+    http_version: HTTP/1.1
+    status_code: 404
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - api.replicate.com
+      user-agent:
+      - replicate-python/0.15.6
+    method: GET
+    uri: https://api.replicate.com/v1/collections
+  response:
+    content: '{"next":null,"previous":null,"results":[{"name":"Halloween","slug":"halloween","description":"Spooky,
+      scary, frightful models."},{"name":"Vision models","slug":"vision-models","description":"Multimodal
+      large language models with vision capabilities like object detection and optical
+      character recognition (OCR)"},{"name":"T2I-Adapter","slug":"t2i-adapter","description":"T2I-Adapter
+      models to modify images"},{"name":"Language models with support for grammars
+      and jsonschema","slug":"language-models-with-grammar","description":"Language
+      models that support grammar-based decoding as well as jsonschema constraints."},{"name":"SDXL
+      fine-tunes","slug":"sdxl-fine-tunes","description":"Some of our favorite SDXL
+      fine-tunes."},{"name":"Streaming language models","slug":"streaming-language-models","description":"Language
+      models that support streaming responses. See https://replicate.com/docs/streaming"},{"name":"Image
+      editing","slug":"image-editing","description":"Tools for manipulating images."},{"name":"Embedding
+      models","slug":"embedding-models","description":"Models that generate embeddings
+      from inputs"},{"name":"Trainable language models","slug":"trainable-language-models","description":"Language
+      models that you can fine-tune using Replicate''s training API."},{"name":"Language
+      models","slug":"language-models","description":"Models that can understand and
+      generate text"},{"name":"ControlNet","slug":"control-net","description":"Control
+      diffusion models"},{"name":"Audio generation","slug":"audio-generation","description":"Models
+      to generate and modify audio"},{"name":"Diffusion models","slug":"diffusion-models","description":"Image
+      and video generation models trained with diffusion processes"},{"name":"Videos","slug":"text-to-video","description":"Models
+      that create and edit videos"},{"name":"Image to text","slug":"image-to-text","description":"Models
+      that generate text prompts and captions from images"},{"name":"Super resolution","slug":"super-resolution","description":"Upscaling
+      models that create high-quality images from low-quality images"},{"name":"Style
+      transfer","slug":"style-transfer","description":"Models that take a content
+      image and a style reference to produce a new image"},{"name":"ML makeovers","slug":"ml-makeovers","description":"Models
+      that let you change facial features"},{"name":"Image restoration","slug":"image-restoration","description":"Models
+      that improve or restore images by deblurring, colorization, and removing noise"},{"name":"Text
+      to image","slug":"text-to-image","description":"Models that generate images
+      from text prompts"}]}'
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 822540d7cb34c36c-SEA
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 07 Nov 2023 11:32:02 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000
+      Transfer-Encoding:
+      - chunked
+      allow:
+      - GET, HEAD, OPTIONS
+      content-security-policy-report-only:
+      - 'style-src ''report-sample'' ''self'' ''unsafe-inline''; img-src ''report-sample''
+        ''self'' data: https://replicate.delivery https://*.replicate.delivery https://*.githubusercontent.com
+        https://github.com; default-src ''self''; media-src ''report-sample'' ''self''
+        https://replicate.delivery https://*.replicate.delivery https://*.mux.com
+        https://*.sentry.io; font-src ''report-sample'' ''self'' data:; connect-src
+        ''report-sample'' ''self'' https://replicate.delivery https://*.replicate.delivery
+        https://*.rudderlabs.com https://*.rudderstack.com https://*.mux.com https://*.sentry.io;
+        script-src ''report-sample'' ''self'' https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js;
+        worker-src ''none''; report-uri'
+      cross-origin-opener-policy:
+      - same-origin
+      nel:
+      - '{"report_to":"heroku-nel","max_age":3600,"success_fraction":0.005,"failure_fraction":0.05,"response_headers":["Via"]}'
+      ratelimit-remaining:
+      - '2999'
+      ratelimit-reset:
+      - '1'
+      referrer-policy:
+      - same-origin
+      report-to:
+      - '{"group":"heroku-nel","max_age":3600,"endpoints":[{"url":"https://nel.heroku.com/reports?ts=1699356722&sid=1b10b0ff-8a76-4548-befa-353fc6c6c045&s=0z31nJbfdkKAzOcUMFWyBfoSPkxX%2ByLKhN0THsH1yz0%3D"}]}'
+      reporting-endpoints:
+      - heroku-nel=https://nel.heroku.com/reports?ts=1699356722&sid=1b10b0ff-8a76-4548-befa-353fc6c6c045&s=0z31nJbfdkKAzOcUMFWyBfoSPkxX%2ByLKhN0THsH1yz0%3D
+      vary:
+      - Cookie, origin
+      via:
+      - 1.1 vegur, 1.1 google
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - DENY
+    http_version: HTTP/1.1
+    status_code: 200
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - api.replicate.com
+      user-agent:
+      - replicate-python/0.15.6
+    method: GET
+    uri: https://api.replicate.com/v1/collections
+  response:
+    content: '{"next":null,"previous":null,"results":[{"name":"Halloween","slug":"halloween","description":"Spooky,
+      scary, frightful models."},{"name":"Vision models","slug":"vision-models","description":"Multimodal
+      large language models with vision capabilities like object detection and optical
+      character recognition (OCR)"},{"name":"T2I-Adapter","slug":"t2i-adapter","description":"T2I-Adapter
+      models to modify images"},{"name":"Language models with support for grammars
+      and jsonschema","slug":"language-models-with-grammar","description":"Language
+      models that support grammar-based decoding as well as jsonschema constraints."},{"name":"SDXL
+      fine-tunes","slug":"sdxl-fine-tunes","description":"Some of our favorite SDXL
+      fine-tunes."},{"name":"Streaming language models","slug":"streaming-language-models","description":"Language
+      models that support streaming responses. See https://replicate.com/docs/streaming"},{"name":"Image
+      editing","slug":"image-editing","description":"Tools for manipulating images."},{"name":"Embedding
+      models","slug":"embedding-models","description":"Models that generate embeddings
+      from inputs"},{"name":"Trainable language models","slug":"trainable-language-models","description":"Language
+      models that you can fine-tune using Replicate''s training API."},{"name":"Language
+      models","slug":"language-models","description":"Models that can understand and
+      generate text"},{"name":"ControlNet","slug":"control-net","description":"Control
+      diffusion models"},{"name":"Audio generation","slug":"audio-generation","description":"Models
+      to generate and modify audio"},{"name":"Diffusion models","slug":"diffusion-models","description":"Image
+      and video generation models trained with diffusion processes"},{"name":"Videos","slug":"text-to-video","description":"Models
+      that create and edit videos"},{"name":"Image to text","slug":"image-to-text","description":"Models
+      that generate text prompts and captions from images"},{"name":"Super resolution","slug":"super-resolution","description":"Upscaling
+      models that create high-quality images from low-quality images"},{"name":"Style
+      transfer","slug":"style-transfer","description":"Models that take a content
+      image and a style reference to produce a new image"},{"name":"ML makeovers","slug":"ml-makeovers","description":"Models
+      that let you change facial features"},{"name":"Image restoration","slug":"image-restoration","description":"Models
+      that improve or restore images by deblurring, colorization, and removing noise"},{"name":"Text
+      to image","slug":"text-to-image","description":"Models that generate images
+      from text prompts"}]}'
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 822541955c92680f-SEA
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 07 Nov 2023 11:32:32 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000
+      Transfer-Encoding:
+      - chunked
+      allow:
+      - GET, HEAD, OPTIONS
+      content-security-policy-report-only:
+      - 'style-src ''report-sample'' ''self'' ''unsafe-inline''; script-src ''report-sample''
+        ''self'' https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js; worker-src
+        ''none''; font-src ''report-sample'' ''self'' data:; media-src ''report-sample''
+        ''self'' https://replicate.delivery https://*.replicate.delivery https://*.mux.com
+        https://*.sentry.io; default-src ''self''; connect-src ''report-sample'' ''self''
+        https://replicate.delivery https://*.replicate.delivery https://*.rudderlabs.com
+        https://*.rudderstack.com https://*.mux.com https://*.sentry.io; img-src ''report-sample''
+        ''self'' data: https://replicate.delivery https://*.replicate.delivery https://*.githubusercontent.com
+        https://github.com; report-uri'
+      cross-origin-opener-policy:
+      - same-origin
+      nel:
+      - '{"report_to":"heroku-nel","max_age":3600,"success_fraction":0.005,"failure_fraction":0.05,"response_headers":["Via"]}'
+      ratelimit-remaining:
+      - '2999'
+      ratelimit-reset:
+      - '1'
+      referrer-policy:
+      - same-origin
+      report-to:
+      - '{"group":"heroku-nel","max_age":3600,"endpoints":[{"url":"https://nel.heroku.com/reports?ts=1699356752&sid=1b10b0ff-8a76-4548-befa-353fc6c6c045&s=WiktulKoNTILUBzFp2puv8yuZR7cPZG%2BdC77SDgv8Gw%3D"}]}'
+      reporting-endpoints:
+      - heroku-nel=https://nel.heroku.com/reports?ts=1699356752&sid=1b10b0ff-8a76-4548-befa-353fc6c6c045&s=WiktulKoNTILUBzFp2puv8yuZR7cPZG%2BdC77SDgv8Gw%3D
+      vary:
+      - Cookie, origin
+      via:
+      - 1.1 vegur, 1.1 google
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - DENY
+    http_version: HTTP/1.1
+    status_code: 200
+version: 1

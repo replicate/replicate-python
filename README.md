@@ -189,6 +189,38 @@ urlretrieve(out[0], "/tmp/out.png")
 background = Image.open("/tmp/out.png")
 ```
 
+## List models
+
+You can the models you've created:
+
+```python
+replicate.models.list()
+```
+
+Lists of models are paginated. You can get the next page of models by passing the `next` property as an argument to the `list` method. Here's how you can get all the models you've created:
+
+```python
+models = []
+page = replicate.models.list()
+
+while page:
+    models.extend(page.results)
+    page = replicate.models.list(page.next) if page.next else None
+```
+
+You can also find collections of featured models on Replicate:
+
+```python
+>>> collections = replicate.collections.list()
+>>> collections[0].slug
+"vision-models"
+>>> collections[0].description
+"Multimodal large language models with vision capabilities like object detection and optical character recognition (OCR)"
+
+>>> replicate.collections.get("text-to-image").models
+[<Model: stability-ai/sdxl>, ...]
+```
+
 ## Create a model
 
 You can create a model for a user or organization

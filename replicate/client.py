@@ -15,6 +15,7 @@ from typing import (
 import httpx
 
 from replicate.__about__ import __version__
+from replicate.collection import Collections
 from replicate.deployment import Deployments
 from replicate.exceptions import ModelError, ReplicateError
 from replicate.hardware import Hardwares
@@ -83,6 +84,13 @@ class Client:
             raise ReplicateError(resp.json()["detail"])
 
         return resp
+
+    @property
+    def collections(self) -> Collections:
+        """
+        Namespace for operations related to collections of models.
+        """
+        return Collections(client=self)
 
     @property
     def deployments(self) -> Deployments:

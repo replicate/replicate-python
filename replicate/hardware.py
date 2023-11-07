@@ -35,8 +35,7 @@ class Hardwares(Namespace):
         """
 
         resp = self._client._request("GET", "/v1/hardware")
-        hardware = resp.json()
-        return [self._prepare_model(obj) for obj in hardware]
+        return [self._prepare_model(obj) for obj in resp.json()]
 
     def _prepare_model(self, attrs: Union[Hardware, Dict]) -> Hardware:
         if isinstance(attrs, Resource):
@@ -44,6 +43,4 @@ class Hardwares(Namespace):
         elif isinstance(attrs, dict):
             attrs["id"] = attrs["sku"]
 
-        hardware = super()._prepare_model(attrs)
-
-        return hardware
+        return super()._prepare_model(attrs)
