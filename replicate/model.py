@@ -2,19 +2,18 @@ from typing import Dict, List, Optional, Union
 
 from typing_extensions import deprecated
 
-from replicate.base_model import BaseModel
-from replicate.collection import Collection
 from replicate.exceptions import ReplicateException
 from replicate.prediction import Prediction
-from replicate.version import Version, VersionCollection
+from replicate.resource import Namespace, Resource
+from replicate.version import Version, Versions
 
 
-class Model(BaseModel):
+class Model(Resource):
     """
     A machine learning model hosted on Replicate.
     """
 
-    _collection: "ModelCollection"
+    _namespace: "Models"
 
     url: str
     """
@@ -100,24 +99,24 @@ class Model(BaseModel):
         )
 
     @property
-    def versions(self) -> VersionCollection:
+    def versions(self) -> Versions:
         """
         Get the versions of this model.
         """
 
-        return VersionCollection(client=self._client, model=self)
+        return Versions(client=self._client, model=self)
 
     def reload(self) -> None:
         """
         Load this object from the server.
         """
 
-        obj = self._collection.get(f"{self.owner}/{self.name}")  # pylint: disable=no-member
+        obj = self._namespace.get(f"{self.owner}/{self.name}")  # pylint: disable=no-member
         for name, value in obj.dict().items():
             setattr(self, name, value)
 
 
-class ModelCollection(Collection):
+class Models(Namespace):
     """
     Namespace for operations related to models.
     """
@@ -208,7 +207,7 @@ class ModelCollection(Collection):
         return self._prepare_model(resp.json())
 
     def _prepare_model(self, attrs: Union[Model, Dict]) -> Model:
-        if isinstance(attrs, BaseModel):
+        if isinstance(attrs, Resource):
             attrs.id = f"{attrs.owner}/{attrs.name}"
         elif isinstance(attrs, dict):
             attrs["id"] = f"{attrs['owner']}/{attrs['name']}"

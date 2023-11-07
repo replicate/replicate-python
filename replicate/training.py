@@ -3,20 +3,19 @@ from typing import Any, Dict, List, Optional, TypedDict, Union
 
 from typing_extensions import NotRequired, Unpack, overload
 
-from replicate.base_model import BaseModel
-from replicate.collection import Collection
 from replicate.exceptions import ReplicateException
 from replicate.files import upload_file
 from replicate.json import encode_json
+from replicate.resource import Namespace, Resource
 from replicate.version import Version
 
 
-class Training(BaseModel):
+class Training(Resource):
     """
     A training made for a model hosted on Replicate.
     """
 
-    _collection: "TrainingCollection"
+    _namespace: "Trainings"
 
     id: str
     """The unique ID of the training."""
@@ -69,12 +68,12 @@ class Training(BaseModel):
         Load the training from the server.
         """
 
-        obj = self._collection.get(self.id)  # pylint: disable=no-member
+        obj = self._namespace.get(self.id)  # pylint: disable=no-member
         for name, value in obj.dict().items():
             setattr(self, name, value)
 
 
-class TrainingCollection(Collection):
+class Trainings(Namespace):
     """
     Namespace for operations related to trainings.
     """
