@@ -122,7 +122,9 @@ class DeploymentPredictions(Namespace):
             json=body,
         )
 
-        prediction = Prediction(**resp.json())
-        prediction._client = self._client
+        return self._json_to_prediction(resp.json())
 
+    def _json_to_prediction(self, json: Dict[str, Any]) -> Prediction:
+        prediction = Prediction(**json)
+        prediction._client = self._client
         return prediction

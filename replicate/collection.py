@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from typing_extensions import deprecated
 
@@ -73,7 +73,7 @@ class Collections(Namespace):
         )
 
         obj = resp.json()
-        obj["results"] = [Collection(**result) for result in obj["results"]]
+        obj["results"] = [self._json_to_collection(result) for result in obj["results"]]
 
         return Page[Collection](**obj)
 
@@ -88,4 +88,7 @@ class Collections(Namespace):
 
         resp = self._client._request("GET", f"/v1/collections/{slug}")
 
-        return Collection(**resp.json())
+        return self._json_to_collection(resp.json())
+
+    def _json_to_collection(self, json: Dict[str, Any]) -> Collection:
+        return Collection(**json)

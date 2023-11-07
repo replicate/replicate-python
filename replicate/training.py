@@ -117,9 +117,7 @@ class Trainings(Namespace):
         )
 
         obj = resp.json()
-        obj["results"] = [Training(**result) for result in obj["results"]]
-        for training in obj["results"]:
-            training._client = self._client
+        obj["results"] = [self._json_to_training(result) for result in obj["results"]]
 
         return Page[Training](**obj)
 
@@ -138,10 +136,7 @@ class Trainings(Namespace):
             f"/v1/trainings/{id}",
         )
 
-        training = Training(**resp.json())
-        training._client = self._client
-
-        return training
+        return self._json_to_training(resp.json())
 
     @overload
     def create(  # pylint: disable=arguments-differ disable=too-many-arguments
@@ -235,10 +230,8 @@ class Trainings(Namespace):
             f"/v1/models/{username}/{model_name}/versions/{version_id}/trainings",
             json=body,
         )
-        training = Training(**resp.json())
-        training._client = self._client
 
-        return training
+        return self._json_to_training(resp.json())
 
     def cancel(self, id: str) -> Training:
         """
@@ -255,7 +248,9 @@ class Trainings(Namespace):
             f"/v1/trainings/{id}/cancel",
         )
 
-        canceled = Training(**resp.json())
-        canceled._client = self._client
+        return self._json_to_training(resp.json())
 
-        return canceled
+    def _json_to_training(self, json: Dict[str, Any]) -> Training:
+        training = Training(**json)
+        training._client = self._client
+        return training

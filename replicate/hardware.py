@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, Dict, List
 
 from typing_extensions import deprecated
 
@@ -45,4 +45,7 @@ class Hardwares(Namespace):
         resp = self._client._request("GET", "/v1/hardware")
         obj = resp.json()
 
-        return [Hardware(**entry) for entry in obj]
+        return [self._json_to_hardware(entry) for entry in obj]
+
+    def _json_to_hardware(self, json: Dict[str, Any]) -> Hardware:
+        return Hardware(**json)

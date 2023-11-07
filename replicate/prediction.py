@@ -187,9 +187,7 @@ class Predictions(Namespace):
         )
 
         obj = resp.json()
-        obj["results"] = [Prediction(**result) for result in obj["results"]]
-        for prediction in obj["results"]:
-            prediction._client = self._client
+        obj["results"] = [self._json_to_prediction(result) for result in obj["results"]]
 
         return Page[Prediction](**obj)
 
@@ -205,10 +203,7 @@ class Predictions(Namespace):
 
         resp = self._client._request("GET", f"/v1/predictions/{id}")
 
-        prediction = Prediction(**resp.json())
-        prediction._client = self._client
-
-        return prediction
+        return self._json_to_prediction(resp.json())
 
     def create(
         self,
@@ -258,10 +253,7 @@ class Predictions(Namespace):
             json=body,
         )
 
-        prediction = Prediction(**resp.json())
-        prediction._client = self._client
-
-        return prediction
+        return self._json_to_prediction(resp.json())
 
     def cancel(self, id: str) -> Prediction:
         """
@@ -278,7 +270,9 @@ class Predictions(Namespace):
             f"/v1/predictions/{id}/cancel",
         )
 
-        canceled = Prediction(**resp.json())
-        canceled._client = self._client
+        return self._json_to_prediction(resp.json())
 
-        return canceled
+    def _json_to_prediction(self, json: Dict[str, Any]) -> Prediction:
+        prediction = Prediction(**json)
+        prediction._client = self._client
+        return prediction

@@ -1,6 +1,6 @@
 import datetime
 import warnings
-from typing import TYPE_CHECKING, Any, Iterator, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterator, Union
 
 if TYPE_CHECKING:
     from replicate.client import Client
@@ -95,7 +95,7 @@ class Versions(Namespace):
             "GET", f"/v1/models/{self._model.owner}/{self._model.name}/versions/{id}"
         )
 
-        return Version(**resp.json())
+        return self._json_to_version(resp.json())
 
     def list(self) -> Page[Version]:
         """
@@ -108,5 +108,10 @@ class Versions(Namespace):
         resp = self._client._request(
             "GET", f"/v1/models/{self._model.owner}/{self._model.name}/versions"
         )
+        obj = resp.json()
+        obj["results"] = [self._json_to_version(result) for result in obj["results"]]
 
-        return Page[Version](**resp.json())
+        return Page[Version](**obj)
+
+    def _json_to_version(self, json: Dict[str, Any]) -> Version:
+        return Version(**json)

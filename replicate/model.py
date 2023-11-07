@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Optional, Union
 
 from typing_extensions import deprecated
 
@@ -155,11 +155,7 @@ class Models(Namespace):
         resp = self._client._request("GET", "/v1/models" if cursor is ... else cursor)
 
         obj = resp.json()
-        obj["results"] = [Model(**result) for result in obj["results"]]
-        for model in obj["results"]:
-            model._client = self._client
-            if model.default_example is not None:
-                model.default_example._client = self._client
+        obj["results"] = [self._json_to_model(result) for result in obj["results"]]
 
         return Page[Model](**obj)
 
@@ -175,12 +171,7 @@ class Models(Namespace):
 
         resp = self._client._request("GET", f"/v1/models/{key}")
 
-        model = Model(**resp.json())
-        model._client = self._client
-        if model.default_example is not None:
-            model.default_example._client = self._client
-
-        return model
+        return self._json_to_model(resp.json())
 
     def create(  # pylint: disable=arguments-differ disable=too-many-arguments
         self,
@@ -237,9 +228,11 @@ class Models(Namespace):
 
         resp = self._client._request("POST", "/v1/models", json=body)
 
-        model = Model(**resp.json())
+        return self._json_to_model(resp.json())
+
+    def _json_to_model(self, json: Dict[str, Any]) -> Model:
+        model = Model(**json)
         model._client = self._client
         if model.default_example is not None:
             model.default_example._client = self._client
-
         return model
