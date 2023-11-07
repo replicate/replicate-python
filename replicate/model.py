@@ -217,14 +217,6 @@ class Models(Namespace):
         return self._prepare_model(resp.json())
 
     def _prepare_model(self, attrs: Union[Model, Dict]) -> Model:
-        if isinstance(attrs, dict):
-            if attrs is not None:
-                if "default_example" in attrs and attrs["default_example"]:
-                    attrs["default_example"].pop("version")
-
-                if "latest_version" in attrs and attrs["latest_version"] == {}:
-                    attrs.pop("latest_version")
-
         model = super()._prepare_model(attrs)
 
         if model.default_example is not None:

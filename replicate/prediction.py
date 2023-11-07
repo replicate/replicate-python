@@ -21,8 +21,8 @@ class Prediction(Resource):
     id: str
     """The unique ID of the prediction."""
 
-    version: Optional[Version]
-    """The version of the model used to create the prediction."""
+    version: str
+    """An identifier for the version of the model used to create the prediction."""
 
     status: str
     """The status of the prediction."""
@@ -189,10 +189,7 @@ class Predictions(Namespace):
         """
 
         resp = self._client._request("GET", f"/v1/predictions/{id}")
-        obj = resp.json()
-        # HACK: resolve this? make it lazy somehow?
-        del obj["version"]
-        return self._prepare_model(obj)
+        return self._prepare_model(resp.json())
 
     def create(
         self,
@@ -242,9 +239,5 @@ class Predictions(Namespace):
             json=body,
         )
         obj = resp.json()
-        if isinstance(version, Version):
-            obj["version"] = version
-        else:
-            del obj["version"]
 
         return self._prepare_model(obj)

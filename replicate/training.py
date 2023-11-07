@@ -10,6 +10,11 @@ from replicate.pagination import Page
 from replicate.resource import Namespace, Resource
 from replicate.version import Version
 
+try:
+    from pydantic import v1 as pydantic  # type: ignore
+except ImportError:
+    pass  # type: ignore
+
 
 class Training(Resource):
     """
@@ -21,7 +26,7 @@ class Training(Resource):
     id: str
     """The unique ID of the training."""
 
-    version: Optional[Version]
+    version: Union[str, Version]
     """The version of the model used to create the training."""
 
     destination: Optional[str]
@@ -125,10 +130,7 @@ class Trainings(Namespace):
             "GET",
             f"/v1/trainings/{id}",
         )
-        obj = resp.json()
-        # HACK: resolve this? make it lazy somehow?
-        del obj["version"]
-        return self._prepare_model(obj)
+        return self._prepare_model(resp.json())
 
     @overload
     def create(  # pylint: disable=arguments-differ disable=too-many-arguments
@@ -222,6 +224,4 @@ class Trainings(Namespace):
             f"/v1/models/{username}/{model_name}/versions/{version_id}/trainings",
             json=body,
         )
-        obj = resp.json()
-        del obj["version"]
-        return self._prepare_model(obj)
+        return self._prepare_model(resp.json())

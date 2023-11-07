@@ -119,5 +119,4 @@ class DeploymentPredictions(Namespace):
         )
         obj = resp.json()
         obj["deployment"] = self._deployment
-        del obj["version"]
         return self._prepare_model(obj)

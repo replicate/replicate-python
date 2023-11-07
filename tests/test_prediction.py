@@ -23,7 +23,7 @@ async def test_predictions_create(mock_replicate_api_token):
     )
 
     assert prediction.id is not None
-    assert prediction.version == version
+    assert prediction.version == version.id
     assert prediction.status == "starting"
 
 
@@ -81,7 +81,7 @@ async def test_predictions_stream(mock_replicate_api_token):
     )
 
     assert prediction.id is not None
-    assert prediction.version == version
+    assert prediction.version == version.id
     assert prediction.status == "starting"
     assert prediction.urls["stream"] is not None
 
