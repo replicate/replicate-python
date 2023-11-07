@@ -91,7 +91,7 @@ class Trainings(Namespace):
         webhook_completed: NotRequired[str]
         webhook_events_filter: NotRequired[List[str]]
 
-    def list(self) -> Page[Training]:
+    def list(self, cursor: Optional[str] = None) -> Page[Training]:
         """
         List your trainings.
 
@@ -99,7 +99,7 @@ class Trainings(Namespace):
             List[Training]: A list of training objects.
         """
 
-        resp = self._client._request("GET", "/v1/trainings")
+        resp = self._client._request("GET", cursor or "/v1/trainings")
         return Page[Training](self._client, self, **resp.json())
 
     def get(self, id: str) -> Training:  # pylint: disable=invalid-name

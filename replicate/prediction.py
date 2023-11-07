@@ -158,7 +158,7 @@ class Predictions(Namespace):
 
     model = Prediction
 
-    def list(self) -> Page[Prediction]:
+    def list(self, cursor: Optional[str] = None) -> Page[Prediction]:
         """
         List your predictions.
 
@@ -166,7 +166,7 @@ class Predictions(Namespace):
             A list of prediction objects.
         """
 
-        resp = self._client._request("GET", "/v1/predictions")
+        resp = self._client._request("GET", cursor or "/v1/predictions")
         return Page[Prediction](self._client, self, **resp.json())
 
     def get(self, id: str) -> Prediction:  # pylint: disable=invalid-name

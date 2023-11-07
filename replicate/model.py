@@ -124,7 +124,7 @@ class Models(Namespace):
 
     model = Model
 
-    def list(self) -> Page[Model]:
+    def list(self, cursor: Optional[str] = None) -> Page[Model]:
         """
         List all public models.
 
@@ -132,7 +132,7 @@ class Models(Namespace):
             A list of models.
         """
 
-        resp = self._client._request("GET", "/v1/models")
+        resp = self._client._request("GET", cursor or "/v1/models")
         return Page[Model](self._client, self, **resp.json())
 
     def get(self, key: str) -> Model:
