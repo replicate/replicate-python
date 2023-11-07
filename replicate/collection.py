@@ -1,13 +1,10 @@
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import List, Optional, Union
 
 from typing_extensions import deprecated
 
-from replicate.model import Model, Models
+from replicate.model import Model
 from replicate.pagination import Page
 from replicate.resource import Namespace, Resource
-
-if TYPE_CHECKING:
-    from replicate.client import Client
 
 
 class Collection(Resource):
@@ -57,12 +54,6 @@ class Collections(Namespace):
     """
 
     model = Collection
-
-    _models: Models
-
-    def __init__(self, client: "Client") -> None:
-        self._models = Models(client)
-        super().__init__(client)
 
     def list(self, cursor: Union[str, "ellipsis"] = ...) -> Page[Collection]:  # noqa: F821
         """
