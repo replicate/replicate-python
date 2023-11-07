@@ -238,6 +238,5 @@ class Predictions(Namespace):
             "/v1/predictions",
             json=body,
         )
-        obj = resp.json()
 
-        return self._prepare_model(obj)
+        return self._prepare_model(resp.json())

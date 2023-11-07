@@ -1,5 +1,5 @@
 import abc
-from typing import TYPE_CHECKING, Dict, Generic, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Dict, Generic, TypeVar
 
 from replicate.exceptions import ReplicateException
 
@@ -35,15 +35,10 @@ class Namespace(abc.ABC, Generic[Model]):
     def __init__(self, client: "Client") -> None:
         self._client = client
 
-    def _prepare_model(self, attrs: Union[Model, Dict]) -> Model:
+    def _prepare_model(self, attrs: Dict) -> Model:
         """
         Create a model from a set of attributes.
         """
-        if isinstance(attrs, Resource):
-            attrs._client = self._client
-            attrs._namespace = self
-            return cast(Model, attrs)
-
         if isinstance(attrs, dict) and self.model is not None and callable(self.model):
             model = self.model(**attrs)
             model._client = self._client

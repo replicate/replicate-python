@@ -98,14 +98,8 @@ class Collections(Namespace):
 
         return self._prepare_model(resp.json())
 
-    def _prepare_model(self, attrs: Union[Collection, Dict]) -> Collection:
-        if isinstance(attrs, Resource):
-            if attrs.models is not None:
-                attrs.models = [self._models._prepare_model(m) for m in attrs.models]
-        elif isinstance(attrs, dict):
-            if "models" in attrs:
-                attrs["models"] = [
-                    self._models._prepare_model(m) for m in attrs["models"]
-                ]
+    def _prepare_model(self, attrs: Dict) -> Collection:
+        if "models" in attrs:
+            attrs["models"] = [self._models._prepare_model(m) for m in attrs["models"]]
 
         return super()._prepare_model(attrs)

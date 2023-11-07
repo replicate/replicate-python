@@ -216,7 +216,7 @@ class Models(Namespace):
 
         return self._prepare_model(resp.json())
 
-    def _prepare_model(self, attrs: Union[Model, Dict]) -> Model:
+    def _prepare_model(self, attrs: Dict) -> Model:
         model = super()._prepare_model(attrs)
 
         if model.default_example is not None:
