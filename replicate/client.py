@@ -15,13 +15,13 @@ from typing import (
 import httpx
 
 from replicate.__about__ import __version__
-from replicate.deployment import DeploymentCollection
+from replicate.deployment import Deployments
 from replicate.exceptions import ModelError, ReplicateError
-from replicate.hardware import HardwareCollection
-from replicate.model import ModelCollection
-from replicate.prediction import PredictionCollection
+from replicate.hardware import Hardwares
+from replicate.model import Models
+from replicate.prediction import Predictions
 from replicate.schema import make_schema_backwards_compatible
-from replicate.training import TrainingCollection
+from replicate.training import Trainings
 from replicate.version import Version
 
 
@@ -85,39 +85,39 @@ class Client:
         return resp
 
     @property
-    def deployments(self) -> DeploymentCollection:
+    def deployments(self) -> Deployments:
         """
         Namespace for operations related to deployments.
         """
-        return DeploymentCollection(client=self)
+        return Deployments(client=self)
 
     @property
-    def hardware(self) -> HardwareCollection:
+    def hardware(self) -> Hardwares:
         """
         Namespace for operations related to hardware.
         """
-        return HardwareCollection(client=self)
+        return Hardwares(client=self)
 
     @property
-    def models(self) -> ModelCollection:
+    def models(self) -> Models:
         """
         Namespace for operations related to models.
         """
-        return ModelCollection(client=self)
+        return Models(client=self)
 
     @property
-    def predictions(self) -> PredictionCollection:
+    def predictions(self) -> Predictions:
         """
         Namespace for operations related to predictions.
         """
-        return PredictionCollection(client=self)
+        return Predictions(client=self)
 
     @property
-    def trainings(self) -> TrainingCollection:
+    def trainings(self) -> Trainings:
         """
         Namespace for operations related to trainings.
         """
-        return TrainingCollection(client=self)
+        return Trainings(client=self)
 
     def run(self, model_version: str, **kwargs) -> Union[Any, Iterator[Any]]:  # noqa: ANN401
         """

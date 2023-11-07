@@ -5,7 +5,7 @@ from typing_extensions import deprecated
 from replicate.exceptions import ReplicateException
 from replicate.prediction import Prediction
 from replicate.resource import Namespace, Resource
-from replicate.version import Version, VersionCollection
+from replicate.version import Version, Versions
 
 
 class Model(Resource):
@@ -13,7 +13,7 @@ class Model(Resource):
     A machine learning model hosted on Replicate.
     """
 
-    _namespace: "ModelCollection"
+    _namespace: "Models"
 
     url: str
     """
@@ -99,12 +99,12 @@ class Model(Resource):
         )
 
     @property
-    def versions(self) -> VersionCollection:
+    def versions(self) -> Versions:
         """
         Get the versions of this model.
         """
 
-        return VersionCollection(client=self._client, model=self)
+        return Versions(client=self._client, model=self)
 
     def reload(self) -> None:
         """
@@ -116,7 +116,7 @@ class Model(Resource):
             setattr(self, name, value)
 
 
-class ModelCollection(Namespace):
+class Models(Namespace):
     """
     Namespace for operations related to models.
     """

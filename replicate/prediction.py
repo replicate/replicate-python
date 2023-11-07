@@ -15,7 +15,7 @@ class Prediction(Resource):
     A prediction made by a model hosted on Replicate.
     """
 
-    _namespace: "PredictionCollection"
+    _namespace: "Predictions"
 
     id: str
     """The unique ID of the prediction."""
@@ -150,7 +150,7 @@ class Prediction(Resource):
             setattr(self, name, value)
 
 
-class PredictionCollection(Namespace):
+class Predictions(Namespace):
     """
     Namespace for operations related to predictions.
     """

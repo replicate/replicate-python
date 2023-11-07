@@ -14,7 +14,7 @@ class Deployment(Resource):
     A deployment of a model hosted on Replicate.
     """
 
-    _namespace: "DeploymentCollection"
+    _namespace: "Deployments"
 
     username: str
     """
@@ -27,15 +27,15 @@ class Deployment(Resource):
     """
 
     @property
-    def predictions(self) -> "DeploymentPredictionCollection":
+    def predictions(self) -> "DeploymentPredictions":
         """
         Get the predictions for this deployment.
         """
 
-        return DeploymentPredictionCollection(client=self._client, deployment=self)
+        return DeploymentPredictions(client=self._client, deployment=self)
 
 
-class DeploymentCollection(Namespace):
+class Deployments(Namespace):
     """
     Namespace for operations related to deployments.
     """
@@ -65,7 +65,7 @@ class DeploymentCollection(Namespace):
         return super()._prepare_model(attrs)
 
 
-class DeploymentPredictionCollection(Namespace):
+class DeploymentPredictions(Namespace):
     """
     Namespace for operations related to predictions in a deployment.
     """

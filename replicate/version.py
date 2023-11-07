@@ -17,7 +17,7 @@ class Version(Resource):
     A version of a model.
     """
 
-    _namespace: "VersionCollection"
+    _namespace: "Versions"
 
     id: str
     """The unique ID of the version."""
@@ -74,7 +74,7 @@ class Version(Resource):
             setattr(self, name, value)
 
 
-class VersionCollection(Namespace):
+class Versions(Namespace):
     """
     Namespace for operations related to model versions.
     """

@@ -19,7 +19,7 @@ class Hardware(Resource):
     """
 
 
-class HardwareCollection(Namespace):
+class Hardwares(Namespace):
     """
     Namespace for operations related to hardware.
     """

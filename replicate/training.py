@@ -15,7 +15,7 @@ class Training(Resource):
     A training made for a model hosted on Replicate.
     """
 
-    _namespace: "TrainingCollection"
+    _namespace: "Trainings"
 
     id: str
     """The unique ID of the training."""
@@ -73,7 +73,7 @@ class Training(Resource):
             setattr(self, name, value)
 
 
-class TrainingCollection(Namespace):
+class Trainings(Namespace):
     """
     Namespace for operations related to trainings.
     """
