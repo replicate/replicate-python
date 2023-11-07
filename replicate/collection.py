@@ -53,7 +53,10 @@ class Collections(Namespace):
     A namespace for operations related to collections of models.
     """
 
-    def list(self, cursor: Union[str, "ellipsis"] = ...) -> Page[Collection]:  # noqa: F821
+    def list(
+        self,
+        cursor: Union[str, "ellipsis"] = ...,  # noqa: F821
+    ) -> Page[Collection]:
         """
         List collections of models.
 
@@ -73,7 +76,34 @@ class Collections(Namespace):
         )
 
         obj = resp.json()
-        obj["results"] = [self._json_to_collection(result) for result in obj["results"]]
+        obj["results"] = [_json_to_collection(result) for result in obj["results"]]
+
+        return Page[Collection](**obj)
+
+    async def async_list(
+        self,
+        cursor: Union[str, "ellipsis"] = ...,  # noqa: F821
+    ) -> Page[Collection]:
+        """
+        List collections of models.
+
+        Parameters:
+            cursor: The cursor to use for pagination. Use the value of `Page.next` or `Page.previous`.
+        Returns:
+            Page[Collection]: A page of of model collections.
+        Raises:
+            ValueError: If `cursor` is `None`.
+        """
+
+        if cursor is None:
+            raise ValueError("cursor cannot be None")
+
+        resp = await self._client._async_request(
+            "GET", "/v1/collections" if cursor is ... else cursor
+        )
+
+        obj = resp.json()
+        obj["results"] = [_json_to_collection(result) for result in obj["results"]]
 
         return Page[Collection](**obj)
 
@@ -88,7 +118,21 @@ class Collections(Namespace):
 
         resp = self._client._request("GET", f"/v1/collections/{slug}")
 
-        return self._json_to_collection(resp.json())
+        return _json_to_collection(resp.json())
 
-    def _json_to_collection(self, json: Dict[str, Any]) -> Collection:
-        return Collection(**json)
+    async def async_get(self, slug: str) -> Collection:
+        """Get a model by name.
+
+        Args:
+            name: The name of the model, in the format `owner/model-name`.
+        Returns:
+            The model.
+        """
+
+        resp = await self._client._async_request("GET", f"/v1/collections/{slug}")
+
+        return _json_to_collection(resp.json())
+
+
+def _json_to_collection(json: Dict[str, Any]) -> Collection:
+    return Collection(**json)

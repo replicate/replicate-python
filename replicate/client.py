@@ -9,6 +9,7 @@ from typing import (
     Iterator,
     Mapping,
     Optional,
+    Type,
     Union,
 )
 
@@ -18,7 +19,7 @@ from replicate.__about__ import __version__
 from replicate.collection import Collections
 from replicate.deployment import Deployments
 from replicate.exceptions import ModelError, ReplicateError
-from replicate.hardware import Hardwares
+from replicate.hardware import HardwareNamespace as Hardware
 from replicate.model import Models
 from replicate.prediction import Predictions
 from replicate.schema import make_schema_backwards_compatible
@@ -30,6 +31,7 @@ class Client:
     """A Replicate API client library"""
 
     __client: Optional[httpx.Client] = None
+    __async_client: Optional[httpx.AsyncClient] = None
 
     def __init__(
         self,
@@ -42,46 +44,45 @@ class Client:
         super().__init__()
 
         self._api_token = api_token
-        self._base_url = (
-            base_url
-            or os.environ.get("REPLICATE_API_BASE_URL")
-            or "https://api.replicate.com"
-        )
-        self._timeout = timeout or httpx.Timeout(
-            5.0, read=30.0, write=30.0, connect=5.0, pool=10.0
-        )
-        self._transport = kwargs.pop("transport", httpx.HTTPTransport())
+        self._base_url = base_url
+        self._timeout = timeout
         self._client_kwargs = kwargs
 
         self.poll_interval = float(os.environ.get("REPLICATE_POLL_INTERVAL", "0.5"))
 
     @property
     def _client(self) -> httpx.Client:
-        if self.__client is None:
-            headers = {
-                "User-Agent": f"replicate-python/{__version__}",
-            }
-
-            api_token = self._api_token or os.environ.get("REPLICATE_API_TOKEN")
-
-            if api_token is not None and api_token != "":
-                headers["Authorization"] = f"Token {api_token}"
-
-            self.__client = httpx.Client(
+        if not self.__client:
+            self.__client = _build_httpx_client(
+                httpx.Client,
+                self._api_token,
+                self._base_url,
+                self._timeout,
                 **self._client_kwargs,
-                base_url=self._base_url,
-                headers=headers,
-                timeout=self._timeout,
-                transport=RetryTransport(wrapped_transport=self._transport),
-            )
+            )  # type: ignore[assignment]
+        return self.__client  # type: ignore[return-value]
 
-        return self.__client
+    @property
+    def _async_client(self) -> httpx.AsyncClient:
+        if not self.__async_client:
+            self.__async_client = _build_httpx_client(
+                httpx.AsyncClient,
+                self._api_token,
+                self._base_url,
+                self._timeout,
+                **self._client_kwargs,
+            )  # type: ignore[assignment]
+        return self.__async_client  # type: ignore[return-value]
 
     def _request(self, method: str, path: str, **kwargs) -> httpx.Response:
         resp = self._client.request(method, path, **kwargs)
+        _raise_for_status(resp)
 
-        if 400 <= resp.status_code < 600:
-            raise ReplicateError(resp.json()["detail"])
+        return resp
+
+    async def _async_request(self, method: str, path: str, **kwargs) -> httpx.Response:
+        resp = await self._async_client.request(method, path, **kwargs)
+        _raise_for_status(resp)
 
         return resp
 
@@ -100,11 +101,11 @@ class Client:
         return Deployments(client=self)
 
     @property
-    def hardware(self) -> Hardwares:
+    def hardware(self) -> Hardware:
         """
         Namespace for operations related to hardware.
         """
-        return Hardwares(client=self)
+        return Hardware(client=self)
 
     @property
     def models(self) -> Models:
@@ -305,3 +306,49 @@ class RetryTransport(httpx.AsyncBaseTransport, httpx.BaseTransport):
 
     def close(self) -> None:
         self._wrapped_transport.close()  # type: ignore
+
+
+def _build_httpx_client(
+    client_type: Type[Union[httpx.Client, httpx.AsyncClient]],
+    api_token: Optional[str] = None,
+    base_url: Optional[str] = None,
+    timeout: Optional[httpx.Timeout] = None,
+    **kwargs,
+) -> Union[httpx.Client, httpx.AsyncClient]:
+    headers = {
+        "User-Agent": f"replicate-python/{__version__}",
+    }
+
+    if (
+        api_token := api_token or os.environ.get("REPLICATE_API_TOKEN")
+    ) and api_token != "":
+        headers["Authorization"] = f"Token {api_token}"
+
+    base_url = (
+        base_url or os.environ.get("REPLICATE_BASE_URL") or "https://api.replicate.com"
+    )
+    if base_url == "":
+        base_url = "https://api.replicate.com"
+
+    timeout = timeout or httpx.Timeout(
+        5.0, read=30.0, write=30.0, connect=5.0, pool=10.0
+    )
+
+    transport = kwargs.pop("transport", None) or (
+        httpx.HTTPTransport()
+        if client_type is httpx.Client
+        else httpx.AsyncHTTPTransport()
+    )
+
+    return client_type(
+        base_url=base_url,
+        headers=headers,
+        timeout=timeout,
+        transport=RetryTransport(wrapped_transport=transport),  # type: ignore[arg-type]
+        **kwargs,
+    )
+
+
+def _raise_for_status(resp: httpx.Response) -> None:
+    if 400 <= resp.status_code < 600:
+        raise ReplicateError(resp.json()["detail"])

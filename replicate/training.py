@@ -1,5 +1,5 @@
 import re
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, TypedDict, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, TypedDict, Union
 
 from typing_extensions import NotRequired, Unpack, overload
 
@@ -87,16 +87,6 @@ class Trainings(Namespace):
     Namespace for operations related to trainings.
     """
 
-    class CreateParams(TypedDict):
-        """Parameters for creating a prediction."""
-
-        version: Union[Version, str]
-        destination: str
-        input: Dict[str, Any]
-        webhook: NotRequired[str]
-        webhook_completed: NotRequired[str]
-        webhook_events_filter: NotRequired[List[str]]
-
     def list(self, cursor: Union[str, "ellipsis"] = ...) -> Page[Training]:  # noqa: F821
         """
         List your trainings.
@@ -117,7 +107,35 @@ class Trainings(Namespace):
         )
 
         obj = resp.json()
-        obj["results"] = [self._json_to_training(result) for result in obj["results"]]
+        obj["results"] = [
+            _json_to_training(self._client, result) for result in obj["results"]
+        ]
+
+        return Page[Training](**obj)
+
+    async def async_list(self, cursor: Union[str, "ellipsis"] = ...) -> Page[Training]:  # noqa: F821
+        """
+        List your trainings.
+
+        Parameters:
+            cursor: The cursor to use for pagination. Use the value of `Page.next` or `Page.previous`.
+        Returns:
+            Page[Training]: A page of trainings.
+        Raises:
+            ValueError: If `cursor` is `None`.
+        """
+
+        if cursor is None:
+            raise ValueError("cursor cannot be None")
+
+        resp = await self._client._async_request(
+            "GET", "/v1/trainings" if cursor is ... else cursor
+        )
+
+        obj = resp.json()
+        obj["results"] = [
+            _json_to_training(self._client, result) for result in obj["results"]
+        ]
 
         return Page[Training](**obj)
 
@@ -136,7 +154,34 @@ class Trainings(Namespace):
             f"/v1/trainings/{id}",
         )
 
-        return self._json_to_training(resp.json())
+        return _json_to_training(self._client, resp.json())
+
+    async def async_get(self, id: str) -> Training:  # pylint: disable=invalid-name
+        """
+        Get a training by ID.
+
+        Args:
+            id: The ID of the training.
+        Returns:
+            Training: The training object.
+        """
+
+        resp = await self._client._async_request(
+            "GET",
+            f"/v1/trainings/{id}",
+        )
+
+        return _json_to_training(self._client, resp.json())
+
+    class CreateParams(TypedDict):
+        """Parameters for creating a prediction."""
+
+        version: Union[Version, str]
+        destination: str
+        input: Dict[str, Any]
+        webhook: NotRequired[str]
+        webhook_completed: NotRequired[str]
+        webhook_events_filter: NotRequired[List[str]]
 
     @overload
     def create(  # pylint: disable=arguments-differ disable=too-many-arguments
@@ -182,7 +227,6 @@ class Trainings(Namespace):
         Returns:
             The training object.
         """
-
         # Support positional arguments for backwards compatibility
         version = args[0] if args else kwargs.get("version")
         if version is None:
@@ -190,48 +234,59 @@ class Trainings(Namespace):
                 "A version identifier must be provided as a positional or keyword argument."
             )
 
-        destination = args[1] if len(args) > 1 else kwargs.get("destination")
-        if destination is None:
-            raise ValueError(
-                "A destination must be provided as a positional or keyword argument."
-            )
-
-        input = args[2] if len(args) > 2 else kwargs.get("input")
-        if input is None:
-            raise ValueError(
-                "An input must be provided as a positional or keyword argument."
-            )
-
-        body = {
-            "input": encode_json(input, upload_file=upload_file),
-            "destination": destination,
-        }
-
-        for key in ["webhook", "webhook_completed", "webhook_events_filter"]:
-            value = kwargs.get(key)
-            if value is not None:
-                body[key] = value
-
-        # Split version in format "username/model_name:version_id"
-        match = re.match(
-            r"^(?P<username>[^/]+)/(?P<model_name>[^:]+):(?P<version_id>.+)$",
-            version.id if isinstance(version, Version) else version,
+        username, model_name, version_id = _parse_version_identifier(
+            version.id if isinstance(version, Version) else version
         )
-        if not match:
-            raise ReplicateException(
-                "version must be in format username/model_name:version_id"
-            )
-        username = match.group("username")
-        model_name = match.group("model_name")
-        version_id = match.group("version_id")
-
+        body = _create_training_body(*args, **kwargs)
         resp = self._client._request(
             "POST",
             f"/v1/models/{username}/{model_name}/versions/{version_id}/trainings",
             json=body,
         )
 
-        return self._json_to_training(resp.json())
+        return _json_to_training(self._client, resp.json())
+
+    async def async_create(  # pylint: disable=arguments-differ disable=too-many-arguments
+        self,
+        *,
+        version: str,
+        input: Dict[str, Any],
+        destination: str,
+        webhook: Optional[str] = None,
+        webhook_completed: Optional[str] = None,
+        webhook_events_filter: Optional[List[str]] = None,
+    ) -> Training:
+        """
+        Create a new training using the specified model version as a base.
+
+        Args:
+            version: The ID of the base model version that you're using to train a new model version.
+            input: The input to the training.
+            destination: The desired model to push to in the format `{owner}/{model_name}`. This should be an existing model owned by the user or organization making the API request.
+            webhook: The URL to send a POST request to when the training is completed. Defaults to None.
+            webhook_completed: The URL to receive a POST request when the prediction is completed.
+            webhook_events_filter: The events to send to the webhook. Defaults to None.
+        Returns:
+            The training object.
+        """
+        username, model_name, version_id = _parse_version_identifier(version)
+        body = _create_training_body(
+            **{
+                "version": version,
+                "input": input,
+                "destination": destination,
+                "webhook": webhook,
+                "webhook_completed": webhook_completed,
+                "webhook_events_filter": webhook_events_filter,
+            }
+        )
+        resp = await self._client._async_request(
+            "POST",
+            f"/v1/models/{username}/{model_name}/versions/{version_id}/trainings",
+            json=body,
+        )
+
+        return _json_to_training(self._client, resp.json())
 
     def cancel(self, id: str) -> Training:
         """
@@ -248,9 +303,73 @@ class Trainings(Namespace):
             f"/v1/trainings/{id}/cancel",
         )
 
-        return self._json_to_training(resp.json())
+        return _json_to_training(self._client, resp.json())
 
-    def _json_to_training(self, json: Dict[str, Any]) -> Training:
-        training = Training(**json)
-        training._client = self._client
-        return training
+    async def async_cancel(self, id: str) -> Training:
+        """
+        Cancel a training.
+
+        Args:
+            id: The ID of the training to cancel.
+        Returns:
+            Training: The canceled training object.
+        """
+
+        resp = await self._client._async_request(
+            "POST",
+            f"/v1/trainings/{id}/cancel",
+        )
+
+        return _json_to_training(self._client, resp.json())
+
+
+def _create_training_body(
+    *args,
+    **kwargs: Unpack[Trainings.CreateParams],  # type: ignore[misc]
+) -> Dict[str, Any]:  # type: ignore[misc]
+    # Support positional arguments for backwards compatibility
+    destination = args[1] if len(args) > 1 else kwargs.get("destination")
+    if destination is None:
+        raise ValueError(
+            "A destination must be provided as a positional or keyword argument."
+        )
+
+    input = args[2] if len(args) > 2 else kwargs.get("input")
+    if input is None:
+        raise ValueError(
+            "An input must be provided as a positional or keyword argument."
+        )
+
+    body = {
+        "input": encode_json(input, upload_file=upload_file),
+        "destination": destination,
+    }
+
+    for key in ["webhook", "webhook_completed", "webhook_events_filter"]:
+        value = kwargs.get(key)
+        if value is not None:
+            body[key] = value
+
+    return body
+
+
+def _parse_version_identifier(identifier: str) -> Tuple[str, str, str]:
+    # Split version in format "username/model_name:version_id"
+    match = re.match(
+        r"^(?P<username>[^/]+)/(?P<model_name>[^:]+):(?P<version_id>.+)$", identifier
+    )
+    if not match:
+        raise ReplicateException(
+            "version must be in format username/model_name:version_id"
+        )
+    username = match.group("username")
+    model_name = match.group("model_name")
+    version_id = match.group("version_id")
+
+    return username, model_name, version_id
+
+
+def _json_to_training(client: "Client", json: Dict[str, Any]) -> Training:
+    training = Training(**json)
+    training._client = client
+    return training

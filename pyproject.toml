@@ -48,6 +48,7 @@ disable = [
     "W0622", # Redefining built-in
     "R0903", # Too few public methods
 ]
+good-names = ["id"]
 
 [tool.ruff]
 select = [

@@ -87,6 +87,9 @@ class Model(Resource):
 
     @property
     def id(self) -> str:
+        """
+        Return the qualified model name, in the format `owner/name`.
+        """
         return f"{self.owner}/{self.name}"
 
     @property
@@ -155,7 +158,35 @@ class Models(Namespace):
         resp = self._client._request("GET", "/v1/models" if cursor is ... else cursor)
 
         obj = resp.json()
-        obj["results"] = [self._json_to_model(result) for result in obj["results"]]
+        obj["results"] = [
+            _json_to_model(self._client, result) for result in obj["results"]
+        ]
+
+        return Page[Model](**obj)
+
+    async def async_list(self, cursor: Union[str, "ellipsis"] = ...) -> Page[Model]:  # noqa: F821
+        """
+        List all public models.
+
+        Parameters:
+            cursor: The cursor to use for pagination. Use the value of `Page.next` or `Page.previous`.
+        Returns:
+            Page[Model]: A page of of models.
+        Raises:
+            ValueError: If `cursor` is `None`.
+        """
+
+        if cursor is None:
+            raise ValueError("cursor cannot be None")
+
+        resp = await self._client._async_request(
+            "GET", "/v1/models" if cursor is ... else cursor
+        )
+
+        obj = resp.json()
+        obj["results"] = [
+            _json_to_model(self._client, result) for result in obj["results"]
+        ]
 
         return Page[Model](**obj)
 
@@ -171,7 +202,21 @@ class Models(Namespace):
 
         resp = self._client._request("GET", f"/v1/models/{key}")
 
-        return self._json_to_model(resp.json())
+        return _json_to_model(self._client, resp.json())
+
+    async def async_get(self, key: str) -> Model:
+        """
+        Get a model by name.
+
+        Args:
+            key: The qualified name of the model, in the format `owner/model-name`.
+        Returns:
+            The model.
+        """
+
+        resp = await self._client._async_request("GET", f"/v1/models/{key}")
+
+        return _json_to_model(self._client, resp.json())
 
     def create(  # pylint: disable=arguments-differ disable=too-many-arguments
         self,
@@ -204,35 +249,107 @@ class Models(Namespace):
             The created model.
         """
 
-        body = {
-            "owner": owner,
-            "name": name,
-            "visibility": visibility,
-            "hardware": hardware,
-        }
-
-        if description is not None:
-            body["description"] = description
-
-        if github_url is not None:
-            body["github_url"] = github_url
-
-        if paper_url is not None:
-            body["paper_url"] = paper_url
-
-        if license_url is not None:
-            body["license_url"] = license_url
-
-        if cover_image_url is not None:
-            body["cover_image_url"] = cover_image_url
-
+        body = _create_model_body(
+            owner,
+            name,
+            visibility,
+            hardware,
+            description,
+            github_url,
+            paper_url,
+            license_url,
+            cover_image_url,
+        )
         resp = self._client._request("POST", "/v1/models", json=body)
 
-        return self._json_to_model(resp.json())
+        return _json_to_model(self._client, resp.json())
 
-    def _json_to_model(self, json: Dict[str, Any]) -> Model:
-        model = Model(**json)
-        model._client = self._client
-        if model.default_example is not None:
-            model.default_example._client = self._client
-        return model
+    async def async_create(  # pylint: disable=too-many-arguments
+        self,
+        owner: str,
+        name: str,
+        *,
+        visibility: str,
+        hardware: str,
+        description: Optional[str] = None,
+        github_url: Optional[str] = None,
+        paper_url: Optional[str] = None,
+        license_url: Optional[str] = None,
+        cover_image_url: Optional[str] = None,
+    ) -> Model:
+        """
+        Create a model.
+
+        Args:
+            owner: The name of the user or organization that will own the model.
+            name: The name of the model.
+            visibility: Whether the model should be public or private.
+            hardware: The SKU for the hardware used to run the model. Possible values can be found by calling `replicate.hardware.list()`.
+            description: A description of the model.
+            github_url: A URL for the model's source code on GitHub.
+            paper_url: A URL for the model's paper.
+            license_url: A URL for the model's license.
+            cover_image_url: A URL for the model's cover image.
+
+        Returns:
+            The created model.
+        """
+
+        body = body = _create_model_body(
+            owner,
+            name,
+            visibility,
+            hardware,
+            description,
+            github_url,
+            paper_url,
+            license_url,
+            cover_image_url,
+        )
+        resp = await self._client._async_request("POST", "/v1/models", json=body)
+
+        return _json_to_model(self._client, resp.json())
+
+
+def _create_model_body(  # pylint: disable=too-many-arguments
+    owner: str,
+    name: str,
+    visibility: str,
+    hardware: str,
+    description: Optional[str] = None,
+    github_url: Optional[str] = None,
+    paper_url: Optional[str] = None,
+    license_url: Optional[str] = None,
+    cover_image_url: Optional[str] = None,
+) -> Dict[str, Any]:
+    body = {
+        "owner": owner,
+        "name": name,
+        "visibility": visibility,
+        "hardware": hardware,
+    }
+
+    if description is not None:
+        body["description"] = description
+
+    if github_url is not None:
+        body["github_url"] = github_url
+
+    if paper_url is not None:
+        body["paper_url"] = paper_url
+
+    if license_url is not None:
+        body["license_url"] = license_url
+
+    if cover_image_url is not None:
+        body["cover_image_url"] = cover_image_url
+
+    return body
+
+
+def _json_to_model(client: "Client", json: Dict[str, Any]) -> Model:
+    model = Model(**json)
+    model._client = client
+    if model.default_example is not None:
+        model.default_example._client = client
+    return model
