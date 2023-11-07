@@ -1,0 +1,296 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - api.replicate.com
+      user-agent:
+      - replicate-python/0.15.6
+    method: GET
+    uri: https://api.replicate.com/v1/models/stability-ai/sdxl
+  response:
+    content: '{"url": "https://replicate.com/stability-ai/sdxl", "owner": "stability-ai",
+      "name": "sdxl", "description": "A text-to-image generative AI model that creates
+      beautiful images", "visibility": "public", "github_url": "https://github.com/replicate/cog-sdxl",
+      "paper_url": "https://arxiv.org/abs/2307.01952", "license_url": "https://github.com/Stability-AI/generative-models/blob/main/model_licenses/LICENSE-SDXL1.0",
+      "run_count": 16656495, "cover_image_url": "https://tjzk.replicate.delivery/models_models_cover_image/61004930-fb88-4e09-9bd4-74fd8b4aa677/sdxl_cover.png",
+      "default_example": {"completed_at": "2023-10-12T17:10:12.909279Z", "created_at":
+      "2023-10-12T17:10:07.956869Z", "error": null, "id": "dzsqmb3bg4lqpjkz2iptjqgccm",
+      "input": {"width": 768, "height": 768, "prompt": "An astronaut riding a rainbow
+      unicorn, cinematic, dramatic", "refine": "expert_ensemble_refiner", "scheduler":
+      "K_EULER", "lora_scale": 0.6, "num_outputs": 1, "guidance_scale": 7.5, "apply_watermark":
+      false, "high_noise_frac": 0.8, "negative_prompt": "", "prompt_strength": 0.8,
+      "num_inference_steps": 25}, "logs": "Using seed: 16010\nPrompt: An astronaut
+      riding a rainbow unicorn, cinematic, dramatic\ntxt2img mode\n  0%|          |
+      0/16 [00:00<?, ?it/s]\n  6%|\u258b         | 1/16 [00:00<00:01,  7.96it/s]\n
+      12%|\u2588\u258e        | 2/16 [00:00<00:01,  7.89it/s]\n 19%|\u2588\u2589        |
+      3/16 [00:00<00:01,  7.86it/s]\n 25%|\u2588\u2588\u258c       | 4/16 [00:00<00:01,  7.85it/s]\n
+      31%|\u2588\u2588\u2588\u258f      | 5/16 [00:00<00:01,  7.83it/s]\n 38%|\u2588\u2588\u2588\u258a      |
+      6/16 [00:00<00:01,  7.82it/s]\n 44%|\u2588\u2588\u2588\u2588\u258d     | 7/16
+      [00:00<00:01,  7.81it/s]\n 50%|\u2588\u2588\u2588\u2588\u2588     | 8/16 [00:01<00:01,  7.80it/s]\n
+      56%|\u2588\u2588\u2588\u2588\u2588\u258b    | 9/16 [00:01<00:00,  7.80it/s]\n
+      62%|\u2588\u2588\u2588\u2588\u2588\u2588\u258e   | 10/16 [00:01<00:00,  7.78it/s]\n
+      69%|\u2588\u2588\u2588\u2588\u2588\u2588\u2589   | 11/16 [00:01<00:00,  7.79it/s]\n
+      75%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258c  | 12/16 [00:01<00:00,  7.79it/s]\n
+      81%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258f | 13/16 [00:01<00:00,  7.78it/s]\n
+      88%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258a | 14/16 [00:01<00:00,  7.79it/s]\n
+      94%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258d| 15/16 [00:01<00:00,  7.79it/s]\n100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588|
+      16/16 [00:02<00:00,  7.79it/s]\n100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588|
+      16/16 [00:02<00:00,  7.81it/s]\n  0%|          | 0/5 [00:00<?, ?it/s]\n 20%|\u2588\u2588        |
+      1/5 [00:00<00:00,  7.47it/s]\n 40%|\u2588\u2588\u2588\u2588      | 2/5 [00:00<00:00,  7.42it/s]\n
+      60%|\u2588\u2588\u2588\u2588\u2588\u2588    | 3/5 [00:00<00:00,  7.40it/s]\n
+      80%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588  | 4/5 [00:00<00:00,  7.39it/s]\n100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588|
+      5/5 [00:00<00:00,  7.39it/s]\n100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588|
+      5/5 [00:00<00:00,  7.40it/s]", "metrics": {"predict_time": 4.981337}, "output":
+      ["https://pbxt.replicate.delivery/YXbcLudoHBIYHV6L0HbcTx5iRzLFMwygLr3vhGpZI35caXbE/out-0.png"],
+      "started_at": "2023-10-12T17:10:07.927942Z", "status": "succeeded", "urls":
+      {"get": "https://api.replicate.com/v1/predictions/dzsqmb3bg4lqpjkz2iptjqgccm",
+      "cancel": "https://api.replicate.com/v1/predictions/dzsqmb3bg4lqpjkz2iptjqgccm/cancel"},
+      "version": "c221b2b8ef527988fb59bf24a8b97c4561f1c671f73bd389f866bfb27c061316",
+      "webhook_completed": null}, "latest_version": {"id": "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
+      "created_at": "2023-11-06T23:13:07.906314Z", "cog_version": "0.8.6", "openapi_schema":
+      {"info": {"title": "Cog", "version": "0.1.0"}, "paths": {"/": {"get": {"summary":
+      "Root", "responses": {"200": {"content": {"application/json": {"schema": {"title":
+      "Response Root  Get"}}}, "description": "Successful Response"}}, "operationId":
+      "root__get"}}, "/shutdown": {"post": {"summary": "Start Shutdown", "responses":
+      {"200": {"content": {"application/json": {"schema": {"title": "Response Start
+      Shutdown Shutdown Post"}}}, "description": "Successful Response"}}, "operationId":
+      "start_shutdown_shutdown_post"}}, "/predictions": {"post": {"summary": "Predict",
+      "responses": {"200": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/PredictionResponse"}}},
+      "description": "Successful Response"}, "422": {"content": {"application/json":
+      {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}, "description":
+      "Validation Error"}}, "parameters": [{"in": "header", "name": "prefer", "schema":
+      {"type": "string", "title": "Prefer"}, "required": false}], "description": "Run
+      a single prediction on the model", "operationId": "predict_predictions_post",
+      "requestBody": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/PredictionRequest"}}}}}},
+      "/health-check": {"get": {"summary": "Healthcheck", "responses": {"200": {"content":
+      {"application/json": {"schema": {"title": "Response Healthcheck Health Check
+      Get"}}}, "description": "Successful Response"}}, "operationId": "healthcheck_health_check_get"}},
+      "/predictions/{prediction_id}": {"put": {"summary": "Predict Idempotent", "responses":
+      {"200": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/PredictionResponse"}}},
+      "description": "Successful Response"}, "422": {"content": {"application/json":
+      {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}, "description":
+      "Validation Error"}}, "parameters": [{"in": "path", "name": "prediction_id",
+      "schema": {"type": "string", "title": "Prediction ID"}, "required": true}, {"in":
+      "header", "name": "prefer", "schema": {"type": "string", "title": "Prefer"},
+      "required": false}], "description": "Run a single prediction on the model (idempotent
+      creation).", "operationId": "predict_idempotent_predictions__prediction_id__put",
+      "requestBody": {"content": {"application/json": {"schema": {"allOf": [{"$ref":
+      "#/components/schemas/PredictionRequest"}], "title": "Prediction Request"}}},
+      "required": true}}}, "/predictions/{prediction_id}/cancel": {"post": {"summary":
+      "Cancel", "responses": {"200": {"content": {"application/json": {"schema": {"title":
+      "Response Cancel Predictions  Prediction Id  Cancel Post"}}}, "description":
+      "Successful Response"}, "422": {"content": {"application/json": {"schema": {"$ref":
+      "#/components/schemas/HTTPValidationError"}}}, "description": "Validation Error"}},
+      "parameters": [{"in": "path", "name": "prediction_id", "schema": {"type": "string",
+      "title": "Prediction ID"}, "required": true}], "description": "Cancel a running
+      prediction", "operationId": "cancel_predictions__prediction_id__cancel_post"}}},
+      "openapi": "3.0.2", "components": {"schemas": {"Input": {"type": "object", "title":
+      "Input", "properties": {"mask": {"type": "string", "title": "Mask", "format":
+      "uri", "x-order": 3, "description": "Input mask for inpaint mode. Black areas
+      will be preserved, white areas will be inpainted."}, "seed": {"type": "integer",
+      "title": "Seed", "x-order": 11, "description": "Random seed. Leave blank to
+      randomize the seed"}, "image": {"type": "string", "title": "Image", "format":
+      "uri", "x-order": 2, "description": "Input image for img2img or inpaint mode"},
+      "width": {"type": "integer", "title": "Width", "default": 1024, "x-order": 4,
+      "description": "Width of output image"}, "height": {"type": "integer", "title":
+      "Height", "default": 1024, "x-order": 5, "description": "Height of output image"},
+      "prompt": {"type": "string", "title": "Prompt", "default": "An astronaut riding
+      a rainbow unicorn", "x-order": 0, "description": "Input prompt"}, "refine":
+      {"allOf": [{"$ref": "#/components/schemas/refine"}], "default": "no_refiner",
+      "x-order": 12, "description": "Which refine style to use"}, "scheduler": {"allOf":
+      [{"$ref": "#/components/schemas/scheduler"}], "default": "K_EULER", "x-order":
+      7, "description": "scheduler"}, "lora_scale": {"type": "number", "title": "Lora
+      Scale", "default": 0.6, "maximum": 1, "minimum": 0, "x-order": 16, "description":
+      "LoRA additive scale. Only applicable on trained models."}, "num_outputs": {"type":
+      "integer", "title": "Num Outputs", "default": 1, "maximum": 4, "minimum": 1,
+      "x-order": 6, "description": "Number of images to output."}, "refine_steps":
+      {"type": "integer", "title": "Refine Steps", "x-order": 14, "description": "For
+      base_image_refiner, the number of steps to refine, defaults to num_inference_steps"},
+      "guidance_scale": {"type": "number", "title": "Guidance Scale", "default": 7.5,
+      "maximum": 50, "minimum": 1, "x-order": 9, "description": "Scale for classifier-free
+      guidance"}, "apply_watermark": {"type": "boolean", "title": "Apply Watermark",
+      "default": true, "x-order": 15, "description": "Applies a watermark to enable
+      determining if an image is generated in downstream applications. If you have
+      other provisions for generating or deploying images safely, you can use this
+      to disable watermarking."}, "high_noise_frac": {"type": "number", "title": "High
+      Noise Frac", "default": 0.8, "maximum": 1, "minimum": 0, "x-order": 13, "description":
+      "For expert_ensemble_refiner, the fraction of noise to use"}, "negative_prompt":
+      {"type": "string", "title": "Negative Prompt", "default": "", "x-order": 1,
+      "description": "Input Negative Prompt"}, "prompt_strength": {"type": "number",
+      "title": "Prompt Strength", "default": 0.8, "maximum": 1, "minimum": 0, "x-order":
+      10, "description": "Prompt strength when using img2img / inpaint. 1.0 corresponds
+      to full destruction of information in image"}, "replicate_weights": {"type":
+      "string", "title": "Replicate Weights", "x-order": 17, "description": "Replicate
+      LoRA weights to use. Leave blank to use the default weights."}, "num_inference_steps":
+      {"type": "integer", "title": "Num Inference Steps", "default": 50, "maximum":
+      500, "minimum": 1, "x-order": 8, "description": "Number of denoising steps"},
+      "disable_safety_checker": {"type": "boolean", "title": "Disable Safety Checker",
+      "default": false, "x-order": 18, "description": "Disable safety checker for
+      generated images. This feature is only available through the API. See https://replicate.com/docs/how-does-replicate-work#safety"}}},
+      "Output": {"type": "array", "items": {"type": "string", "format": "uri"}, "title":
+      "Output"}, "Status": {"enum": ["starting", "processing", "succeeded", "canceled",
+      "failed"], "type": "string", "title": "Status", "description": "An enumeration."},
+      "refine": {"enum": ["no_refiner", "expert_ensemble_refiner", "base_image_refiner"],
+      "type": "string", "title": "refine", "description": "An enumeration."}, "scheduler":
+      {"enum": ["DDIM", "DPMSolverMultistep", "HeunDiscrete", "KarrasDPM", "K_EULER_ANCESTRAL",
+      "K_EULER", "PNDM"], "type": "string", "title": "scheduler", "description": "An
+      enumeration."}, "WebhookEvent": {"enum": ["start", "output", "logs", "completed"],
+      "type": "string", "title": "WebhookEvent", "description": "An enumeration."},
+      "ValidationError": {"type": "object", "title": "ValidationError", "required":
+      ["loc", "msg", "type"], "properties": {"loc": {"type": "array", "items": {"anyOf":
+      [{"type": "string"}, {"type": "integer"}]}, "title": "Location"}, "msg": {"type":
+      "string", "title": "Message"}, "type": {"type": "string", "title": "Error Type"}}},
+      "PredictionRequest": {"type": "object", "title": "PredictionRequest", "properties":
+      {"id": {"type": "string", "title": "Id"}, "input": {"$ref": "#/components/schemas/Input"},
+      "webhook": {"type": "string", "title": "Webhook", "format": "uri", "maxLength":
+      65536, "minLength": 1}, "created_at": {"type": "string", "title": "Created At",
+      "format": "date-time"}, "output_file_prefix": {"type": "string", "title": "Output
+      File Prefix"}, "webhook_events_filter": {"type": "array", "items": {"$ref":
+      "#/components/schemas/WebhookEvent"}, "default": ["start", "output", "logs",
+      "completed"]}}}, "PredictionResponse": {"type": "object", "title": "PredictionResponse",
+      "properties": {"id": {"type": "string", "title": "Id"}, "logs": {"type": "string",
+      "title": "Logs", "default": ""}, "error": {"type": "string", "title": "Error"},
+      "input": {"$ref": "#/components/schemas/Input"}, "output": {"$ref": "#/components/schemas/Output"},
+      "status": {"$ref": "#/components/schemas/Status"}, "metrics": {"type": "object",
+      "title": "Metrics"}, "version": {"type": "string", "title": "Version"}, "created_at":
+      {"type": "string", "title": "Created At", "format": "date-time"}, "started_at":
+      {"type": "string", "title": "Started At", "format": "date-time"}, "completed_at":
+      {"type": "string", "title": "Completed At", "format": "date-time"}}}, "HTTPValidationError":
+      {"type": "object", "title": "HTTPValidationError", "properties": {"detail":
+      {"type": "array", "items": {"$ref": "#/components/schemas/ValidationError"},
+      "title": "Detail"}}}}}}}}'
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8225cc4959f1c382-SEA
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 07 Nov 2023 13:07:13 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000
+      Transfer-Encoding:
+      - chunked
+      allow:
+      - GET, HEAD, OPTIONS
+      content-security-policy-report-only:
+      - 'style-src ''report-sample'' ''self'' ''unsafe-inline''; connect-src ''report-sample''
+        ''self'' https://replicate.delivery https://*.replicate.delivery https://*.rudderlabs.com
+        https://*.rudderstack.com https://*.mux.com https://*.sentry.io; font-src
+        ''report-sample'' ''self'' data:; script-src ''report-sample'' ''self'' https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js;
+        worker-src ''none''; img-src ''report-sample'' ''self'' data: https://replicate.delivery
+        https://*.replicate.delivery https://*.githubusercontent.com https://github.com;
+        default-src ''self''; media-src ''report-sample'' ''self'' https://replicate.delivery
+        https://*.replicate.delivery https://*.mux.com https://*.sentry.io; report-uri'
+      cross-origin-opener-policy:
+      - same-origin
+      nel:
+      - '{"report_to":"heroku-nel","max_age":3600,"success_fraction":0.005,"failure_fraction":0.05,"response_headers":["Via"]}'
+      ratelimit-remaining:
+      - '2999'
+      ratelimit-reset:
+      - '1'
+      referrer-policy:
+      - same-origin
+      report-to:
+      - '{"group":"heroku-nel","max_age":3600,"endpoints":[{"url":"https://nel.heroku.com/reports?ts=1699362433&sid=1b10b0ff-8a76-4548-befa-353fc6c6c045&s=zH5RNbbfmwMdjyaSsKchIOr55KExVjfjhKt6gPsWVzI%3D"}]}'
+      reporting-endpoints:
+      - heroku-nel=https://nel.heroku.com/reports?ts=1699362433&sid=1b10b0ff-8a76-4548-befa-353fc6c6c045&s=zH5RNbbfmwMdjyaSsKchIOr55KExVjfjhKt6gPsWVzI%3D
+      vary:
+      - Cookie, origin
+      via:
+      - 1.1 vegur, 1.1 google
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - DENY
+    http_version: HTTP/1.1
+    status_code: 200
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - api.replicate.com
+      user-agent:
+      - replicate-python/0.15.6
+    method: GET
+    uri: https://api.replicate.com/v1/models/mattt/empty
+  response:
+    content: '{"url": "https://replicate.com/mattt/empty", "owner": "mattt", "name":
+      "empty", "description": null, "visibility": "public", "github_url": null, "paper_url":
+      null, "license_url": null, "run_count": 0, "cover_image_url": null, "default_example":
+      null, "latest_version": null}'
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8225cc4b0b64c382-SEA
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 07 Nov 2023 13:07:13 GMT
+      NEL:
+      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+      Report-To:
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=cY2nl%2FrK5utZBgfjK1IykTazkguXz8LHTFFt9E8eHHnk6RqonDn2KHLyZYVxBTMJkyUMtdWMrR48N0MqqF20iMqcZWpeQ0gnvSZnKnmoGQe2xJECyJcKRanwdFJy29fBHigz"}],"group":"cf-nel","max_age":604800}'
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000
+      Transfer-Encoding:
+      - chunked
+      allow:
+      - GET, HEAD, OPTIONS
+      content-security-policy-report-only:
+      - 'script-src ''report-sample'' ''self'' https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js;
+        style-src ''report-sample'' ''self'' ''unsafe-inline''; default-src ''self'';
+        font-src ''report-sample'' ''self'' data:; img-src ''report-sample'' ''self''
+        data: https://replicate.delivery https://*.replicate.delivery https://*.githubusercontent.com
+        https://github.com; connect-src ''report-sample'' ''self'' https://replicate.delivery
+        https://*.replicate.delivery https://*.rudderlabs.com https://*.rudderstack.com
+        https://*.mux.com https://*.sentry.io; media-src ''report-sample'' ''self''
+        https://replicate.delivery https://*.replicate.delivery https://*.mux.com
+        https://*.sentry.io; worker-src ''none''; report-uri'
+      cross-origin-opener-policy:
+      - same-origin
+      ratelimit-remaining:
+      - '2999'
+      ratelimit-reset:
+      - '1'
+      referrer-policy:
+      - same-origin
+      vary:
+      - Cookie, origin
+      via:
+      - 1.1 vegur, 1.1 google
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - DENY
+    http_version: HTTP/1.1
+    status_code: 200
+version: 1

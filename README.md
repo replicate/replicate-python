@@ -165,6 +165,15 @@ replicate.predictions.list()
 # [<Prediction: 8b0ba5ab4d85>, <Prediction: 494900564e8c>]
 ```
 
+Lists of predictions are paginated. You can get the next page of predictions by passing the `next` property as an argument to the `list` method:
+
+```python
+page1 = replicate.predictions.list()
+
+if page1.next:
+    page2 = replicate.predictions.list(page1.next)
+```
+
 ## Load output files
 
 Output files are returned as HTTPS URLs. You can load an output file as a buffer:

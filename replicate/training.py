@@ -6,6 +6,7 @@ from typing_extensions import NotRequired, Unpack, overload
 from replicate.exceptions import ReplicateException
 from replicate.files import upload_file
 from replicate.json import encode_json
+from replicate.pagination import Page
 from replicate.resource import Namespace, Resource
 from replicate.version import Version
 
@@ -90,21 +91,25 @@ class Trainings(Namespace):
         webhook_completed: NotRequired[str]
         webhook_events_filter: NotRequired[List[str]]
 
-    def list(self) -> List[Training]:
+    def list(self, cursor: Union[str, "ellipsis"] = ...) -> Page[Training]:  # noqa: F821
         """
         List your trainings.
 
+        Parameters:
+            cursor: The cursor to use for pagination. Use the value of `Page.next` or `Page.previous`.
         Returns:
-            List[Training]: A list of training objects.
+            Page[Training]: A page of trainings.
+        Raises:
+            ValueError: If `cursor` is `None`.
         """
 
-        resp = self._client._request("GET", "/v1/trainings")
-        # TODO: paginate
-        trainings = resp.json()["results"]
-        for training in trainings:
-            # HACK: resolve this? make it lazy somehow?
-            del training["version"]
-        return [self._prepare_model(obj) for obj in trainings]
+        if cursor is None:
+            raise ValueError("cursor cannot be None")
+
+        resp = self._client._request(
+            "GET", "/v1/trainings" if cursor is ... else cursor
+        )
+        return Page[Training](self._client, self, **resp.json())
 
     def get(self, id: str) -> Training:  # pylint: disable=invalid-name
         """

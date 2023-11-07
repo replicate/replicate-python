@@ -6,6 +6,7 @@ from typing import Any, Dict, Iterator, List, Optional, Union
 from replicate.exceptions import ModelError
 from replicate.files import upload_file
 from replicate.json import encode_json
+from replicate.pagination import Page
 from replicate.resource import Namespace, Resource
 from replicate.version import Version
 
@@ -157,21 +158,25 @@ class Predictions(Namespace):
 
     model = Prediction
 
-    def list(self) -> List[Prediction]:
+    def list(self, cursor: Union[str, "ellipsis"] = ...) -> Page[Prediction]:  # noqa: F821
         """
         List your predictions.
 
+        Parameters:
+            cursor: The cursor to use for pagination. Use the value of `Page.next` or `Page.previous`.
         Returns:
-            A list of prediction objects.
+            Page[Prediction]: A page of of predictions.
+        Raises:
+            ValueError: If `cursor` is `None`.
         """
 
-        resp = self._client._request("GET", "/v1/predictions")
-        # TODO: paginate
-        predictions = resp.json()["results"]
-        for prediction in predictions:
-            # HACK: resolve this? make it lazy somehow?
-            del prediction["version"]
-        return [self._prepare_model(obj) for obj in predictions]
+        if cursor is None:
+            raise ValueError("cursor cannot be None")
+
+        resp = self._client._request(
+            "GET", "/v1/predictions" if cursor is ... else cursor
+        )
+        return Page[Prediction](self._client, self, **resp.json())
 
     def get(self, id: str) -> Prediction:  # pylint: disable=invalid-name
         """
