@@ -25,6 +25,13 @@ class Collection(Resource):
     models: Optional[List[Model]] = None
     """The models in the collection."""
 
+    @property
+    def id(self) -> str:
+        """
+        DEPRECATED: Use `slug` instead.
+        """
+        return self.slug
+
     def __iter__(self):  # noqa: ANN204
         return iter(self.models)
 
@@ -90,13 +97,9 @@ class Collections(Namespace):
 
     def _prepare_model(self, attrs: Union[Collection, Dict]) -> Collection:
         if isinstance(attrs, Resource):
-            attrs.id = attrs.slug
-
             if attrs.models is not None:
                 attrs.models = [self._models._prepare_model(m) for m in attrs.models]
         elif isinstance(attrs, dict):
-            attrs["id"] = attrs["slug"]
-
             if "models" in attrs:
                 attrs["models"] = [
                     self._models._prepare_model(m) for m in attrs["models"]

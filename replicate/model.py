@@ -77,6 +77,10 @@ class Model(Resource):
     """
 
     @property
+    def id(self) -> str:
+        return f"{self.owner}/{self.name}"
+
+    @property
     @deprecated("Use `model.owner` instead.")
     def username(self) -> str:
         """
@@ -213,11 +217,7 @@ class Models(Namespace):
         return self._prepare_model(resp.json())
 
     def _prepare_model(self, attrs: Union[Model, Dict]) -> Model:
-        if isinstance(attrs, Resource):
-            attrs.id = f"{attrs.owner}/{attrs.name}"
-        elif isinstance(attrs, dict):
-            attrs["id"] = f"{attrs['owner']}/{attrs['name']}"
-
+        if isinstance(attrs, dict):
             if attrs is not None:
                 if "default_example" in attrs and attrs["default_example"]:
                     attrs["default_example"].pop("version")
