@@ -209,7 +209,7 @@ class Trainings(Namespace):
         self,
         model: Union[str, Tuple[str, str], "Model"],
         version: Union[str, Version],
-        input: Dict[str, Any],
+        input: Optional[Dict[str, Any]] = None,
         **params: Unpack[CreateTrainingParams],
     ) -> Training:
         ...
@@ -247,9 +247,6 @@ class Trainings(Namespace):
             url = _create_training_url_from_shorthand(version)
         else:
             raise ValueError("model and version or shorthand version must be specified")
-
-        if input is None:
-            raise ValueError("input must be specified")
 
         body = _create_training_body(input, **params)
         resp = self._client._request(
@@ -327,27 +324,36 @@ class Trainings(Namespace):
 
 
 def _create_training_body(
-    input: Dict[str, Any],
-    **params: Unpack[Trainings.CreateTrainingParams],
+    input: Optional[Dict[str, Any]] = None,
+    *,
+    destination: Optional[Union[str, Tuple[str, str], "Model"]] = None,
+    webhook: Optional[str] = None,
+    webhook_completed: Optional[str] = None,
+    webhook_events_filter: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
-    body = {
-        "input": encode_json(input, upload_file=upload_file),
-    }
+    body = {}
 
-    body.update({k: v for k, v in params.items() if v is not None})
+    if input is not None:
+        body["input"] = encode_json(input, upload_file=upload_file)
 
-    destination = params.get("destination")
     if destination is None:
         raise ValueError(
             "A destination must be provided as a positional or keyword argument."
         )
-
     if isinstance(destination, Model):
         destination = f"{destination.owner}/{destination.name}"
     elif isinstance(destination, tuple):
         destination = f"{destination[0]}/{destination[1]}"
-
     body["destination"] = destination
+
+    if webhook is not None:
+        body["webhook"] = webhook
+
+    if webhook_completed is not None:
+        body["webhook_completed"] = webhook_completed
+
+    if webhook_events_filter is not None:
+        body["webhook_events_filter"] = webhook_events_filter
 
     return body
 

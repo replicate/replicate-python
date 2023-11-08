@@ -270,7 +270,7 @@ class Predictions(Namespace):
     def create(
         self,
         version: Union[Version, str],
-        input: Dict[str, Any],
+        input: Optional[Dict[str, Any]],
         **params: Unpack["CreatePredictionParams"],
     ) -> Prediction:
         """
@@ -293,7 +293,7 @@ class Predictions(Namespace):
     async def async_create(
         self,
         version: Union[Version, str],
-        input: Dict[str, Any],
+        input: Optional[Dict[str, Any]],
         **params: Unpack["CreatePredictionParams"],
     ) -> Prediction:
         """
@@ -350,15 +350,17 @@ class Predictions(Namespace):
 
 def _create_prediction_body(  # pylint: disable=too-many-arguments
     version: Optional[Union[Version, str]],
-    input: Dict[str, Any],
+    input: Optional[Dict[str, Any]],
+    *,
     webhook: Optional[str] = None,
     webhook_completed: Optional[str] = None,
     webhook_events_filter: Optional[List[str]] = None,
     stream: Optional[bool] = None,
 ) -> Dict[str, Any]:
-    body = {
-        "input": encode_json(input, upload_file=upload_file),
-    }
+    body = {}
+
+    if input is not None:
+        body["input"] = encode_json(input, upload_file=upload_file)
 
     if version is not None:
         body["version"] = version if isinstance(version, str) else version.id
