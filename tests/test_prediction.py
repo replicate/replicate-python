@@ -38,6 +38,35 @@ async def test_predictions_create(async_flag):
     assert prediction.status == "starting"
 
 
+@pytest.mark.vcr("predictions-create.yaml")
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_predictions_create_with_positional_argument(async_flag):
+    version = "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5"
+
+    input = {
+        "prompt": "a studio photo of a rainbow colored corgi",
+        "width": 512,
+        "height": 512,
+        "seed": 42069,
+    }
+
+    if async_flag:
+        prediction = await replicate.predictions.async_create(
+            version,
+            input,
+        )
+    else:
+        prediction = replicate.predictions.create(
+            version,
+            input,
+        )
+
+    assert prediction.id is not None
+    assert prediction.version == version
+    assert prediction.status == "starting"
+
+
 @pytest.mark.vcr("predictions-get.yaml")
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_flag", [True, False])

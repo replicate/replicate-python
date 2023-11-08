@@ -362,7 +362,7 @@ def _create_prediction_body(  # pylint: disable=too-many-arguments
         body["input"] = encode_json(input, upload_file=upload_file)
 
     if version is not None:
-        body["version"] = version if isinstance(version, str) else version.id
+        body["version"] = version.id if isinstance(version, Version) else version
 
     if webhook is not None:
         body["webhook"] = webhook
