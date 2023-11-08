@@ -3,6 +3,8 @@ import time
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Union
 
+from typing_extensions import NotRequired, TypedDict, Unpack
+
 from replicate.exceptions import ModelError
 from replicate.files import upload_file
 from replicate.json import encode_json
@@ -250,38 +252,35 @@ class Predictions(Namespace):
 
         return _json_to_prediction(self._client, resp.json())
 
+    class CreatePredictionParams(TypedDict):
+        """Parameters for creating a prediction."""
+
+        webhook: NotRequired[str]
+        """The URL to receive a POST request with prediction updates."""
+
+        webhook_completed: NotRequired[str]
+        """The URL to receive a POST request when the prediction is completed."""
+
+        webhook_events_filter: NotRequired[List[str]]
+        """List of events to trigger webhooks."""
+
+        stream: NotRequired[bool]
+        """Enable streaming of prediction output."""
+
     def create(
         self,
         version: Union[Version, str],
         input: Dict[str, Any],
-        *,
-        webhook: Optional[str] = None,
-        webhook_completed: Optional[str] = None,
-        webhook_events_filter: Optional[List[str]] = None,
-        stream: Optional[bool] = None,
+        **params: Unpack["CreatePredictionParams"],
     ) -> Prediction:
         """
         Create a new prediction for the specified model version.
-
-        Args:
-            version: The model version to use for the prediction.
-            input: The input data for the prediction.
-            webhook: The URL to receive a POST request with prediction updates.
-            webhook_completed: The URL to receive a POST request when the prediction is completed.
-            webhook_events_filter: List of events to trigger webhooks.
-            stream: Set to True to enable streaming of prediction output.
-
-        Returns:
-            Prediction: The created prediction object.
         """
 
         body = _create_prediction_body(
             version,
             input,
-            webhook=webhook,
-            webhook_completed=webhook_completed,
-            webhook_events_filter=webhook_events_filter,
-            stream=stream,
+            **params,
         )
         resp = self._client._request(
             "POST",
@@ -295,34 +294,16 @@ class Predictions(Namespace):
         self,
         version: Union[Version, str],
         input: Dict[str, Any],
-        *,
-        webhook: Optional[str] = None,
-        webhook_completed: Optional[str] = None,
-        webhook_events_filter: Optional[List[str]] = None,
-        stream: Optional[bool] = None,
+        **params: Unpack["CreatePredictionParams"],
     ) -> Prediction:
         """
         Create a new prediction for the specified model version.
-
-        Args:
-            version: The model version to use for the prediction.
-            input: The input data for the prediction.
-            webhook: The URL to receive a POST request with prediction updates.
-            webhook_completed: The URL to receive a POST request when the prediction is completed.
-            webhook_events_filter: List of events to trigger webhooks.
-            stream: Set to True to enable streaming of prediction output.
-
-        Returns:
-            Prediction: The created prediction object.
         """
 
         body = _create_prediction_body(
             version,
             input,
-            webhook=webhook,
-            webhook_completed=webhook_completed,
-            webhook_events_filter=webhook_events_filter,
-            stream=stream,
+            **params,
         )
         resp = await self._client._async_request(
             "POST",
