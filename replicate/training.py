@@ -210,7 +210,7 @@ class Trainings(Namespace):
         model: Union[str, Tuple[str, str], "Model"],
         version: Union[str, Version],
         input: Optional[Dict[str, Any]] = None,
-        **params: Unpack[CreateTrainingParams],
+        **params: Unpack["Trainings.CreateTrainingParams"],
     ) -> Training:
         ...
 
@@ -220,7 +220,7 @@ class Trainings(Namespace):
         model: Optional[Union[str, Tuple[str, str], "Model"]] = None,
         version: Optional[Union[str, Version]] = None,
         input: Optional[Dict[str, Any]] = None,
-        **params: Unpack[CreateTrainingParams],
+        **params: Unpack["Trainings.CreateTrainingParams"],
     ) -> Training:
         """
         Create a new training using the specified model version as a base.
@@ -262,7 +262,7 @@ class Trainings(Namespace):
         model: Union[str, Tuple[str, str], "Model"],
         version: Union[str, Version],
         input: Dict[str, Any],
-        **params: Unpack[CreateTrainingParams],
+        **params: Unpack["Trainings.CreateTrainingParams"],
     ) -> Training:
         """
         Create a new training using the specified model version as a base.

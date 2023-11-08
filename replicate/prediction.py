@@ -271,7 +271,7 @@ class Predictions(Namespace):
         self,
         version: Union[Version, str],
         input: Optional[Dict[str, Any]],
-        **params: Unpack["CreatePredictionParams"],
+        **params: Unpack["Predictions.CreatePredictionParams"],
     ) -> Prediction:
         """
         Create a new prediction for the specified model version.
@@ -294,7 +294,7 @@ class Predictions(Namespace):
         self,
         version: Union[Version, str],
         input: Optional[Dict[str, Any]],
-        **params: Unpack["CreatePredictionParams"],
+        **params: Unpack["Predictions.CreatePredictionParams"],
     ) -> Prediction:
         """
         Create a new prediction for the specified model version.

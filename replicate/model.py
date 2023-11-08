@@ -1,6 +1,6 @@
-from typing import TYPE_CHECKING, Any, Dict, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Literal, Optional, Union
 
-from typing_extensions import deprecated
+from typing_extensions import NotRequired, TypedDict, Unpack, deprecated
 
 from replicate.exceptions import ReplicateException
 from replicate.pagination import Page
@@ -45,7 +45,7 @@ class Model(Resource):
     The description of the model.
     """
 
-    visibility: str
+    visibility: Literal["public", "private"]
     """
     The visibility of the model. Can be 'public' or 'private'.
     """
@@ -218,94 +218,55 @@ class Models(Namespace):
 
         return _json_to_model(self._client, resp.json())
 
-    def create(  # pylint: disable=arguments-differ disable=too-many-arguments
+    class CreateModelParams(TypedDict):
+        """Parameters for creating a model."""
+
+        hardware: str
+        """The SKU for the hardware used to run the model.
+
+        Possible values can be found by calling `replicate.hardware.list()`."""
+
+        visibility: Literal["public", "private"]
+        """Whether the model should be public or private."""
+
+        description: NotRequired[str]
+        """The description of the model."""
+
+        github_url: NotRequired[str]
+        """A URL for the model's source code on GitHub."""
+
+        paper_url: NotRequired[str]
+        """A URL for the model's paper."""
+
+        license_url: NotRequired[str]
+        """A URL for the model's license."""
+
+        cover_image_url: NotRequired[str]
+        """A URL for the model's cover image."""
+
+    def create(
         self,
         owner: str,
         name: str,
-        *,
-        visibility: str,
-        hardware: str,
-        description: Optional[str] = None,
-        github_url: Optional[str] = None,
-        paper_url: Optional[str] = None,
-        license_url: Optional[str] = None,
-        cover_image_url: Optional[str] = None,
+        **params: Unpack["Models.CreateModelParams"],
     ) -> Model:
         """
         Create a model.
-
-        Args:
-            owner: The name of the user or organization that will own the model.
-            name: The name of the model.
-            visibility: Whether the model should be public or private.
-            hardware: The SKU for the hardware used to run the model. Possible values can be found by calling `replicate.hardware.list()`.
-            description: A description of the model.
-            github_url: A URL for the model's source code on GitHub.
-            paper_url: A URL for the model's paper.
-            license_url: A URL for the model's license.
-            cover_image_url: A URL for the model's cover image.
-
-        Returns:
-            The created model.
         """
 
-        body = _create_model_body(
-            owner,
-            name,
-            visibility,
-            hardware,
-            description,
-            github_url,
-            paper_url,
-            license_url,
-            cover_image_url,
-        )
+        body = _create_model_body(owner, name, **params)
         resp = self._client._request("POST", "/v1/models", json=body)
 
         return _json_to_model(self._client, resp.json())
 
-    async def async_create(  # pylint: disable=too-many-arguments
-        self,
-        owner: str,
-        name: str,
-        *,
-        visibility: str,
-        hardware: str,
-        description: Optional[str] = None,
-        github_url: Optional[str] = None,
-        paper_url: Optional[str] = None,
-        license_url: Optional[str] = None,
-        cover_image_url: Optional[str] = None,
+    async def async_create(
+        self, owner: str, name: str, **params: Unpack["Models.CreateModelParams"]
     ) -> Model:
         """
         Create a model.
-
-        Args:
-            owner: The name of the user or organization that will own the model.
-            name: The name of the model.
-            visibility: Whether the model should be public or private.
-            hardware: The SKU for the hardware used to run the model. Possible values can be found by calling `replicate.hardware.list()`.
-            description: A description of the model.
-            github_url: A URL for the model's source code on GitHub.
-            paper_url: A URL for the model's paper.
-            license_url: A URL for the model's license.
-            cover_image_url: A URL for the model's cover image.
-
-        Returns:
-            The created model.
         """
 
-        body = body = _create_model_body(
-            owner,
-            name,
-            visibility,
-            hardware,
-            description,
-            github_url,
-            paper_url,
-            license_url,
-            cover_image_url,
-        )
+        body = body = _create_model_body(owner, name, **params)
         resp = await self._client._async_request("POST", "/v1/models", json=body)
 
         return _json_to_model(self._client, resp.json())
@@ -314,6 +275,7 @@ class Models(Namespace):
 def _create_model_body(  # pylint: disable=too-many-arguments
     owner: str,
     name: str,
+    *,
     visibility: str,
     hardware: str,
     description: Optional[str] = None,
