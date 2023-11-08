@@ -8,7 +8,7 @@ import respx
 
 @pytest.mark.asyncio
 async def test_authorization_when_setting_environ_after_import():
-    import replicate  # pylint disable=import-outside-toplevel
+    import replicate
 
     router = respx.Router()
     router.route(

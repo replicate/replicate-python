@@ -150,7 +150,7 @@ class Trainings(Namespace):
 
         return Page[Training](**obj)
 
-    def get(self, id: str) -> Training:  # pylint: disable=invalid-name
+    def get(self, id: str) -> Training:
         """
         Get a training by ID.
 
@@ -167,7 +167,7 @@ class Trainings(Namespace):
 
         return _json_to_training(self._client, resp.json())
 
-    async def async_get(self, id: str) -> Training:  # pylint: disable=invalid-name
+    async def async_get(self, id: str) -> Training:
         """
         Get a training by ID.
 
@@ -257,7 +257,7 @@ class Trainings(Namespace):
 
         return _json_to_training(self._client, resp.json())
 
-    async def async_create(  # pylint: disable=arguments-differ disable=too-many-arguments
+    async def async_create(
         self,
         model: Union[str, Tuple[str, str], "Model"],
         version: Union[str, Version],

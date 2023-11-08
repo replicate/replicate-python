@@ -49,7 +49,7 @@ class Versions(Namespace):
         else:
             self.model = model
 
-    def get(self, id: str) -> Version:  # pylint: disable=invalid-name
+    def get(self, id: str) -> Version:
         """
         Get a specific model version.
 
@@ -65,7 +65,7 @@ class Versions(Namespace):
 
         return _json_to_version(resp.json())
 
-    async def async_get(self, id: str) -> Version:  # pylint: disable=invalid-name
+    async def async_get(self, id: str) -> Version:
         """
         Get a specific model version.
 
