@@ -1,11 +1,22 @@
 import re
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, TypedDict, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    List,
+    Optional,
+    Tuple,
+    TypedDict,
+    Union,
+    overload,
+)
 
-from typing_extensions import NotRequired, Unpack, overload
+from typing_extensions import NotRequired, Unpack
 
 from replicate.exceptions import ReplicateException
 from replicate.files import upload_file
 from replicate.json import encode_json
+from replicate.model import Model
 from replicate.pagination import Page
 from replicate.resource import Namespace, Resource
 from replicate.version import Version
@@ -173,74 +184,77 @@ class Trainings(Namespace):
 
         return _json_to_training(self._client, resp.json())
 
-    class CreateParams(TypedDict):
-        """Parameters for creating a prediction."""
+    class CreateTrainingParams(TypedDict):
+        """Parameters for creating a training."""
 
-        version: Union[Version, str]
-        destination: str
-        input: Dict[str, Any]
+        destination: Union[str, Tuple[str, str], "Model"]
         webhook: NotRequired[str]
         webhook_completed: NotRequired[str]
         webhook_events_filter: NotRequired[List[str]]
 
     @overload
-    def create(  # pylint: disable=arguments-differ disable=too-many-arguments
+    def create(
         self,
-        version: Union[Version, str],
+        version: str,
         input: Dict[str, Any],
         destination: str,
-        *,
         webhook: Optional[str] = None,
-        webhook_completed: Optional[str] = None,
         webhook_events_filter: Optional[List[str]] = None,
+        **kwargs,
     ) -> Training:
         ...
 
     @overload
-    def create(  # pylint: disable=arguments-differ disable=too-many-arguments
+    def create(
         self,
-        *,
-        version: Union[Version, str],
+        model: Union[str, Tuple[str, str], "Model"],
+        version: Union[str, Version],
         input: Dict[str, Any],
-        destination: str,
-        webhook: Optional[str] = None,
-        webhook_completed: Optional[str] = None,
-        webhook_events_filter: Optional[List[str]] = None,
+        **params: Unpack[CreateTrainingParams],
     ) -> Training:
         ...
 
-    def create(
+    def create(  # type: ignore
         self,
         *args,
-        **kwargs: Unpack[CreateParams],  # type: ignore[misc]
+        model: Optional[Union[str, Tuple[str, str], "Model"]] = None,
+        version: Optional[Union[str, Version]] = None,
+        input: Optional[Dict[str, Any]] = None,
+        **params: Unpack[CreateTrainingParams],
     ) -> Training:
         """
         Create a new training using the specified model version as a base.
-
-        Args:
-            version: The ID of the base model version that you're using to train a new model version.
-            input: The input to the training.
-            destination: The desired model to push to in the format `{owner}/{model_name}`. This should be an existing model owned by the user or organization making the API request.
-            webhook: The URL to send a POST request to when the training is completed. Defaults to None.
-            webhook_completed: The URL to receive a POST request when the prediction is completed.
-            webhook_events_filter: The events to send to the webhook. Defaults to None.
-        Returns:
-            The training object.
         """
-        # Support positional arguments for backwards compatibility
-        version = args[0] if args else kwargs.get("version")
-        if version is None:
-            raise ValueError(
-                "A version identifier must be provided as a positional or keyword argument."
-            )
 
-        username, model_name, version_id = _parse_version_identifier(
-            version.id if isinstance(version, Version) else version
-        )
-        body = _create_training_body(*args, **kwargs)
+        # Support positional arguments for backwards compatibility
+        if args:
+            if shorthand := args[0] if len(args) > 0 else None:
+                url = _create_training_url_from_shorthand(shorthand)
+
+            input = args[1] if len(args) > 1 else input
+            if len(args) > 2:
+                params["destination"] = args[2]
+            if len(args) > 3:
+                params["webhook"] = args[3]
+            if len(args) > 4:
+                params["webhook_completed"] = args[4]
+            if len(args) > 5:
+                params["webhook_events_filter"] = args[5]
+
+        elif model and version:
+            url = _create_training_url_from_model_and_version(model, version)
+        elif model is None and isinstance(version, str):
+            url = _create_training_url_from_shorthand(version)
+        else:
+            raise ValueError("model and version or shorthand version must be specified")
+
+        if input is None:
+            raise ValueError("input must be specified")
+
+        body = _create_training_body(input, **params)
         resp = self._client._request(
             "POST",
-            f"/v1/models/{username}/{model_name}/versions/{version_id}/trainings",
+            url,
             json=body,
         )
 
@@ -248,13 +262,10 @@ class Trainings(Namespace):
 
     async def async_create(  # pylint: disable=arguments-differ disable=too-many-arguments
         self,
-        *,
-        version: str,
+        model: Union[str, Tuple[str, str], "Model"],
+        version: Union[str, Version],
         input: Dict[str, Any],
-        destination: str,
-        webhook: Optional[str] = None,
-        webhook_completed: Optional[str] = None,
-        webhook_events_filter: Optional[List[str]] = None,
+        **params: Unpack[CreateTrainingParams],
     ) -> Training:
         """
         Create a new training using the specified model version as a base.
@@ -269,20 +280,12 @@ class Trainings(Namespace):
         Returns:
             The training object.
         """
-        username, model_name, version_id = _parse_version_identifier(version)
-        body = _create_training_body(
-            **{
-                "version": version,
-                "input": input,
-                "destination": destination,
-                "webhook": webhook,
-                "webhook_completed": webhook_completed,
-                "webhook_events_filter": webhook_events_filter,
-            }
-        )
+
+        url = _create_training_url_from_model_and_version(model, version)
+        body = _create_training_body(input, **params)
         resp = await self._client._async_request(
             "POST",
-            f"/v1/models/{username}/{model_name}/versions/{version_id}/trainings",
+            url,
             json=body,
         )
 
@@ -324,49 +327,61 @@ class Trainings(Namespace):
 
 
 def _create_training_body(
-    *args,
-    **kwargs: Unpack[Trainings.CreateParams],  # type: ignore[misc]
-) -> Dict[str, Any]:  # type: ignore[misc]
-    # Support positional arguments for backwards compatibility
-    destination = args[1] if len(args) > 1 else kwargs.get("destination")
+    input: Dict[str, Any],
+    **params: Unpack[Trainings.CreateTrainingParams],
+) -> Dict[str, Any]:
+    body = {
+        "input": encode_json(input, upload_file=upload_file),
+    }
+
+    body.update({k: v for k, v in params.items() if v is not None})
+
+    destination = params.get("destination")
     if destination is None:
         raise ValueError(
             "A destination must be provided as a positional or keyword argument."
         )
 
-    input = args[2] if len(args) > 2 else kwargs.get("input")
-    if input is None:
-        raise ValueError(
-            "An input must be provided as a positional or keyword argument."
-        )
+    if isinstance(destination, Model):
+        destination = f"{destination.owner}/{destination.name}"
+    elif isinstance(destination, tuple):
+        destination = f"{destination[0]}/{destination[1]}"
 
-    body = {
-        "input": encode_json(input, upload_file=upload_file),
-        "destination": destination,
-    }
-
-    for key in ["webhook", "webhook_completed", "webhook_events_filter"]:
-        value = kwargs.get(key)
-        if value is not None:
-            body[key] = value
+    body["destination"] = destination
 
     return body
 
 
-def _parse_version_identifier(identifier: str) -> Tuple[str, str, str]:
-    # Split version in format "username/model_name:version_id"
+def _create_training_url_from_shorthand(identifier: str) -> str:
+    # Split version in format "owner/model:version"
     match = re.match(
-        r"^(?P<username>[^/]+)/(?P<model_name>[^:]+):(?P<version_id>.+)$", identifier
+        r"^(?P<model_owner>[^/]+)/(?P<model_name>[^:]+):(?P<version_id>.+)$", identifier
     )
     if not match:
-        raise ReplicateException(
-            "version must be in format username/model_name:version_id"
-        )
-    username = match.group("username")
+        raise ReplicateException("version must be in format owner/model:version")
+
+    model_owner = match.group("model_owner")
     model_name = match.group("model_name")
     version_id = match.group("version_id")
 
-    return username, model_name, version_id
+    return f"/v1/models/{model_owner}/{model_name}/versions/{version_id}/trainings"
+
+
+def _create_training_url_from_model_and_version(
+    model: Union[str, Tuple[str, str], "Model"],
+    version: Union[str, Version],
+) -> str:
+    if isinstance(model, Model):
+        model_owner, model_name = model.owner, model.name
+    elif isinstance(model, tuple):
+        model_owner, model_name = model[0], model[1]
+
+    if isinstance(version, Version):
+        version_id = version.id
+    else:
+        version_id = version
+
+    return f"/v1/models/{model_owner}/{model_name}/versions/{version_id}/trainings"
 
 
 def _json_to_training(client: "Client", json: Dict[str, Any]) -> Training:
