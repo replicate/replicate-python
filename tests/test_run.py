@@ -1,3 +1,5 @@
+import asyncio
+
 import httpx
 import pytest
 import respx
@@ -37,6 +39,31 @@ async def test_run(async_flag):
     assert isinstance(output, list)
     assert len(output) > 0
     assert output[0].startswith("https://")
+
+
+@pytest.mark.vcr("run-concurrently.yaml")
+@pytest.mark.asyncio
+async def test_run_concurrently(mock_replicate_api_token):
+    replicate.default_client.poll_interval = 0.001
+
+    # https://replicate.com/stability-ai/sdxl
+    model_version = "stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"
+
+    prompts = [
+        f"A chariot pulled by a team of {count} rainbow unicorns"
+        for count in ["two", "four", "six", "eight"]
+    ]
+
+    async with asyncio.TaskGroup() as tg:
+        tasks = [
+            tg.create_task(replicate.async_run(model_version, input={"prompt": prompt}))
+            for prompt in prompts
+        ]
+
+    results = await asyncio.gather(*tasks)
+    assert len(results) == len(prompts)
+    assert all(isinstance(result, list) for result in results)
+    assert all(len(result) > 0 for result in results)
 
 
 @pytest.mark.vcr("run.yaml")
