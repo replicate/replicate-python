@@ -1,4 +1,5 @@
 import asyncio
+import sys
 
 import httpx
 import pytest
@@ -43,6 +44,9 @@ async def test_run(async_flag):
 
 @pytest.mark.vcr("run-concurrently.yaml")
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    sys.version_info < (3, 11), reason="asyncio.TaskGroup requires Python 3.11"
+)
 async def test_run_concurrently(mock_replicate_api_token):
     replicate.default_client.poll_interval = 0.001
 
