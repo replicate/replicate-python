@@ -193,7 +193,7 @@ class Trainings(Namespace):
         webhook_events_filter: NotRequired[List[str]]
 
     @overload
-    def create(
+    def create(  # pylint: disable=too-many-arguments
         self,
         version: str,
         input: Dict[str, Any],

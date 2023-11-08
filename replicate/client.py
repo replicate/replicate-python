@@ -1,10 +1,10 @@
 import os
 import random
-import re
 import time
 from datetime import datetime
 from typing import (
     Any,
+    Dict,
     Iterable,
     Iterator,
     Mapping,
@@ -14,17 +14,17 @@ from typing import (
 )
 
 import httpx
+from typing_extensions import Unpack
 
 from replicate.__about__ import __version__
 from replicate.collection import Collections
 from replicate.deployment import Deployments
-from replicate.exceptions import ModelError, ReplicateError
+from replicate.exceptions import ReplicateError
 from replicate.hardware import HardwareNamespace as Hardware
 from replicate.model import Models
 from replicate.prediction import Predictions
-from replicate.schema import make_schema_backwards_compatible
+from replicate.run import async_run, run
 from replicate.training import Trainings
-from replicate.version import Version
 
 
 class Client:
@@ -128,55 +128,29 @@ class Client:
         """
         return Trainings(client=self)
 
-    def run(self, model_version: str, **kwargs) -> Union[Any, Iterator[Any]]:  # noqa: ANN401
+    def run(
+        self,
+        ref: str,
+        input: Optional[Dict[str, Any]] = None,
+        **params: Unpack["Predictions.CreatePredictionParams"],
+    ) -> Union[Any, Iterator[Any]]:  # noqa: ANN401
         """
         Run a model and wait for its output.
-
-        Args:
-            model_version: The model version to run, in the format `owner/name:version`
-            kwargs: The input to the model, as a dictionary
-        Returns:
-            The output of the model
         """
-        # Split model_version into owner, name, version in format owner/name:version
-        match = re.match(
-            r"^(?P<owner>[^/]+)/(?P<name>[^:]+):(?P<version>.+)$", model_version
-        )
-        if not match:
-            raise ReplicateError(
-                f"Invalid model_version: {model_version}. Expected format: owner/name:version"
-            )
 
-        owner = match.group("owner")
-        name = match.group("name")
-        version_id = match.group("version")
+        return run(self, ref, input, **params)
 
-        prediction = self.predictions.create(version=version_id, **kwargs)
+    async def async_run(
+        self,
+        ref: str,
+        input: Optional[Dict[str, Any]] = None,
+        **params: Unpack["Predictions.CreatePredictionParams"],
+    ) -> Union[Any, Iterator[Any]]:  # noqa: ANN401
+        """
+        Run a model and wait for its output asynchronously.
+        """
 
-        if owner and name:
-            # FIXME: There should be a method for fetching a version without first fetching its model
-            resp = self._request(
-                "GET", f"/v1/models/{owner}/{name}/versions/{version_id}"
-            )
-            version = Version(**resp.json())
-
-            # Return an iterator of the output
-            schema = make_schema_backwards_compatible(
-                version.openapi_schema, version.cog_version
-            )
-            output = schema["components"]["schemas"]["Output"]
-            if (
-                output.get("type") == "array"
-                and output.get("x-cog-array-type") == "iterator"
-            ):
-                return prediction.output_iterator()
-
-        prediction.wait()
-
-        if prediction.status == "failed":
-            raise ModelError(prediction.error)
-
-        return prediction.output
+        return await async_run(self, ref, input, **params)
 
 
 # Adapted from https://github.com/encode/httpx/issues/108#issuecomment-1132753155

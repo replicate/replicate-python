@@ -351,7 +351,6 @@ class Predictions(Namespace):
 def _create_prediction_body(  # pylint: disable=too-many-arguments
     version: Optional[Union[Version, str]],
     input: Optional[Dict[str, Any]],
-    *,
     webhook: Optional[str] = None,
     webhook_completed: Optional[str] = None,
     webhook_events_filter: Optional[List[str]] = None,

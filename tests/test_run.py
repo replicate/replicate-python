@@ -9,7 +9,8 @@ from replicate.exceptions import ReplicateError
 
 @pytest.mark.vcr("run.yaml")
 @pytest.mark.asyncio
-async def test_run(mock_replicate_api_token):
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_run(async_flag):
     replicate.default_client.poll_interval = 0.001
 
     version = "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5"
@@ -21,10 +22,16 @@ async def test_run(mock_replicate_api_token):
         "seed": 42069,
     }
 
-    output = replicate.run(
-        f"stability-ai/sdxl:{version}",
-        input=input,
-    )
+    if async_flag:
+        output = await replicate.async_run(
+            f"stability-ai/sdxl:{version}",
+            input=input,
+        )
+    else:
+        output = replicate.run(
+            f"stability-ai/sdxl:{version}",
+            input=input,
+        )
 
     assert output is not None
     assert isinstance(output, list)
