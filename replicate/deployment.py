@@ -1,6 +1,6 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict
 
-from typing_extensions import deprecated
+from typing_extensions import Unpack, deprecated
 
 from replicate.prediction import (
     Prediction,
@@ -17,6 +17,7 @@ except ImportError:
 
 if TYPE_CHECKING:
     from replicate.client import Client
+    from replicate.prediction import Predictions
 
 
 class Deployment(Resource):
@@ -78,7 +79,7 @@ class Deployments(Namespace):
             The model.
         """
 
-        owner, name = name.split("/")
+        owner, name = name.split("/", 1)
 
         deployment = Deployment(owner=owner, name=name)
         deployment._client = self._client
@@ -95,7 +96,7 @@ class Deployments(Namespace):
             The model.
         """
 
-        owner, name = name.split("/")
+        owner, name = name.split("/", 1)
 
         deployment = Deployment(owner=owner, name=name)
         deployment._client = self._client
@@ -117,34 +118,13 @@ class DeploymentPredictions(Namespace):
     def create(
         self,
         input: Dict[str, Any],
-        *,
-        webhook: Optional[str] = None,
-        webhook_completed: Optional[str] = None,
-        webhook_events_filter: Optional[List[str]] = None,
-        stream: Optional[bool] = None,
+        **params: Unpack["Predictions.CreatePredictionParams"],
     ) -> Prediction:
         """
         Create a new prediction with the deployment.
-
-        Args:
-            input: The input data for the prediction.
-            webhook: The URL to receive a POST request with prediction updates.
-            webhook_completed: The URL to receive a POST request when the prediction is completed.
-            webhook_events_filter: List of events to trigger webhooks.
-            stream: Set to True to enable streaming of prediction output.
-
-        Returns:
-            Prediction: The created prediction object.
         """
 
-        body = _create_prediction_body(
-            version=None,
-            input=input,
-            webhook=webhook,
-            webhook_completed=webhook_completed,
-            webhook_events_filter=webhook_events_filter,
-            stream=stream,
-        )
+        body = _create_prediction_body(version=None, input=input, **params)
 
         resp = self._client._request(
             "POST",
@@ -157,34 +137,13 @@ class DeploymentPredictions(Namespace):
     async def async_create(
         self,
         input: Dict[str, Any],
-        *,
-        webhook: Optional[str] = None,
-        webhook_completed: Optional[str] = None,
-        webhook_events_filter: Optional[List[str]] = None,
-        stream: Optional[bool] = None,
+        **params: Unpack["Predictions.CreatePredictionParams"],
     ) -> Prediction:
         """
         Create a new prediction with the deployment.
-
-        Args:
-            input: The input data for the prediction.
-            webhook: The URL to receive a POST request with prediction updates.
-            webhook_completed: The URL to receive a POST request when the prediction is completed.
-            webhook_events_filter: List of events to trigger webhooks.
-            stream: Set to True to enable streaming of prediction output.
-
-        Returns:
-            Prediction: The created prediction object.
         """
 
-        body = _create_prediction_body(
-            version=None,
-            input=input,
-            webhook=webhook,
-            webhook_completed=webhook_completed,
-            webhook_events_filter=webhook_events_filter,
-            stream=stream,
-        )
+        body = _create_prediction_body(version=None, input=input, **params)
 
         resp = await self._client._async_request(
             "POST",
