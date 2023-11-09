@@ -1,13 +1,10 @@
-from typing import TYPE_CHECKING, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from typing_extensions import deprecated
 
-from replicate.model import Model, Models
+from replicate.model import Model
 from replicate.pagination import Page
 from replicate.resource import Namespace, Resource
-
-if TYPE_CHECKING:
-    from replicate.client import Client
 
 
 class Collection(Resource):
@@ -56,15 +53,10 @@ class Collections(Namespace):
     A namespace for operations related to collections of models.
     """
 
-    model = Collection
-
-    _models: Models
-
-    def __init__(self, client: "Client") -> None:
-        self._models = Models(client)
-        super().__init__(client)
-
-    def list(self, cursor: Union[str, "ellipsis"] = ...) -> Page[Collection]:  # noqa: F821
+    def list(
+        self,
+        cursor: Union[str, "ellipsis"] = ...,  # noqa: F821
+    ) -> Page[Collection]:
         """
         List collections of models.
 
@@ -83,7 +75,37 @@ class Collections(Namespace):
             "GET", "/v1/collections" if cursor is ... else cursor
         )
 
-        return Page[Collection](self._client, self, **resp.json())
+        obj = resp.json()
+        obj["results"] = [_json_to_collection(result) for result in obj["results"]]
+
+        return Page[Collection](**obj)
+
+    async def async_list(
+        self,
+        cursor: Union[str, "ellipsis"] = ...,  # noqa: F821
+    ) -> Page[Collection]:
+        """
+        List collections of models.
+
+        Parameters:
+            cursor: The cursor to use for pagination. Use the value of `Page.next` or `Page.previous`.
+        Returns:
+            Page[Collection]: A page of of model collections.
+        Raises:
+            ValueError: If `cursor` is `None`.
+        """
+
+        if cursor is None:
+            raise ValueError("cursor cannot be None")
+
+        resp = await self._client._async_request(
+            "GET", "/v1/collections" if cursor is ... else cursor
+        )
+
+        obj = resp.json()
+        obj["results"] = [_json_to_collection(result) for result in obj["results"]]
+
+        return Page[Collection](**obj)
 
     def get(self, slug: str) -> Collection:
         """Get a model by name.
@@ -96,16 +118,21 @@ class Collections(Namespace):
 
         resp = self._client._request("GET", f"/v1/collections/{slug}")
 
-        return self._prepare_model(resp.json())
+        return _json_to_collection(resp.json())
 
-    def _prepare_model(self, attrs: Union[Collection, Dict]) -> Collection:
-        if isinstance(attrs, Resource):
-            if attrs.models is not None:
-                attrs.models = [self._models._prepare_model(m) for m in attrs.models]
-        elif isinstance(attrs, dict):
-            if "models" in attrs:
-                attrs["models"] = [
-                    self._models._prepare_model(m) for m in attrs["models"]
-                ]
+    async def async_get(self, slug: str) -> Collection:
+        """Get a model by name.
 
-        return super()._prepare_model(attrs)
+        Args:
+            name: The name of the model, in the format `owner/model-name`.
+        Returns:
+            The model.
+        """
+
+        resp = await self._client._async_request("GET", f"/v1/collections/{slug}")
+
+        return _json_to_collection(resp.json())
+
+
+def _json_to_collection(json: Dict[str, Any]) -> Collection:
+    return Collection(**json)

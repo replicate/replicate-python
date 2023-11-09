@@ -3,11 +3,24 @@ from unittest import mock
 
 import httpx
 import pytest
+import respx
 
 
 @pytest.mark.asyncio
 async def test_authorization_when_setting_environ_after_import():
     import replicate
+
+    router = respx.Router()
+    router.route(
+        method="GET",
+        url="https://api.replicate.com/",
+        headers={"Authorization": "Token test-set-after-import"},
+    ).mock(
+        return_value=httpx.Response(
+            200,
+            json={},
+        )
+    )
 
     token = "test-set-after-import"  # noqa: S105
 
@@ -15,6 +28,6 @@ async def test_authorization_when_setting_environ_after_import():
         os.environ,
         {"REPLICATE_API_TOKEN": token},
     ):
-        client: httpx.Client = replicate.default_client._client
-        assert "Authorization" in client.headers
-        assert client.headers["Authorization"] == f"Token {token}"
+        client = replicate.Client(transport=httpx.MockTransport(router.handler))
+        resp = client._request("GET", "/")
+        assert resp.status_code == 200

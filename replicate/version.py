@@ -1,23 +1,18 @@
 import datetime
-import warnings
-from typing import TYPE_CHECKING, Any, Iterator, List, Union
+from typing import TYPE_CHECKING, Any, Dict, Tuple, Union
 
 if TYPE_CHECKING:
     from replicate.client import Client
     from replicate.model import Model
 
-
-from replicate.exceptions import ModelError
+from replicate.pagination import Page
 from replicate.resource import Namespace, Resource
-from replicate.schema import make_schema_backwards_compatible
 
 
 class Version(Resource):
     """
     A version of a model.
     """
-
-    _namespace: "Versions"
 
     id: str
     """The unique ID of the version."""
@@ -31,61 +26,30 @@ class Version(Resource):
     openapi_schema: dict
     """An OpenAPI description of the model inputs and outputs."""
 
-    def predict(self, **kwargs) -> Union[Any, Iterator[Any]]:  # noqa: ANN401
-        """
-        DEPRECATED: Use `replicate.run()` instead.
-
-        Create a prediction using this model version.
-
-        Args:
-            kwargs: The input to the model.
-        Returns:
-            The output of the model.
-        """
-
-        warnings.warn(
-            "version.predict() is deprecated. Use replicate.run() instead. It will be removed before version 1.0.",
-            DeprecationWarning,
-            stacklevel=1,
-        )
-
-        prediction = self._client.predictions.create(version=self, input=kwargs)  # pylint: disable=no-member
-        # Return an iterator of the output
-        schema = make_schema_backwards_compatible(self.openapi_schema, self.cog_version)
-        output = schema["components"]["schemas"]["Output"]
-        if (
-            output.get("type") == "array"
-            and output.get("x-cog-array-type") == "iterator"
-        ):
-            return prediction.output_iterator()
-
-        prediction.wait()
-        if prediction.status == "failed":
-            raise ModelError(prediction.error)
-        return prediction.output
-
-    def reload(self) -> None:
-        """
-        Load this object from the server.
-        """
-
-        obj = self._namespace.get(self.id)  # pylint: disable=no-member
-        for name, value in obj.dict().items():
-            setattr(self, name, value)
-
 
 class Versions(Namespace):
     """
     Namespace for operations related to model versions.
     """
 
-    model = Version
+    model: Tuple[str, str]
 
-    def __init__(self, client: "Client", model: "Model") -> None:
+    def __init__(
+        self, client: "Client", model: Union["Model", str, Tuple[str, str]]
+    ) -> None:
         super().__init__(client=client)
-        self._model = model
 
-    def get(self, id: str) -> Version:  # pylint: disable=invalid-name
+        from replicate.model import Model  # pylint: disable=import-outside-toplevel
+
+        if isinstance(model, Model):
+            self.model = (model.owner, model.name)
+        elif isinstance(model, str):
+            owner, name = model.split("/", 1)
+            self.model = (owner, name)
+        else:
+            self.model = model
+
+    def get(self, id: str) -> Version:
         """
         Get a specific model version.
 
@@ -94,19 +58,61 @@ class Versions(Namespace):
         Returns:
             The model version.
         """
-        resp = self._client._request(
-            "GET", f"/v1/models/{self._model.owner}/{self._model.name}/versions/{id}"
-        )
-        return self._prepare_model(resp.json())
 
-    def list(self) -> List[Version]:
+        resp = self._client._request(
+            "GET", f"/v1/models/{self.model[0]}/{self.model[1]}/versions/{id}"
+        )
+
+        return _json_to_version(resp.json())
+
+    async def async_get(self, id: str) -> Version:
+        """
+        Get a specific model version.
+
+        Args:
+            id: The version ID.
+        Returns:
+            The model version.
+        """
+
+        resp = await self._client._async_request(
+            "GET", f"/v1/models/{self.model[0]}/{self.model[1]}/versions/{id}"
+        )
+
+        return _json_to_version(resp.json())
+
+    def list(self) -> Page[Version]:
         """
         Return a list of all versions for a model.
 
         Returns:
             List[Version]: A list of version objects.
         """
+
         resp = self._client._request(
-            "GET", f"/v1/models/{self._model.owner}/{self._model.name}/versions"
+            "GET", f"/v1/models/{self.model[0]}/{self.model[1]}/versions"
         )
-        return [self._prepare_model(obj) for obj in resp.json()["results"]]
+        obj = resp.json()
+        obj["results"] = [_json_to_version(result) for result in obj["results"]]
+
+        return Page[Version](**obj)
+
+    async def async_list(self) -> Page[Version]:
+        """
+        Return a list of all versions for a model.
+
+        Returns:
+            List[Version]: A list of version objects.
+        """
+
+        resp = await self._client._async_request(
+            "GET", f"/v1/models/{self.model[0]}/{self.model[1]}/versions"
+        )
+        obj = resp.json()
+        obj["results"] = [_json_to_version(result) for result in obj["results"]]
+
+        return Page[Version](**obj)
+
+
+def _json_to_version(json: Dict[str, Any]) -> Version:
+    return Version(**json)

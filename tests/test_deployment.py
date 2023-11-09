@@ -1,4 +1,5 @@
 import httpx
+import pytest
 import respx
 
 from replicate.client import Client
@@ -31,17 +32,29 @@ router.route(
 router.route(host="api.replicate.com").pass_through()
 
 
-def test_deployment_predictions_create():
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_deployment_predictions_create(async_flag):
     client = Client(
         api_token="test-token", transport=httpx.MockTransport(router.handler)
     )
-    deployment = client.deployments.get("test/model")
 
-    prediction = deployment.predictions.create(
-        input={"text": "world"},
-        webhook="https://example.com/webhook",
-        webhook_events_filter=["completed"],
-    )
+    if async_flag:
+        deployment = await client.deployments.async_get("test/model")
+
+        prediction = await deployment.predictions.async_create(
+            input={"text": "world"},
+            webhook="https://example.com/webhook",
+            webhook_events_filter=["completed"],
+        )
+    else:
+        deployment = client.deployments.get("test/model")
+
+        prediction = deployment.predictions.create(
+            input={"text": "world"},
+            webhook="https://example.com/webhook",
+            webhook_events_filter=["completed"],
+        )
 
     assert router["deployments.predictions.create"].called
     assert prediction.id == "p1"

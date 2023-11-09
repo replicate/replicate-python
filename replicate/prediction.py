@@ -1,7 +1,9 @@
 import re
 import time
 from dataclasses import dataclass
-from typing import Any, Dict, Iterator, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Union
+
+from typing_extensions import NotRequired, TypedDict, Unpack
 
 from replicate.exceptions import ModelError
 from replicate.files import upload_file
@@ -10,19 +12,27 @@ from replicate.pagination import Page
 from replicate.resource import Namespace, Resource
 from replicate.version import Version
 
+try:
+    from pydantic import v1 as pydantic  # type: ignore
+except ImportError:
+    import pydantic  # type: ignore
+
+if TYPE_CHECKING:
+    from replicate.client import Client
+
 
 class Prediction(Resource):
     """
     A prediction made by a model hosted on Replicate.
     """
 
-    _namespace: "Predictions"
+    _client: "Client" = pydantic.PrivateAttr()
 
     id: str
     """The unique ID of the prediction."""
 
-    version: Optional[Version]
-    """The version of the model used to create the prediction."""
+    version: str
+    """An identifier for the version of the model used to create the prediction."""
 
     status: str
     """The status of the prediction."""
@@ -84,8 +94,8 @@ class Prediction(Resource):
             """Parse the progress from the logs of a prediction."""
 
             lines = logs.split("\n")
-            for i in reversed(range(len(lines))):
-                line = lines[i].strip()
+            for idx in reversed(range(len(lines))):
+                line = lines[idx].strip()
                 if cls._pattern.match(line):
                     matches = cls._pattern.findall(line)
                     if len(matches) == 1:
@@ -109,8 +119,26 @@ class Prediction(Resource):
         Wait for prediction to finish.
         """
         while self.status not in ["succeeded", "failed", "canceled"]:
-            time.sleep(self._client.poll_interval)  # pylint: disable=no-member
+            time.sleep(self._client.poll_interval)
             self.reload()
+
+    def cancel(self) -> None:
+        """
+        Cancels a running prediction.
+        """
+
+        canceled = self._client.predictions.cancel(self.id)
+        for name, value in canceled.dict().items():
+            setattr(self, name, value)
+
+    def reload(self) -> None:
+        """
+        Load this prediction from the server.
+        """
+
+        updated = self._client.predictions.get(self.id)
+        for name, value in updated.dict().items():
+            setattr(self, name, value)
 
     def output_iterator(self) -> Iterator[Any]:
         """
@@ -135,28 +163,11 @@ class Prediction(Resource):
         for output in new_output:
             yield output
 
-    def cancel(self) -> None:
-        """
-        Cancels a running prediction.
-        """
-        self._client._request("POST", f"/v1/predictions/{self.id}/cancel")  # pylint: disable=no-member
-
-    def reload(self) -> None:
-        """
-        Load this prediction from the server.
-        """
-
-        obj = self._namespace.get(self.id)  # pylint: disable=no-member
-        for name, value in obj.dict().items():
-            setattr(self, name, value)
-
 
 class Predictions(Namespace):
     """
     Namespace for operations related to predictions.
     """
-
-    model = Prediction
 
     def list(self, cursor: Union[str, "ellipsis"] = ...) -> Page[Prediction]:  # noqa: F821
         """
@@ -176,9 +187,44 @@ class Predictions(Namespace):
         resp = self._client._request(
             "GET", "/v1/predictions" if cursor is ... else cursor
         )
-        return Page[Prediction](self._client, self, **resp.json())
 
-    def get(self, id: str) -> Prediction:  # pylint: disable=invalid-name
+        obj = resp.json()
+        obj["results"] = [
+            _json_to_prediction(self._client, result) for result in obj["results"]
+        ]
+
+        return Page[Prediction](**obj)
+
+    async def async_list(
+        self,
+        cursor: Union[str, "ellipsis"] = ...,  # noqa: F821
+    ) -> Page[Prediction]:
+        """
+        List your predictions.
+
+        Parameters:
+            cursor: The cursor to use for pagination. Use the value of `Page.next` or `Page.previous`.
+        Returns:
+            Page[Prediction]: A page of of predictions.
+        Raises:
+            ValueError: If `cursor` is `None`.
+        """
+
+        if cursor is None:
+            raise ValueError("cursor cannot be None")
+
+        resp = await self._client._async_request(
+            "GET", "/v1/predictions" if cursor is ... else cursor
+        )
+
+        obj = resp.json()
+        obj["results"] = [
+            _json_to_prediction(self._client, result) for result in obj["results"]
+        ]
+
+        return Page[Prediction](**obj)
+
+    def get(self, id: str) -> Prediction:
         """
         Get a prediction by ID.
 
@@ -189,62 +235,151 @@ class Predictions(Namespace):
         """
 
         resp = self._client._request("GET", f"/v1/predictions/{id}")
-        obj = resp.json()
-        # HACK: resolve this? make it lazy somehow?
-        del obj["version"]
-        return self._prepare_model(obj)
+
+        return _json_to_prediction(self._client, resp.json())
+
+    async def async_get(self, id: str) -> Prediction:
+        """
+        Get a prediction by ID.
+
+        Args:
+            id: The ID of the prediction.
+        Returns:
+            Prediction: The prediction object.
+        """
+
+        resp = await self._client._async_request("GET", f"/v1/predictions/{id}")
+
+        return _json_to_prediction(self._client, resp.json())
+
+    class CreatePredictionParams(TypedDict):
+        """Parameters for creating a prediction."""
+
+        webhook: NotRequired[str]
+        """The URL to receive a POST request with prediction updates."""
+
+        webhook_completed: NotRequired[str]
+        """The URL to receive a POST request when the prediction is completed."""
+
+        webhook_events_filter: NotRequired[List[str]]
+        """List of events to trigger webhooks."""
+
+        stream: NotRequired[bool]
+        """Enable streaming of prediction output."""
 
     def create(
         self,
         version: Union[Version, str],
-        input: Dict[str, Any],
-        *,
-        webhook: Optional[str] = None,
-        webhook_completed: Optional[str] = None,
-        webhook_events_filter: Optional[List[str]] = None,
-        stream: Optional[bool] = None,
+        input: Optional[Dict[str, Any]],
+        **params: Unpack["Predictions.CreatePredictionParams"],
     ) -> Prediction:
         """
         Create a new prediction for the specified model version.
-
-        Args:
-            version: The model version to use for the prediction.
-            input: The input data for the prediction.
-            webhook: The URL to receive a POST request with prediction updates.
-            webhook_completed: The URL to receive a POST request when the prediction is completed.
-            webhook_events_filter: List of events to trigger webhooks.
-            stream: Set to True to enable streaming of prediction output.
-
-        Returns:
-            Prediction: The created prediction object.
         """
 
-        body = {
-            "version": version if isinstance(version, str) else version.id,
-            "input": encode_json(input, upload_file=upload_file),
-        }
-
-        if webhook is not None:
-            body["webhook"] = webhook
-
-        if webhook_completed is not None:
-            body["webhook_completed"] = webhook_completed
-
-        if webhook_events_filter is not None:
-            body["webhook_events_filter"] = webhook_events_filter
-
-        if stream is not None:
-            body["stream"] = stream
-
+        body = _create_prediction_body(
+            version,
+            input,
+            **params,
+        )
         resp = self._client._request(
             "POST",
             "/v1/predictions",
             json=body,
         )
-        obj = resp.json()
-        if isinstance(version, Version):
-            obj["version"] = version
-        else:
-            del obj["version"]
 
-        return self._prepare_model(obj)
+        return _json_to_prediction(self._client, resp.json())
+
+    async def async_create(
+        self,
+        version: Union[Version, str],
+        input: Optional[Dict[str, Any]],
+        **params: Unpack["Predictions.CreatePredictionParams"],
+    ) -> Prediction:
+        """
+        Create a new prediction for the specified model version.
+        """
+
+        body = _create_prediction_body(
+            version,
+            input,
+            **params,
+        )
+        resp = await self._client._async_request(
+            "POST",
+            "/v1/predictions",
+            json=body,
+        )
+
+        return _json_to_prediction(self._client, resp.json())
+
+    def cancel(self, id: str) -> Prediction:
+        """
+        Cancel a prediction.
+
+        Args:
+            id: The ID of the prediction to cancel.
+        Returns:
+            Prediction: The canceled prediction object.
+        """
+
+        resp = self._client._request(
+            "POST",
+            f"/v1/predictions/{id}/cancel",
+        )
+
+        return _json_to_prediction(self._client, resp.json())
+
+    async def async_cancel(self, id: str) -> Prediction:
+        """
+        Cancel a prediction.
+
+        Args:
+            id: The ID of the prediction to cancel.
+        Returns:
+            Prediction: The canceled prediction object.
+        """
+
+        resp = await self._client._async_request(
+            "POST",
+            f"/v1/predictions/{id}/cancel",
+        )
+
+        return _json_to_prediction(self._client, resp.json())
+
+
+def _create_prediction_body(  # pylint: disable=too-many-arguments
+    version: Optional[Union[Version, str]],
+    input: Optional[Dict[str, Any]],
+    webhook: Optional[str] = None,
+    webhook_completed: Optional[str] = None,
+    webhook_events_filter: Optional[List[str]] = None,
+    stream: Optional[bool] = None,
+) -> Dict[str, Any]:
+    body = {}
+
+    if input is not None:
+        body["input"] = encode_json(input, upload_file=upload_file)
+
+    if version is not None:
+        body["version"] = version.id if isinstance(version, Version) else version
+
+    if webhook is not None:
+        body["webhook"] = webhook
+
+    if webhook_completed is not None:
+        body["webhook_completed"] = webhook_completed
+
+    if webhook_events_filter is not None:
+        body["webhook_events_filter"] = webhook_events_filter
+
+    if stream is not None:
+        body["stream"] = stream
+
+    return body
+
+
+def _json_to_prediction(client: "Client", json: Dict[str, Any]) -> Prediction:
+    prediction = Prediction(**json)
+    prediction._client = client
+    return prediction

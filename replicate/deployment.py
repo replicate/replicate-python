@@ -1,12 +1,23 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict
 
-from replicate.files import upload_file
-from replicate.json import encode_json
-from replicate.prediction import Prediction
+from typing_extensions import Unpack, deprecated
+
+from replicate.prediction import (
+    Prediction,
+    _create_prediction_body,
+    _json_to_prediction,
+)
 from replicate.resource import Namespace, Resource
+
+try:
+    from pydantic import v1 as pydantic  # type: ignore
+except ImportError:
+    pass  # type: ignore
+
 
 if TYPE_CHECKING:
     from replicate.client import Client
+    from replicate.prediction import Predictions
 
 
 class Deployment(Resource):
@@ -14,9 +25,9 @@ class Deployment(Resource):
     A deployment of a model hosted on Replicate.
     """
 
-    _namespace: "Deployments"
+    _client: "Client" = pydantic.PrivateAttr()
 
-    username: str
+    owner: str
     """
     The name of the user or organization that owns the deployment.
     """
@@ -27,8 +38,20 @@ class Deployment(Resource):
     """
 
     @property
+    @deprecated("Use `deployment.owner` instead.")
+    def username(self) -> str:
+        """
+        The name of the user or organization that owns the deployment.
+        This attribute is deprecated and will be removed in future versions.
+        """
+        return self.owner
+
+    @property
     def id(self) -> str:
-        return f"{self.username}/{self.name}"
+        """
+        Return the qualified deployment name, in the format `owner/name`.
+        """
+        return f"{self.owner}/{self.name}"
 
     @property
     def predictions(self) -> "DeploymentPredictions":
@@ -44,7 +67,7 @@ class Deployments(Namespace):
     Namespace for operations related to deployments.
     """
 
-    model = Deployment
+    _client: "Client"
 
     def get(self, name: str) -> Deployment:
         """
@@ -56,10 +79,29 @@ class Deployments(Namespace):
             The model.
         """
 
-        # TODO: fetch model from server
-        # TODO: support permanent IDs
-        username, name = name.split("/")
-        return self._prepare_model({"username": username, "name": name})
+        owner, name = name.split("/", 1)
+
+        deployment = Deployment(owner=owner, name=name)
+        deployment._client = self._client
+
+        return deployment
+
+    async def async_get(self, name: str) -> Deployment:
+        """
+        Get a deployment by name.
+
+        Args:
+            name: The name of the deployment, in the format `owner/model-name`.
+        Returns:
+            The model.
+        """
+
+        owner, name = name.split("/", 1)
+
+        deployment = Deployment(owner=owner, name=name)
+        deployment._client = self._client
+
+        return deployment
 
 
 class DeploymentPredictions(Namespace):
@@ -67,7 +109,7 @@ class DeploymentPredictions(Namespace):
     Namespace for operations related to predictions in a deployment.
     """
 
-    model = Prediction
+    _deployment: Deployment
 
     def __init__(self, client: "Client", deployment: Deployment) -> None:
         super().__init__(client=client)
@@ -76,48 +118,37 @@ class DeploymentPredictions(Namespace):
     def create(
         self,
         input: Dict[str, Any],
-        *,
-        webhook: Optional[str] = None,
-        webhook_completed: Optional[str] = None,
-        webhook_events_filter: Optional[List[str]] = None,
-        stream: Optional[bool] = None,
+        **params: Unpack["Predictions.CreatePredictionParams"],
     ) -> Prediction:
         """
         Create a new prediction with the deployment.
-
-        Args:
-            input: The input data for the prediction.
-            webhook: The URL to receive a POST request with prediction updates.
-            webhook_completed: The URL to receive a POST request when the prediction is completed.
-            webhook_events_filter: List of events to trigger webhooks.
-            stream: Set to True to enable streaming of prediction output.
-
-        Returns:
-            Prediction: The created prediction object.
         """
 
-        body = {
-            "input": encode_json(input, upload_file=upload_file),
-        }
-
-        if webhook is not None:
-            body["webhook"] = webhook
-
-        if webhook_completed is not None:
-            body["webhook_completed"] = webhook_completed
-
-        if webhook_events_filter is not None:
-            body["webhook_events_filter"] = webhook_events_filter
-
-        if stream is not None:
-            body["stream"] = stream
+        body = _create_prediction_body(version=None, input=input, **params)
 
         resp = self._client._request(
             "POST",
-            f"/v1/deployments/{self._deployment.username}/{self._deployment.name}/predictions",
+            f"/v1/deployments/{self._deployment.owner}/{self._deployment.name}/predictions",
             json=body,
         )
-        obj = resp.json()
-        obj["deployment"] = self._deployment
-        del obj["version"]
-        return self._prepare_model(obj)
+
+        return _json_to_prediction(self._client, resp.json())
+
+    async def async_create(
+        self,
+        input: Dict[str, Any],
+        **params: Unpack["Predictions.CreatePredictionParams"],
+    ) -> Prediction:
+        """
+        Create a new prediction with the deployment.
+        """
+
+        body = _create_prediction_body(version=None, input=input, **params)
+
+        resp = await self._client._async_request(
+            "POST",
+            f"/v1/deployments/{self._deployment.owner}/{self._deployment.name}/predictions",
+            json=body,
+        )
+
+        return _json_to_prediction(self._client, resp.json())

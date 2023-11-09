@@ -5,7 +5,8 @@ import replicate
 
 @pytest.mark.vcr("predictions-create.yaml")
 @pytest.mark.asyncio
-async def test_predictions_create(mock_replicate_api_token):
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_predictions_create(async_flag):
     input = {
         "prompt": "a studio photo of a rainbow colored corgi",
         "width": 512,
@@ -13,14 +14,53 @@ async def test_predictions_create(mock_replicate_api_token):
         "seed": 42069,
     }
 
-    model = replicate.models.get("stability-ai/sdxl")
-    version = model.versions.get(
-        "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5"
-    )
-    prediction = replicate.predictions.create(
-        version=version,
-        input=input,
-    )
+    if async_flag:
+        model = await replicate.models.async_get("stability-ai/sdxl")
+        version = await model.versions.async_get(
+            "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5"
+        )
+        prediction = await replicate.predictions.async_create(
+            version=version,
+            input=input,
+        )
+    else:
+        model = replicate.models.get("stability-ai/sdxl")
+        version = model.versions.get(
+            "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5"
+        )
+        prediction = replicate.predictions.create(
+            version=version,
+            input=input,
+        )
+
+    assert prediction.id is not None
+    assert prediction.version == version.id
+    assert prediction.status == "starting"
+
+
+@pytest.mark.vcr("predictions-create.yaml")
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_predictions_create_with_positional_argument(async_flag):
+    version = "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5"
+
+    input = {
+        "prompt": "a studio photo of a rainbow colored corgi",
+        "width": 512,
+        "height": 512,
+        "seed": 42069,
+    }
+
+    if async_flag:
+        prediction = await replicate.predictions.async_create(
+            version,
+            input,
+        )
+    else:
+        prediction = replicate.predictions.create(
+            version,
+            input,
+        )
 
     assert prediction.id is not None
     assert prediction.version == version
@@ -29,17 +69,22 @@ async def test_predictions_create(mock_replicate_api_token):
 
 @pytest.mark.vcr("predictions-get.yaml")
 @pytest.mark.asyncio
-async def test_predictions_get(mock_replicate_api_token):
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_predictions_get(async_flag):
     id = "vgcm4plb7tgzlyznry5d5jkgvu"
 
-    prediction = replicate.predictions.get(id)
+    if async_flag:
+        prediction = await replicate.predictions.async_get(id)
+    else:
+        prediction = replicate.predictions.get(id)
 
     assert prediction.id == id
 
 
 @pytest.mark.vcr("predictions-cancel.yaml")
 @pytest.mark.asyncio
-async def test_predictions_cancel(mock_replicate_api_token):
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_predictions_cancel(async_flag):
     input = {
         "prompt": "a studio photo of a rainbow colored corgi",
         "width": 512,
@@ -47,14 +92,24 @@ async def test_predictions_cancel(mock_replicate_api_token):
         "seed": 42069,
     }
 
-    model = replicate.models.get("stability-ai/sdxl")
-    version = model.versions.get(
-        "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5"
-    )
-    prediction = replicate.predictions.create(
-        version=version,
-        input=input,
-    )
+    if async_flag:
+        model = await replicate.models.async_get("stability-ai/sdxl")
+        version = await model.versions.async_get(
+            "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5"
+        )
+        prediction = await replicate.predictions.async_create(
+            version=version,
+            input=input,
+        )
+    else:
+        model = replicate.models.get("stability-ai/sdxl")
+        version = model.versions.get(
+            "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5"
+        )
+        prediction = replicate.predictions.create(
+            version=version,
+            input=input,
+        )
 
     # id = prediction.id
     assert prediction.status == "starting"
@@ -65,23 +120,35 @@ async def test_predictions_cancel(mock_replicate_api_token):
 
 @pytest.mark.vcr("predictions-stream.yaml")
 @pytest.mark.asyncio
-async def test_predictions_stream(mock_replicate_api_token):
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_predictions_stream(async_flag):
     input = {
         "prompt": "write a sonnet about camelids",
     }
 
-    model = replicate.models.get("meta/llama-2-70b-chat")
-    version = model.versions.get(
-        "02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3"
-    )
-    prediction = replicate.predictions.create(
-        version=version,
-        input=input,
-        stream=True,
-    )
+    if async_flag:
+        model = await replicate.models.async_get("meta/llama-2-70b-chat")
+        version = await model.versions.async_get(
+            "02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3"
+        )
+        prediction = await replicate.predictions.async_create(
+            version=version,
+            input=input,
+            stream=True,
+        )
+    else:
+        model = replicate.models.get("meta/llama-2-70b-chat")
+        version = model.versions.get(
+            "02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3"
+        )
+        prediction = replicate.predictions.create(
+            version=version,
+            input=input,
+            stream=True,
+        )
 
     assert prediction.id is not None
-    assert prediction.version == version
+    assert prediction.version == version.id
     assert prediction.status == "starting"
     assert prediction.urls["stream"] is not None
 

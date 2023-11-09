@@ -1,3 +1,6 @@
+import asyncio
+import sys
+
 import httpx
 import pytest
 import respx
@@ -9,8 +12,10 @@ from replicate.exceptions import ReplicateError
 
 @pytest.mark.vcr("run.yaml")
 @pytest.mark.asyncio
-async def test_run(mock_replicate_api_token):
-    replicate.default_client.poll_interval = 0.001
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_run(async_flag, record_mode):
+    if record_mode == "none":
+        replicate.default_client.poll_interval = 0.001
 
     version = "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5"
 
@@ -21,15 +26,50 @@ async def test_run(mock_replicate_api_token):
         "seed": 42069,
     }
 
-    output = replicate.run(
-        f"stability-ai/sdxl:{version}",
-        input=input,
-    )
+    if async_flag:
+        output = await replicate.async_run(
+            f"stability-ai/sdxl:{version}",
+            input=input,
+        )
+    else:
+        output = replicate.run(
+            f"stability-ai/sdxl:{version}",
+            input=input,
+        )
 
     assert output is not None
     assert isinstance(output, list)
     assert len(output) > 0
     assert output[0].startswith("https://")
+
+
+@pytest.mark.vcr("run-concurrently.yaml")
+@pytest.mark.asyncio
+@pytest.mark.skipif(
+    sys.version_info < (3, 11), reason="asyncio.TaskGroup requires Python 3.11"
+)
+async def test_run_concurrently(mock_replicate_api_token, record_mode):
+    if record_mode == "none":
+        replicate.default_client.poll_interval = 0.001
+
+    # https://replicate.com/stability-ai/sdxl
+    model_version = "stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"
+
+    prompts = [
+        f"A chariot pulled by a team of {count} rainbow unicorns"
+        for count in ["two", "four", "six", "eight"]
+    ]
+
+    async with asyncio.TaskGroup() as tg:
+        tasks = [
+            tg.create_task(replicate.async_run(model_version, input={"prompt": prompt}))
+            for prompt in prompts
+        ]
+
+    results = await asyncio.gather(*tasks)
+    assert len(results) == len(prompts)
+    assert all(isinstance(result, list) for result in results)
+    assert all(len(result) > 0 for result in results)
 
 
 @pytest.mark.vcr("run.yaml")
@@ -133,6 +173,7 @@ async def test_run_version_with_invalid_cog_version(mock_replicate_api_token):
     client = Client(
         api_token="test-token", transport=httpx.MockTransport(router.handler)
     )
+    client.poll_interval = 0.001
 
     output = client.run(
         "test/example:invalid",

@@ -53,6 +53,32 @@ Some models, like [methexis-inc/img2prompt](https://replicate.com/methexis-inc/i
 "an astronaut riding a horse"
 ```
 
+> [!NOTE]
+> You can also use the Replicate client asynchronously by prepending `async_` to the method name. 
+> 
+> Here's an example of how to run several predictions concurrently and wait for them all to complete:
+>
+> ```python
+> import asyncio
+> import replicate
+> 
+> # https://replicate.com/stability-ai/sdxl
+> model_version = "stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"
+> prompts = [
+>     f"A chariot pulled by a team of {count} rainbow unicorns"
+>     for count in ["two", "four", "six", "eight"]
+> ]
+>
+> async with asyncio.TaskGroup() as tg:
+>     tasks = [
+>         tg.create_task(replicate.async_run(model_version, input={"prompt": prompt}))
+>         for prompt in prompts
+>     ]
+>
+> results = await asyncio.gather(*tasks)
+> print(results)
+> ```
+
 ## Run a model in the background
 
 You can start a model and run it in the background:

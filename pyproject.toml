@@ -37,6 +37,7 @@ packages = ["replicate"]
 [tool.mypy]
 plugins = "pydantic.mypy"
 exclude = ["tests/"]
+enable_incomplete_feature = ["Unpack"]
 
 [tool.pylint.main]
 disable = [
@@ -48,6 +49,7 @@ disable = [
     "W0622", # Redefining built-in
     "R0903", # Too few public methods
 ]
+good-names = ["id"]
 
 [tool.ruff]
 select = [
