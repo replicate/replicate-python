@@ -13,8 +13,9 @@ from replicate.exceptions import ReplicateError
 @pytest.mark.vcr("run.yaml")
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_flag", [True, False])
-async def test_run(async_flag):
-    replicate.default_client.poll_interval = 0.001
+async def test_run(async_flag, record_mode):
+    if record_mode == "none":
+        replicate.default_client.poll_interval = 0.001
 
     version = "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5"
 
@@ -47,8 +48,9 @@ async def test_run(async_flag):
 @pytest.mark.skipif(
     sys.version_info < (3, 11), reason="asyncio.TaskGroup requires Python 3.11"
 )
-async def test_run_concurrently(mock_replicate_api_token):
-    replicate.default_client.poll_interval = 0.001
+async def test_run_concurrently(mock_replicate_api_token, record_mode):
+    if record_mode == "none":
+        replicate.default_client.poll_interval = 0.001
 
     # https://replicate.com/stability-ai/sdxl
     model_version = "stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"
@@ -171,6 +173,7 @@ async def test_run_version_with_invalid_cog_version(mock_replicate_api_token):
     client = Client(
         api_token="test-token", transport=httpx.MockTransport(router.handler)
     )
+    client.poll_interval = 0.001
 
     output = client.run(
         "test/example:invalid",
