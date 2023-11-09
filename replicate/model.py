@@ -11,7 +11,7 @@ from replicate.version import Version, Versions
 try:
     from pydantic import v1 as pydantic  # type: ignore
 except ImportError:
-    pass  # type: ignore
+    import pydantic  # type: ignore
 
 
 if TYPE_CHECKING:
