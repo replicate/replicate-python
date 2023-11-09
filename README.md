@@ -54,7 +54,7 @@ Some models, like [methexis-inc/img2prompt](https://replicate.com/methexis-inc/i
 ```
 
 > [!NOTE]
-> You can also call Replicate client methods asynchronously by prepending `async_` to the method name. 
+> You can also use the Replicate client asynchronously by prepending `async_` to the method name. 
 > 
 > Here's an example of how to run several predictions concurrently and wait for them all to complete:
 >
