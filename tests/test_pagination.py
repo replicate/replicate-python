@@ -20,7 +20,7 @@ async def test_paginate(async_flag):
             assert page.next is None
             assert page.previous is None
 
-            for collection in page.results:
+            for collection in page:
                 if collection.slug == "text-to-image":
                     found = True
                     break
@@ -30,7 +30,7 @@ async def test_paginate(async_flag):
             assert page.next is None
             assert page.previous is None
 
-            for collection in page.results:
+            for collection in page:
                 if collection.slug == "text-to-image":
                     found = True
                     break
