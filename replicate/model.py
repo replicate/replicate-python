@@ -140,7 +140,7 @@ class Models(Namespace):
 
     model = Model
 
-    def list(self, cursor: Union[str, "ellipsis"] = ...) -> Page[Model]:  # noqa: F821
+    def list(self, cursor: Union[str, "ellipsis", None] = ...) -> Page[Model]:  # noqa: F821
         """
         List all public models.
 
@@ -164,7 +164,10 @@ class Models(Namespace):
 
         return Page[Model](**obj)
 
-    async def async_list(self, cursor: Union[str, "ellipsis"] = ...) -> Page[Model]:  # noqa: F821
+    async def async_list(
+        self,
+        cursor: Union[str, "ellipsis", None] = ...,  # noqa: F821
+    ) -> Page[Model]:
         """
         List all public models.
 

@@ -55,7 +55,7 @@ class Collections(Namespace):
 
     def list(
         self,
-        cursor: Union[str, "ellipsis"] = ...,  # noqa: F821
+        cursor: Union[str, "ellipsis", None] = ...,  # noqa: F821
     ) -> Page[Collection]:
         """
         List collections of models.
@@ -82,7 +82,7 @@ class Collections(Namespace):
 
     async def async_list(
         self,
-        cursor: Union[str, "ellipsis"] = ...,  # noqa: F821
+        cursor: Union[str, "ellipsis", None] = ...,  # noqa: F821
     ) -> Page[Collection]:
         """
         List collections of models.
