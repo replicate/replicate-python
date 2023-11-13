@@ -1,3 +1,6 @@
+> **Important**
+> [Help us make Replicate better by taking part in user research](https://forms.gle/qUVQ84mjiqzwzSb48)
+
 # Replicate Python client
 
 This is a Python client for [Replicate](https://replicate.com). It lets you run models from your Python code or Jupyter notebook, and do various other things on Replicate.
