@@ -31,6 +31,9 @@ class Prediction(Resource):
     id: str
     """The unique ID of the prediction."""
 
+    model: str
+    """An identifier for the model used to create the prediction, in the form `owner/name`."""
+
     version: str
     """An identifier for the version of the model used to create the prediction."""
 
