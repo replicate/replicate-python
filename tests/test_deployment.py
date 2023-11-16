@@ -63,7 +63,11 @@ async def test_deployment_predictions_create(async_flag):
 
     assert router["deployments.predictions.create"].called
     request = router["deployments.predictions.create"].calls[0].request
-    assert "stream" in json.loads(request.content)
+    request_body = json.loads(request.content)
+    assert request_body["input"] == {"text": "world"}
+    assert request_body["webhook"] == "https://example.com/webhook"
+    assert request_body["webhook_events_filter"] == ["completed"]
+    assert request_body["stream"] is True
 
     assert prediction.id == "p1"
     assert prediction.input == {"text": "world"}
