@@ -6,7 +6,7 @@ import replicate
 @pytest.mark.vcr("collections-list.yaml")
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_flag", [True, False])
-async def test_models_get(async_flag):
+async def test_collections_list(async_flag):
     if async_flag:
         page = await replicate.collections.async_list()
     else:
