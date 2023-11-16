@@ -19,7 +19,7 @@ interactions:
       "name": "sdxl", "description": "A text-to-image generative AI model that creates
       beautiful images", "visibility": "public", "github_url": "https://github.com/replicate/cog-sdxl",
       "paper_url": "https://arxiv.org/abs/2307.01952", "license_url": "https://github.com/Stability-AI/generative-models/blob/main/model_licenses/LICENSE-SDXL1.0",
-      "run_count": 16656495, "cover_image_url": "https://tjzk.replicate.delivery/models_models_cover_image/61004930-fb88-4e09-9bd4-74fd8b4aa677/sdxl_cover.png",
+      "run_count": 19361490, "cover_image_url": "https://tjzk.replicate.delivery/models_models_cover_image/61004930-fb88-4e09-9bd4-74fd8b4aa677/sdxl_cover.png",
       "default_example": {"completed_at": "2023-10-12T17:10:12.909279Z", "created_at":
       "2023-10-12T17:10:07.956869Z", "error": null, "id": "dzsqmb3bg4lqpjkz2iptjqgccm",
       "input": {"width": 768, "height": 768, "prompt": "An astronaut riding a rainbow
@@ -52,7 +52,7 @@ interactions:
       "started_at": "2023-10-12T17:10:07.927942Z", "status": "succeeded", "urls":
       {"get": "https://api.replicate.com/v1/predictions/dzsqmb3bg4lqpjkz2iptjqgccm",
       "cancel": "https://api.replicate.com/v1/predictions/dzsqmb3bg4lqpjkz2iptjqgccm/cancel"},
-      "version": "c221b2b8ef527988fb59bf24a8b97c4561f1c671f73bd389f866bfb27c061316",
+      "model": "stability-ai/sdxl", "version": "c221b2b8ef527988fb59bf24a8b97c4561f1c671f73bd389f866bfb27c061316",
       "webhook_completed": null}, "latest_version": {"id": "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
       "created_at": "2023-11-06T23:13:07.906314Z", "cog_version": "0.8.6", "openapi_schema":
       {"info": {"title": "Cog", "version": "0.1.0"}, "paths": {"/": {"get": {"summary":
@@ -170,7 +170,7 @@ interactions:
       CF-Cache-Status:
       - DYNAMIC
       CF-RAY:
-      - 8225cc4959f1c382-SEA
+      - 82702682c85e3afa-IAD
       Connection:
       - keep-alive
       Content-Encoding:
@@ -178,7 +178,7 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Tue, 07 Nov 2023 13:07:13 GMT
+      - Thu, 16 Nov 2023 13:41:15 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -188,14 +188,15 @@ interactions:
       allow:
       - GET, HEAD, OPTIONS
       content-security-policy-report-only:
-      - 'style-src ''report-sample'' ''self'' ''unsafe-inline''; connect-src ''report-sample''
-        ''self'' https://replicate.delivery https://*.replicate.delivery https://*.rudderlabs.com
-        https://*.rudderstack.com https://*.mux.com https://*.sentry.io; font-src
-        ''report-sample'' ''self'' data:; script-src ''report-sample'' ''self'' https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js;
-        worker-src ''none''; img-src ''report-sample'' ''self'' data: https://replicate.delivery
-        https://*.replicate.delivery https://*.githubusercontent.com https://github.com;
-        default-src ''self''; media-src ''report-sample'' ''self'' https://replicate.delivery
-        https://*.replicate.delivery https://*.mux.com https://*.sentry.io; report-uri'
+      - 'img-src ''report-sample'' ''self'' data: https://replicate.delivery https://*.replicate.delivery
+        https://*.githubusercontent.com https://github.com; style-src ''report-sample''
+        ''self'' ''unsafe-inline''; font-src ''report-sample'' ''self'' data:; worker-src
+        ''none''; connect-src ''report-sample'' ''self'' https://replicate.delivery
+        https://*.replicate.delivery https://*.rudderlabs.com https://*.rudderstack.com
+        https://*.mux.com https://*.sentry.io; default-src ''self''; media-src ''report-sample''
+        ''self'' https://replicate.delivery https://*.replicate.delivery https://*.mux.com
+        https://*.sentry.io; script-src ''report-sample'' ''self'' https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js;
+        report-uri'
       cross-origin-opener-policy:
       - same-origin
       nel:
@@ -207,9 +208,9 @@ interactions:
       referrer-policy:
       - same-origin
       report-to:
-      - '{"group":"heroku-nel","max_age":3600,"endpoints":[{"url":"https://nel.heroku.com/reports?ts=1699362433&sid=1b10b0ff-8a76-4548-befa-353fc6c6c045&s=zH5RNbbfmwMdjyaSsKchIOr55KExVjfjhKt6gPsWVzI%3D"}]}'
+      - '{"group":"heroku-nel","max_age":3600,"endpoints":[{"url":"https://nel.heroku.com/reports?ts=1700142075&sid=1b10b0ff-8a76-4548-befa-353fc6c6c045&s=6G1BMZHhXTEFBJa1qOIwI2LAhE2J3ob6Pd87SpjKM5w%3D"}]}'
       reporting-endpoints:
-      - heroku-nel=https://nel.heroku.com/reports?ts=1699362433&sid=1b10b0ff-8a76-4548-befa-353fc6c6c045&s=zH5RNbbfmwMdjyaSsKchIOr55KExVjfjhKt6gPsWVzI%3D
+      - heroku-nel=https://nel.heroku.com/reports?ts=1700142075&sid=1b10b0ff-8a76-4548-befa-353fc6c6c045&s=6G1BMZHhXTEFBJa1qOIwI2LAhE2J3ob6Pd87SpjKM5w%3D
       vary:
       - Cookie, origin
       via:
@@ -244,7 +245,7 @@ interactions:
       CF-Cache-Status:
       - DYNAMIC
       CF-RAY:
-      - 8225cc4b0b64c382-SEA
+      - 82702683c99c3afa-IAD
       Connection:
       - keep-alive
       Content-Encoding:
@@ -252,11 +253,7 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Tue, 07 Nov 2023 13:07:13 GMT
-      NEL:
-      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
-      Report-To:
-      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=cY2nl%2FrK5utZBgfjK1IykTazkguXz8LHTFFt9E8eHHnk6RqonDn2KHLyZYVxBTMJkyUMtdWMrR48N0MqqF20iMqcZWpeQ0gnvSZnKnmoGQe2xJECyJcKRanwdFJy29fBHigz"}],"group":"cf-nel","max_age":604800}'
+      - Thu, 16 Nov 2023 13:41:15 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -266,23 +263,29 @@ interactions:
       allow:
       - GET, HEAD, OPTIONS
       content-security-policy-report-only:
-      - 'script-src ''report-sample'' ''self'' https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js;
-        style-src ''report-sample'' ''self'' ''unsafe-inline''; default-src ''self'';
-        font-src ''report-sample'' ''self'' data:; img-src ''report-sample'' ''self''
-        data: https://replicate.delivery https://*.replicate.delivery https://*.githubusercontent.com
-        https://github.com; connect-src ''report-sample'' ''self'' https://replicate.delivery
-        https://*.replicate.delivery https://*.rudderlabs.com https://*.rudderstack.com
-        https://*.mux.com https://*.sentry.io; media-src ''report-sample'' ''self''
-        https://replicate.delivery https://*.replicate.delivery https://*.mux.com
-        https://*.sentry.io; worker-src ''none''; report-uri'
+      - 'media-src ''report-sample'' ''self'' https://replicate.delivery https://*.replicate.delivery
+        https://*.mux.com https://*.sentry.io; default-src ''self''; script-src ''report-sample''
+        ''self'' https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js; img-src
+        ''report-sample'' ''self'' data: https://replicate.delivery https://*.replicate.delivery
+        https://*.githubusercontent.com https://github.com; worker-src ''none''; style-src
+        ''report-sample'' ''self'' ''unsafe-inline''; connect-src ''report-sample''
+        ''self'' https://replicate.delivery https://*.replicate.delivery https://*.rudderlabs.com
+        https://*.rudderstack.com https://*.mux.com https://*.sentry.io; font-src
+        ''report-sample'' ''self'' data:; report-uri'
       cross-origin-opener-policy:
       - same-origin
+      nel:
+      - '{"report_to":"heroku-nel","max_age":3600,"success_fraction":0.005,"failure_fraction":0.05,"response_headers":["Via"]}'
       ratelimit-remaining:
       - '2999'
       ratelimit-reset:
       - '1'
       referrer-policy:
       - same-origin
+      report-to:
+      - '{"group":"heroku-nel","max_age":3600,"endpoints":[{"url":"https://nel.heroku.com/reports?ts=1700142075&sid=1b10b0ff-8a76-4548-befa-353fc6c6c045&s=6G1BMZHhXTEFBJa1qOIwI2LAhE2J3ob6Pd87SpjKM5w%3D"}]}'
+      reporting-endpoints:
+      - heroku-nel=https://nel.heroku.com/reports?ts=1700142075&sid=1b10b0ff-8a76-4548-befa-353fc6c6c045&s=6G1BMZHhXTEFBJa1qOIwI2LAhE2J3ob6Pd87SpjKM5w%3D
       vary:
       - Cookie, origin
       via:
