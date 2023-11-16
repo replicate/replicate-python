@@ -43,17 +43,17 @@ async def test_run(async_flag, record_mode):
     assert output[0].startswith("https://")
 
 
-@pytest.mark.vcr("run-concurrently.yaml")
+@pytest.mark.vcr("run__concurrently.yaml")
 @pytest.mark.asyncio
 @pytest.mark.skipif(
     sys.version_info < (3, 11), reason="asyncio.TaskGroup requires Python 3.11"
 )
 async def test_run_concurrently(mock_replicate_api_token, record_mode):
+    client = replicate.Client()
     if record_mode == "none":
-        replicate.default_client.poll_interval = 0.001
+        client.poll_interval = 0.001
 
-    # https://replicate.com/stability-ai/sdxl
-    model_version = "stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"
+    version = "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"
 
     prompts = [
         f"A chariot pulled by a team of {count} rainbow unicorns"
@@ -62,7 +62,11 @@ async def test_run_concurrently(mock_replicate_api_token, record_mode):
 
     async with asyncio.TaskGroup() as tg:
         tasks = [
-            tg.create_task(replicate.async_run(model_version, input={"prompt": prompt}))
+            tg.create_task(
+                client.async_run(
+                    f"stability-ai/sdxl:{version}", input={"prompt": prompt}
+                )
+            )
             for prompt in prompts
         ]
 
@@ -79,22 +83,18 @@ async def test_run_with_invalid_identifier(mock_replicate_api_token):
         replicate.run("invalid")
 
 
-@pytest.mark.vcr("run.yaml")
+@pytest.mark.vcr("run__invalid-token.yaml")
 @pytest.mark.asyncio
-async def test_run_without_token():
+async def test_run_with_invalid_token():
     with pytest.raises(ReplicateError) as excinfo:
-        version = "01d17250ffa554142c31e96e7dc0e4d313d62006e15684062c84d2eadb13bf11"
+        client = replicate.Client(api_token="invalid")
 
-        input = {
-            "prompt": "write a haiku about camelids",
-        }
-
-        replicate.run(
-            f"meta/codellama-13b:{version}",
-            input=input,
+        version = "73001d654114dad81ec65da3b834e2f691af1e1526453189b7bf36fb3f32d0f9"
+        client.run(
+            f"meta/llama-2-7b:{version}",
         )
 
-    assert "You did not pass an authentication token" in str(excinfo.value)
+    assert "You did not pass a valid authentication token" in str(excinfo.value)
 
 
 @pytest.mark.asyncio
@@ -102,6 +102,7 @@ async def test_run_version_with_invalid_cog_version(mock_replicate_api_token):
     def prediction_with_status(status: str) -> dict:
         return {
             "id": "p1",
+            "model": "test/example",
             "version": "v1",
             "urls": {
                 "get": "https://api.replicate.com/v1/predictions/p1",

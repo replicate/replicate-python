@@ -1,0 +1,51 @@
+interactions:
+- request:
+    body: '{"input": {}, "version": "73001d654114dad81ec65da3b834e2f691af1e1526453189b7bf36fb3f32d0f9"}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '92'
+      content-type:
+      - application/json
+      host:
+      - api.replicate.com
+      user-agent:
+      - replicate-python/0.15.6
+    method: POST
+    uri: https://api.replicate.com/v1/predictions
+  response:
+    content: '{"title":"Unauthenticated","detail":"You did not pass a valid authentication
+      token","status":401}
+
+      '
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 826f7f62fe026fbc-IAD
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '98'
+      Content-Type:
+      - application/problem+json
+      Date:
+      - Thu, 16 Nov 2023 11:47:09 GMT
+      NEL:
+      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+      Report-To:
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=wrRb9OS6whWRSaIb4X88Ipf0nma4uddnvh%2FpB7n4RKKuy9G6j6uUcoEz920jRaH0qq0FHHxkrKqUrxv0HkFVWnLoMJ4Q9As%2FfwUSGNLKvA0vbUfOJa7%2FYiET6%2Bdg0BjJ3qtWg3dArNIIHNi7%2BBX0"}],"group":"cf-nel","max_age":604800}'
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000
+      via:
+      - 1.1 google
+    http_version: HTTP/1.1
+    status_code: 401
+version: 1

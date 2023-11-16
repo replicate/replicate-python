@@ -15,7 +15,7 @@ interactions:
     method: GET
     uri: https://api.replicate.com/v1/predictions/vgcm4plb7tgzlyznry5d5jkgvu
   response:
-    content: "{\"id\":\"vgcm4plb7tgzlyznry5d5jkgvu\",\"version\":\"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5\",\"input\":{\"height\":512,\"prompt\":\"a
+    content: "{\"id\":\"vgcm4plb7tgzlyznry5d5jkgvu\",\"model\":\"stability-ai/sdxl\",\"version\":\"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5\",\"input\":{\"height\":512,\"prompt\":\"a
       studio photo of a rainbow colored corgi\",\"seed\":42069,\"width\":512},\"logs\":\"Using
       seed: 42069\\nPrompt: a studio photo of a rainbow colored corgi\\ntxt2img mode\\n
       \ 0%|          | 0/50 [00:00\\u003c?, ?it/s]\\n  4%|\u258D         | 2/50 [00:00\\u003c00:02,

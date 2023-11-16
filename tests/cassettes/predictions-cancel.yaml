@@ -65,7 +65,7 @@ interactions:
       \ | 8/10 [00:01<00:00,  4.39it/s]\\n 90%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588
       | 9/10 [00:02<00:00,  4.37it/s]\\n100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588|
       10/10 [00:02<00:00,  4.37it/s]\\n100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588|
-      10/10 [00:02<00:00,  4.37it/s]\",\"metrics\":{\"predict_time\":14.149563},\"output\":[\"https://replicate.delivery/pbxt/E6Ftpfi0dF1SOi4b6ltUwsfdxUf7zTQSfdhmJfRcfGTdZ88UE/out-0.png\"],\"started_at\":\"2023-07-26T21:04:23.783999Z\",\"status\":\"succeeded\",\"urls\":{\"get\":\"https://api.replicate.com/v1/predictions/vu42q7dbkm6iicbpal4v6uvbqm\",\"cancel\":\"https://api.replicate.com/v1/predictions/vu42q7dbkm6iicbpal4v6uvbqm/cancel\"},\"version\":\"2f779eb9b23b34fe171f8eaa021b8261566f0d2c10cd2674063e7dbcd351509e\",\"webhook_completed\":null},\"latest_version\":{\"id\":\"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5\",\"created_at\":\"2023-08-11T17:00:23.916379Z\",\"cog_version\":\"0.8.5\",\"openapi_schema\":{\"info\":{\"title\":\"Cog\",\"version\":\"0.1.0\"},\"paths\":{\"/\":{\"get\":{\"summary\":\"Root\",\"responses\":{\"200\":{\"content\":{\"application/json\":{\"schema\":{\"title\":\"Response
+      10/10 [00:02<00:00,  4.37it/s]\",\"metrics\":{\"predict_time\":14.149563},\"output\":[\"https://replicate.delivery/pbxt/E6Ftpfi0dF1SOi4b6ltUwsfdxUf7zTQSfdhmJfRcfGTdZ88UE/out-0.png\"],\"started_at\":\"2023-07-26T21:04:23.783999Z\",\"status\":\"succeeded\",\"urls\":{\"get\":\"https://api.replicate.com/v1/predictions/vu42q7dbkm6iicbpal4v6uvbqm\",\"cancel\":\"https://api.replicate.com/v1/predictions/vu42q7dbkm6iicbpal4v6uvbqm/cancel\"},\"model\":\"stability-ai/sdxl\",\"version\":\"2f779eb9b23b34fe171f8eaa021b8261566f0d2c10cd2674063e7dbcd351509e\",\"webhook_completed\":null},\"latest_version\":{\"id\":\"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5\",\"created_at\":\"2023-08-11T17:00:23.916379Z\",\"cog_version\":\"0.8.5\",\"openapi_schema\":{\"info\":{\"title\":\"Cog\",\"version\":\"0.1.0\"},\"paths\":{\"/\":{\"get\":{\"summary\":\"Root\",\"responses\":{\"200\":{\"content\":{\"application/json\":{\"schema\":{\"title\":\"Response
       Root  Get\"}}},\"description\":\"Successful Response\"}},\"operationId\":\"root__get\"}},\"/shutdown\":{\"post\":{\"summary\":\"Start
       Shutdown\",\"responses\":{\"200\":{\"content\":{\"application/json\":{\"schema\":{\"title\":\"Response
       Start Shutdown Shutdown Post\"}}},\"description\":\"Successful Response\"}},\"operationId\":\"start_shutdown_shutdown_post\"}},\"/predictions\":{\"post\":{\"summary\":\"Predict\",\"responses\":{\"200\":{\"content\":{\"application/json\":{\"schema\":{\"$ref\":\"#/components/schemas/PredictionResponse\"}}},\"description\":\"Successful
@@ -196,7 +196,7 @@ interactions:
     method: POST
     uri: https://api.replicate.com/v1/predictions
   response:
-    content: '{"id":"i7pjoctb4rspimjanuagwmyyde","version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","input":{"height":512,"prompt":"a
+    content: '{"id":"i7pjoctb4rspimjanuagwmyyde","model":"stability-ai/sdxl","version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","input":{"height":512,"prompt":"a
       studio photo of a rainbow colored corgi","seed":42069,"width":512},"logs":"","error":null,"status":"starting","created_at":"2023-08-16T19:04:20.773688136Z","urls":{"cancel":"https://api.replicate.com/v1/predictions/i7pjoctb4rspimjanuagwmyyde/cancel","get":"https://api.replicate.com/v1/predictions/i7pjoctb4rspimjanuagwmyyde"}}
 
       '
@@ -248,7 +248,7 @@ interactions:
     uri: https://api.replicate.com/v1/predictions/i7pjoctb4rspimjanuagwmyyde/cancel
   response:
     content: '{"completed_at":"2023-08-16T19:04:20.908755Z","created_at":"2023-08-16T19:04:20.813788Z","error":null,"id":"i7pjoctb4rspimjanuagwmyyde","input":{"seed":42069,"width":512,"height":512,"prompt":"a
-      studio photo of a rainbow colored corgi"},"logs":null,"metrics":{"predict_time":2e-06},"output":null,"started_at":"2023-08-16T19:04:20.908753Z","status":"canceled","urls":{"get":"https://api.replicate.com/v1/predictions/i7pjoctb4rspimjanuagwmyyde","cancel":"https://api.replicate.com/v1/predictions/i7pjoctb4rspimjanuagwmyyde/cancel"},"version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","webhook_completed":null}'
+      studio photo of a rainbow colored corgi"},"logs":null,"metrics":{"predict_time":2e-06},"output":null,"started_at":"2023-08-16T19:04:20.908753Z","status":"canceled","urls":{"get":"https://api.replicate.com/v1/predictions/i7pjoctb4rspimjanuagwmyyde","cancel":"https://api.replicate.com/v1/predictions/i7pjoctb4rspimjanuagwmyyde/cancel"},"model":"stability-ai/sdxl","version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","webhook_completed":null}'
     headers:
       CF-Cache-Status:
       - DYNAMIC
@@ -296,7 +296,7 @@ interactions:
     method: GET
     uri: https://api.replicate.com/v1/models/stability-ai/sdxl/versions/a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5
   response:
-    content: '{"id":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","created_at":"2023-08-11T17:00:23.916379Z","cog_version":"0.8.5","openapi_schema":{"info":{"title":"Cog","version":"0.1.0"},"paths":{"/":{"get":{"summary":"Root","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+    content: '{"id":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","created_at":"2023-08-11T17:00:23.916379Z","cog_version":"0.8.5","openapi_schema":{"info":{"title":"Cog","model":"stability-ai/sdxl","version":"0.1.0"},"paths":{"/":{"get":{"summary":"Root","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
       Root  Get"}}},"description":"Successful Response"}},"operationId":"root__get"}},"/shutdown":{"post":{"summary":"Start
       Shutdown","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
       Start Shutdown Shutdown Post"}}},"description":"Successful Response"}},"operationId":"start_shutdown_shutdown_post"}},"/predictions":{"post":{"summary":"Predict","responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionResponse"}}},"description":"Successful
@@ -346,7 +346,7 @@ interactions:
       enumeration."},"ValidationError":{"type":"object","title":"ValidationError","required":["loc","msg","type"],"properties":{"loc":{"type":"array","items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error
       Type"}}},"PredictionRequest":{"type":"object","title":"PredictionRequest","properties":{"id":{"type":"string","title":"Id"},"input":{"$ref":"#/components/schemas/Input"},"webhook":{"type":"string","title":"Webhook","format":"uri","maxLength":65536,"minLength":1},"created_at":{"type":"string","title":"Created
       At","format":"date-time"},"output_file_prefix":{"type":"string","title":"Output
-      File Prefix"},"webhook_events_filter":{"type":"array","items":{"$ref":"#/components/schemas/WebhookEvent"},"default":["start","completed","logs","output"],"uniqueItems":true}}},"PredictionResponse":{"type":"object","title":"PredictionResponse","properties":{"id":{"type":"string","title":"Id"},"logs":{"type":"string","title":"Logs","default":""},"error":{"type":"string","title":"Error"},"input":{"$ref":"#/components/schemas/Input"},"output":{"$ref":"#/components/schemas/Output"},"status":{"$ref":"#/components/schemas/Status"},"metrics":{"type":"object","title":"Metrics"},"version":{"type":"string","title":"Version"},"created_at":{"type":"string","title":"Created
+      File Prefix"},"webhook_events_filter":{"type":"array","items":{"$ref":"#/components/schemas/WebhookEvent"},"default":["start","completed","logs","output"],"uniqueItems":true}}},"PredictionResponse":{"type":"object","title":"PredictionResponse","properties":{"id":{"type":"string","title":"Id"},"logs":{"type":"string","title":"Logs","default":""},"error":{"type":"string","title":"Error"},"input":{"$ref":"#/components/schemas/Input"},"output":{"$ref":"#/components/schemas/Output"},"status":{"$ref":"#/components/schemas/Status"},"metrics":{"type":"object","title":"Metrics"},"model":"stability-ai/sdxl","version":{"type":"string","title":"Version"},"created_at":{"type":"string","title":"Created
       At","format":"date-time"},"started_at":{"type":"string","title":"Started At","format":"date-time"},"completed_at":{"type":"string","title":"Completed
       At","format":"date-time"}}},"HTTPValidationError":{"type":"object","title":"HTTPValidationError","properties":{"detail":{"type":"array","items":{"$ref":"#/components/schemas/ValidationError"},"title":"Detail"}}}}}}}'
     headers:
@@ -425,7 +425,7 @@ interactions:
     method: POST
     uri: https://api.replicate.com/v1/predictions
   response:
-    content: '{"id":"y2g33ldbzvs67axlha5okvj5iy","version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","input":{"height":512,"prompt":"a
+    content: '{"id":"y2g33ldbzvs67axlha5okvj5iy","model":"stability-ai/sdxl","version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","input":{"height":512,"prompt":"a
       studio photo of a rainbow colored corgi","seed":42069,"width":512},"logs":"","error":null,"status":"starting","created_at":"2023-08-28T11:36:21.122842697Z","urls":{"cancel":"https://api.replicate.com/v1/predictions/y2g33ldbzvs67axlha5okvj5iy/cancel","get":"https://api.replicate.com/v1/predictions/y2g33ldbzvs67axlha5okvj5iy"}}
 
       '
@@ -477,7 +477,7 @@ interactions:
     uri: https://api.replicate.com/v1/predictions/y2g33ldbzvs67axlha5okvj5iy/cancel
   response:
     content: '{"completed_at":"2023-08-28T11:36:21.260580Z","created_at":"2023-08-28T11:36:21.152559Z","error":null,"id":"y2g33ldbzvs67axlha5okvj5iy","input":{"seed":42069,"width":512,"height":512,"prompt":"a
-      studio photo of a rainbow colored corgi"},"logs":null,"metrics":{"predict_time":3e-06},"output":null,"started_at":"2023-08-28T11:36:21.260577Z","status":"canceled","urls":{"get":"https://api.replicate.com/v1/predictions/y2g33ldbzvs67axlha5okvj5iy","cancel":"https://api.replicate.com/v1/predictions/y2g33ldbzvs67axlha5okvj5iy/cancel"},"version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","webhook_completed":null}'
+      studio photo of a rainbow colored corgi"},"logs":null,"metrics":{"predict_time":3e-06},"output":null,"started_at":"2023-08-28T11:36:21.260577Z","status":"canceled","urls":{"get":"https://api.replicate.com/v1/predictions/y2g33ldbzvs67axlha5okvj5iy","cancel":"https://api.replicate.com/v1/predictions/y2g33ldbzvs67axlha5okvj5iy/cancel"},"model":"stability-ai/sdxl","version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","webhook_completed":null}'
     headers:
       CF-Cache-Status:
       - DYNAMIC

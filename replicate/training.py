@@ -40,6 +40,9 @@ class Training(Resource):
     id: str
     """The unique ID of the training."""
 
+    model: str
+    """An identifier for the model used to create the prediction, in the form `owner/name`."""
+
     version: Union[str, Version]
     """The version of the model used to create the training."""
 

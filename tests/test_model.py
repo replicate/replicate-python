@@ -40,7 +40,7 @@ async def test_models_list(async_flag):
     assert models[0].visibility == "public"
 
 
-@pytest.mark.vcr("models-list.yaml")
+@pytest.mark.vcr("models-list__pagination.yaml")
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_flag", [True, False])
 async def test_models_list_pagination(async_flag):
