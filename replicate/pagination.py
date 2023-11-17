@@ -1,9 +1,14 @@
 from typing import (
     TYPE_CHECKING,
+    AsyncGenerator,
+    Awaitable,
+    Callable,
+    Generator,
     Generic,
     List,
     Optional,
     TypeVar,
+    Union,
 )
 
 try:
@@ -41,3 +46,35 @@ class Page(pydantic.BaseModel, Generic[T]):
 
     def __len__(self) -> int:
         return len(self.results)
+
+
+def paginate(
+    list_method: Callable[[Union[str, "ellipsis", None]], Page[T]],  # noqa: F821
+) -> Generator[Page[T], None, None]:
+    """
+    Iterate over all items using the provided list method.
+
+    Args:
+        list_method: A method that takes a cursor argument and returns a Page of items.
+    """
+    cursor: Union[str, "ellipsis", None] = ...  # noqa: F821
+    while cursor is not None:
+        page = list_method(cursor)
+        yield page
+        cursor = page.next
+
+
+async def async_paginate(
+    list_method: Callable[[Union[str, "ellipsis", None]], Awaitable[Page[T]]],  # noqa: F821
+) -> AsyncGenerator[Page[T], None]:
+    """
+    Asynchronously iterate over all items using the provided list method.
+
+    Args:
+        list_method: An async method that takes a cursor argument and returns a Page of items.
+    """
+    cursor: Union[str, "ellipsis", None] = ...  # noqa: F821
+    while cursor is not None:
+        page = await list_method(cursor)
+        yield page
+        cursor = page.next

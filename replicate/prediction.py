@@ -172,7 +172,7 @@ class Predictions(Namespace):
     Namespace for operations related to predictions.
     """
 
-    def list(self, cursor: Union[str, "ellipsis"] = ...) -> Page[Prediction]:  # noqa: F821
+    def list(self, cursor: Union[str, "ellipsis", None] = ...) -> Page[Prediction]:  # noqa: F821
         """
         List your predictions.
 
@@ -200,7 +200,7 @@ class Predictions(Namespace):
 
     async def async_list(
         self,
-        cursor: Union[str, "ellipsis"] = ...,  # noqa: F821
+        cursor: Union[str, "ellipsis", None] = ...,  # noqa: F821
     ) -> Page[Prediction]:
         """
         List your predictions.

@@ -223,21 +223,29 @@ You can the models you've created:
 replicate.models.list()
 ```
 
-Lists of models are paginated. You can get the next page of models by passing the `next` property as an argument to the `list` method. Here's how you can get all the models you've created:
+Lists of models are paginated. You can get the next page of models by passing the `next` property as an argument to the `list` method, or you can use the `paginate` method to fetch pages automatically.
 
 ```python
+# Automatic pagination using `replicate.paginate` (recommended)
 models = []
-page = replicate.models.list()
+for page in replicate.paginate(replicate.models.list):
+    models.extend(page.results)
+    if len(models) > 100:
+        break
 
+# Manual pagination using `next` cursors
+page = replicate.models.list()
 while page:
     models.extend(page.results)
+    if len(models) > 100:
+          break
     page = replicate.models.list(page.next) if page.next else None
 ```
 
 You can also find collections of featured models on Replicate:
 
 ```python
->>> collections = replicate.collections.list()
+>>> collections = [collection for page in replicate.paginate(replicate.collections.list) for collection in page]
 >>> collections[0].slug
 "vision-models"
 >>> collections[0].description

@@ -101,7 +101,7 @@ class Trainings(Namespace):
     Namespace for operations related to trainings.
     """
 
-    def list(self, cursor: Union[str, "ellipsis"] = ...) -> Page[Training]:  # noqa: F821
+    def list(self, cursor: Union[str, "ellipsis", None] = ...) -> Page[Training]:  # noqa: F821
         """
         List your trainings.
 
@@ -127,7 +127,10 @@ class Trainings(Namespace):
 
         return Page[Training](**obj)
 
-    async def async_list(self, cursor: Union[str, "ellipsis"] = ...) -> Page[Training]:  # noqa: F821
+    async def async_list(
+        self,
+        cursor: Union[str, "ellipsis", None] = ...,  # noqa: F821
+    ) -> Page[Training]:
         """
         List your trainings.
 
