@@ -82,6 +82,7 @@ typing-extensions==4.7.1
     #   mypy
     #   pydantic
     #   pydantic-core
+    #   replicate (pyproject.toml)
 vcrpy==5.1.0
     # via pytest-recording
 wrapt==1.15.0

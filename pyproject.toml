@@ -10,7 +10,12 @@ readme = "README.md"
 license = { file = "LICENSE" }
 authors = [{ name = "Replicate, Inc." }]
 requires-python = ">=3.8"
-dependencies = ["packaging", "pydantic>1", "httpx>=0.21.0,<1"]
+dependencies = [
+    "httpx>=0.21.0,<1",
+    "packaging",
+    "pydantic>1",
+    "typing_extensions>=4.5.0",
+]
 optional-dependencies = { dev = [
     "mypy",
     "pylint",

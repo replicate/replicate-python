@@ -37,3 +37,4 @@ typing-extensions==4.7.1
     # via
     #   pydantic
     #   pydantic-core
+    #   replicate (pyproject.toml)
