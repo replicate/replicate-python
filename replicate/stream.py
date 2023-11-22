@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -5,14 +6,13 @@ from typing import (
     Dict,
     Iterator,
     List,
-    Literal,
     Optional,
 )
 
 from typing_extensions import Unpack
 
-from replicate.identifier import ModelVersionIdentifier
 from replicate.exceptions import ReplicateError
+from replicate.identifier import ModelVersionIdentifier
 
 try:
     from pydantic import v1 as pydantic  # type: ignore
@@ -32,10 +32,20 @@ class ServerSentEvent(pydantic.BaseModel):
     A server-sent event.
     """
 
-    event: Literal["message", "output", "logs", "error", "done"] = "message"
-    data: str = ""
-    id: str = ""
-    retry: Optional[int] = None
+    class EventType(Enum):
+        """
+        A server-sent event type.
+        """
+
+        OUTPUT = "output"
+        LOGS = "logs"
+        ERROR = "error"
+        DONE = "done"
+
+    event: EventType
+    data: str
+    id: str
+    retry: Optional[int]
 
     def __str__(self) -> str:
         if self.event == "output":
@@ -45,6 +55,10 @@ class ServerSentEvent(pydantic.BaseModel):
 
 
 class EventSource:
+    """
+    A server-sent event source.
+    """
+
     response: "httpx.Response"
 
     def __init__(self, response: "httpx.Response") -> None:
@@ -57,27 +71,36 @@ class EventSource:
             )
 
     class Decoder:
-        event: Optional[str] = None
+        """
+        A decoder for server-sent events.
+        """
+
+        event: Optional["ServerSentEvent.EventType"] = None
         data: List[str] = []
         last_event_id: Optional[str] = None
         retry: Optional[int] = None
 
         def decode(self, line: str) -> Optional[ServerSentEvent]:
+            """
+            Decode a line and return a server-sent event if applicable.
+            """
+
             if not line:
-                if not any([self.event, self.data, self.last_event_id, self.retry]):
+                if (
+                    not any([self.event, self.data, self.last_event_id, self.retry])
+                    or self.event is None
+                    or self.last_event_id is None
+                ):
                     return None
 
-                try:
-                    sse = ServerSentEvent(
-                        event=self.event,
-                        data="\n".join(self.data),
-                        id=self.last_event_id,
-                        retry=self.retry,
-                    )
-                except pydantic.ValidationError:
-                    return None
+                sse = ServerSentEvent(
+                    event=self.event,
+                    data="\n".join(self.data),
+                    id=self.last_event_id,
+                    retry=self.retry,
+                )
 
-                self.event = ""
+                self.event = None
                 self.data = []
                 self.retry = None
 
@@ -91,7 +114,8 @@ class EventSource:
 
             match fieldname:
                 case "event":
-                    self.event = value
+                    if event := ServerSentEvent.EventType(value):
+                        self.event = event
                 case "data":
                     self.data.append(value)
                 case "id":
@@ -155,7 +179,7 @@ def stream(
     )
 
     url = prediction.urls and prediction.urls.get("stream", None)
-    if not url:
+    if not url or not isinstance(url, str):
         raise ReplicateError("Model does not support streaming")
 
     headers = {}
@@ -185,7 +209,7 @@ async def async_stream(
     )
 
     url = prediction.urls and prediction.urls.get("stream", None)
-    if not url:
+    if not url or not isinstance(url, str):
         raise ReplicateError("Model does not support streaming")
 
     headers = {}
