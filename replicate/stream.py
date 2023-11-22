@@ -112,21 +112,18 @@ class EventSource:
             fieldname, _, value = line.partition(":")
             value = value.lstrip()
 
-            match fieldname:
-                case "event":
-                    if event := ServerSentEvent.EventType(value):
-                        self.event = event
-                case "data":
-                    self.data.append(value)
-                case "id":
-                    if "\0" not in value:
-                        self.last_event_id = value
-                case "retry":
-                    try:
-                        self.retry = int(value)
-                    except (TypeError, ValueError):
-                        pass
-                case _:
+            if fieldname == "event":
+                if event := ServerSentEvent.EventType(value):
+                    self.event = event
+            elif fieldname == "data":
+                self.data.append(value)
+            elif fieldname == "id":
+                if "\0" not in value:
+                    self.last_event_id = value
+            elif fieldname == "retry":
+                try:
+                    self.retry = int(value)
+                except (TypeError, ValueError):
                     pass
 
             return None
@@ -137,13 +134,12 @@ class EventSource:
             line = line.rstrip("\n")
             sse = decoder.decode(line)
             if sse is not None:
-                match sse.event:
-                    case "done":
-                        return
-                    case "error":
-                        raise RuntimeError(sse.data)
-                    case _:
-                        yield sse
+                if sse.event == "done":
+                    return
+                elif sse.event == "error":
+                    raise RuntimeError(sse.data)
+                else:
+                    yield sse
 
     async def __aiter__(self) -> AsyncIterator[ServerSentEvent]:
         decoder = EventSource.Decoder()
@@ -151,13 +147,12 @@ class EventSource:
             line = line.rstrip("\n")
             sse = decoder.decode(line)
             if sse is not None:
-                match sse.event:
-                    case "done":
-                        return
-                    case "error":
-                        raise RuntimeError(sse.data)
-                    case _:
-                        yield sse
+                if sse.event == "done":
+                    return
+                elif sse.event == "error":
+                    raise RuntimeError(sse.data)
+                else:
+                    yield sse
 
 
 def stream(
