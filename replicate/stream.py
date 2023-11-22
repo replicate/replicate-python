@@ -1,4 +1,3 @@
-import re
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -12,6 +11,7 @@ from typing import (
 
 from typing_extensions import Unpack
 
+from replicate.identifier import ModelVersionIdentifier
 from replicate.exceptions import ReplicateError
 
 try:
@@ -149,15 +149,7 @@ def stream(
     params = params or {}
     params["stream"] = True
 
-    # Split ref into owner, name, version in format owner/name:version
-    match = re.match(r"^(?P<owner>[^/]+)/(?P<name>[^:]+):(?P<version>.+)$", ref)
-    if not match:
-        raise ReplicateError(
-            f"Invalid reference to model version: {ref}. Expected format: owner/name:version"
-        )
-
-    version_id = match.group("version")
-
+    _, _, version_id = ModelVersionIdentifier.parse(ref)
     prediction = client.predictions.create(
         version=version_id, input=input or {}, **params
     )
@@ -187,15 +179,7 @@ async def async_stream(
     params = params or {}
     params["stream"] = True
 
-    # Split ref into owner, name, version in format owner/name:version
-    match = re.match(r"^(?P<owner>[^/]+)/(?P<name>[^:]+):(?P<version>.+)$", ref)
-    if not match:
-        raise ReplicateError(
-            f"Invalid reference to model version: {ref}. Expected format: owner/name:version"
-        )
-
-    version_id = match.group("version")
-
+    _, _, version_id = ModelVersionIdentifier.parse(ref)
     prediction = await client.predictions.async_create(
         version=version_id, input=input or {}, **params
     )

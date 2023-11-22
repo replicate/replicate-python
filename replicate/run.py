@@ -1,10 +1,10 @@
 import asyncio
-import re
 from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Union
 
 from typing_extensions import Unpack
 
-from replicate.exceptions import ModelError, ReplicateError
+from replicate.exceptions import ModelError
+from replicate.identifier import ModelVersionIdentifier
 from replicate.schema import make_schema_backwards_compatible
 from replicate.version import Versions
 
@@ -23,16 +23,7 @@ def run(
     Run a model and wait for its output.
     """
 
-    # Split ref into owner, name, version in format owner/name:version
-    match = re.match(r"^(?P<owner>[^/]+)/(?P<name>[^:]+):(?P<version>.+)$", ref)
-    if not match:
-        raise ReplicateError(
-            f"Invalid reference to model version: {ref}. Expected format: owner/name:version"
-        )
-
-    owner = match.group("owner")
-    name = match.group("name")
-    version_id = match.group("version")
+    owner, name, version_id = ModelVersionIdentifier.parse(ref)
 
     prediction = client.predictions.create(
         version=version_id, input=input or {}, **params
@@ -70,16 +61,7 @@ async def async_run(
     Run a model and wait for its output asynchronously.
     """
 
-    # Split ref into owner, name, version in format owner/name:version
-    match = re.match(r"^(?P<owner>[^/]+)/(?P<name>[^:]+):(?P<version>.+)$", ref)
-    if not match:
-        raise ReplicateError(
-            f"Invalid reference to model version: {ref}. Expected format: owner/name:version"
-        )
-
-    owner = match.group("owner")
-    name = match.group("name")
-    version_id = match.group("version")
+    owner, name, version_id = ModelVersionIdentifier.parse(ref)
 
     prediction = await client.predictions.async_create(
         version=version_id, input=input or {}, **params
