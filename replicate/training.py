@@ -231,6 +231,8 @@ class Trainings(Namespace):
         Create a new training using the specified model version as a base.
         """
 
+        url = None
+
         # Support positional arguments for backwards compatibility
         if args:
             if shorthand := args[0] if len(args) > 0 else None:
@@ -245,12 +247,12 @@ class Trainings(Namespace):
                 params["webhook_completed"] = args[4]
             if len(args) > 5:
                 params["webhook_events_filter"] = args[5]
-
         elif model and version:
             url = _create_training_url_from_model_and_version(model, version)
         elif model is None and isinstance(version, str):
             url = _create_training_url_from_shorthand(version)
-        else:
+
+        if not url:
             raise ValueError("model and version or shorthand version must be specified")
 
         body = _create_training_body(input, **params)
@@ -376,6 +378,8 @@ def _create_training_url_from_model_and_version(
         owner, name = model.owner, model.name
     elif isinstance(model, tuple):
         owner, name = model[0], model[1]
+    else:
+        raise ValueError("model must be a Model or a tuple of (owner, name)")
 
     if isinstance(version, Version):
         version_id = version.id

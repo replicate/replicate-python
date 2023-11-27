@@ -31,10 +31,10 @@ def encode_json(
     if isinstance(obj, io.IOBase):
         return upload_file(obj)
     if HAS_NUMPY:
-        if isinstance(obj, np.integer):
+        if isinstance(obj, np.integer):  # type: ignore
             return int(obj)
-        if isinstance(obj, np.floating):
+        if isinstance(obj, np.floating):  # type: ignore
             return float(obj)
-        if isinstance(obj, np.ndarray):
+        if isinstance(obj, np.ndarray):  # type: ignore
             return obj.tolist()
     return obj

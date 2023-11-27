@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from replicate.client import Client
 
 
-class Resource(pydantic.BaseModel):
+class Resource(pydantic.BaseModel):  # type: ignore
     """
     A base class for representing a single object on the server.
     """
