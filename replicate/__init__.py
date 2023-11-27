@@ -7,6 +7,9 @@ default_client = Client()
 run = default_client.run
 async_run = default_client.async_run
 
+stream = default_client.stream
+async_stream = default_client.async_stream
+
 paginate = _paginate
 async_paginate = _async_paginate
 

@@ -3,7 +3,9 @@ import random
 import time
 from datetime import datetime
 from typing import (
+    TYPE_CHECKING,
     Any,
+    AsyncIterator,
     Dict,
     Iterable,
     Iterator,
@@ -24,7 +26,11 @@ from replicate.hardware import HardwareNamespace as Hardware
 from replicate.model import Models
 from replicate.prediction import Predictions
 from replicate.run import async_run, run
+from replicate.stream import async_stream, stream
 from replicate.training import Trainings
+
+if TYPE_CHECKING:
+    from replicate.stream import ServerSentEvent
 
 
 class Client:
@@ -151,6 +157,30 @@ class Client:
         """
 
         return await async_run(self, ref, input, **params)
+
+    def stream(
+        self,
+        ref: str,
+        input: Optional[Dict[str, Any]] = None,
+        **params: Unpack["Predictions.CreatePredictionParams"],
+    ) -> Iterator["ServerSentEvent"]:
+        """
+        Stream a model's output.
+        """
+
+        return stream(self, ref, input, **params)
+
+    async def async_stream(
+        self,
+        ref: str,
+        input: Optional[Dict[str, Any]] = None,
+        **params: Unpack["Predictions.CreatePredictionParams"],
+    ) -> AsyncIterator["ServerSentEvent"]:
+        """
+        Stream a model's output asynchronously.
+        """
+
+        return async_stream(self, ref, input, **params)
 
 
 # Adapted from https://github.com/encode/httpx/issues/108#issuecomment-1132753155

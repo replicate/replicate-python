@@ -1,4 +1,3 @@
-import re
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -13,8 +12,8 @@ from typing import (
 
 from typing_extensions import NotRequired, Unpack
 
-from replicate.exceptions import ReplicateException
 from replicate.files import upload_file
+from replicate.identifier import ModelVersionIdentifier
 from replicate.json import encode_json
 from replicate.model import Model
 from replicate.pagination import Page
@@ -364,19 +363,9 @@ def _create_training_body(
     return body
 
 
-def _create_training_url_from_shorthand(identifier: str) -> str:
-    # Split version in format "owner/model:version"
-    match = re.match(
-        r"^(?P<model_owner>[^/]+)/(?P<model_name>[^:]+):(?P<version_id>.+)$", identifier
-    )
-    if not match:
-        raise ReplicateException("version must be in format owner/model:version")
-
-    model_owner = match.group("model_owner")
-    model_name = match.group("model_name")
-    version_id = match.group("version_id")
-
-    return f"/v1/models/{model_owner}/{model_name}/versions/{version_id}/trainings"
+def _create_training_url_from_shorthand(ref: str) -> str:
+    owner, name, version_id = ModelVersionIdentifier.parse(ref)
+    return f"/v1/models/{owner}/{name}/versions/{version_id}/trainings"
 
 
 def _create_training_url_from_model_and_version(
@@ -384,16 +373,16 @@ def _create_training_url_from_model_and_version(
     version: Union[str, Version],
 ) -> str:
     if isinstance(model, Model):
-        model_owner, model_name = model.owner, model.name
+        owner, name = model.owner, model.name
     elif isinstance(model, tuple):
-        model_owner, model_name = model[0], model[1]
+        owner, name = model[0], model[1]
 
     if isinstance(version, Version):
         version_id = version.id
     else:
         version_id = version
 
-    return f"/v1/models/{model_owner}/{model_name}/versions/{version_id}/trainings"
+    return f"/v1/models/{owner}/{name}/versions/{version_id}/trainings"
 
 
 def _json_to_training(client: "Client", json: Dict[str, Any]) -> Training:

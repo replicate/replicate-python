@@ -79,6 +79,34 @@ Some models, like [methexis-inc/img2prompt](https://replicate.com/methexis-inc/i
 > print(results)
 > ```
 
+## Run a model and stream its output
+
+Replicate’s API supports server-sent event streams (SSEs) for language models. 
+Use the `stream` method to consume tokens as they're produced by the model.
+
+```python
+import replicate
+
+# https://replicate.com/meta/llama-2-70b-chat
+model_version = "meta/llama-2-70b-chat:02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3"
+
+tokens = []
+for event in replicate.stream(
+    model_version,
+    input={
+        "prompt": "Please write a haiku about llamas.",
+    },
+):
+    print(event)
+    tokens.append(str(event))
+
+print("".join(tokens))
+```
+
+For more information, see
+["Streaming output"](https://replicate.com/docs/streaming) in Replicate's docs.
+
+
 ## Run a model in the background
 
 You can start a model and run it in the background:

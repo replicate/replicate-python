@@ -79,7 +79,7 @@ async def test_run_concurrently(mock_replicate_api_token, record_mode):
 @pytest.mark.vcr("run.yaml")
 @pytest.mark.asyncio
 async def test_run_with_invalid_identifier(mock_replicate_api_token):
-    with pytest.raises(ReplicateError):
+    with pytest.raises(ValueError):
         replicate.run("invalid")
 
 
