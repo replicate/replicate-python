@@ -3,6 +3,5 @@
     "charliermarsh.ruff",
     "ms-python.python",
     "ms-python.vscode-pylance",
-    "ms-python.mypy-type-checker"
   ]
 }
