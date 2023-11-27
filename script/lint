@@ -4,8 +4,8 @@ set -e
 
 STATUS=0
 
-echo "Running mypy"
-python -m mypy replicate || STATUS=$?
+echo "Running pyright"
+python -m pyright replicate || STATUS=$?
 echo ""
 
 echo "Running pylint"

@@ -3,5 +3,3 @@
 set -e
 
 python -m pip install -r requirements.txt -r requirements-dev.txt .
-
-yes | python -m mypy --install-types replicate || true
