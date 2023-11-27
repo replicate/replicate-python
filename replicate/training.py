@@ -13,7 +13,7 @@ from typing import (
 from typing_extensions import NotRequired, Unpack
 
 from replicate.files import upload_file
-from replicate.identifier import ModelVersionIdentifier
+from replicate.identifier import ModelIdentifier, ModelVersionIdentifier
 from replicate.json import encode_json
 from replicate.model import Model
 from replicate.pagination import Page
@@ -378,8 +378,12 @@ def _create_training_url_from_model_and_version(
         owner, name = model.owner, model.name
     elif isinstance(model, tuple):
         owner, name = model[0], model[1]
+    elif isinstance(model, str):
+        owner, name = ModelIdentifier.parse(model)
     else:
-        raise ValueError("model must be a Model or a tuple of (owner, name)")
+        raise ValueError(
+            "model must be a Model, a tuple of (owner, name), or a string in the format 'owner/name'"
+        )
 
     if isinstance(version, Version):
         version_id = version.id
