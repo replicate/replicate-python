@@ -19,6 +19,7 @@ dependencies = [
 optional-dependencies = { dev = [
     "mypy",
     "pylint",
+    "pyright",
     "pytest",
     "pytest-asyncio",
     "pytest-recording",
