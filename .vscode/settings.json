@@ -15,16 +15,13 @@
     }
   },
   "python.languageServer": "Pylance",
+  "python.analysis.typeCheckingMode": "basic",
   "python.testing.pytestArgs": [
     "-vvv",
     "python"
   ],
   "python.testing.unittestEnabled": false,
   "python.testing.pytestEnabled": true,
-  "mypy-type-checker.args": [
-    "--show-column-numbers",
-    "--no-pretty"
-  ],
   "ruff.lint.args": [
     "--config=pyproject.toml"
   ],

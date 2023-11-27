@@ -17,8 +17,8 @@ dependencies = [
     "typing_extensions>=4.5.0",
 ]
 optional-dependencies = { dev = [
-    "mypy",
     "pylint",
+    "pyright",
     "pytest",
     "pytest-asyncio",
     "pytest-recording",
@@ -38,11 +38,6 @@ packages = ["replicate"]
 
 [tool.setuptools.package-data]
 "replicate" = ["py.typed"]
-
-[tool.mypy]
-plugins = "pydantic.mypy"
-exclude = ["tests/"]
-enable_incomplete_feature = ["Unpack"]
 
 [tool.pylint.main]
 disable = [

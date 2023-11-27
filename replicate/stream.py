@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from replicate.prediction import Predictions
 
 
-class ServerSentEvent(pydantic.BaseModel):
+class ServerSentEvent(pydantic.BaseModel):  # type: ignore
     """
     A server-sent event.
     """
@@ -136,10 +136,10 @@ class EventSource:
             if sse is not None:
                 if sse.event == "done":
                     return
-                elif sse.event == "error":
+                if sse.event == "error":
                     raise RuntimeError(sse.data)
-                else:
-                    yield sse
+
+                yield sse
 
     async def __aiter__(self) -> AsyncIterator[ServerSentEvent]:
         decoder = EventSource.Decoder()
@@ -149,10 +149,10 @@ class EventSource:
             if sse is not None:
                 if sse.event == "done":
                     return
-                elif sse.event == "error":
+                if sse.event == "error":
                     raise RuntimeError(sse.data)
-                else:
-                    yield sse
+
+                yield sse
 
 
 def stream(

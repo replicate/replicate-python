@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Iterator, List, Optional, Union, overload
 
 from typing_extensions import deprecated
 
@@ -32,13 +32,24 @@ class Collection(Resource):
         """
         return self.slug
 
-    def __iter__(self):  # noqa: ANN204
-        return iter(self.models)
+    def __iter__(self) -> Iterator[Model]:
+        if self.models is not None:
+            return iter(self.models)
+        return iter([])
 
-    def __getitem__(self, index) -> Optional[Model]:
+    @overload
+    def __getitem__(self, index: int) -> Optional[Model]:
+        ...
+
+    @overload
+    def __getitem__(self, index: slice) -> Optional[List[Model]]:
+        ...
+
+    def __getitem__(
+        self, index: Union[int, slice]
+    ) -> Union[Optional[Model], Optional[List[Model]]]:
         if self.models is not None:
             return self.models[index]
-
         return None
 
     def __len__(self) -> int:

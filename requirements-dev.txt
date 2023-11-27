@@ -37,10 +37,8 @@ mccabe==0.7.0
     # via pylint
 multidict==6.0.4
     # via yarl
-mypy==1.4.1
-    # via replicate (pyproject.toml)
-mypy-extensions==1.0.0
-    # via mypy
+nodeenv==1.8.0
+    # via pyright
 packaging==23.1
     # via
     #   pytest
@@ -54,6 +52,8 @@ pydantic==2.0.3
 pydantic-core==2.3.0
     # via pydantic
 pylint==3.0.2
+    # via replicate (pyproject.toml)
+pyright==1.1.337
     # via replicate (pyproject.toml)
 pytest==7.4.0
     # via
@@ -79,7 +79,6 @@ tomlkit==0.12.1
     # via pylint
 typing-extensions==4.7.1
     # via
-    #   mypy
     #   pydantic
     #   pydantic-core
     #   replicate (pyproject.toml)
@@ -89,3 +88,6 @@ wrapt==1.15.0
     # via vcrpy
 yarl==1.9.2
     # via vcrpy
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools

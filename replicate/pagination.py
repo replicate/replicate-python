@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     pass
 
 
-class Page(pydantic.BaseModel, Generic[T]):
+class Page(pydantic.BaseModel, Generic[T]):  # type: ignore
     """
     A page of results from the API.
     """
