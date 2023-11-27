@@ -1,10 +1,15 @@
-from typing import TYPE_CHECKING, Any, Dict, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Literal, Optional, Tuple, Union
 
 from typing_extensions import NotRequired, TypedDict, Unpack, deprecated
 
 from replicate.exceptions import ReplicateException
+from replicate.identifier import ModelIdentifier
 from replicate.pagination import Page
-from replicate.prediction import Prediction
+from replicate.prediction import (
+    Prediction,
+    _create_prediction_body,
+    _json_to_prediction,
+)
 from replicate.resource import Namespace, Resource
 from replicate.version import Version, Versions
 
@@ -16,6 +21,7 @@ except ImportError:
 
 if TYPE_CHECKING:
     from replicate.client import Client
+    from replicate.prediction import Predictions
 
 
 class Model(Resource):
@@ -139,6 +145,14 @@ class Models(Namespace):
     """
 
     model = Model
+
+    @property
+    def predictions(self) -> "ModelsPredictions":
+        """
+        Get a namespace for operations related to predictions on a model.
+        """
+
+        return ModelsPredictions(client=self._client)
 
     def list(self, cursor: Union[str, "ellipsis", None] = ...) -> Page[Model]:  # noqa: F821
         """
@@ -275,6 +289,54 @@ class Models(Namespace):
         return _json_to_model(self._client, resp.json())
 
 
+class ModelsPredictions(Namespace):
+    """
+    Namespace for operations related to predictions in a deployment.
+    """
+
+    def create(
+        self,
+        model: Optional[Union[str, Tuple[str, str], "Model"]],
+        input: Dict[str, Any],
+        **params: Unpack["Predictions.CreatePredictionParams"],
+    ) -> Prediction:
+        """
+        Create a new prediction with the deployment.
+        """
+
+        url = _create_prediction_url_from_model(model)
+        body = _create_prediction_body(version=None, input=input, **params)
+
+        resp = self._client._request(
+            "POST",
+            url,
+            json=body,
+        )
+
+        return _json_to_prediction(self._client, resp.json())
+
+    async def async_create(
+        self,
+        model: Optional[Union[str, Tuple[str, str], "Model"]],
+        input: Dict[str, Any],
+        **params: Unpack["Predictions.CreatePredictionParams"],
+    ) -> Prediction:
+        """
+        Create a new prediction with the deployment.
+        """
+
+        url = _create_prediction_url_from_model(model)
+        body = _create_prediction_body(version=None, input=input, **params)
+
+        resp = await self._client._async_request(
+            "POST",
+            url,
+            json=body,
+        )
+
+        return _json_to_prediction(self._client, resp.json())
+
+
 def _create_model_body(  # pylint: disable=too-many-arguments
     owner: str,
     name: str,
@@ -318,3 +380,22 @@ def _json_to_model(client: "Client", json: Dict[str, Any]) -> Model:
     if model.default_example is not None:
         model.default_example._client = client
     return model
+
+
+def _create_prediction_url_from_model(
+    model: Union[str, Tuple[str, str], "Model"]
+) -> str:
+    owner, name = None, None
+    if isinstance(model, Model):
+        owner, name = model.owner, model.name
+    elif isinstance(model, tuple):
+        owner, name = model[0], model[1]
+    elif isinstance(model, str):
+        owner, name = ModelIdentifier.parse(model)
+
+    if owner is None or name is None:
+        raise ValueError(
+            "model must be a Model, a tuple of (owner, name), or a string in the format 'owner/name'"
+        )
+
+    return f"/v1/models/{owner}/{name}/predictions"

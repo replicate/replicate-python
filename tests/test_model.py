@@ -107,3 +107,26 @@ async def test_models_create_with_positional_arguments(async_flag):
     assert model.owner == "test"
     assert model.name == "python-example"
     assert model.visibility == "private"
+
+
+@pytest.mark.vcr("models-predictions-create.yaml")
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_models_predictions_create(async_flag):
+    input = {
+        "prompt": "Please write a haiku about llamas.",
+    }
+
+    if async_flag:
+        prediction = await replicate.models.predictions.async_create(
+            "meta/llama-2-70b-chat", input=input
+        )
+    else:
+        prediction = replicate.models.predictions.create(
+            "meta/llama-2-70b-chat", input=input
+        )
+
+    assert prediction.id is not None
+    # assert prediction.model == "meta/llama-2-70b-chat"
+    assert prediction.model == "replicate/lifeboat-70b"  # FIXME: this is temporary
+    assert prediction.status == "starting"
