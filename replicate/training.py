@@ -3,6 +3,7 @@ from typing import (
     Any,
     Dict,
     List,
+    Literal,
     Optional,
     Tuple,
     TypedDict,
@@ -48,7 +49,7 @@ class Training(Resource):
     destination: Optional[str]
     """The model destination of the training."""
 
-    status: str
+    status: Literal["starting", "processing", "succeeded", "failed", "canceled"]
     """The status of the training."""
 
     input: Optional[Dict[str, Any]]
