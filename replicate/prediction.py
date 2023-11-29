@@ -1,7 +1,7 @@
 import re
 import time
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Literal, Optional, Union
 
 from typing_extensions import NotRequired, TypedDict, Unpack
 
@@ -37,7 +37,7 @@ class Prediction(Resource):
     version: str
     """An identifier for the version of the model used to create the prediction."""
 
-    status: str
+    status: Literal["starting", "processing", "succeeded", "failed", "canceled"]
     """The status of the prediction."""
 
     input: Optional[Dict[str, Any]]
