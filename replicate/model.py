@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any, Dict, Literal, Optional, Tuple, Union
 from typing_extensions import NotRequired, TypedDict, Unpack, deprecated
 
 from replicate.exceptions import ReplicateException
-from replicate.identifier import ModelIdentifier
+from replicate.identifier import ModelVersionIdentifier
 from replicate.pagination import Page
 from replicate.prediction import (
     Prediction,
@@ -296,7 +296,7 @@ class ModelsPredictions(Namespace):
 
     def create(
         self,
-        model: Optional[Union[str, Tuple[str, str], "Model"]],
+        model: Union[str, Tuple[str, str], "Model"],
         input: Dict[str, Any],
         **params: Unpack["Predictions.CreatePredictionParams"],
     ) -> Prediction:
@@ -317,7 +317,7 @@ class ModelsPredictions(Namespace):
 
     async def async_create(
         self,
-        model: Optional[Union[str, Tuple[str, str], "Model"]],
+        model: Union[str, Tuple[str, str], "Model"],
         input: Dict[str, Any],
         **params: Unpack["Predictions.CreatePredictionParams"],
     ) -> Prediction:
@@ -391,7 +391,11 @@ def _create_prediction_url_from_model(
     elif isinstance(model, tuple):
         owner, name = model[0], model[1]
     elif isinstance(model, str):
-        owner, name = ModelIdentifier.parse(model)
+        owner, name, version_id = ModelVersionIdentifier.parse(model)
+        if version_id is not None:
+            raise ValueError(
+                f"Invalid reference to model version: {model}. Expected model or reference in the format owner/name"
+            )
 
     if owner is None or name is None:
         raise ValueError(

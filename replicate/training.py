@@ -14,7 +14,7 @@ from typing import (
 from typing_extensions import NotRequired, Unpack
 
 from replicate.files import upload_file
-from replicate.identifier import ModelIdentifier, ModelVersionIdentifier
+from replicate.identifier import ModelVersionIdentifier
 from replicate.json import encode_json
 from replicate.model import Model
 from replicate.pagination import Page
@@ -373,14 +373,14 @@ def _create_training_url_from_shorthand(ref: str) -> str:
 
 def _create_training_url_from_model_and_version(
     model: Union[str, Tuple[str, str], "Model"],
-    version: Union[str, Version],
+    version: Union[str, "Version"],
 ) -> str:
     if isinstance(model, Model):
         owner, name = model.owner, model.name
     elif isinstance(model, tuple):
         owner, name = model[0], model[1]
     elif isinstance(model, str):
-        owner, name = ModelIdentifier.parse(model)
+        owner, name, _ = ModelVersionIdentifier.parse(model)
     else:
         raise ValueError(
             "model must be a Model, a tuple of (owner, name), or a string in the format 'owner/name'"

@@ -7,12 +7,13 @@ from typing import (
     Iterator,
     List,
     Optional,
+    Union,
 )
 
 from typing_extensions import Unpack
 
+from replicate import identifier
 from replicate.exceptions import ReplicateError
-from replicate.identifier import ModelVersionIdentifier
 
 try:
     from pydantic import v1 as pydantic  # type: ignore
@@ -24,7 +25,10 @@ if TYPE_CHECKING:
     import httpx
 
     from replicate.client import Client
+    from replicate.identifier import ModelVersionIdentifier
+    from replicate.model import Model
     from replicate.prediction import Predictions
+    from replicate.version import Version
 
 
 class ServerSentEvent(pydantic.BaseModel):  # type: ignore
@@ -157,7 +161,7 @@ class EventSource:
 
 def stream(
     client: "Client",
-    ref: str,
+    ref: Union["Model", "Version", "ModelVersionIdentifier", str],
     input: Optional[Dict[str, Any]] = None,
     **params: Unpack["Predictions.CreatePredictionParams"],
 ) -> Iterator[ServerSentEvent]:
@@ -168,10 +172,20 @@ def stream(
     params = params or {}
     params["stream"] = True
 
-    _, _, version_id = ModelVersionIdentifier.parse(ref)
-    prediction = client.predictions.create(
-        version=version_id, input=input or {}, **params
-    )
+    version, owner, name, version_id = identifier._resolve(ref)
+
+    if version or version_id:
+        prediction = client.predictions.create(
+            version=(version or version_id), input=input or {}, **params
+        )
+    elif owner and name:
+        prediction = client.models.predictions.create(
+            model=(owner, name), input=input or {}, **params
+        )
+    else:
+        raise ValueError(
+            f"Invalid argument: {ref}. Expected model, version, or reference in the format owner/name or owner/name:version"
+        )
 
     url = prediction.urls and prediction.urls.get("stream", None)
     if not url or not isinstance(url, str):
@@ -187,7 +201,7 @@ def stream(
 
 async def async_stream(
     client: "Client",
-    ref: str,
+    ref: Union["Model", "Version", "ModelVersionIdentifier", str],
     input: Optional[Dict[str, Any]] = None,
     **params: Unpack["Predictions.CreatePredictionParams"],
 ) -> AsyncIterator[ServerSentEvent]:
@@ -198,10 +212,20 @@ async def async_stream(
     params = params or {}
     params["stream"] = True
 
-    _, _, version_id = ModelVersionIdentifier.parse(ref)
-    prediction = await client.predictions.async_create(
-        version=version_id, input=input or {}, **params
-    )
+    version, owner, name, version_id = identifier._resolve(ref)
+
+    if version or version_id:
+        prediction = await client.predictions.async_create(
+            version=(version or version_id), input=input or {}, **params
+        )
+    elif owner and name:
+        prediction = await client.models.predictions.async_create(
+            model=(owner, name), input=input or {}, **params
+        )
+    else:
+        raise ValueError(
+            f"Invalid argument: {ref}. Expected model, version, or reference in the format owner/name or owner/name:version"
+        )
 
     url = prediction.urls and prediction.urls.get("stream", None)
     if not url or not isinstance(url, str):
@@ -214,3 +238,6 @@ async def async_stream(
     async with client._async_client.stream("GET", url, headers=headers) as response:
         async for event in EventSource(response):
             yield event
+
+
+__all__ = ["ServerSentEvent"]
