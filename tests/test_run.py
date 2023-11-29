@@ -121,7 +121,7 @@ async def test_run_version_with_invalid_cog_version(mock_replicate_api_token):
     router.route(method="POST", path="/predictions").mock(
         return_value=httpx.Response(
             201,
-            json=prediction_with_status("running"),
+            json=prediction_with_status("processing"),
         )
     )
     router.route(method="GET", path="/predictions/p1").mock(
