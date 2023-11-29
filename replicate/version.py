@@ -35,7 +35,7 @@ class Versions(Namespace):
     model: Tuple[str, str]
 
     def __init__(
-        self, client: "Client", model: Union["Model", str, Tuple[str, str]]
+        self, client: "Client", model: Union[str, Tuple[str, str], "Model"]
     ) -> None:
         super().__init__(client=client)
 
