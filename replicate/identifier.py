@@ -21,7 +21,7 @@ class ModelVersionIdentifier(NamedTuple):
         Split a reference in the format owner/name:version into its components.
         """
 
-        match = re.match(r"^(?P<owner>[^/]+)/(?P<name>[^:]+)(:(?P<version>.+))?$", ref)
+        match = re.match(r"^(?P<owner>[^/]+)/(?P<name>[^/:]+)(:(?P<version>.+))?$", ref)
         if not match:
             raise ValueError(
                 f"Invalid reference to model version: {ref}. Expected format: owner/name:version"
