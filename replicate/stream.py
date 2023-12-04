@@ -52,7 +52,7 @@ class ServerSentEvent(pydantic.BaseModel):  # type: ignore
     retry: Optional[int]
 
     def __str__(self) -> str:
-        if self.event == "output":
+        if self.event == ServerSentEvent.EventType.OUTPUT:
             return self.data
 
         return ""
@@ -114,7 +114,7 @@ class EventSource:
                 return None
 
             fieldname, _, value = line.partition(":")
-            value = value.lstrip()
+            value = value.removeprefix(" ")
 
             if fieldname == "event":
                 if event := ServerSentEvent.EventType(value):
@@ -138,12 +138,13 @@ class EventSource:
             line = line.rstrip("\n")
             sse = decoder.decode(line)
             if sse is not None:
-                if sse.event == "done":
-                    return
-                if sse.event == "error":
+                if sse.event == ServerSentEvent.EventType.ERROR:
                     raise RuntimeError(sse.data)
 
                 yield sse
+
+                if sse.event == ServerSentEvent.EventType.DONE:
+                    return
 
     async def __aiter__(self) -> AsyncIterator[ServerSentEvent]:
         decoder = EventSource.Decoder()
@@ -151,12 +152,13 @@ class EventSource:
             line = line.rstrip("\n")
             sse = decoder.decode(line)
             if sse is not None:
-                if sse.event == "done":
-                    return
-                if sse.event == "error":
+                if sse.event == ServerSentEvent.EventType.ERROR:
                     raise RuntimeError(sse.data)
 
                 yield sse
+
+                if sse.event == ServerSentEvent.EventType.DONE:
+                    return
 
 
 def stream(
