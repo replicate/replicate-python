@@ -114,7 +114,7 @@ class EventSource:
                 return None
 
             fieldname, _, value = line.partition(":")
-            value = value.lstrip()
+            value = value.removeprefix(" ")
 
             if fieldname == "event":
                 if event := ServerSentEvent.EventType(value):
