@@ -5,11 +5,12 @@ from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Literal, Optional, 
 
 from typing_extensions import NotRequired, TypedDict, Unpack
 
-from replicate.exceptions import ModelError
+from replicate.exceptions import ModelError, ReplicateError
 from replicate.files import upload_file
 from replicate.json import encode_json
 from replicate.pagination import Page
 from replicate.resource import Namespace, Resource
+from replicate.stream import EventSource
 from replicate.version import Version
 
 try:
@@ -19,6 +20,7 @@ except ImportError:
 
 if TYPE_CHECKING:
     from replicate.client import Client
+    from replicate.stream import ServerSentEvent
 
 
 class Prediction(Resource):
@@ -124,6 +126,25 @@ class Prediction(Resource):
         while self.status not in ["succeeded", "failed", "canceled"]:
             time.sleep(self._client.poll_interval)
             self.reload()
+
+    def stream(self) -> Optional[Iterator["ServerSentEvent"]]:
+        """
+        Stream the prediction output.
+
+        Raises:
+            ReplicateError: If the model does not support streaming.
+        """
+
+        url = self.urls and self.urls.get("stream", None)
+        if not url or not isinstance(url, str):
+            raise ReplicateError("Model does not support streaming")
+
+        headers = {}
+        headers["Accept"] = "text/event-stream"
+        headers["Cache-Control"] = "no-store"
+
+        with self._client._client.stream("GET", url, headers=headers) as response:
+            yield from EventSource(response)
 
     def cancel(self) -> None:
         """
