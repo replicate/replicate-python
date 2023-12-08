@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 class ModelVersionIdentifier(NamedTuple):
     """
-    A reference to a model version in the format owner/name:version.
+    A reference to a model version in the format owner/name or owner/name:version.
     """
 
     owner: str
