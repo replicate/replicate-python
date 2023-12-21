@@ -19,6 +19,7 @@ import httpx
 from typing_extensions import Unpack
 
 from replicate.__about__ import __version__
+from replicate.account import Accounts
 from replicate.collection import Collections
 from replicate.deployment import Deployments
 from replicate.exceptions import ReplicateError
@@ -91,6 +92,14 @@ class Client:
         _raise_for_status(resp)
 
         return resp
+
+    @property
+    def accounts(self) -> Accounts:
+        """
+        Namespace for operations related to accounts.
+        """
+
+        return Accounts(client=self)
 
     @property
     def collections(self) -> Collections:
