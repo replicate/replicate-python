@@ -230,11 +230,14 @@ Output files are returned as HTTPS URLs. You can load an output file as a buffer
 
 ```python
 import replicate
+from PIL import Image
 from urllib.request import urlretrieve
 
-model = replicate.models.get("stability-ai/stable-diffusion")
-version = model.versions.get("27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478")
-out = version.predict(prompt="wavy colorful abstract patterns, cgsociety")
+out = replicate.run(
+    "stability-ai/stable-diffusion:27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478",
+    input={"prompt": "wavy colorful abstract patterns, oceans"}
+    )
+
 urlretrieve(out[0], "/tmp/out.png")
 background = Image.open("/tmp/out.png")
 ```
