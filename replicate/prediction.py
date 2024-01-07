@@ -1,3 +1,4 @@
+import asyncio
 import re
 import time
 from dataclasses import dataclass
@@ -125,6 +126,14 @@ class Prediction(Resource):
         """
         while self.status not in ["succeeded", "failed", "canceled"]:
             time.sleep(self._client.poll_interval)
+            self.reload()
+
+    async def async_wait(self) -> None:
+        """
+        Wait for prediction to finish.
+        """
+        while self.status not in ["succeeded", "failed", "canceled"]:
+            await asyncio.sleep(self._client.poll_interval)
             self.reload()
 
     def stream(self) -> Optional[Iterator["ServerSentEvent"]]:
