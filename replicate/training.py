@@ -13,7 +13,7 @@ from typing import (
 
 from typing_extensions import NotRequired, Unpack
 
-from replicate.files import upload_file
+from replicate.file import upload_file
 from replicate.identifier import ModelVersionIdentifier
 from replicate.json import encode_json
 from replicate.model import Model

@@ -24,6 +24,7 @@ from replicate.account import Accounts
 from replicate.collection import Collections
 from replicate.deployment import Deployments
 from replicate.exceptions import ReplicateError
+from replicate.file import Files
 from replicate.hardware import HardwareNamespace as Hardware
 from replicate.model import Models
 from replicate.prediction import Predictions
@@ -116,6 +117,13 @@ class Client:
         Namespace for operations related to deployments.
         """
         return Deployments(client=self)
+
+    @property
+    def files(self) -> Files:
+        """
+        Namespace for operations related to files.
+        """
+        return Files(client=self)
 
     @property
     def hardware(self) -> Hardware:
