@@ -80,7 +80,7 @@ async def async_run(
         )
 
     if not version and (owner and name and version_id):
-        version = Versions(client, model=(owner, name)).get(version_id)
+        version = await Versions(client, model=(owner, name)).async_get(version_id)
 
     if version and (iterator := _make_output_iterator(version, prediction)):
         return iterator
