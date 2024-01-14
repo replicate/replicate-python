@@ -134,7 +134,7 @@ class Prediction(Resource):
         """
         while self.status not in ["succeeded", "failed", "canceled"]:
             await asyncio.sleep(self._client.poll_interval)
-            self.reload()
+            await self.async_reload()
 
     def stream(self) -> Optional[Iterator["ServerSentEvent"]]:
         """
@@ -170,6 +170,15 @@ class Prediction(Resource):
         """
 
         updated = self._client.predictions.get(self.id)
+        for name, value in updated.dict().items():
+            setattr(self, name, value)
+
+    async def async_reload(self) -> None:
+        """
+        Load this prediction from the server.
+        """
+
+        updated = await self._client.predictions.async_get(self.id)
         for name, value in updated.dict().items():
             setattr(self, name, value)
 
