@@ -1,3 +1,4 @@
+import asyncio
 import re
 import time
 from dataclasses import dataclass
@@ -114,6 +115,7 @@ class Prediction(Resource):
         """
         The progress of the prediction, if available.
         """
+
         if self.logs is None or self.logs == "":
             return None
 
@@ -123,9 +125,19 @@ class Prediction(Resource):
         """
         Wait for prediction to finish.
         """
+
         while self.status not in ["succeeded", "failed", "canceled"]:
             time.sleep(self._client.poll_interval)
             self.reload()
+
+    async def async_wait(self) -> None:
+        """
+        Wait for prediction to finish asynchronously.
+        """
+
+        while self.status not in ["succeeded", "failed", "canceled"]:
+            await asyncio.sleep(self._client.poll_interval)
+            await self.async_reload()
 
     def stream(self) -> Optional[Iterator["ServerSentEvent"]]:
         """
@@ -161,6 +173,15 @@ class Prediction(Resource):
         """
 
         updated = self._client.predictions.get(self.id)
+        for name, value in updated.dict().items():
+            setattr(self, name, value)
+
+    async def async_reload(self) -> None:
+        """
+        Load this prediction from the server asynchronously.
+        """
+
+        updated = await self._client.predictions.async_get(self.id)
         for name, value in updated.dict().items():
             setattr(self, name, value)
 
