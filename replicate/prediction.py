@@ -2,7 +2,17 @@ import asyncio
 import re
 import time
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Literal, Optional, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    AsyncIterator,
+    Dict,
+    Iterator,
+    List,
+    Literal,
+    Optional,
+    Union,
+)
 
 from typing_extensions import NotRequired, TypedDict, Unpack
 
@@ -199,6 +209,30 @@ class Prediction(Resource):
             previous_output = output
             time.sleep(self._client.poll_interval)  # pylint: disable=no-member
             self.reload()
+
+        if self.status == "failed":
+            raise ModelError(self.error)
+
+        output = self.output or []
+        new_output = output[len(previous_output) :]
+        for output in new_output:
+            yield output
+
+    async def async_output_iterator(self) -> AsyncIterator[Any]:
+        """
+        Return an asynchronous iterator of the prediction output.
+        """
+
+        # TODO: check output is list
+        previous_output = self.output or []
+        while self.status not in ["succeeded", "failed", "canceled"]:
+            output = self.output or []
+            new_output = output[len(previous_output) :]
+            for item in new_output:
+                yield item
+            previous_output = output
+            await asyncio.sleep(self._client.poll_interval)  # pylint: disable=no-member
+            await self.async_reload()
 
         if self.status == "failed":
             raise ModelError(self.error)
