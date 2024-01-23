@@ -115,6 +115,7 @@ class Prediction(Resource):
         """
         The progress of the prediction, if available.
         """
+
         if self.logs is None or self.logs == "":
             return None
 
@@ -124,6 +125,7 @@ class Prediction(Resource):
         """
         Wait for prediction to finish.
         """
+
         while self.status not in ["succeeded", "failed", "canceled"]:
             time.sleep(self._client.poll_interval)
             self.reload()
@@ -132,6 +134,7 @@ class Prediction(Resource):
         """
         Wait for prediction to finish asynchronously.
         """
+
         while self.status not in ["succeeded", "failed", "canceled"]:
             await asyncio.sleep(self._client.poll_interval)
             await self.async_reload()
