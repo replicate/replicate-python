@@ -130,7 +130,7 @@ class Prediction(Resource):
 
     async def async_wait(self) -> None:
         """
-        Wait for prediction to finish.
+        Wait for prediction to finish asynchronously.
         """
         while self.status not in ["succeeded", "failed", "canceled"]:
             await asyncio.sleep(self._client.poll_interval)
@@ -175,7 +175,7 @@ class Prediction(Resource):
 
     async def async_reload(self) -> None:
         """
-        Load this prediction from the server.
+        Load this prediction from the server asynchronously.
         """
 
         updated = await self._client.predictions.async_get(self.id)
