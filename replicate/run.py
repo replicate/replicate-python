@@ -91,7 +91,7 @@ async def async_run(
     if not version and (owner and name and version_id):
         version = await Versions(client, model=(owner, name)).async_get(version_id)
 
-    if version and (iterator := await _async_make_output_iterator(version, prediction)):
+    if version and (iterator := _make_async_output_iterator(version, prediction)):
         return iterator
 
     await prediction.async_wait()
@@ -121,7 +121,7 @@ def _make_output_iterator(
     return None
 
 
-async def _async_make_output_iterator(
+def _make_async_output_iterator(
     version: Version, prediction: Prediction
 ) -> Optional[AsyncIterator[Any]]:
     if _has_output_iterator_array_type(version):
