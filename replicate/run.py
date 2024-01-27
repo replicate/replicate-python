@@ -1,4 +1,13 @@
-from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    AsyncIterator,
+    Dict,
+    Iterator,
+    List,
+    Optional,
+    Union,
+)
 
 from typing_extensions import Unpack
 
@@ -59,7 +68,7 @@ async def async_run(
     ref: Union["Model", "Version", "ModelVersionIdentifier", str],
     input: Optional[Dict[str, Any]] = None,
     **params: Unpack["Predictions.CreatePredictionParams"],
-) -> Union[Any, Iterator[Any]]:  # noqa: ANN401
+) -> Union[Any, AsyncIterator[Any]]:  # noqa: ANN401
     """
     Run a model and wait for its output asynchronously.
     """
@@ -82,7 +91,7 @@ async def async_run(
     if not version and (owner and name and version_id):
         version = await Versions(client, model=(owner, name)).async_get(version_id)
 
-    if version and (iterator := _make_output_iterator(version, prediction)):
+    if version and (iterator := _make_async_output_iterator(version, prediction)):
         return iterator
 
     await prediction.async_wait()
@@ -93,15 +102,30 @@ async def async_run(
     return prediction.output
 
 
-def _make_output_iterator(
-    version: Version, prediction: Prediction
-) -> Optional[Iterator[Any]]:
+def _has_output_iterator_array_type(version: Version) -> bool:
     schema = make_schema_backwards_compatible(
         version.openapi_schema, version.cog_version
     )
-    output = schema["components"]["schemas"]["Output"]
-    if output.get("type") == "array" and output.get("x-cog-array-type") == "iterator":
+    output = schema.get("components", {}).get("schemas", {}).get("Output", {})
+    return (
+        output.get("type") == "array" and output.get("x-cog-array-type") == "iterator"
+    )
+
+
+def _make_output_iterator(
+    version: Version, prediction: Prediction
+) -> Optional[Iterator[Any]]:
+    if _has_output_iterator_array_type(version):
         return prediction.output_iterator()
+
+    return None
+
+
+def _make_async_output_iterator(
+    version: Version, prediction: Prediction
+) -> Optional[AsyncIterator[Any]]:
+    if _has_output_iterator_array_type(version):
+        return prediction.async_output_iterator()
 
     return None
 
