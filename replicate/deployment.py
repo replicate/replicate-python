@@ -1,7 +1,9 @@
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple, TypedDict, Union
 
 from typing_extensions import Unpack, deprecated
 
+from replicate.account import Account
+from replicate.pagination import Page
 from replicate.prediction import (
     Prediction,
     _create_prediction_body,
@@ -37,6 +39,76 @@ class Deployment(Resource):
     The name of the deployment.
     """
 
+    class Release(Resource):
+        """
+        A release of a deployment.
+        """
+
+        number: int
+        """
+        The release number.
+        """
+
+        model: str
+        """
+        The model identifier string in the format of `{model_owner}/{model_name}`.
+        """
+
+        version: str
+        """
+        The ID of the model version used in the release.
+        """
+
+        created_at: str
+        """
+        The time the release was created.
+        """
+
+        created_by: Optional[Account]
+        """
+        The account that created the release.
+        """
+
+        class Configuration(Resource):
+            """
+            A configuration for a deployment.
+            """
+
+            hardware: str
+            """
+            The SKU for the hardware used to run the model.
+            """
+
+            class Scaling(Resource):
+                """
+                A scaling configuration for a deployment.
+                """
+
+                min_instances: int
+                """
+                The minimum number of instances for scaling.
+                """
+
+                max_instances: int
+                """
+                The maximum number of instances for scaling.
+                """
+
+            scaling: Scaling
+            """
+            The scaling configuration for the deployment.
+            """
+
+        configuration: Configuration
+        """
+        The deployment configuration.
+        """
+
+    current_release: Optional[Release]
+    """
+    The current release of the deployment.
+    """
+
     @property
     @deprecated("Use `deployment.owner` instead.")
     def username(self) -> str:
@@ -69,6 +141,55 @@ class Deployments(Namespace):
 
     _client: "Client"
 
+    def list(
+        self,
+        cursor: Union[str, "ellipsis", None] = ...,  # noqa: F821
+    ) -> Page[Deployment]:
+        """
+        List all deployments.
+
+        Returns:
+            A page of Deployments.
+        """
+
+        if cursor is None:
+            raise ValueError("cursor cannot be None")
+
+        resp = self._client._request(
+            "GET", "/v1/deployments" if cursor is ... else cursor
+        )
+
+        obj = resp.json()
+        obj["results"] = [
+            _json_to_deployment(self._client, result) for result in obj["results"]
+        ]
+
+        return Page[Deployment](**obj)
+
+    async def async_list(
+        self,
+        cursor: Union[str, "ellipsis", None] = ...,  # noqa: F821
+    ) -> Page[Deployment]:
+        """
+        List all deployments.
+
+        Returns:
+            A page of Deployments.
+        """
+        if cursor is None:
+            raise ValueError("cursor cannot be None")
+
+        resp = await self._client._async_request(
+            "GET", "/v1/deployments" if cursor is ... else cursor
+        )
+
+        obj = resp.json()
+        obj["results"] = [
+            _json_to_deployment(self._client, result) for result in obj["results"]
+        ]
+
+        return Page[Deployment](**obj)
+
     def get(self, name: str) -> Deployment:
         """
         Get a deployment by name.
@@ -81,10 +202,12 @@ class Deployments(Namespace):
 
         owner, name = name.split("/", 1)
 
-        deployment = Deployment(owner=owner, name=name)
-        deployment._client = self._client
+        resp = self._client._request(
+            "GET",
+            f"/v1/deployments/{owner}/{name}",
+        )
 
-        return deployment
+        return _json_to_deployment(self._client, resp.json())
 
     async def async_get(self, name: str) -> Deployment:
         """
@@ -98,10 +221,164 @@ class Deployments(Namespace):
 
         owner, name = name.split("/", 1)
 
-        deployment = Deployment(owner=owner, name=name)
-        deployment._client = self._client
+        resp = await self._client._async_request(
+            "GET",
+            f"/v1/deployments/{owner}/{name}",
+        )
 
-        return deployment
+        return _json_to_deployment(self._client, resp.json())
+
+    class CreateDeploymentParams(TypedDict):
+        """
+        Parameters for creating a new deployment.
+        """
+
+        name: str
+        """The name of the deployment."""
+
+        model: str
+        """The model identifier string in the format of `{model_owner}/{model_name}`."""
+
+        version: str
+        """The version of the model to deploy."""
+
+        hardware: str
+        """The SKU for the hardware used to run the model."""
+
+        min_instances: int
+        """The minimum number of instances for scaling."""
+
+        max_instances: int
+        """The maximum number of instances for scaling."""
+
+    def create(self, **params: Unpack[CreateDeploymentParams]) -> Deployment:
+        """
+        Create a new deployment.
+
+        Args:
+            params: Configuration for the new deployment.
+        Returns:
+            The newly created Deployment.
+        """
+
+        if name := params.get("name", None):
+            if "/" in name:
+                _, name = name.split("/", 1)
+            params["name"] = name
+
+        resp = self._client._request(
+            "POST",
+            "/v1/deployments",
+            json=params,
+        )
+
+        return _json_to_deployment(self._client, resp.json())
+
+    async def async_create(
+        self, **params: Unpack[CreateDeploymentParams]
+    ) -> Deployment:
+        """
+        Create a new deployment.
+
+        Args:
+            params: Configuration for the new deployment.
+        Returns:
+            The newly created Deployment.
+        """
+
+        if name := params.get("name", None):
+            if "/" in name:
+                _, name = name.split("/", 1)
+            params["name"] = name
+
+        resp = await self._client._async_request(
+            "POST",
+            "/v1/deployments",
+            json=params,
+        )
+
+        return _json_to_deployment(self._client, resp.json())
+
+    class UpdateDeploymentParams(TypedDict, total=False):
+        """
+        Parameters for updating an existing deployment.
+        """
+
+        version: str
+        """The version of the model to deploy."""
+
+        hardware: str
+        """The SKU for the hardware used to run the model."""
+
+        min_instances: int
+        """The minimum number of instances for scaling."""
+
+        max_instances: int
+        """The maximum number of instances for scaling."""
+
+    def update(
+        self,
+        deployment_owner: str,
+        deployment_name: str,
+        **params: Unpack[UpdateDeploymentParams],
+    ) -> Deployment:
+        """
+        Update an existing deployment.
+
+        Args:
+            deployment_owner: The owner of the deployment.
+            deployment_name: The name of the deployment.
+            params: Configuration updates for the deployment.
+        Returns:
+            The updated Deployment.
+        """
+
+        resp = self._client._request(
+            "PATCH",
+            f"/v1/deployments/{deployment_owner}/{deployment_name}",
+            json=params,
+        )
+
+        return _json_to_deployment(self._client, resp.json())
+
+    async def async_update(
+        self,
+        deployment_owner: str,
+        deployment_name: str,
+        **params: Unpack[UpdateDeploymentParams],
+    ) -> Deployment:
+        """
+        Update an existing deployment.
+
+        Args:
+            deployment_owner: The owner of the deployment.
+            deployment_name: The name of the deployment.
+            params: Configuration updates for the deployment.
+        Returns:
+            The updated Deployment.
+        """
+
+        resp = await self._client._async_request(
+            "PATCH",
+            f"/v1/deployments/{deployment_owner}/{deployment_name}",
+            json=params,
+        )
+
+        return _json_to_deployment(self._client, resp.json())
+
+    @property
+    def predictions(self) -> "DeploymentsPredictions":
+        """
+        Get predictions for deployments.
+        """
+
+        return DeploymentsPredictions(client=self._client)
+
+
+def _json_to_deployment(client: "Client", json: Dict[str, Any]) -> Deployment:
+    deployment = Deployment(**json)
+    deployment._client = client
+    return deployment
 
 
 class DeploymentPredictions(Namespace):
@@ -152,3 +429,70 @@ class DeploymentPredictions(Namespace):
         )
 
         return _json_to_prediction(self._client, resp.json())
+
+
+class DeploymentsPredictions(Namespace):
+    """
+    Namespace for operations related to predictions in deployments.
+    """
+
+    def create(
+        self,
+        deployment: Union[str, Tuple[str, str], Deployment],
+        input: Dict[str, Any],
+        **params: Unpack["Predictions.CreatePredictionParams"],
+    ) -> Prediction:
+        """
+        Create a new prediction with the deployment.
+        """
+
+        url = _create_prediction_url_from_deployment(deployment)
+        body = _create_prediction_body(version=None, input=input, **params)
+
+        resp = self._client._request(
+            "POST",
+            url,
+            json=body,
+        )
+
+        return _json_to_prediction(self._client, resp.json())
+
+    async def async_create(
+        self,
+        deployment: Union[str, Tuple[str, str], Deployment],
+        input: Dict[str, Any],
+        **params: Unpack["Predictions.CreatePredictionParams"],
+    ) -> Prediction:
+        """
+        Create a new prediction with the deployment.
+        """
+
+        url = _create_prediction_url_from_deployment(deployment)
+        body = _create_prediction_body(version=None, input=input, **params)
+
+        resp = await self._client._async_request(
+            "POST",
+            url,
+            json=body,
+        )
+
+        return _json_to_prediction(self._client, resp.json())
+
+
+def _create_prediction_url_from_deployment(
+    deployment: Union[str, Tuple[str, str], Deployment],
+) -> str:
+    owner, name = None, None
+    if isinstance(deployment, Deployment):
+        owner, name = deployment.owner, deployment.name
+    elif isinstance(deployment, tuple):
+        owner, name = deployment[0], deployment[1]
+    elif isinstance(deployment, str):
+        owner, name = deployment.split("/", 1)
+
+    if owner is None or name is None:
+        raise ValueError(
+            "deployment must be a Deployment, a tuple of (owner, name), or a string in the format 'owner/name'"
+        )
+
+    return f"/v1/deployments/{owner}/{name}/predictions"
