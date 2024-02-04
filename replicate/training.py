@@ -84,7 +84,10 @@ class Training(Resource):
 
     def cancel(self) -> None:
         """Cancel a running training"""
-        self._client.trainings.cancel(self.id)
+
+        canceled = self._client.trainings.cancel(self.id)
+        for name, value in canceled.dict().items():
+            setattr(self, name, value)
 
     def reload(self) -> None:
         """
