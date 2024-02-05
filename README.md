@@ -308,7 +308,7 @@ Here's how to list of all the available hardware for running models on Replicate
 ## Fine-tune a model
 
 Use the [training API](https://replicate.com/docs/fine-tuning) 
-to fine-tune language models to make them better at a particular task. 
+to fine-tune models to make them better at a particular task. 
 To see what **language models** currently support fine-tuning, 
 check out Replicate's [collection of trainable language models](https://replicate.com/collections/trainable-language-models).
 
