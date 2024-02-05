@@ -83,8 +83,22 @@ class Training(Resource):
     """
 
     def cancel(self) -> None:
-        """Cancel a running training"""
-        self._client.trainings.cancel(self.id)
+        """
+        Cancel a running training.
+        """
+
+        canceled = self._client.trainings.cancel(self.id)
+        for name, value in canceled.dict().items():
+            setattr(self, name, value)
+
+    async def async_cancel(self) -> None:
+        """
+        Cancel a running training asynchronously.
+        """
+
+        canceled = await self._client.trainings.async_cancel(self.id)
+        for name, value in canceled.dict().items():
+            setattr(self, name, value)
 
     def reload(self) -> None:
         """
@@ -92,6 +106,15 @@ class Training(Resource):
         """
 
         updated = self._client.trainings.get(self.id)
+        for name, value in updated.dict().items():
+            setattr(self, name, value)
+
+    async def async_reload(self) -> None:
+        """
+        Load the training from the server asynchronously.
+        """
+
+        updated = await self._client.trainings.async_get(self.id)
         for name, value in updated.dict().items():
             setattr(self, name, value)
 

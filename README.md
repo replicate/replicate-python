@@ -305,6 +305,34 @@ Here's how to list of all the available hardware for running models on Replicate
 ['cpu', 'gpu-t4', 'gpu-a40-small', 'gpu-a40-large']
 ```
 
+## Fine-tune a model
+
+Use the [training API](https://replicate.com/docs/fine-tuning) 
+to fine-tune models to make them better at a particular task. 
+To see what **language models** currently support fine-tuning, 
+check out Replicate's [collection of trainable language models](https://replicate.com/collections/trainable-language-models).
+
+If you're looking to fine-tune **image models**, 
+check out Replicate's [guide to fine-tuning image models](https://replicate.com/docs/guides/fine-tune-an-image-model).
+
+Here's how to fine-tune a model on Replicate:
+
+```python
+training = replicate.trainings.create(
+    model="stability-ai/sdxl",
+    version="39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
+    input={
+      "input_images": "https://my-domain/training-images.zip",
+      "token_string": "TOK",
+      "caption_prefix": "a photo of TOK",
+      "max_train_steps": 1000,
+      "use_face_detection_instead": False
+    },
+    # You need to create a model on Replicate that will be the destination for the trained version.
+    destination="your-username/model-name"
+)
+```
+
 ## Development
 
 See [CONTRIBUTING.md](CONTRIBUTING.md)
