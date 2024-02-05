@@ -101,6 +101,13 @@ async def test_predictions_cancel(async_flag):
             version=version,
             input=input,
         )
+
+        id = prediction.id
+        assert prediction.status == "starting"
+
+        prediction = await replicate.predictions.async_cancel(prediction.id)
+        assert prediction.id == id
+        assert prediction.status == "canceled"
     else:
         model = replicate.models.get("stability-ai/sdxl")
         version = model.versions.get(
@@ -111,11 +118,53 @@ async def test_predictions_cancel(async_flag):
             input=input,
         )
 
-    # id = prediction.id
-    assert prediction.status == "starting"
+        id = prediction.id
+        assert prediction.status == "starting"
 
-    # prediction = replicate.predictions.cancel(prediction)
-    prediction.cancel()
+        prediction = replicate.predictions.cancel(prediction.id)
+        assert prediction.id == id
+        assert prediction.status == "canceled"
+
+
+@pytest.mark.vcr("predictions-cancel.yaml")
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_predictions_cancel_instance_method(async_flag):
+    input = {
+        "prompt": "a studio photo of a rainbow colored corgi",
+        "width": 512,
+        "height": 512,
+        "seed": 42069,
+    }
+
+    if async_flag:
+        model = await replicate.models.async_get("stability-ai/sdxl")
+        version = await model.versions.async_get(
+            "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5"
+        )
+        prediction = await replicate.predictions.async_create(
+            version=version,
+            input=input,
+        )
+
+        assert prediction.status == "starting"
+
+        await prediction.async_cancel()
+        assert prediction.status == "canceled"
+    else:
+        model = replicate.models.get("stability-ai/sdxl")
+        version = model.versions.get(
+            "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5"
+        )
+        prediction = replicate.predictions.create(
+            version=version,
+            input=input,
+        )
+
+        assert prediction.status == "starting"
+
+        prediction.cancel()
+        assert prediction.status == "canceled"
 
 
 @pytest.mark.vcr("predictions-stream.yaml")

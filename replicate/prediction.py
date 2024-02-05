@@ -177,6 +177,15 @@ class Prediction(Resource):
         for name, value in canceled.dict().items():
             setattr(self, name, value)
 
+    async def async_cancel(self) -> None:
+        """
+        Cancels a running prediction asynchronously.
+        """
+
+        canceled = await self._client.predictions.async_cancel(self.id)
+        for name, value in canceled.dict().items():
+            setattr(self, name, value)
+
     def reload(self) -> None:
         """
         Load this prediction from the server.
