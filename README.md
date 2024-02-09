@@ -79,6 +79,34 @@ Some models, like [methexis-inc/img2prompt](https://replicate.com/methexis-inc/i
 > print(results)
 > ```
 
+To run a model that takes a file input, pass a URL to a publicly accessible file. Or, for smaller files (<10MB), you can convert file data into a base64-encoded data URI and pass that directly:
+
+```
+# Run andreasjansson/blip-2:f677695e by providing a base64 encoded image from local file system
+import replicate
+import base64
+
+# Download `gg_bridge.jpeg` from https://replicate.delivery/pbxt/IJEPmgAlL2zNBNDoRRKFegTEcxnlRhoQxlNjPHSZEy0pSIKn/gg_bridge.jpeg
+# This reads example image `gg_bridge.jpeg` from current working directory into a buffer
+with open("gg_bridge.jpeg", "rb") as image_file:
+    # Then encodes the buffer into a base64 string
+    encoded_string = base64.b64encode(image_file.read()).decode("utf-8")
+    # Finally, sets the MIME type and adds the data URI scheme to the encoded string
+    encoded_string = f"data:image/jpeg;base64,{encoded_string}"
+
+output = replicate.run(
+    "andreasjansson/blip-2:f677695e5e89f8b236e52ecd1d3f01beb44c34606419bcc19345e046d8f786f9",
+    input={
+        "image": encoded_string,
+        "caption": False,
+        "question": "what body of water does this bridge cross?",
+        "temperature": 1,
+        "use_nucleus_sampling": False
+    }
+)
+print(output)
+```
+
 ## Run a model and stream its output
 
 Replicate’s API supports server-sent event streams (SSEs) for language models. 
