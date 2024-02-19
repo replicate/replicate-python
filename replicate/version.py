@@ -113,6 +113,46 @@ class Versions(Namespace):
 
         return Page[Version](**obj)
 
+    def delete(self, id: str) -> bool:
+        """
+        Delete a model version and all associated predictions, including all output files.
+
+        Model version deletion has some restrictions:
+
+        * You can only delete versions from models you own.
+        * You can only delete versions from private models.
+        * You cannot delete a version if someone other than you
+          has run predictions with it.
+
+        Args:
+            id: The version ID.
+        """
+
+        resp = self._client._request(
+            "DELETE", f"/v1/models/{self.model[0]}/{self.model[1]}/versions/{id}"
+        )
+        return resp.status_code == 204
+
+    async def async_delete(self, id: str) -> bool:
+        """
+        Delete a model version and all associated predictions, including all output files.
+
+        Model version deletion has some restrictions:
+
+        * You can only delete versions from models you own.
+        * You can only delete versions from private models.
+        * You cannot delete a version if someone other than you
+          has run predictions with it.
+
+        Args:
+            id: The version ID.
+        """
+
+        resp = await self._client._async_request(
+            "DELETE", f"/v1/models/{self.model[0]}/{self.model[1]}/versions/{id}"
+        )
+        return resp.status_code == 204
+
 
 def _json_to_version(json: Dict[str, Any]) -> Version:
     return Version(**json)
