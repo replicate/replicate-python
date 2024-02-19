@@ -42,12 +42,15 @@ Create a new Python file and add the following code:
 ['https://replicate.com/api/models/stability-ai/stable-diffusion/files/50fcac81-865d-499e-81ac-49de0cb79264/out-0.png']
 ```
 
-Some models, like [methexis-inc/img2prompt](https://replicate.com/methexis-inc/img2prompt), receive images as inputs. To pass a file as an input, use a file handle or URL:
+Some models, like [andreasjansson/blip-2](https://replicate.com/andreasjansson/blip-2), have files as inputs.
+To run a model that takes a file input,
+pass a URL to a publicly accessible file.
+Or, for smaller files (<10MB), you can pass a file handle directly.
 
 ```python
 >>> output = replicate.run(
-        "salesforce/blip:2e1dddc8621f72155f24cf2e0adbde548458d3cab9f00c0139eea840d0ac4746",
-        input={"image": open("path/to/mystery.jpg", "rb")},
+        "andreasjansson/blip-2:f677695e5e89f8b236e52ecd1d3f01beb44c34606419bcc19345e046d8f786f9",
+        input={ "image": open("path/to/mystery.jpg") }
     )
 
 "an astronaut riding a horse"
