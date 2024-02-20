@@ -30,7 +30,7 @@ We recommend not adding the token directly to your source code, because you don'
 
 ## Run a model
 
-Create a new Python file and add the following code:
+Create a new Python file and add the following code, replacing the model identifier and input with your own:
 
 ```python
 >>> import replicate
@@ -40,6 +40,24 @@ Create a new Python file and add the following code:
     )
 
 ['https://replicate.com/api/models/stability-ai/stable-diffusion/files/50fcac81-865d-499e-81ac-49de0cb79264/out-0.png']
+```
+
+Some models, particularly language models, may be missing the version string. Refer to the API documentation for the model for more on the specifics:
+
+```python
+replicate.run(
+    "meta/llama-2-70b-chat",
+    input={
+        "debug": False,
+        "top_k": 50,
+        "top_p": 1,
+        "prompt": "Can you write a poem about open source machine learning? Let's make it in the style of E. E. Cummings.",
+        "temperature": 0.5,
+        "system_prompt": "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature.\n\nIf a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.",
+        "max_new_tokens": 500,
+        "min_new_tokens": -1
+    },
+)
 ```
 
 Some models, like [andreasjansson/blip-2](https://replicate.com/andreasjansson/blip-2), have files as inputs.
