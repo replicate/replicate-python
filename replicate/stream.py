@@ -114,7 +114,7 @@ class EventSource:
                 return None
 
             fieldname, _, value = line.partition(":")
-            value = value.removeprefix(" ")
+            value = value[1:] if value.startswith(" ") else value
 
             if fieldname == "event":
                 if event := ServerSentEvent.EventType(value):
