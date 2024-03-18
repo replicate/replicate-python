@@ -365,4 +365,4 @@ def _build_httpx_client(
 
 def _raise_for_status(resp: httpx.Response) -> None:
     if 400 <= resp.status_code < 600:
-        raise ReplicateError(resp.json()["detail"])
+        raise ReplicateError.from_response(resp)
