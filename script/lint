@@ -13,7 +13,7 @@ python -m pylint --exit-zero replicate || STATUS=$?
 echo ""
 
 echo "Running ruff check"
-python -m ruff . || STATUS=$?
+python -m ruff check . || STATUS=$?
 echo ""
 
 echo "Running ruff format check"
