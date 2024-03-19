@@ -329,9 +329,8 @@ def _build_httpx_client(
     timeout: Optional[httpx.Timeout] = None,
     **kwargs,
 ) -> Union[httpx.Client, httpx.AsyncClient]:
-    headers = {
-        "User-Agent": f"replicate-python/{__version__}",
-    }
+    headers = kwargs.pop("headers", {})
+    headers["User-Agent"] = f"replicate-python/{__version__}"
 
     if (
         api_token := api_token or os.environ.get("REPLICATE_API_TOKEN")
