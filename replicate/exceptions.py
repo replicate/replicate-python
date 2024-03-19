@@ -77,4 +77,6 @@ class ReplicateError(ReplicateException):
         }
 
     def __str__(self) -> str:
-        return f"ReplicateError: {self.to_dict()}"
+        return "ReplicateError Details:\n" + "\n".join(
+            [f"{key}: {value}" for key, value in self.to_dict().items()]
+        )
