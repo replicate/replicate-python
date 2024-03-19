@@ -80,3 +80,16 @@ class ReplicateError(ReplicateException):
         return "ReplicateError Details:\n" + "\n".join(
             [f"{key}: {value}" for key, value in self.to_dict().items()]
         )
+
+    def __repr__(self) -> str:
+        class_name = self.__class__.__name__
+        params = ", ".join(
+            [
+                f"type={repr(self.type)}",
+                f"title={repr(self.title)}",
+                f"status={repr(self.status)}",
+                f"detail={repr(self.detail)}",
+                f"instance={repr(self.instance)}",
+            ]
+        )
+        return f"{class_name}({params})"
