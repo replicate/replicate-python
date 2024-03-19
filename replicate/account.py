@@ -1,4 +1,4 @@
-from typing import Any, Dict, Literal
+from typing import Any, Dict, Literal, Optional
 
 from replicate.resource import Namespace, Resource
 
@@ -17,7 +17,7 @@ class Account(Resource):
     name: str
     """The name of the account."""
 
-    github_url: str
+    github_url: Optional[str]
     """The GitHub URL of the account."""
 
 
