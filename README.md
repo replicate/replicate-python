@@ -118,7 +118,7 @@ You can also stream the output of a prediction you create.
 This is helpful when you want the ID of the prediction separate from its output.
 
 ```python
-version = "02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3
+version = "02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3"
 prediction = replicate.predictions.create(version=version, input={
     "prompt": "Please write a haiku about llamas.",
 })
