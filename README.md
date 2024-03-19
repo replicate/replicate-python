@@ -114,6 +114,19 @@ for event in replicate.stream(
     print(str(event), end="")
 ```
 
+You can also stream the output of a prediction you create.
+This is helpful when you want the ID of the prediction separate from its output.
+
+```python
+version = "02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3
+prediction = replicate.predictions.create(version=version, input={
+    "prompt": "Please write a haiku about llamas.",
+})
+
+for event in prediction.stream():
+    print(str(event), end="")
+```
+
 For more information, see
 ["Streaming output"](https://replicate.com/docs/streaming) in Replicate's docs.
 
