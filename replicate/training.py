@@ -230,8 +230,7 @@ class Trainings(Namespace):
         webhook: Optional[str] = None,
         webhook_events_filter: Optional[List[str]] = None,
         **kwargs,
-    ) -> Training:
-        ...
+    ) -> Training: ...
 
     @overload
     def create(
@@ -240,8 +239,7 @@ class Trainings(Namespace):
         version: Union[str, Version],
         input: Optional[Dict[str, Any]] = None,
         **params: Unpack["Trainings.CreateTrainingParams"],
-    ) -> Training:
-        ...
+    ) -> Training: ...
 
     def create(  # type: ignore
         self,

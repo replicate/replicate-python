@@ -38,12 +38,10 @@ class Collection(Resource):
         return iter([])
 
     @overload
-    def __getitem__(self, index: int) -> Optional[Model]:
-        ...
+    def __getitem__(self, index: int) -> Optional[Model]: ...
 
     @overload
-    def __getitem__(self, index: slice) -> Optional[List[Model]]:
-        ...
+    def __getitem__(self, index: slice) -> Optional[List[Model]]: ...
 
     def __getitem__(
         self, index: Union[int, slice]

@@ -383,7 +383,7 @@ def _json_to_model(client: "Client", json: Dict[str, Any]) -> Model:
 
 
 def _create_prediction_url_from_model(
-    model: Union[str, Tuple[str, str], "Model"]
+    model: Union[str, Tuple[str, str], "Model"],
 ) -> str:
     owner, name = None, None
     if isinstance(model, Model):

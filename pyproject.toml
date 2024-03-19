@@ -23,7 +23,7 @@ optional-dependencies = { dev = [
     "pytest-asyncio",
     "pytest-recording",
     "respx",
-    "ruff>=0.1.3",
+    "ruff>=0.3.3",
 ] }
 
 [project.urls]
@@ -51,7 +51,7 @@ disable = [
 ]
 good-names = ["id"]
 
-[tool.ruff]
+[tool.ruff.lint]
 select = [
     "E",   # pycodestyle error
     "F",   # Pyflakes
@@ -75,7 +75,7 @@ ignore = [
     "W191",   # Indentation contains tabs
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/*" = [
     "S101",   # Use of assert
     "S106",   # Possible use of hard-coded password function arguments
