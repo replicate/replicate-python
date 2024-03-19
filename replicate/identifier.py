@@ -31,7 +31,7 @@ class ModelVersionIdentifier(NamedTuple):
 
 
 def _resolve(
-    ref: Union["Model", "Version", "ModelVersionIdentifier", str]
+    ref: Union["Model", "Version", "ModelVersionIdentifier", str],
 ) -> Tuple[Optional["Version"], Optional[str], Optional[str], Optional[str]]:
     from replicate.model import Model  # pylint: disable=import-outside-toplevel
     from replicate.version import Version  # pylint: disable=import-outside-toplevel
