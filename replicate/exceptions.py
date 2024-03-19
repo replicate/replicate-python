@@ -33,7 +33,7 @@ class ReplicateError(ReplicateException):
     instance: Optional[str]
     """A URI that identifies the specific occurrence of the error."""
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         type: Optional[str] = None,
         title: Optional[str] = None,
@@ -50,6 +50,7 @@ class ReplicateError(ReplicateException):
     @classmethod
     def from_response(cls, response: httpx.Response) -> "ReplicateError":
         """Create a ReplicateError from an HTTP response."""
+
         try:
             data = response.json()
         except ValueError:
@@ -64,6 +65,8 @@ class ReplicateError(ReplicateException):
         )
 
     def to_dict(self) -> dict:
+        """Get a dictionary representation of the error."""
+
         return {
             key: value
             for key, value in {
