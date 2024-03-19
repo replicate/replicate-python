@@ -7,9 +7,6 @@ from replicate.stream import ServerSentEvent
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_flag", [True, False])
 async def test_stream(async_flag, record_mode):
-    # if record_mode == "none":
-    #     return
-
     model = "replicate/canary:30e22229542eb3f79d4f945dacb58d32001b02cc313ae6f54eef27904edf3272"
     input = {
         "text": "Hello",
@@ -38,9 +35,6 @@ async def test_stream(async_flag, record_mode):
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_flag", [True, False])
 async def test_stream_prediction(async_flag, record_mode):
-    # if record_mode == "none":
-    #     return
-
     version = "30e22229542eb3f79d4f945dacb58d32001b02cc313ae6f54eef27904edf3272"
     input = {
         "text": "Hello",

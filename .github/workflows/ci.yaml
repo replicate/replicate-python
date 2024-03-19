@@ -13,6 +13,9 @@ jobs:
 
     name: "Test Python ${{ matrix.python-version }}"
 
+    env:
+      REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
+
     timeout-minutes: 10
 
     strategy:
