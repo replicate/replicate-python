@@ -56,8 +56,8 @@ async def test_client_error_handling():
         client = replicate.Client(transport=httpx.MockTransport(router.handler))
         with pytest.raises(ReplicateError) as exc_info:
             client._request("GET", "/")
-        assert "'status': 400" in str(exc_info.value)
-        assert "'detail': 'Client error occurred'" in str(exc_info.value)
+        assert "status: 400" in str(exc_info.value)
+        assert "detail: Client error occurred" in str(exc_info.value)
 
 
 @pytest.mark.asyncio
@@ -83,5 +83,5 @@ async def test_server_error_handling():
         client = replicate.Client(transport=httpx.MockTransport(router.handler))
         with pytest.raises(ReplicateError) as exc_info:
             client._request("GET", "/")
-        assert "'status': 500" in str(exc_info.value)
-        assert "'detail': 'Server error occurred'" in str(exc_info.value)
+        assert "status: 500" in str(exc_info.value)
+        assert "detail: Server error occurred" in str(exc_info.value)
