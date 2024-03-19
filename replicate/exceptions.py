@@ -49,7 +49,7 @@ class ReplicateError(ReplicateException):
 
     @classmethod
     def from_response(cls, response: httpx.Response) -> "ReplicateError":
-        """Create a ReplicateError from a requests.Response."""
+        """Create a ReplicateError from an HTTP response."""
         try:
             data = response.json()
         except ValueError:
