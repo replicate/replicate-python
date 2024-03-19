@@ -85,3 +85,27 @@ async def test_server_error_handling():
             client._request("GET", "/")
         assert "status: 500" in str(exc_info.value)
         assert "detail: Server error occurred" in str(exc_info.value)
+
+
+def test_custom_headers_are_applied():
+    import replicate
+    from replicate.exceptions import ReplicateError
+
+    custom_headers = {"Custom-Header": "CustomValue"}
+
+    def mock_send(request: httpx.Request, **kwargs) -> httpx.Response:
+        assert "Custom-Header" in request.headers
+        assert request.headers["Custom-Header"] == "CustomValue"
+
+        return httpx.Response(401, json={})
+
+    client = replicate.Client(
+        api_token="dummy_token",
+        headers=custom_headers,
+        transport=httpx.MockTransport(mock_send),
+    )
+
+    try:
+        client.accounts.current()
+    except ReplicateError:
+        pass
