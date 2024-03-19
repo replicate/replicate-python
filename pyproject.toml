@@ -51,7 +51,7 @@ disable = [
 ]
 good-names = ["id"]
 
-[tool.ruff]
+[tool.ruff.lint]
 select = [
     "E",   # pycodestyle error
     "F",   # Pyflakes
@@ -75,7 +75,7 @@ ignore = [
     "W191",   # Indentation contains tabs
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/*" = [
     "S101",   # Use of assert
     "S106",   # Possible use of hard-coded password function arguments
