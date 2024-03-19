@@ -149,7 +149,7 @@ class Prediction(Resource):
             await asyncio.sleep(self._client.poll_interval)
             await self.async_reload()
 
-    def stream(self) -> Optional[Iterator["ServerSentEvent"]]:
+    def stream(self) -> Iterator["ServerSentEvent"]:
         """
         Stream the prediction output.
 
@@ -167,6 +167,31 @@ class Prediction(Resource):
 
         with self._client._client.stream("GET", url, headers=headers) as response:
             yield from EventSource(response)
+
+    async def async_stream(self) -> AsyncIterator["ServerSentEvent"]:
+        """
+        Stream the prediction output asynchronously.
+
+        Raises:
+            ReplicateError: If the model does not support streaming.
+        """
+
+        # no-op to enforce the use of 'await' when calling this method
+        await asyncio.sleep(0)
+
+        url = self.urls and self.urls.get("stream", None)
+        if not url or not isinstance(url, str):
+            raise ReplicateError("Model does not support streaming")
+
+        headers = {}
+        headers["Accept"] = "text/event-stream"
+        headers["Cache-Control"] = "no-store"
+
+        async with self._client._async_client.stream(
+            "GET", url, headers=headers
+        ) as response:
+            async for event in EventSource(response):
+                yield event
 
     def cancel(self) -> None:
         """
