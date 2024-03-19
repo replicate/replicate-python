@@ -33,7 +33,7 @@ class ReplicateError(ReplicateException):
     instance: Optional[str]
     """A URI that identifies the specific occurrence of the error."""
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         type: Optional[str] = None,
         title: Optional[str] = None,
