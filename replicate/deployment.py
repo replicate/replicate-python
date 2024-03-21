@@ -79,24 +79,14 @@ class Deployment(Resource):
             The SKU for the hardware used to run the model.
             """
 
-            class Scaling(Resource):
-                """
-                A scaling configuration for a deployment.
-                """
-
-                min_instances: int
-                """
-                The minimum number of instances for scaling.
-                """
-
-                max_instances: int
-                """
-                The maximum number of instances for scaling.
-                """
-
-            scaling: Scaling
+            min_instances: int
             """
-            The scaling configuration for the deployment.
+            The minimum number of instances for scaling.
+            """
+
+            max_instances: int
+            """
+            The maximum number of instances for scaling.
             """
 
         configuration: Configuration

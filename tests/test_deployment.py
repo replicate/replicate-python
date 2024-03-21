@@ -31,7 +31,8 @@ router.route(
                 },
                 "configuration": {
                     "hardware": "gpu-t4",
-                    "scaling": {"min_instances": 1, "max_instances": 5},
+                    "min_instances": 1,
+                    "max_instances": 5,
                 },
             },
         },
@@ -86,7 +87,8 @@ router.route(
                         },
                         "configuration": {
                             "hardware": "gpu-t4",
-                            "scaling": {"min_instances": 1, "max_instances": 5},
+                            "min_instances": 1,
+                            "max_instances": 5,
                         },
                     },
                 },
@@ -105,7 +107,8 @@ router.route(
                         },
                         "configuration": {
                             "hardware": "cpu",
-                            "scaling": {"min_instances": 2, "max_instances": 10},
+                            "min_instances": 2,
+                            "max_instances": 10,
                         },
                     },
                 },
@@ -136,7 +139,8 @@ router.route(
                 },
                 "configuration": {
                     "hardware": "gpu-t4",
-                    "scaling": {"min_instances": 1, "max_instances": 5},
+                    "min_instances": 1,
+                    "max_instances": 5,
                 },
             },
         },
@@ -166,7 +170,8 @@ router.route(
                 },
                 "configuration": {
                     "hardware": "gpu-v100",
-                    "scaling": {"min_instances": 2, "max_instances": 10},
+                    "min_instances": 2,
+                    "max_instances": 10,
                 },
             },
         },
@@ -352,8 +357,8 @@ async def test_create_deployment(async_flag):
     assert deployment.current_release.created_by.username == "acme"
     assert deployment.current_release.created_by.name == "Acme, Inc."
     assert deployment.current_release.configuration.hardware == "gpu-t4"
-    assert deployment.current_release.configuration.scaling.min_instances == 1
-    assert deployment.current_release.configuration.scaling.max_instances == 5
+    assert deployment.current_release.configuration.min_instances == 1
+    assert deployment.current_release.configuration.max_instances == 5
 
 
 @respx.mock
@@ -392,5 +397,5 @@ async def test_update_deployment(async_flag):
     assert updated_deployment.current_release.model == "acme/esrgan-updated"
     assert updated_deployment.current_release.version == "new-version-id"
     assert updated_deployment.current_release.configuration.hardware == "gpu-v100"
-    assert updated_deployment.current_release.configuration.scaling.min_instances == 2
-    assert updated_deployment.current_release.configuration.scaling.max_instances == 10
+    assert updated_deployment.current_release.configuration.min_instances == 2
+    assert updated_deployment.current_release.configuration.max_instances == 10
