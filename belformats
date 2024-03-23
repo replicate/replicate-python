@@ -1,0 +1,57 @@
+pip install replicate
+import replicate
+
+training = replicate.trainings.create(
+    version="stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
+    input={
+        "input_images": "https://my-domain/my-input-images.zip",
+    },
+    destination="my-name/my-model"
+)
+print(training)
+import replicate
+
+training = replicate.trainings.create(
+    version="stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
+    input={
+        "input_images": "https://my-domain/face-images.zip",
+        "use_face_detection_instead": True,
+    },
+    destination="my-name/my-model"
+)import replicate
+
+training = replicate.trainings.create(
+    version="stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
+    input={
+        "input_images": "https://my-domain/style-images.zip",
+        "lora_lr": 2e-4,
+        "caption_prefix": 'In the style of TOK,',
+    },
+    destination="my-name/my-model"
+)training.reload()
+print(training.status)
+print("\n".join(training.logs.split("\n")[-10:]))
+import torch
+from diffusers import DiffusionPipeline
+
+from safetensors import safe_open
+from dataset_and_utils import TokenEmbeddingsHandler
+from diffusers.models import AutoencoderKL
+
+pipe = DiffusionPipeline.from_pretrained(
+        "stabilityai/stable-diffusion-xl-base-1.0",
+        torch_dtype=torch.float16,
+        variant="fp16",
+).to("cuda")
+
+with safe_open("training_out/unet.safetensors", framework="pt", device="cuda") as f:
+    for key in f.keys():
+       tensors[key] = f.get_tensor(key)
+
+pipe.unet.load_state_dict(tensors, strict=False) # should take < 2 seconds
+
+text_encoders = [pipe.text_encoder, pipe.text_encoder_2]
+tokenizers = [pipe.tokenizer, pipe.tokenizer_2]
+
+embhandler = TokenEmbeddingsHandler(text_encoders, tokenizers)
+embhandler.load_embeddings("training_out/embeddings.pti")
