@@ -89,8 +89,8 @@ git interpret-trailers --if-exists doNothing --trailer \
 To run the tests:
 
 ```sh
-pip install -r requirements-dev.txt
-pytest
+script/setup
+script/test
 ```
 
 To install the package in development:
