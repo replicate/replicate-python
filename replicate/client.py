@@ -305,7 +305,7 @@ class RetryTransport(httpx.AsyncBaseTransport, httpx.BaseTransport):
             ):
                 return response
 
-            response.close()
+            await response.aclose()
 
             sleep_for = self._calculate_sleep(attempts_made, response.headers)
             await asyncio.sleep(sleep_for)
