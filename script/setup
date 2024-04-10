@@ -2,6 +2,13 @@
 
 set -e
 
+: "${GITHUB_ACTIONS:=}"
+
 python -m pip install uv
 uv venv .venv
 uv pip sync requirements.txt requirements-dev.txt
+
+if [ "$GITHUB_ACTIONS" = "true" ]; then
+    echo "VIRTUAL_ENV=.venv" >> $GITHUB_ENV
+    echo "$PWD/.venv/bin" >> $GITHUB_PATH
+fi
