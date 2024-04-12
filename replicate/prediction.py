@@ -253,8 +253,7 @@ class Prediction(Resource):
 
         output = self.output or []
         new_output = output[len(previous_output) :]
-        for output in new_output:
-            yield output
+        yield from new_output
 
     async def async_output_iterator(self) -> AsyncIterator[Any]:
         """
