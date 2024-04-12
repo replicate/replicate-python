@@ -29,10 +29,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: eifinger/setup-rye@v2
         with:
-          python-version: ${{ matrix.python-version }}
-          cache: "pip"
+          enable-cache: true
 
       - name: Setup
         run: ./script/setup

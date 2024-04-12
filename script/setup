@@ -2,31 +2,24 @@
 
 set -eu
 
-: "${GITHUB_ACTIONS:=}"
 : "${RYE_INSTALL_OPTION:='--yes'}"
 : "${RYE_VERSION:='latest'}"
 
-install_rye() {
-    curl -sSf https://rye-up.com/get | bash
-}
-
-if [ -n "$GITHUB_ACTIONS" ]; then
-    install_rye
-    echo "$HOME/.rye/shims" >>"$GITHUB_PATH"
-elif ! command -v rye >/dev/null 2>&1; then
+if ! command -v rye > /dev/null 2>&1
+then
     echo "rye is not installed."
     printf "Do you want to install rye? (y/n) "
     read -r REPLY
-    echo
-    case "$REPLY" in
-    [yY])
-        echo "Installing rye..."
-        install_rye
-        echo "rye has been successfully installed."
-        ;;
-    *)
-        exit 1
-        ;;
+    echo    # move to a new line
+    case "$REPLY" in 
+        [yY]) 
+            echo "Installing rye..."
+            curl -sSf https://rye-up.com/get | sh
+            echo "rye has been successfully installed."
+            ;;
+        *)
+            exit 1
+            ;;
     esac
 else
     echo "rye is already installed."
