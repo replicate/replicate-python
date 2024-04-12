@@ -15,8 +15,6 @@ anyio==4.3.0
 certifi==2024.2.2
     # via httpcore
     # via httpx
-exceptiongroup==1.2.0
-    # via anyio
 h11==0.14.0
     # via httpcore
 httpcore==1.0.5
@@ -36,8 +34,6 @@ sniffio==1.3.1
     # via anyio
     # via httpx
 typing-extensions==4.11.0
-    # via annotated-types
-    # via anyio
     # via pydantic
     # via pydantic-core
     # via replicate
