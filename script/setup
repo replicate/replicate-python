@@ -7,7 +7,7 @@ set -eu
 : "${RYE_VERSION:='latest'}"
 
 install_rye() {
-    curl -sSf https://rye-up.com/get | sh
+    curl -sSf https://rye-up.com/get | bash
 }
 
 if [ -n "$GITHUB_ACTIONS" ]; then
