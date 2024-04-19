@@ -42,14 +42,24 @@ Create a new Python file and add the following code, replacing the model identif
 ['https://replicate.com/api/models/stability-ai/stable-diffusion/files/50fcac81-865d-499e-81ac-49de0cb79264/out-0.png']
 ```
 
-Some models, particularly language models, may not require the version string. Refer to the API documentation for the model for more on the specifics:
+Some models, particularly language models, may not require the version string. You can always refer to the API documentation on the model page for specifics (for example, [check out the Llama 3 API documentation](https://replicate.com/meta/meta-llama-3-70b-instruct/api)).
 
 ```python
 replicate.run(
-    "meta/llama-2-70b-chat",
+    "meta/meta-llama-3-70b-instruct",
     input={
-        "prompt": "Can you write a poem about open source machine learning?",
-        "system_prompt": "You are a helpful, respectful and honest assistant.",
+        "prompt": "Can you write a poem about open source machine learning?"
+    },
+)
+```
+
+Here is the async equivalent of the above:
+
+```python
+replicate.models.predictions.create(
+    "meta/meta-llama-3-70b-instruct",
+    input={
+        "prompt": "Can you write a poem about open source machine learning?"
     },
 )
 ```
@@ -69,14 +79,14 @@ Or, for smaller files (<10MB), you can pass a file handle directly.
 ```
 
 > [!NOTE]
-> You can also use the Replicate client asynchronously by prepending `async_` to the method name. 
-> 
+> You can also use the Replicate client asynchronously by prepending `async_` to the method name.
+>
 > Here's an example of how to run several predictions concurrently and wait for them all to complete:
 >
 > ```python
 > import asyncio
 > import replicate
-> 
+>
 > # https://replicate.com/stability-ai/sdxl
 > model_version = "stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"
 > prompts = [
@@ -96,7 +106,7 @@ Or, for smaller files (<10MB), you can pass a file handle directly.
 
 ## Run a model and stream its output
 
-Replicate’s API supports server-sent event streams (SSEs) for language models. 
+Replicate’s API supports server-sent event streams (SSEs) for language models.
 Use the `stream` method to consume tokens as they're produced by the model.
 
 ```python
@@ -131,7 +141,6 @@ for event in prediction.stream():
 
 For more information, see
 ["Streaming output"](https://replicate.com/docs/streaming) in Replicate's docs.
-
 
 ## Run a model in the background
 
@@ -337,12 +346,12 @@ Here's how to list of all the available hardware for running models on Replicate
 
 ## Fine-tune a model
 
-Use the [training API](https://replicate.com/docs/fine-tuning) 
-to fine-tune models to make them better at a particular task. 
-To see what **language models** currently support fine-tuning, 
+Use the [training API](https://replicate.com/docs/fine-tuning)
+to fine-tune models to make them better at a particular task.
+To see what **language models** currently support fine-tuning,
 check out Replicate's [collection of trainable language models](https://replicate.com/collections/trainable-language-models).
 
-If you're looking to fine-tune **image models**, 
+If you're looking to fine-tune **image models**,
 check out Replicate's [guide to fine-tuning image models](https://replicate.com/docs/guides/fine-tune-an-image-model).
 
 Here's how to fine-tune a model on Replicate:
