@@ -79,10 +79,16 @@ class EventSource:
         A decoder for server-sent events.
         """
 
-        event: Optional["ServerSentEvent.EventType"] = None
-        data: List[str] = []
-        last_event_id: Optional[str] = None
-        retry: Optional[int] = None
+        event: Optional["ServerSentEvent.EventType"]
+        data: List[str]
+        last_event_id: Optional[str]
+        retry: Optional[int]
+
+        def __init__(self) -> None:
+            self.event = None
+            self.data = []
+            self.last_event_id = None
+            self.retry = None
 
         def decode(self, line: str) -> Optional[ServerSentEvent]:
             """
@@ -134,6 +140,7 @@ class EventSource:
 
     def __iter__(self) -> Iterator[ServerSentEvent]:
         decoder = EventSource.Decoder()
+
         for line in self.response.iter_lines():
             line = line.rstrip("\n")
             sse = decoder.decode(line)
