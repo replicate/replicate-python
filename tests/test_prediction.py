@@ -148,6 +148,41 @@ async def test_predictions_create_by_deployment(async_flag):
     assert prediction.status == "starting"
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_predictions_create_fail_with_too_many_arguments(async_flag):
+    router = respx.Router(base_url="https://api.replicate.com/v1")
+
+    client = replicate.Client(
+        api_token="test-token", transport=httpx.MockTransport(router.handler)
+    )
+
+    version = "02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3"
+    model = "meta/meta-llama-3-8b-instruct"
+    deployment = "replicate/my-app-image-generator"
+    input = {}
+
+    with pytest.raises(ValueError) as exc_info:
+        if async_flag:
+            await client.predictions.async_create(
+                version=version,
+                model=model,
+                deployment=deployment,
+                input=input,
+            )
+        else:
+            client.predictions.create(
+                version=version,
+                model=model,
+                deployment=deployment,
+                input=input,
+            )
+    assert (
+        str(exc_info.value)
+        == "Exactly one of 'model', 'version', or 'deployment' must be specified."
+    )
+
+
 @pytest.mark.vcr("models-predictions-create.yaml")
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_flag", [True, False])
