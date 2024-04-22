@@ -18,9 +18,9 @@ jobs:
       - name: Install pypa/build
         run: python -m pip install build --user
       - name: Install pdoc
-        run: pip install pdoc
+        run: pip install pdoc3
       - name: Generate API documentation
-        run: pdoc --output-dir docs --docformat markdown your_library_module
+        run: pdoc --force  -o docs replicate
       - name: Commit and push updated documentation
         run: |
           git config --global user.email "actions@github.com"
