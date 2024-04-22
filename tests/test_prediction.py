@@ -1,4 +1,6 @@
+import httpx
 import pytest
+import respx
 
 import replicate
 
@@ -67,21 +69,86 @@ async def test_predictions_create_with_positional_argument(async_flag):
     assert prediction.status == "starting"
 
 
-@pytest.mark.vcr("predictions-get.yaml")
+@pytest.mark.vcr("predictions-create-by-model.yaml")
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_flag", [True, False])
-async def test_predictions_get(async_flag):
-    id = "vgcm4plb7tgzlyznry5d5jkgvu"
+async def test_predictions_create_by_model(async_flag):
+    model = "meta/meta-llama-3-8b-instruct"
+    input = {
+        "prompt": "write a haiku about llamas",
+    }
 
     if async_flag:
-        prediction = await replicate.predictions.async_get(id)
+        prediction = await replicate.predictions.async_create(
+            model=model,
+            input=input,
+        )
     else:
-        prediction = replicate.predictions.get(id)
+        prediction = replicate.predictions.create(
+            model=model,
+            input=input,
+        )
 
-    assert prediction.id == id
+    assert prediction.id is not None
+    # assert prediction.model == model
+    assert prediction.status == "starting"
 
 
-@pytest.mark.vcr("predictions-cancel.yaml")
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_predictions_create_by_deployment(async_flag):
+    router = respx.Router(base_url="https://api.replicate.com/v1")
+
+    router.route(
+        method="POST",
+        path="/deployments/replicate/my-app-image-generator/predictions",
+        name="deployments.predictions.create",
+    ).mock(
+        return_value=httpx.Response(
+            201,
+            json={
+                "id": "p1",
+                "model": "replicate/my-app-image-generator",
+                "version": "v1",
+                "urls": {
+                    "get": "https://api.replicate.com/v1/predictions/p1",
+                    "cancel": "https://api.replicate.com/v1/predictions/p1/cancel",
+                },
+                "created_at": "2022-04-26T20:00:40.658234Z",
+                "source": "api",
+                "status": "starting",
+                "input": {"text": "world"},
+                "output": None,
+                "error": None,
+                "logs": "",
+            },
+        )
+    )
+
+    router.route(host="api.replicate.com").pass_through()
+
+    client = replicate.Client(
+        api_token="test-token", transport=httpx.MockTransport(router.handler)
+    )
+
+    input = {"text": "world"}
+
+    if async_flag:
+        prediction = await client.predictions.async_create(
+            deployment="replicate/my-app-image-generator",
+            input=input,
+        )
+    else:
+        prediction = client.predictions.create(
+            deployment="replicate/my-app-image-generator",
+            input=input,
+        )
+
+    assert prediction.id is not None
+    assert prediction.status == "starting"
+
+
+@pytest.mark.vcr("models-predictions-create.yaml")
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_flag", [True, False])
 async def test_predictions_cancel(async_flag):
@@ -124,6 +191,20 @@ async def test_predictions_cancel(async_flag):
         prediction = replicate.predictions.cancel(prediction.id)
         assert prediction.id == id
         assert prediction.status == "canceled"
+
+
+@pytest.mark.vcr("predictions-get.yaml")
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_predictions_get(async_flag):
+    id = "vgcm4plb7tgzlyznry5d5jkgvu"
+
+    if async_flag:
+        prediction = await replicate.predictions.async_get(id)
+    else:
+        prediction = replicate.predictions.get(id)
+
+    assert prediction.id == id
 
 
 @pytest.mark.vcr("predictions-cancel.yaml")
@@ -199,6 +280,7 @@ async def test_predictions_stream(async_flag):
     assert prediction.id is not None
     assert prediction.version == version.id
     assert prediction.status == "starting"
+    assert prediction.urls is not None
     assert prediction.urls["stream"] is not None
 
 
