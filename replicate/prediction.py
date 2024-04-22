@@ -433,7 +433,9 @@ class Predictions(Namespace):
             )
 
         if model is not None:
-            from replicate.model import Models
+            from replicate.model import (  # pylint: disable=import-outside-toplevel
+                Models,
+            )
 
             return Models(self._client).predictions.create(
                 model=model,
@@ -442,7 +444,9 @@ class Predictions(Namespace):
             )
 
         if deployment is not None:
-            from replicate.deployment import Deployments
+            from replicate.deployment import (  # pylint: disable=import-outside-toplevel
+                Deployments,
+            )
 
             return Deployments(self._client).predictions.create(
                 deployment=deployment,
@@ -513,7 +517,9 @@ class Predictions(Namespace):
             )
 
         if model is not None:
-            from replicate.model import Models
+            from replicate.model import (  # pylint: disable=import-outside-toplevel
+                Models,
+            )
 
             return await Models(self._client).predictions.async_create(
                 model=model,
@@ -522,7 +528,9 @@ class Predictions(Namespace):
             )
 
         if deployment is not None:
-            from replicate.deployment import Deployments
+            from replicate.deployment import (  # pylint: disable=import-outside-toplevel
+                Deployments,
+            )
 
             return await Deployments(self._client).predictions.async_create(
                 deployment=deployment,
