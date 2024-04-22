@@ -46,7 +46,7 @@ Some models, particularly language models, may not require the version string. R
 
 ```python
 replicate.run(
-    "meta/llama-2-70b-chat",
+    "meta/meta-llama-3-70b-instruct",
     input={
         "prompt": "Can you write a poem about open source machine learning?",
         "system_prompt": "You are a helpful, respectful and honest assistant.",
@@ -102,11 +102,8 @@ Use the `stream` method to consume tokens as they're produced by the model.
 ```python
 import replicate
 
-# https://replicate.com/meta/llama-2-70b-chat
-model_version = "meta/llama-2-70b-chat:02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3"
-
 for event in replicate.stream(
-    model_version,
+    "meta/meta-llama-3-70b-instruct",
     input={
         "prompt": "Please write a haiku about llamas.",
     },
