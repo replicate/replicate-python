@@ -11,7 +11,9 @@ from typing import (
     List,
     Literal,
     Optional,
+    Tuple,
     Union,
+    overload,
 )
 
 from typing_extensions import NotRequired, TypedDict, Unpack
@@ -31,6 +33,8 @@ except ImportError:
 
 if TYPE_CHECKING:
     from replicate.client import Client
+    from replicate.deployment import Deployment
+    from replicate.model import Model
     from replicate.stream import ServerSentEvent
 
 
@@ -380,21 +384,78 @@ class Predictions(Namespace):
         stream: NotRequired[bool]
         """Enable streaming of prediction output."""
 
+    @overload
     def create(
         self,
         version: Union[Version, str],
         input: Optional[Dict[str, Any]],
         **params: Unpack["Predictions.CreatePredictionParams"],
+    ) -> Prediction: ...
+
+    @overload
+    def create(
+        self,
+        *,
+        model: Union[str, Tuple[str, str], "Model"],
+        input: Optional[Dict[str, Any]],
+        **params: Unpack["Predictions.CreatePredictionParams"],
+    ) -> Prediction: ...
+
+    @overload
+    def create(
+        self,
+        *,
+        deployment: Union[str, Tuple[str, str], "Deployment"],
+        input: Optional[Dict[str, Any]],
+        **params: Unpack["Predictions.CreatePredictionParams"],
+    ) -> Prediction: ...
+
+    def create(  # type: ignore
+        self,
+        *args,
+        model: Optional[Union[str, Tuple[str, str], "Model"]] = None,
+        version: Optional[Union[Version, str, "Version"]] = None,
+        deployment: Optional[Union[str, Tuple[str, str], "Deployment"]] = None,
+        input: Optional[Dict[str, Any]] = None,
+        **params: Unpack["Predictions.CreatePredictionParams"],
     ) -> Prediction:
         """
-        Create a new prediction for the specified model version.
+        Create a new prediction for the specified model, version, or deployment.
         """
+
+        if args:
+            version = args[0] if len(args) > 0 else None
+            input = args[1] if len(args) > 1 else input
+
+        if sum(bool(x) for x in [model, version, deployment]) != 1:
+            raise ValueError(
+                "Exactly one of 'model', 'version', or 'deployment' must be specified."
+            )
+
+        if model is not None:
+            from replicate.model import Models
+
+            return Models(self._client).predictions.create(
+                model=model,
+                input=input or {},
+                **params,
+            )
+
+        if deployment is not None:
+            from replicate.deployment import Deployments
+
+            return Deployments(self._client).predictions.create(
+                deployment=deployment,
+                input=input or {},
+                **params,
+            )
 
         body = _create_prediction_body(
             version,
             input,
             **params,
         )
+
         resp = self._client._request(
             "POST",
             "/v1/predictions",
@@ -403,21 +464,78 @@ class Predictions(Namespace):
 
         return _json_to_prediction(self._client, resp.json())
 
+    @overload
     async def async_create(
         self,
         version: Union[Version, str],
         input: Optional[Dict[str, Any]],
         **params: Unpack["Predictions.CreatePredictionParams"],
+    ) -> Prediction: ...
+
+    @overload
+    async def async_create(
+        self,
+        *,
+        model: Union[str, Tuple[str, str], "Model"],
+        input: Optional[Dict[str, Any]],
+        **params: Unpack["Predictions.CreatePredictionParams"],
+    ) -> Prediction: ...
+
+    @overload
+    async def async_create(
+        self,
+        *,
+        deployment: Union[str, Tuple[str, str], "Deployment"],
+        input: Optional[Dict[str, Any]],
+        **params: Unpack["Predictions.CreatePredictionParams"],
+    ) -> Prediction: ...
+
+    async def async_create(  # type: ignore
+        self,
+        *args,
+        model: Optional[Union[str, Tuple[str, str], "Model"]] = None,
+        version: Optional[Union[Version, str, "Version"]] = None,
+        deployment: Optional[Union[str, Tuple[str, str], "Deployment"]] = None,
+        input: Optional[Dict[str, Any]] = None,
+        **params: Unpack["Predictions.CreatePredictionParams"],
     ) -> Prediction:
         """
-        Create a new prediction for the specified model version.
+        Create a new prediction for the specified model, version, or deployment.
         """
+
+        if args:
+            version = args[0] if len(args) > 0 else None
+            input = args[1] if len(args) > 1 else input
+
+        if sum(bool(x) for x in [model, version, deployment]) != 1:
+            raise ValueError(
+                "Exactly one of 'model', 'version', or 'deployment' must be specified."
+            )
+
+        if model is not None:
+            from replicate.model import Models
+
+            return await Models(self._client).predictions.async_create(
+                model=model,
+                input=input or {},
+                **params,
+            )
+
+        if deployment is not None:
+            from replicate.deployment import Deployments
+
+            return await Deployments(self._client).predictions.async_create(
+                deployment=deployment,
+                input=input or {},
+                **params,
+            )
 
         body = _create_prediction_body(
             version,
             input,
             **params,
         )
+
         resp = await self._client._async_request(
             "POST",
             "/v1/predictions",
