@@ -13,7 +13,7 @@ async def test_trainings_create(async_flag, mock_replicate_api_token):
     if async_flag:
         training = await replicate.trainings.async_create(
             model="stability-ai/sdxl",
-            version="a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5",
+            version="39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
             input={
                 "input_images": input_images_url,
                 "use_face_detection_instead": True,
@@ -23,7 +23,7 @@ async def test_trainings_create(async_flag, mock_replicate_api_token):
     else:
         training = replicate.trainings.create(
             model="stability-ai/sdxl",
-            version="a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5",
+            version="39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
             input={
                 "input_images": input_images_url,
                 "use_face_detection_instead": True,
@@ -47,7 +47,7 @@ async def test_trainings_create_with_named_version_argument(
         return
     else:
         training = replicate.trainings.create(
-            version="stability-ai/sdxl:a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5",
+            version="stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
             input={
                 "input_images": input_images_url,
                 "use_face_detection_instead": True,
@@ -71,7 +71,7 @@ async def test_trainings_create_with_positional_argument(
         return
     else:
         training = replicate.trainings.create(
-            "stability-ai/sdxl:a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5",
+            "stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
             {
                 "input_images": input_images_url,
                 "use_face_detection_instead": True,
@@ -93,7 +93,7 @@ async def test_trainings_create_with_invalid_destination(
         if async_flag:
             await replicate.trainings.async_create(
                 model="stability-ai/sdxl",
-                version="a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5",
+                version="39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
                 input={
                     "input_images": input_images_url,
                     "use_face_detection_instead": True,
@@ -103,7 +103,7 @@ async def test_trainings_create_with_invalid_destination(
         else:
             replicate.trainings.create(
                 model="stability-ai/sdxl",
-                version="a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5",
+                version="39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
                 input={
                     "input_images": input_images_url,
                 },
@@ -140,7 +140,7 @@ async def test_trainings_cancel(async_flag, mock_replicate_api_token):
     if async_flag:
         training = await replicate.trainings.async_create(
             model="stability-ai/sdxl",
-            version="a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5",
+            version="39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
             input=input,
             destination=destination,
         )
@@ -151,7 +151,7 @@ async def test_trainings_cancel(async_flag, mock_replicate_api_token):
         assert training.status == "canceled"
     else:
         training = replicate.trainings.create(
-            version="stability-ai/sdxl:a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5",
+            version="stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
             destination=destination,
             input=input,
         )
@@ -179,7 +179,7 @@ async def test_trainings_cancel_instance_method(async_flag, mock_replicate_api_t
         return
     else:
         training = replicate.trainings.create(
-            version="stability-ai/sdxl:a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5",
+            version="stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
             destination=destination,
             input=input,
         )

@@ -17,7 +17,7 @@ async def test_predictions_create(async_flag):
     if async_flag:
         model = await replicate.models.async_get("stability-ai/sdxl")
         version = await model.versions.async_get(
-            "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5"
+            "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"
         )
         prediction = await replicate.predictions.async_create(
             version=version,
@@ -26,7 +26,7 @@ async def test_predictions_create(async_flag):
     else:
         model = replicate.models.get("stability-ai/sdxl")
         version = model.versions.get(
-            "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5"
+            "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"
         )
         prediction = replicate.predictions.create(
             version=version,
@@ -42,7 +42,7 @@ async def test_predictions_create(async_flag):
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_flag", [True, False])
 async def test_predictions_create_with_positional_argument(async_flag):
-    version = "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5"
+    version = "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"
 
     input = {
         "prompt": "a studio photo of a rainbow colored corgi",
@@ -95,7 +95,7 @@ async def test_predictions_cancel(async_flag):
     if async_flag:
         model = await replicate.models.async_get("stability-ai/sdxl")
         version = await model.versions.async_get(
-            "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5"
+            "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"
         )
         prediction = await replicate.predictions.async_create(
             version=version,
@@ -111,7 +111,7 @@ async def test_predictions_cancel(async_flag):
     else:
         model = replicate.models.get("stability-ai/sdxl")
         version = model.versions.get(
-            "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5"
+            "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"
         )
         prediction = replicate.predictions.create(
             version=version,
@@ -140,7 +140,7 @@ async def test_predictions_cancel_instance_method(async_flag):
     if async_flag:
         model = await replicate.models.async_get("stability-ai/sdxl")
         version = await model.versions.async_get(
-            "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5"
+            "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"
         )
         prediction = await replicate.predictions.async_create(
             version=version,
@@ -154,7 +154,7 @@ async def test_predictions_cancel_instance_method(async_flag):
     else:
         model = replicate.models.get("stability-ai/sdxl")
         version = model.versions.get(
-            "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5"
+            "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"
         )
         prediction = replicate.predictions.create(
             version=version,
