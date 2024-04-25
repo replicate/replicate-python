@@ -335,7 +335,7 @@ def _build_httpx_client(
     if (
         api_token := api_token or os.environ.get("REPLICATE_API_TOKEN")
     ) and api_token != "":
-        headers["Authorization"] = f"Token {api_token}"
+        headers["Authorization"] = f"Bearer {api_token}"
 
     base_url = (
         base_url or os.environ.get("REPLICATE_BASE_URL") or "https://api.replicate.com"

@@ -14,7 +14,7 @@ async def test_authorization_when_setting_environ_after_import():
     router.route(
         method="GET",
         url="https://api.replicate.com/",
-        headers={"Authorization": "Token test-set-after-import"},
+        headers={"Authorization": "Bearer test-set-after-import"},
     ).mock(
         return_value=httpx.Response(
             200,
@@ -42,7 +42,7 @@ async def test_client_error_handling():
     router.route(
         method="GET",
         url="https://api.replicate.com/",
-        headers={"Authorization": "Token test-client-error"},
+        headers={"Authorization": "Bearer test-client-error"},
     ).mock(
         return_value=httpx.Response(
             400,
@@ -69,7 +69,7 @@ async def test_server_error_handling():
     router.route(
         method="GET",
         url="https://api.replicate.com/",
-        headers={"Authorization": "Token test-server-error"},
+        headers={"Authorization": "Bearer test-server-error"},
     ).mock(
         return_value=httpx.Response(
             500,
