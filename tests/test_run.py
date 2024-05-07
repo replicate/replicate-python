@@ -17,7 +17,7 @@ async def test_run(async_flag, record_mode):
     if record_mode == "none":
         replicate.default_client.poll_interval = 0.001
 
-    version = "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5"
+    version = "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"
 
     input = {
         "prompt": "a studio photo of a rainbow colored corgi",

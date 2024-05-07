@@ -1,879 +1,893 @@
 interactions:
-- request:
-    body: '{"input": {"prompt": "a studio photo of a rainbow colored corgi", "width":
-      512, "height": 512, "seed": 42069}, "version": "a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5"}'
-    headers:
-      accept:
-      - '*/*'
-      accept-encoding:
-      - gzip, deflate
-      connection:
-      - keep-alive
-      content-length:
-      - '189'
-      content-type:
-      - application/json
-      host:
-      - api.replicate.com
-      user-agent:
-      - replicate-python/0.15.6
-    method: POST
-    uri: https://api.replicate.com/v1/predictions
-  response:
-    content: '{"id":"azaq55dbukgxg6kubr4k6g3pby","model":"stability-ai/sdxl","model":"stability-ai/sdxl","version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","input":{"height":512,"prompt":"a
-      studio photo of a rainbow colored corgi","seed":42069,"width":512},"logs":"","error":null,"status":"starting","created_at":"2023-11-16T11:46:16.064900134Z","urls":{"cancel":"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby/cancel","get":"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby"}}
+  - request:
+      body:
+        '{"input": {"prompt": "a studio photo of a rainbow colored corgi", "width":
+        512, "height": 512, "seed": 42069}, "version": "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"}'
+      headers:
+        accept:
+          - "*/*"
+        accept-encoding:
+          - gzip, deflate
+        connection:
+          - keep-alive
+        content-length:
+          - "189"
+        content-type:
+          - application/json
+        host:
+          - api.replicate.com
+        user-agent:
+          - replicate-python/0.15.6
+      method: POST
+      uri: https://api.replicate.com/v1/predictions
+    response:
+      content:
+        '{"id":"azaq55dbukgxg6kubr4k6g3pby","model":"stability-ai/sdxl","model":"stability-ai/sdxl","version":"39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b","input":{"height":512,"prompt":"a
+        studio photo of a rainbow colored corgi","seed":42069,"width":512},"logs":"","error":null,"status":"starting","created_at":"2023-11-16T11:46:16.064900134Z","urls":{"cancel":"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby/cancel","get":"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby"}}
 
-      '
-    headers:
-      CF-Cache-Status:
-      - DYNAMIC
-      CF-RAY:
-      - 826f7e11ee416ffb-IAD
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '502'
-      Content-Type:
-      - application/json
-      Date:
-      - Thu, 16 Nov 2023 11:46:16 GMT
-      NEL:
-      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
-      Report-To:
-      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=jkhd%2BN9nDvhApVk0leK2ksrUq%2FX%2F07l3%2FxSbK%2BnQmOnj5SCKWPtZL7afFCzmiuklWVyMphwH8CGPZvntNLBXDU%2Bqtp7XKNK2kxIHnjpvMSr%2FYOichdMaQdJD4Crhky3k1b%2B14bzqT5sUvJV7EckF"}],"group":"cf-nel","max_age":604800}'
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=15552000
-      ratelimit-remaining:
-      - '599'
-      ratelimit-reset:
-      - '1'
-      via:
-      - 1.1 google
-    http_version: HTTP/1.1
-    status_code: 201
-- request:
-    body: ''
-    headers:
-      accept:
-      - '*/*'
-      accept-encoding:
-      - gzip, deflate
-      connection:
-      - keep-alive
-      host:
-      - api.replicate.com
-      user-agent:
-      - replicate-python/0.15.6
-    method: GET
-    uri: https://api.replicate.com/v1/models/stability-ai/sdxl/versions/a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5
-  response:
-    content: '{"id":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","created_at":"2023-08-11T17:00:23.916379Z","cog_version":"0.8.5","openapi_schema":{"info":{"title":"Cog","model":"stability-ai/sdxl","version":"0.1.0"},"paths":{"/":{"get":{"summary":"Root","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
-      Root  Get"}}},"description":"Successful Response"}},"operationId":"root__get"}},"/shutdown":{"post":{"summary":"Start
-      Shutdown","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
-      Start Shutdown Shutdown Post"}}},"description":"Successful Response"}},"operationId":"start_shutdown_shutdown_post"}},"/predictions":{"post":{"summary":"Predict","responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionResponse"}}},"description":"Successful
-      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
-      Error"}},"parameters":[{"in":"header","name":"prefer","schema":{"type":"string","title":"Prefer"},"required":false}],"description":"Run
-      a single prediction on the model","operationId":"predict_predictions_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionRequest"}}}}}},"/health-check":{"get":{"summary":"Healthcheck","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
-      Healthcheck Health Check Get"}}},"description":"Successful Response"}},"operationId":"healthcheck_health_check_get"}},"/predictions/{prediction_id}":{"put":{"summary":"Predict
-      Idempotent","responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionResponse"}}},"description":"Successful
-      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
-      Error"}},"parameters":[{"in":"path","name":"prediction_id","schema":{"type":"string","title":"Prediction
-      ID"},"required":true},{"in":"header","name":"prefer","schema":{"type":"string","title":"Prefer"},"required":false}],"description":"Run
-      a single prediction on the model (idempotent creation).","operationId":"predict_idempotent_predictions__prediction_id__put","requestBody":{"content":{"application/json":{"schema":{"allOf":[{"$ref":"#/components/schemas/PredictionRequest"}],"title":"Prediction
-      Request"}}},"required":true}}},"/predictions/{prediction_id}/cancel":{"post":{"summary":"Cancel","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
-      Cancel Predictions  Prediction Id  Cancel Post"}}},"description":"Successful
-      Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
-      Error"}},"parameters":[{"in":"path","name":"prediction_id","schema":{"type":"string","title":"Prediction
-      ID"},"required":true}],"description":"Cancel a running prediction","operationId":"cancel_predictions__prediction_id__cancel_post"}}},"openapi":"3.0.2","components":{"schemas":{"Input":{"type":"object","title":"Input","properties":{"mask":{"type":"string","title":"Mask","format":"uri","x-order":3,"description":"Input
-      mask for inpaint mode. Black areas will be preserved, white areas will be inpainted."},"seed":{"type":"integer","title":"Seed","x-order":11,"description":"Random
-      seed. Leave blank to randomize the seed"},"image":{"type":"string","title":"Image","format":"uri","x-order":2,"description":"Input
-      image for img2img or inpaint mode"},"width":{"type":"integer","title":"Width","default":1024,"x-order":4,"description":"Width
-      of output image"},"height":{"type":"integer","title":"Height","default":1024,"x-order":5,"description":"Height
-      of output image"},"prompt":{"type":"string","title":"Prompt","default":"An astronaut
-      riding a rainbow unicorn","x-order":0,"description":"Input prompt"},"refine":{"allOf":[{"$ref":"#/components/schemas/refine"}],"default":"no_refiner","x-order":12,"description":"Which
-      refine style to use"},"scheduler":{"allOf":[{"$ref":"#/components/schemas/scheduler"}],"default":"K_EULER","x-order":7,"description":"scheduler"},"lora_scale":{"type":"number","title":"Lora
-      Scale","default":0.6,"maximum":1,"minimum":0,"x-order":16,"description":"LoRA
-      additive scale. Only applicable on trained models."},"num_outputs":{"type":"integer","title":"Num
-      Outputs","default":1,"maximum":4,"minimum":1,"x-order":6,"description":"Number
-      of images to output."},"refine_steps":{"type":"integer","title":"Refine Steps","x-order":14,"description":"For
-      base_image_refiner, the number of steps to refine, defaults to num_inference_steps"},"guidance_scale":{"type":"number","title":"Guidance
-      Scale","default":7.5,"maximum":50,"minimum":1,"x-order":9,"description":"Scale
-      for classifier-free guidance"},"apply_watermark":{"type":"boolean","title":"Apply
-      Watermark","default":true,"x-order":15,"description":"Applies a watermark to
-      enable determining if an image is generated in downstream applications. If you
-      have other provisions for generating or deploying images safely, you can use
-      this to disable watermarking."},"high_noise_frac":{"type":"number","title":"High
-      Noise Frac","default":0.8,"maximum":1,"minimum":0,"x-order":13,"description":"For
-      expert_ensemble_refiner, the fraction of noise to use"},"negative_prompt":{"type":"string","title":"Negative
-      Prompt","default":"","x-order":1,"description":"Input Negative Prompt"},"prompt_strength":{"type":"number","title":"Prompt
-      Strength","default":0.8,"maximum":1,"minimum":0,"x-order":10,"description":"Prompt
-      strength when using img2img / inpaint. 1.0 corresponds to full destruction of
-      information in image"},"num_inference_steps":{"type":"integer","title":"Num
-      Inference Steps","default":50,"maximum":500,"minimum":1,"x-order":8,"description":"Number
-      of denoising steps"}}},"Output":{"type":"array","items":{"type":"string","format":"uri"},"title":"Output"},"Status":{"enum":["starting","processing","succeeded","canceled","failed"],"type":"string","title":"Status","description":"An
-      enumeration."},"refine":{"enum":["no_refiner","expert_ensemble_refiner","base_image_refiner"],"type":"string","title":"refine","description":"An
-      enumeration."},"scheduler":{"enum":["DDIM","DPMSolverMultistep","HeunDiscrete","KarrasDPM","K_EULER_ANCESTRAL","K_EULER","PNDM"],"type":"string","title":"scheduler","description":"An
-      enumeration."},"WebhookEvent":{"enum":["start","output","logs","completed"],"type":"string","title":"WebhookEvent","description":"An
-      enumeration."},"ValidationError":{"type":"object","title":"ValidationError","required":["loc","msg","type"],"properties":{"loc":{"type":"array","items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error
-      Type"}}},"PredictionRequest":{"type":"object","title":"PredictionRequest","properties":{"id":{"type":"string","title":"Id"},"input":{"$ref":"#/components/schemas/Input"},"webhook":{"type":"string","title":"Webhook","format":"uri","maxLength":65536,"minLength":1},"created_at":{"type":"string","title":"Created
-      At","format":"date-time"},"output_file_prefix":{"type":"string","title":"Output
-      File Prefix"},"webhook_events_filter":{"type":"array","items":{"$ref":"#/components/schemas/WebhookEvent"},"default":["start","completed","logs","output"],"uniqueItems":true}}},"PredictionResponse":{"type":"object","title":"PredictionResponse","properties":{"id":{"type":"string","title":"Id"},"logs":{"type":"string","title":"Logs","default":""},"error":{"type":"string","title":"Error"},"input":{"$ref":"#/components/schemas/Input"},"output":{"$ref":"#/components/schemas/Output"},"status":{"$ref":"#/components/schemas/Status"},"metrics":{"type":"object","title":"Metrics"},"model":"stability-ai/sdxl","version":{"type":"string","title":"Version"},"created_at":{"type":"string","title":"Created
-      At","format":"date-time"},"started_at":{"type":"string","title":"Started At","format":"date-time"},"completed_at":{"type":"string","title":"Completed
-      At","format":"date-time"}}},"HTTPValidationError":{"type":"object","title":"HTTPValidationError","properties":{"detail":{"type":"array","items":{"$ref":"#/components/schemas/ValidationError"},"title":"Detail"}}}}}}}'
-    headers:
-      CF-Cache-Status:
-      - DYNAMIC
-      CF-RAY:
-      - 826f7e12aee06ffb-IAD
-      Connection:
-      - keep-alive
-      Content-Encoding:
-      - gzip
-      Content-Type:
-      - application/json
-      Date:
-      - Thu, 16 Nov 2023 11:46:16 GMT
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=15552000
-      Transfer-Encoding:
-      - chunked
-      allow:
-      - GET, DELETE, HEAD, OPTIONS
-      content-security-policy-report-only:
-      - 'font-src ''report-sample'' ''self'' data:; worker-src ''none''; connect-src
-        ''report-sample'' ''self'' https://replicate.delivery https://*.replicate.delivery
-        https://*.rudderlabs.com https://*.rudderstack.com https://*.mux.com https://*.sentry.io;
-        img-src ''report-sample'' ''self'' data: https://replicate.delivery https://*.replicate.delivery
-        https://*.githubusercontent.com https://github.com; media-src ''report-sample''
-        ''self'' https://replicate.delivery https://*.replicate.delivery https://*.mux.com
-        https://*.sentry.io; script-src ''report-sample'' ''self'' https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js;
-        default-src ''self''; style-src ''report-sample'' ''self'' ''unsafe-inline'';
-        report-uri'
-      cross-origin-opener-policy:
-      - same-origin
-      nel:
-      - '{"report_to":"heroku-nel","max_age":3600,"success_fraction":0.005,"failure_fraction":0.05,"response_headers":["Via"]}'
-      ratelimit-remaining:
-      - '2999'
-      ratelimit-reset:
-      - '1'
-      referrer-policy:
-      - same-origin
-      report-to:
-      - '{"group":"heroku-nel","max_age":3600,"endpoints":[{"url":"https://nel.heroku.com/reports?ts=1700135176&sid=1b10b0ff-8a76-4548-befa-353fc6c6c045&s=%2BnXr73SGFEz942ARAnrOIAvUY7xDILhrQlQ%2FS6SsIg8%3D"}]}'
-      reporting-endpoints:
-      - heroku-nel=https://nel.heroku.com/reports?ts=1700135176&sid=1b10b0ff-8a76-4548-befa-353fc6c6c045&s=%2BnXr73SGFEz942ARAnrOIAvUY7xDILhrQlQ%2FS6SsIg8%3D
-      vary:
-      - Cookie, origin
-      via:
-      - 1.1 vegur, 1.1 google
-      x-content-type-options:
-      - nosniff
-      x-frame-options:
-      - DENY
-    http_version: HTTP/1.1
-    status_code: 200
-- request:
-    body: ''
-    headers:
-      accept:
-      - '*/*'
-      accept-encoding:
-      - gzip, deflate
-      connection:
-      - keep-alive
-      host:
-      - api.replicate.com
-      user-agent:
-      - replicate-python/0.15.6
-    method: GET
-    uri: https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby
-  response:
-    content: '{"id":"azaq55dbukgxg6kubr4k6g3pby","model":"stability-ai/sdxl","model":"stability-ai/sdxl","version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","input":{"height":512,"prompt":"a
-      studio photo of a rainbow colored corgi","seed":42069,"width":512},"logs":"","error":null,"status":"starting","created_at":"2023-11-16T11:46:16.064900134Z","urls":{"cancel":"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby/cancel","get":"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby"}}
+        '
+      headers:
+        CF-Cache-Status:
+          - DYNAMIC
+        CF-RAY:
+          - 826f7e11ee416ffb-IAD
+        Connection:
+          - keep-alive
+        Content-Length:
+          - "502"
+        Content-Type:
+          - application/json
+        Date:
+          - Thu, 16 Nov 2023 11:46:16 GMT
+        NEL:
+          - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+        Report-To:
+          - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=jkhd%2BN9nDvhApVk0leK2ksrUq%2FX%2F07l3%2FxSbK%2BnQmOnj5SCKWPtZL7afFCzmiuklWVyMphwH8CGPZvntNLBXDU%2Bqtp7XKNK2kxIHnjpvMSr%2FYOichdMaQdJD4Crhky3k1b%2B14bzqT5sUvJV7EckF"}],"group":"cf-nel","max_age":604800}'
+        Server:
+          - cloudflare
+        Strict-Transport-Security:
+          - max-age=15552000
+        ratelimit-remaining:
+          - "599"
+        ratelimit-reset:
+          - "1"
+        via:
+          - 1.1 google
+      http_version: HTTP/1.1
+      status_code: 201
+  - request:
+      body: ""
+      headers:
+        accept:
+          - "*/*"
+        accept-encoding:
+          - gzip, deflate
+        connection:
+          - keep-alive
+        host:
+          - api.replicate.com
+        user-agent:
+          - replicate-python/0.15.6
+      method: GET
+      uri: https://api.replicate.com/v1/models/stability-ai/sdxl/versions/39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b
+    response:
+      content:
+        '{"id":"39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b","created_at":"2023-08-11T17:00:23.916379Z","cog_version":"0.8.5","openapi_schema":{"info":{"title":"Cog","model":"stability-ai/sdxl","version":"0.1.0"},"paths":{"/":{"get":{"summary":"Root","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+        Root  Get"}}},"description":"Successful Response"}},"operationId":"root__get"}},"/shutdown":{"post":{"summary":"Start
+        Shutdown","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+        Start Shutdown Shutdown Post"}}},"description":"Successful Response"}},"operationId":"start_shutdown_shutdown_post"}},"/predictions":{"post":{"summary":"Predict","responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionResponse"}}},"description":"Successful
+        Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+        Error"}},"parameters":[{"in":"header","name":"prefer","schema":{"type":"string","title":"Prefer"},"required":false}],"description":"Run
+        a single prediction on the model","operationId":"predict_predictions_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionRequest"}}}}}},"/health-check":{"get":{"summary":"Healthcheck","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+        Healthcheck Health Check Get"}}},"description":"Successful Response"}},"operationId":"healthcheck_health_check_get"}},"/predictions/{prediction_id}":{"put":{"summary":"Predict
+        Idempotent","responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PredictionResponse"}}},"description":"Successful
+        Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+        Error"}},"parameters":[{"in":"path","name":"prediction_id","schema":{"type":"string","title":"Prediction
+        ID"},"required":true},{"in":"header","name":"prefer","schema":{"type":"string","title":"Prefer"},"required":false}],"description":"Run
+        a single prediction on the model (idempotent creation).","operationId":"predict_idempotent_predictions__prediction_id__put","requestBody":{"content":{"application/json":{"schema":{"allOf":[{"$ref":"#/components/schemas/PredictionRequest"}],"title":"Prediction
+        Request"}}},"required":true}}},"/predictions/{prediction_id}/cancel":{"post":{"summary":"Cancel","responses":{"200":{"content":{"application/json":{"schema":{"title":"Response
+        Cancel Predictions  Prediction Id  Cancel Post"}}},"description":"Successful
+        Response"},"422":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}},"description":"Validation
+        Error"}},"parameters":[{"in":"path","name":"prediction_id","schema":{"type":"string","title":"Prediction
+        ID"},"required":true}],"description":"Cancel a running prediction","operationId":"cancel_predictions__prediction_id__cancel_post"}}},"openapi":"3.0.2","components":{"schemas":{"Input":{"type":"object","title":"Input","properties":{"mask":{"type":"string","title":"Mask","format":"uri","x-order":3,"description":"Input
+        mask for inpaint mode. Black areas will be preserved, white areas will be inpainted."},"seed":{"type":"integer","title":"Seed","x-order":11,"description":"Random
+        seed. Leave blank to randomize the seed"},"image":{"type":"string","title":"Image","format":"uri","x-order":2,"description":"Input
+        image for img2img or inpaint mode"},"width":{"type":"integer","title":"Width","default":1024,"x-order":4,"description":"Width
+        of output image"},"height":{"type":"integer","title":"Height","default":1024,"x-order":5,"description":"Height
+        of output image"},"prompt":{"type":"string","title":"Prompt","default":"An astronaut
+        riding a rainbow unicorn","x-order":0,"description":"Input prompt"},"refine":{"allOf":[{"$ref":"#/components/schemas/refine"}],"default":"no_refiner","x-order":12,"description":"Which
+        refine style to use"},"scheduler":{"allOf":[{"$ref":"#/components/schemas/scheduler"}],"default":"K_EULER","x-order":7,"description":"scheduler"},"lora_scale":{"type":"number","title":"Lora
+        Scale","default":0.6,"maximum":1,"minimum":0,"x-order":16,"description":"LoRA
+        additive scale. Only applicable on trained models."},"num_outputs":{"type":"integer","title":"Num
+        Outputs","default":1,"maximum":4,"minimum":1,"x-order":6,"description":"Number
+        of images to output."},"refine_steps":{"type":"integer","title":"Refine Steps","x-order":14,"description":"For
+        base_image_refiner, the number of steps to refine, defaults to num_inference_steps"},"guidance_scale":{"type":"number","title":"Guidance
+        Scale","default":7.5,"maximum":50,"minimum":1,"x-order":9,"description":"Scale
+        for classifier-free guidance"},"apply_watermark":{"type":"boolean","title":"Apply
+        Watermark","default":true,"x-order":15,"description":"Applies a watermark to
+        enable determining if an image is generated in downstream applications. If you
+        have other provisions for generating or deploying images safely, you can use
+        this to disable watermarking."},"high_noise_frac":{"type":"number","title":"High
+        Noise Frac","default":0.8,"maximum":1,"minimum":0,"x-order":13,"description":"For
+        expert_ensemble_refiner, the fraction of noise to use"},"negative_prompt":{"type":"string","title":"Negative
+        Prompt","default":"","x-order":1,"description":"Input Negative Prompt"},"prompt_strength":{"type":"number","title":"Prompt
+        Strength","default":0.8,"maximum":1,"minimum":0,"x-order":10,"description":"Prompt
+        strength when using img2img / inpaint. 1.0 corresponds to full destruction of
+        information in image"},"num_inference_steps":{"type":"integer","title":"Num
+        Inference Steps","default":50,"maximum":500,"minimum":1,"x-order":8,"description":"Number
+        of denoising steps"}}},"Output":{"type":"array","items":{"type":"string","format":"uri"},"title":"Output"},"Status":{"enum":["starting","processing","succeeded","canceled","failed"],"type":"string","title":"Status","description":"An
+        enumeration."},"refine":{"enum":["no_refiner","expert_ensemble_refiner","base_image_refiner"],"type":"string","title":"refine","description":"An
+        enumeration."},"scheduler":{"enum":["DDIM","DPMSolverMultistep","HeunDiscrete","KarrasDPM","K_EULER_ANCESTRAL","K_EULER","PNDM"],"type":"string","title":"scheduler","description":"An
+        enumeration."},"WebhookEvent":{"enum":["start","output","logs","completed"],"type":"string","title":"WebhookEvent","description":"An
+        enumeration."},"ValidationError":{"type":"object","title":"ValidationError","required":["loc","msg","type"],"properties":{"loc":{"type":"array","items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error
+        Type"}}},"PredictionRequest":{"type":"object","title":"PredictionRequest","properties":{"id":{"type":"string","title":"Id"},"input":{"$ref":"#/components/schemas/Input"},"webhook":{"type":"string","title":"Webhook","format":"uri","maxLength":65536,"minLength":1},"created_at":{"type":"string","title":"Created
+        At","format":"date-time"},"output_file_prefix":{"type":"string","title":"Output
+        File Prefix"},"webhook_events_filter":{"type":"array","items":{"$ref":"#/components/schemas/WebhookEvent"},"default":["start","completed","logs","output"],"uniqueItems":true}}},"PredictionResponse":{"type":"object","title":"PredictionResponse","properties":{"id":{"type":"string","title":"Id"},"logs":{"type":"string","title":"Logs","default":""},"error":{"type":"string","title":"Error"},"input":{"$ref":"#/components/schemas/Input"},"output":{"$ref":"#/components/schemas/Output"},"status":{"$ref":"#/components/schemas/Status"},"metrics":{"type":"object","title":"Metrics"},"model":"stability-ai/sdxl","version":{"type":"string","title":"Version"},"created_at":{"type":"string","title":"Created
+        At","format":"date-time"},"started_at":{"type":"string","title":"Started At","format":"date-time"},"completed_at":{"type":"string","title":"Completed
+        At","format":"date-time"}}},"HTTPValidationError":{"type":"object","title":"HTTPValidationError","properties":{"detail":{"type":"array","items":{"$ref":"#/components/schemas/ValidationError"},"title":"Detail"}}}}}}}'
+      headers:
+        CF-Cache-Status:
+          - DYNAMIC
+        CF-RAY:
+          - 826f7e12aee06ffb-IAD
+        Connection:
+          - keep-alive
+        Content-Encoding:
+          - gzip
+        Content-Type:
+          - application/json
+        Date:
+          - Thu, 16 Nov 2023 11:46:16 GMT
+        Server:
+          - cloudflare
+        Strict-Transport-Security:
+          - max-age=15552000
+        Transfer-Encoding:
+          - chunked
+        allow:
+          - GET, DELETE, HEAD, OPTIONS
+        content-security-policy-report-only:
+          - "font-src 'report-sample' 'self' data:; worker-src 'none'; connect-src
+            'report-sample' 'self' https://replicate.delivery https://*.replicate.delivery
+            https://*.rudderlabs.com https://*.rudderstack.com https://*.mux.com https://*.sentry.io;
+            img-src 'report-sample' 'self' data: https://replicate.delivery https://*.replicate.delivery
+            https://*.githubusercontent.com https://github.com; media-src 'report-sample'
+            'self' https://replicate.delivery https://*.replicate.delivery https://*.mux.com
+            https://*.sentry.io; script-src 'report-sample' 'self' https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js;
+            default-src 'self'; style-src 'report-sample' 'self' 'unsafe-inline';
+            report-uri"
+        cross-origin-opener-policy:
+          - same-origin
+        nel:
+          - '{"report_to":"heroku-nel","max_age":3600,"success_fraction":0.005,"failure_fraction":0.05,"response_headers":["Via"]}'
+        ratelimit-remaining:
+          - "2999"
+        ratelimit-reset:
+          - "1"
+        referrer-policy:
+          - same-origin
+        report-to:
+          - '{"group":"heroku-nel","max_age":3600,"endpoints":[{"url":"https://nel.heroku.com/reports?ts=1700135176&sid=1b10b0ff-8a76-4548-befa-353fc6c6c045&s=%2BnXr73SGFEz942ARAnrOIAvUY7xDILhrQlQ%2FS6SsIg8%3D"}]}'
+        reporting-endpoints:
+          - heroku-nel=https://nel.heroku.com/reports?ts=1700135176&sid=1b10b0ff-8a76-4548-befa-353fc6c6c045&s=%2BnXr73SGFEz942ARAnrOIAvUY7xDILhrQlQ%2FS6SsIg8%3D
+        vary:
+          - Cookie, origin
+        via:
+          - 1.1 vegur, 1.1 google
+        x-content-type-options:
+          - nosniff
+        x-frame-options:
+          - DENY
+      http_version: HTTP/1.1
+      status_code: 200
+  - request:
+      body: ""
+      headers:
+        accept:
+          - "*/*"
+        accept-encoding:
+          - gzip, deflate
+        connection:
+          - keep-alive
+        host:
+          - api.replicate.com
+        user-agent:
+          - replicate-python/0.15.6
+      method: GET
+      uri: https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby
+    response:
+      content:
+        '{"id":"azaq55dbukgxg6kubr4k6g3pby","model":"stability-ai/sdxl","model":"stability-ai/sdxl","version":"39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b","input":{"height":512,"prompt":"a
+        studio photo of a rainbow colored corgi","seed":42069,"width":512},"logs":"","error":null,"status":"starting","created_at":"2023-11-16T11:46:16.064900134Z","urls":{"cancel":"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby/cancel","get":"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby"}}
 
-      '
-    headers:
-      CF-Cache-Status:
-      - DYNAMIC
-      CF-RAY:
-      - 826f7e16898c6ffb-IAD
-      Connection:
-      - keep-alive
-      Content-Encoding:
-      - gzip
-      Content-Type:
-      - application/json
-      Date:
-      - Thu, 16 Nov 2023 11:46:16 GMT
-      NEL:
-      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
-      Report-To:
-      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=geAXMVKcSjWxrckoAr14YTsjv2ZWKCgy9jGjWAFbhDY6W7GqaI02aYAcoV2fqfha8W3zshjwvcA4LI%2BxmcYDeZeComSEyfgAnnjJSM71AmL3ErHzlIxQCdGN9%2BBn8kMPnjUNXd6piEz79vzj6Oqi"}],"group":"cf-nel","max_age":604800}'
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=15552000
-      Transfer-Encoding:
-      - chunked
-      ratelimit-remaining:
-      - '59999'
-      ratelimit-reset:
-      - '1'
-      via:
-      - 1.1 google
-    http_version: HTTP/1.1
-    status_code: 200
-- request:
-    body: ''
-    headers:
-      accept:
-      - '*/*'
-      accept-encoding:
-      - gzip, deflate
-      connection:
-      - keep-alive
-      host:
-      - api.replicate.com
-      user-agent:
-      - replicate-python/0.15.6
-    method: GET
-    uri: https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby
-  response:
-    content: '{"id":"azaq55dbukgxg6kubr4k6g3pby","model":"stability-ai/sdxl","model":"stability-ai/sdxl","version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","input":{"height":512,"prompt":"a
-      studio photo of a rainbow colored corgi","seed":42069,"width":512},"logs":"","error":null,"status":"processing","created_at":"2023-11-16T11:46:16.0649Z","started_at":"2023-11-16T11:46:16.539915Z","urls":{"cancel":"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby/cancel","get":"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby"}}
+        '
+      headers:
+        CF-Cache-Status:
+          - DYNAMIC
+        CF-RAY:
+          - 826f7e16898c6ffb-IAD
+        Connection:
+          - keep-alive
+        Content-Encoding:
+          - gzip
+        Content-Type:
+          - application/json
+        Date:
+          - Thu, 16 Nov 2023 11:46:16 GMT
+        NEL:
+          - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+        Report-To:
+          - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=geAXMVKcSjWxrckoAr14YTsjv2ZWKCgy9jGjWAFbhDY6W7GqaI02aYAcoV2fqfha8W3zshjwvcA4LI%2BxmcYDeZeComSEyfgAnnjJSM71AmL3ErHzlIxQCdGN9%2BBn8kMPnjUNXd6piEz79vzj6Oqi"}],"group":"cf-nel","max_age":604800}'
+        Server:
+          - cloudflare
+        Strict-Transport-Security:
+          - max-age=15552000
+        Transfer-Encoding:
+          - chunked
+        ratelimit-remaining:
+          - "59999"
+        ratelimit-reset:
+          - "1"
+        via:
+          - 1.1 google
+      http_version: HTTP/1.1
+      status_code: 200
+  - request:
+      body: ""
+      headers:
+        accept:
+          - "*/*"
+        accept-encoding:
+          - gzip, deflate
+        connection:
+          - keep-alive
+        host:
+          - api.replicate.com
+        user-agent:
+          - replicate-python/0.15.6
+      method: GET
+      uri: https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby
+    response:
+      content:
+        '{"id":"azaq55dbukgxg6kubr4k6g3pby","model":"stability-ai/sdxl","model":"stability-ai/sdxl","version":"39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b","input":{"height":512,"prompt":"a
+        studio photo of a rainbow colored corgi","seed":42069,"width":512},"logs":"","error":null,"status":"processing","created_at":"2023-11-16T11:46:16.0649Z","started_at":"2023-11-16T11:46:16.539915Z","urls":{"cancel":"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby/cancel","get":"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby"}}
 
-      '
-    headers:
-      CF-Cache-Status:
-      - DYNAMIC
-      CF-RAY:
-      - 826f7e1a3c436ffb-IAD
-      Connection:
-      - keep-alive
-      Content-Encoding:
-      - gzip
-      Content-Type:
-      - application/json
-      Date:
-      - Thu, 16 Nov 2023 11:46:17 GMT
-      NEL:
-      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
-      Report-To:
-      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=ZKZFyrvablkFgeP95t3OKPq6IDF%2BGFiDeoNsJXOsagMUyGT9ZRaAMp%2FIDc%2By1kk33zej8gTh9CkdWslxDb%2FxDQlXseIKoCqGHWf7xsAX5npIRI331xfvMr83t13yX%2Fc51QJBwx6vUfDj7O1XAK60"}],"group":"cf-nel","max_age":604800}'
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=15552000
-      Transfer-Encoding:
-      - chunked
-      ratelimit-remaining:
-      - '59999'
-      ratelimit-reset:
-      - '1'
-      via:
-      - 1.1 google
-    http_version: HTTP/1.1
-    status_code: 200
-- request:
-    body: ''
-    headers:
-      accept:
-      - '*/*'
-      accept-encoding:
-      - gzip, deflate
-      connection:
-      - keep-alive
-      host:
-      - api.replicate.com
-      user-agent:
-      - replicate-python/0.15.6
-    method: GET
-    uri: https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby
-  response:
-    content: '{"id":"azaq55dbukgxg6kubr4k6g3pby","model":"stability-ai/sdxl","model":"stability-ai/sdxl","version":"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5","input":{"height":512,"prompt":"a
-      studio photo of a rainbow colored corgi","seed":42069,"width":512},"logs":"Using
-      seed: 42069\nPrompt: a studio photo of a rainbow colored corgi\ntxt2img mode\n  0%|          |
-      0/50 [00:00\u003c?, ?it/s]\n","error":null,"status":"processing","created_at":"2023-11-16T11:46:16.0649Z","started_at":"2023-11-16T11:46:16.539915Z","urls":{"cancel":"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby/cancel","get":"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby"}}
+        '
+      headers:
+        CF-Cache-Status:
+          - DYNAMIC
+        CF-RAY:
+          - 826f7e1a3c436ffb-IAD
+        Connection:
+          - keep-alive
+        Content-Encoding:
+          - gzip
+        Content-Type:
+          - application/json
+        Date:
+          - Thu, 16 Nov 2023 11:46:17 GMT
+        NEL:
+          - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+        Report-To:
+          - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=ZKZFyrvablkFgeP95t3OKPq6IDF%2BGFiDeoNsJXOsagMUyGT9ZRaAMp%2FIDc%2By1kk33zej8gTh9CkdWslxDb%2FxDQlXseIKoCqGHWf7xsAX5npIRI331xfvMr83t13yX%2Fc51QJBwx6vUfDj7O1XAK60"}],"group":"cf-nel","max_age":604800}'
+        Server:
+          - cloudflare
+        Strict-Transport-Security:
+          - max-age=15552000
+        Transfer-Encoding:
+          - chunked
+        ratelimit-remaining:
+          - "59999"
+        ratelimit-reset:
+          - "1"
+        via:
+          - 1.1 google
+      http_version: HTTP/1.1
+      status_code: 200
+  - request:
+      body: ""
+      headers:
+        accept:
+          - "*/*"
+        accept-encoding:
+          - gzip, deflate
+        connection:
+          - keep-alive
+        host:
+          - api.replicate.com
+        user-agent:
+          - replicate-python/0.15.6
+      method: GET
+      uri: https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby
+    response:
+      content:
+        '{"id":"azaq55dbukgxg6kubr4k6g3pby","model":"stability-ai/sdxl","model":"stability-ai/sdxl","version":"39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b","input":{"height":512,"prompt":"a
+        studio photo of a rainbow colored corgi","seed":42069,"width":512},"logs":"Using
+        seed: 42069\nPrompt: a studio photo of a rainbow colored corgi\ntxt2img mode\n  0%|          |
+        0/50 [00:00\u003c?, ?it/s]\n","error":null,"status":"processing","created_at":"2023-11-16T11:46:16.0649Z","started_at":"2023-11-16T11:46:16.539915Z","urls":{"cancel":"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby/cancel","get":"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby"}}
 
-      '
-    headers:
-      CF-Cache-Status:
-      - DYNAMIC
-      CF-RAY:
-      - 826f7e1e0f056ffb-IAD
-      Connection:
-      - keep-alive
-      Content-Encoding:
-      - gzip
-      Content-Type:
-      - application/json
-      Date:
-      - Thu, 16 Nov 2023 11:46:18 GMT
-      NEL:
-      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
-      Report-To:
-      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=15JQ1r7Zr8bxQOqYI9Nl4SC5ymH7JSogP2JrlEC6mefjjonY03rY63bFvqUS4Bgt7B93oiT065diWQ96gC4lh5a1cmPRchTiPLMr92zx1FihDVJ3fMPpR2DZpW%2BbtBOS1AixQj0Ys%2FHq5ELgf1Uj"}],"group":"cf-nel","max_age":604800}'
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=15552000
-      Transfer-Encoding:
-      - chunked
-      ratelimit-remaining:
-      - '59999'
-      ratelimit-reset:
-      - '1'
-      via:
-      - 1.1 google
-    http_version: HTTP/1.1
-    status_code: 200
-- request:
-    body: ''
-    headers:
-      accept:
-      - '*/*'
-      accept-encoding:
-      - gzip, deflate
-      connection:
-      - keep-alive
-      host:
-      - api.replicate.com
-      user-agent:
-      - replicate-python/0.15.6
-    method: GET
-    uri: https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby
-  response:
-    content: "{\"id\":\"azaq55dbukgxg6kubr4k6g3pby\",\"model\":\"stability-ai/sdxl\",\"version\":\"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5\",\"input\":{\"height\":512,\"prompt\":\"a
-      studio photo of a rainbow colored corgi\",\"seed\":42069,\"width\":512},\"logs\":\"Using
-      seed: 42069\\nPrompt: a studio photo of a rainbow colored corgi\\ntxt2img mode\\n
-      \ 0%|          | 0/50 [00:00\\u003c?, ?it/s]\\n  2%|\u258F         | 1/50 [00:00\\u003c00:31,
-      \ 1.57it/s]\\n  6%|\u258C         | 3/50 [00:00\\u003c00:09,  4.80it/s]\\n 10%|\u2588
-      \        | 5/50 [00:00\\u003c00:05,  7.60it/s]\\n 14%|\u2588\u258D        |
-      7/50 [00:00\\u003c00:04,  9.92it/s]\\n 18%|\u2588\u258A        | 9/50 [00:01\\u003c00:03,
-      11.76it/s]\\n\",\"error\":null,\"status\":\"processing\",\"created_at\":\"2023-11-16T11:46:16.0649Z\",\"started_at\":\"2023-11-16T11:46:16.539915Z\",\"urls\":{\"cancel\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby/cancel\",\"get\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby\"}}\n"
-    headers:
-      CF-Cache-Status:
-      - DYNAMIC
-      CF-RAY:
-      - 826f7e21c9b86ffb-IAD
-      Connection:
-      - keep-alive
-      Content-Encoding:
-      - gzip
-      Content-Type:
-      - application/json
-      Date:
-      - Thu, 16 Nov 2023 11:46:18 GMT
-      NEL:
-      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
-      Report-To:
-      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=ryNrT8rCOcmu14WXPyPWAOPGiP8rtco7TKC5mCXunD5fZnO4kbnSkjJGDGptw%2FkhjopzHKIr6t5HMgYozfNOhmUYZUUpfIVdeV9g5oyWptuAvG3Q25evqQY7BcP6gYhISk9%2BN%2B9WBQS%2BXIGWSz5S"}],"group":"cf-nel","max_age":604800}'
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=15552000
-      Transfer-Encoding:
-      - chunked
-      ratelimit-remaining:
-      - '59999'
-      ratelimit-reset:
-      - '1'
-      via:
-      - 1.1 google
-    http_version: HTTP/1.1
-    status_code: 200
-- request:
-    body: ''
-    headers:
-      accept:
-      - '*/*'
-      accept-encoding:
-      - gzip, deflate
-      connection:
-      - keep-alive
-      host:
-      - api.replicate.com
-      user-agent:
-      - replicate-python/0.15.6
-    method: GET
-    uri: https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby
-  response:
-    content: "{\"id\":\"azaq55dbukgxg6kubr4k6g3pby\",\"model\":\"stability-ai/sdxl\",\"version\":\"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5\",\"input\":{\"height\":512,\"prompt\":\"a
-      studio photo of a rainbow colored corgi\",\"seed\":42069,\"width\":512},\"logs\":\"Using
-      seed: 42069\\nPrompt: a studio photo of a rainbow colored corgi\\ntxt2img mode\\n
-      \ 0%|          | 0/50 [00:00\\u003c?, ?it/s]\\n  2%|\u258F         | 1/50 [00:00\\u003c00:31,
-      \ 1.57it/s]\\n  6%|\u258C         | 3/50 [00:00\\u003c00:09,  4.80it/s]\\n 10%|\u2588
-      \        | 5/50 [00:00\\u003c00:05,  7.60it/s]\\n 14%|\u2588\u258D        |
-      7/50 [00:00\\u003c00:04,  9.92it/s]\\n 18%|\u2588\u258A        | 9/50 [00:01\\u003c00:03,
-      11.76it/s]\\n 22%|\u2588\u2588\u258F       | 11/50 [00:01\\u003c00:02, 13.16it/s]\\n
-      26%|\u2588\u2588\u258C       | 13/50 [00:01\\u003c00:02, 14.22it/s]\\n 30%|\u2588\u2588\u2588
-      \      | 15/50 [00:01\\u003c00:02, 15.01it/s]\\n 34%|\u2588\u2588\u2588\u258D
-      \     | 17/50 [00:01\\u003c00:02, 15.56it/s]\\n 38%|\u2588\u2588\u2588\u258A
-      \     | 19/50 [00:01\\u003c00:01, 15.97it/s]\\n\",\"error\":null,\"status\":\"processing\",\"created_at\":\"2023-11-16T11:46:16.0649Z\",\"started_at\":\"2023-11-16T11:46:16.539915Z\",\"urls\":{\"cancel\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby/cancel\",\"get\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby\"}}\n"
-    headers:
-      CF-Cache-Status:
-      - DYNAMIC
-      CF-RAY:
-      - 826f7e258c7c6ffb-IAD
-      Connection:
-      - keep-alive
-      Content-Encoding:
-      - gzip
-      Content-Type:
-      - application/json
-      Date:
-      - Thu, 16 Nov 2023 11:46:19 GMT
-      NEL:
-      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
-      Report-To:
-      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=NHyv0MPB45sSyZrVlX2dXfsLtsdThkFTHmwqUH8a1yGDCBPb3rySrC5dUT3xvfKqB5QlNZNsed%2B4QEuQMY7qKJyivrWvcZK1BV5x63RXuLX%2F%2BrdZjCSxqlspqEg6xjzyPsL2UdxgnpSI7ZDSyRko"}],"group":"cf-nel","max_age":604800}'
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=15552000
-      Transfer-Encoding:
-      - chunked
-      ratelimit-remaining:
-      - '59999'
-      ratelimit-reset:
-      - '1'
-      via:
-      - 1.1 google
-    http_version: HTTP/1.1
-    status_code: 200
-- request:
-    body: ''
-    headers:
-      accept:
-      - '*/*'
-      accept-encoding:
-      - gzip, deflate
-      connection:
-      - keep-alive
-      host:
-      - api.replicate.com
-      user-agent:
-      - replicate-python/0.15.6
-    method: GET
-    uri: https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby
-  response:
-    content: "{\"id\":\"azaq55dbukgxg6kubr4k6g3pby\",\"model\":\"stability-ai/sdxl\",\"version\":\"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5\",\"input\":{\"height\":512,\"prompt\":\"a
-      studio photo of a rainbow colored corgi\",\"seed\":42069,\"width\":512},\"logs\":\"Using
-      seed: 42069\\nPrompt: a studio photo of a rainbow colored corgi\\ntxt2img mode\\n
-      \ 0%|          | 0/50 [00:00\\u003c?, ?it/s]\\n  2%|\u258F         | 1/50 [00:00\\u003c00:31,
-      \ 1.57it/s]\\n  6%|\u258C         | 3/50 [00:00\\u003c00:09,  4.80it/s]\\n 10%|\u2588
-      \        | 5/50 [00:00\\u003c00:05,  7.60it/s]\\n 14%|\u2588\u258D        |
-      7/50 [00:00\\u003c00:04,  9.92it/s]\\n 18%|\u2588\u258A        | 9/50 [00:01\\u003c00:03,
-      11.76it/s]\\n 22%|\u2588\u2588\u258F       | 11/50 [00:01\\u003c00:02, 13.16it/s]\\n
-      26%|\u2588\u2588\u258C       | 13/50 [00:01\\u003c00:02, 14.22it/s]\\n 30%|\u2588\u2588\u2588
-      \      | 15/50 [00:01\\u003c00:02, 15.01it/s]\\n 34%|\u2588\u2588\u2588\u258D
-      \     | 17/50 [00:01\\u003c00:02, 15.56it/s]\\n 38%|\u2588\u2588\u2588\u258A
-      \     | 19/50 [00:01\\u003c00:01, 15.97it/s]\\n 42%|\u2588\u2588\u2588\u2588\u258F
-      \    | 21/50 [00:01\\u003c00:01, 16.24it/s]\\n 46%|\u2588\u2588\u2588\u2588\u258C
-      \    | 23/50 [00:01\\u003c00:01, 16.42it/s]\\n 50%|\u2588\u2588\u2588\u2588\u2588
-      \    | 25/50 [00:02\\u003c00:01, 16.56it/s]\\n 54%|\u2588\u2588\u2588\u2588\u2588\u258D
-      \   | 27/50 [00:02\\u003c00:01, 16.66it/s]\\n 58%|\u2588\u2588\u2588\u2588\u2588\u258A
-      \   | 29/50 [00:02\\u003c00:01, 16.72it/s]\\n\",\"error\":null,\"status\":\"processing\",\"created_at\":\"2023-11-16T11:46:16.0649Z\",\"started_at\":\"2023-11-16T11:46:16.539915Z\",\"urls\":{\"cancel\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby/cancel\",\"get\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby\"}}\n"
-    headers:
-      CF-Cache-Status:
-      - DYNAMIC
-      CF-RAY:
-      - 826f7e294f456ffb-IAD
-      Connection:
-      - keep-alive
-      Content-Encoding:
-      - gzip
-      Content-Type:
-      - application/json
-      Date:
-      - Thu, 16 Nov 2023 11:46:19 GMT
-      NEL:
-      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
-      Report-To:
-      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=r3XkRLKtmZEOO8SWgO9cYQu%2B2RXUNKDPp4D%2BhlgPcneBPn5h3gyWPm7lICMyNp3Bseg78ywI6KQP4hDYOafhD9Usb1BfGWcvaaVD2b9eWgPZfxfWtynFZIlyI8ZNyW9FGdedT4G9pdtMc9h%2BmrhN"}],"group":"cf-nel","max_age":604800}'
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=15552000
-      Transfer-Encoding:
-      - chunked
-      ratelimit-remaining:
-      - '59999'
-      ratelimit-reset:
-      - '1'
-      via:
-      - 1.1 google
-    http_version: HTTP/1.1
-    status_code: 200
-- request:
-    body: ''
-    headers:
-      accept:
-      - '*/*'
-      accept-encoding:
-      - gzip, deflate
-      connection:
-      - keep-alive
-      host:
-      - api.replicate.com
-      user-agent:
-      - replicate-python/0.15.6
-    method: GET
-    uri: https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby
-  response:
-    content: "{\"id\":\"azaq55dbukgxg6kubr4k6g3pby\",\"model\":\"stability-ai/sdxl\",\"version\":\"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5\",\"input\":{\"height\":512,\"prompt\":\"a
-      studio photo of a rainbow colored corgi\",\"seed\":42069,\"width\":512},\"logs\":\"Using
-      seed: 42069\\nPrompt: a studio photo of a rainbow colored corgi\\ntxt2img mode\\n
-      \ 0%|          | 0/50 [00:00\\u003c?, ?it/s]\\n  2%|\u258F         | 1/50 [00:00\\u003c00:31,
-      \ 1.57it/s]\\n  6%|\u258C         | 3/50 [00:00\\u003c00:09,  4.80it/s]\\n 10%|\u2588
-      \        | 5/50 [00:00\\u003c00:05,  7.60it/s]\\n 14%|\u2588\u258D        |
-      7/50 [00:00\\u003c00:04,  9.92it/s]\\n 18%|\u2588\u258A        | 9/50 [00:01\\u003c00:03,
-      11.76it/s]\\n 22%|\u2588\u2588\u258F       | 11/50 [00:01\\u003c00:02, 13.16it/s]\\n
-      26%|\u2588\u2588\u258C       | 13/50 [00:01\\u003c00:02, 14.22it/s]\\n 30%|\u2588\u2588\u2588
-      \      | 15/50 [00:01\\u003c00:02, 15.01it/s]\\n 34%|\u2588\u2588\u2588\u258D
-      \     | 17/50 [00:01\\u003c00:02, 15.56it/s]\\n 38%|\u2588\u2588\u2588\u258A
-      \     | 19/50 [00:01\\u003c00:01, 15.97it/s]\\n 42%|\u2588\u2588\u2588\u2588\u258F
-      \    | 21/50 [00:01\\u003c00:01, 16.24it/s]\\n 46%|\u2588\u2588\u2588\u2588\u258C
-      \    | 23/50 [00:01\\u003c00:01, 16.42it/s]\\n 50%|\u2588\u2588\u2588\u2588\u2588
-      \    | 25/50 [00:02\\u003c00:01, 16.56it/s]\\n 54%|\u2588\u2588\u2588\u2588\u2588\u258D
-      \   | 27/50 [00:02\\u003c00:01, 16.66it/s]\\n 58%|\u2588\u2588\u2588\u2588\u2588\u258A
-      \   | 29/50 [00:02\\u003c00:01, 16.72it/s]\\n 62%|\u2588\u2588\u2588\u2588\u2588\u2588\u258F
-      \  | 31/50 [00:02\\u003c00:01, 16.75it/s]\\n 66%|\u2588\u2588\u2588\u2588\u2588\u2588\u258C
-      \  | 33/50 [00:02\\u003c00:01, 16.78it/s]\\n 70%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588
-      \  | 35/50 [00:02\\u003c00:00, 16.78it/s]\\n 74%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258D
-      \ | 37/50 [00:02\\u003c00:00, 16.81it/s]\\n 78%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258A
-      \ | 39/50 [00:02\\u003c00:00, 16.80it/s]\\n\",\"error\":null,\"status\":\"processing\",\"created_at\":\"2023-11-16T11:46:16.0649Z\",\"started_at\":\"2023-11-16T11:46:16.539915Z\",\"urls\":{\"cancel\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby/cancel\",\"get\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby\"}}\n"
-    headers:
-      CF-Cache-Status:
-      - DYNAMIC
-      CF-RAY:
-      - 826f7e2d09d26ffb-IAD
-      Connection:
-      - keep-alive
-      Content-Encoding:
-      - gzip
-      Content-Type:
-      - application/json
-      Date:
-      - Thu, 16 Nov 2023 11:46:20 GMT
-      NEL:
-      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
-      Report-To:
-      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=lShuq4osN%2F57I2J3KJPN6Pvx2LIbuE1JWdNBP1Or8R54ml%2B8z5gZAwO3kIB8ffwebPTk6%2B%2BBkUQ8ZFKzI42sMO1d4tOHgga6np5FhyGrIsVEyLaqySm0hiluULUlZ%2FjCBwKfKIeCkr%2BouAv%2FBnkA"}],"group":"cf-nel","max_age":604800}'
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=15552000
-      Transfer-Encoding:
-      - chunked
-      ratelimit-remaining:
-      - '59999'
-      ratelimit-reset:
-      - '1'
-      via:
-      - 1.1 google
-    http_version: HTTP/1.1
-    status_code: 200
-- request:
-    body: ''
-    headers:
-      accept:
-      - '*/*'
-      accept-encoding:
-      - gzip, deflate
-      connection:
-      - keep-alive
-      host:
-      - api.replicate.com
-      user-agent:
-      - replicate-python/0.15.6
-    method: GET
-    uri: https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby
-  response:
-    content: "{\"id\":\"azaq55dbukgxg6kubr4k6g3pby\",\"model\":\"stability-ai/sdxl\",\"version\":\"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5\",\"input\":{\"height\":512,\"prompt\":\"a
-      studio photo of a rainbow colored corgi\",\"seed\":42069,\"width\":512},\"logs\":\"Using
-      seed: 42069\\nPrompt: a studio photo of a rainbow colored corgi\\ntxt2img mode\\n
-      \ 0%|          | 0/50 [00:00\\u003c?, ?it/s]\\n  2%|\u258F         | 1/50 [00:00\\u003c00:31,
-      \ 1.57it/s]\\n  6%|\u258C         | 3/50 [00:00\\u003c00:09,  4.80it/s]\\n 10%|\u2588
-      \        | 5/50 [00:00\\u003c00:05,  7.60it/s]\\n 14%|\u2588\u258D        |
-      7/50 [00:00\\u003c00:04,  9.92it/s]\\n 18%|\u2588\u258A        | 9/50 [00:01\\u003c00:03,
-      11.76it/s]\\n 22%|\u2588\u2588\u258F       | 11/50 [00:01\\u003c00:02, 13.16it/s]\\n
-      26%|\u2588\u2588\u258C       | 13/50 [00:01\\u003c00:02, 14.22it/s]\\n 30%|\u2588\u2588\u2588
-      \      | 15/50 [00:01\\u003c00:02, 15.01it/s]\\n 34%|\u2588\u2588\u2588\u258D
-      \     | 17/50 [00:01\\u003c00:02, 15.56it/s]\\n 38%|\u2588\u2588\u2588\u258A
-      \     | 19/50 [00:01\\u003c00:01, 15.97it/s]\\n 42%|\u2588\u2588\u2588\u2588\u258F
-      \    | 21/50 [00:01\\u003c00:01, 16.24it/s]\\n 46%|\u2588\u2588\u2588\u2588\u258C
-      \    | 23/50 [00:01\\u003c00:01, 16.42it/s]\\n 50%|\u2588\u2588\u2588\u2588\u2588
-      \    | 25/50 [00:02\\u003c00:01, 16.56it/s]\\n 54%|\u2588\u2588\u2588\u2588\u2588\u258D
-      \   | 27/50 [00:02\\u003c00:01, 16.66it/s]\\n 58%|\u2588\u2588\u2588\u2588\u2588\u258A
-      \   | 29/50 [00:02\\u003c00:01, 16.72it/s]\\n 62%|\u2588\u2588\u2588\u2588\u2588\u2588\u258F
-      \  | 31/50 [00:02\\u003c00:01, 16.75it/s]\\n 66%|\u2588\u2588\u2588\u2588\u2588\u2588\u258C
-      \  | 33/50 [00:02\\u003c00:01, 16.78it/s]\\n 70%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588
-      \  | 35/50 [00:02\\u003c00:00, 16.78it/s]\\n 74%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258D
-      \ | 37/50 [00:02\\u003c00:00, 16.81it/s]\\n 78%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258A
-      \ | 39/50 [00:02\\u003c00:00, 16.80it/s]\\n 82%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258F
-      | 41/50 [00:03\\u003c00:00, 16.84it/s]\\n 86%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258C
-      | 43/50 [00:03\\u003c00:00, 16.88it/s]\\n 90%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588
-      | 45/50 [00:03\\u003c00:00, 16.89it/s]\\n 94%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258D|
-      47/50 [00:03\\u003c00:00, 16.82it/s]\\n 98%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258A|
-      49/50 [00:03\\u003c00:00, 16.83it/s]\\n\",\"error\":null,\"status\":\"processing\",\"created_at\":\"2023-11-16T11:46:16.0649Z\",\"started_at\":\"2023-11-16T11:46:16.539915Z\",\"urls\":{\"cancel\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby/cancel\",\"get\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby\"}}\n"
-    headers:
-      CF-Cache-Status:
-      - DYNAMIC
-      CF-RAY:
-      - 826f7e30cca56ffb-IAD
-      Connection:
-      - keep-alive
-      Content-Encoding:
-      - gzip
-      Content-Type:
-      - application/json
-      Date:
-      - Thu, 16 Nov 2023 11:46:21 GMT
-      NEL:
-      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
-      Report-To:
-      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=0HeGnZFh75bLtUJsu7%2BHa8%2Flad1hgIHD9UMU5Cl59avdPfdW3mfMsmvVm7GAJPgpNM32yv4J1119ryZNNJfkO0vgjAxNmYl2q1LM3cAO4U%2FJak8z4NGV%2Fm1p%2BfZ1MGFZuqB35YDAynXgnIYQtWT4"}],"group":"cf-nel","max_age":604800}'
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=15552000
-      Transfer-Encoding:
-      - chunked
-      ratelimit-remaining:
-      - '59999'
-      ratelimit-reset:
-      - '1'
-      via:
-      - 1.1 google
-    http_version: HTTP/1.1
-    status_code: 200
-- request:
-    body: ''
-    headers:
-      accept:
-      - '*/*'
-      accept-encoding:
-      - gzip, deflate
-      connection:
-      - keep-alive
-      host:
-      - api.replicate.com
-      user-agent:
-      - replicate-python/0.15.6
-    method: GET
-    uri: https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby
-  response:
-    content: "{\"id\":\"azaq55dbukgxg6kubr4k6g3pby\",\"model\":\"stability-ai/sdxl\",\"version\":\"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5\",\"input\":{\"height\":512,\"prompt\":\"a
-      studio photo of a rainbow colored corgi\",\"seed\":42069,\"width\":512},\"logs\":\"Using
-      seed: 42069\\nPrompt: a studio photo of a rainbow colored corgi\\ntxt2img mode\\n
-      \ 0%|          | 0/50 [00:00\\u003c?, ?it/s]\\n  2%|\u258F         | 1/50 [00:00\\u003c00:31,
-      \ 1.57it/s]\\n  6%|\u258C         | 3/50 [00:00\\u003c00:09,  4.80it/s]\\n 10%|\u2588
-      \        | 5/50 [00:00\\u003c00:05,  7.60it/s]\\n 14%|\u2588\u258D        |
-      7/50 [00:00\\u003c00:04,  9.92it/s]\\n 18%|\u2588\u258A        | 9/50 [00:01\\u003c00:03,
-      11.76it/s]\\n 22%|\u2588\u2588\u258F       | 11/50 [00:01\\u003c00:02, 13.16it/s]\\n
-      26%|\u2588\u2588\u258C       | 13/50 [00:01\\u003c00:02, 14.22it/s]\\n 30%|\u2588\u2588\u2588
-      \      | 15/50 [00:01\\u003c00:02, 15.01it/s]\\n 34%|\u2588\u2588\u2588\u258D
-      \     | 17/50 [00:01\\u003c00:02, 15.56it/s]\\n 38%|\u2588\u2588\u2588\u258A
-      \     | 19/50 [00:01\\u003c00:01, 15.97it/s]\\n 42%|\u2588\u2588\u2588\u2588\u258F
-      \    | 21/50 [00:01\\u003c00:01, 16.24it/s]\\n 46%|\u2588\u2588\u2588\u2588\u258C
-      \    | 23/50 [00:01\\u003c00:01, 16.42it/s]\\n 50%|\u2588\u2588\u2588\u2588\u2588
-      \    | 25/50 [00:02\\u003c00:01, 16.56it/s]\\n 54%|\u2588\u2588\u2588\u2588\u2588\u258D
-      \   | 27/50 [00:02\\u003c00:01, 16.66it/s]\\n 58%|\u2588\u2588\u2588\u2588\u2588\u258A
-      \   | 29/50 [00:02\\u003c00:01, 16.72it/s]\\n 62%|\u2588\u2588\u2588\u2588\u2588\u2588\u258F
-      \  | 31/50 [00:02\\u003c00:01, 16.75it/s]\\n 66%|\u2588\u2588\u2588\u2588\u2588\u2588\u258C
-      \  | 33/50 [00:02\\u003c00:01, 16.78it/s]\\n 70%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588
-      \  | 35/50 [00:02\\u003c00:00, 16.78it/s]\\n 74%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258D
-      \ | 37/50 [00:02\\u003c00:00, 16.81it/s]\\n 78%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258A
-      \ | 39/50 [00:02\\u003c00:00, 16.80it/s]\\n 82%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258F
-      | 41/50 [00:03\\u003c00:00, 16.84it/s]\\n 86%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258C
-      | 43/50 [00:03\\u003c00:00, 16.88it/s]\\n 90%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588
-      | 45/50 [00:03\\u003c00:00, 16.89it/s]\\n 94%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258D|
-      47/50 [00:03\\u003c00:00, 16.82it/s]\\n 98%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258A|
-      49/50 [00:03\\u003c00:00, 16.83it/s]\\n\",\"error\":null,\"status\":\"processing\",\"created_at\":\"2023-11-16T11:46:16.0649Z\",\"started_at\":\"2023-11-16T11:46:16.539915Z\",\"urls\":{\"cancel\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby/cancel\",\"get\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby\"}}\n"
-    headers:
-      CF-Cache-Status:
-      - DYNAMIC
-      CF-RAY:
-      - 826f7e348f2c6ffb-IAD
-      Connection:
-      - keep-alive
-      Content-Encoding:
-      - gzip
-      Content-Type:
-      - application/json
-      Date:
-      - Thu, 16 Nov 2023 11:46:21 GMT
-      NEL:
-      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
-      Report-To:
-      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=n%2ByjixpQI29R%2BcU3ZRdwQzW655t4BP%2BfLRpTX9T5vG0xq12NqIQtIGFEsSSdjvaxW8dXYAWNg4BkWbhuIzx0IlIb7JojHUhGr2Ywif3ZqIxK2Ohclo7SN5UH9rvX3Y7vB5BUzdNTaFc4aGSRM%2FAy"}],"group":"cf-nel","max_age":604800}'
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=15552000
-      Transfer-Encoding:
-      - chunked
-      ratelimit-remaining:
-      - '59999'
-      ratelimit-reset:
-      - '1'
-      via:
-      - 1.1 google
-    http_version: HTTP/1.1
-    status_code: 200
-- request:
-    body: ''
-    headers:
-      accept:
-      - '*/*'
-      accept-encoding:
-      - gzip, deflate
-      connection:
-      - keep-alive
-      host:
-      - api.replicate.com
-      user-agent:
-      - replicate-python/0.15.6
-    method: GET
-    uri: https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby
-  response:
-    content: "{\"id\":\"azaq55dbukgxg6kubr4k6g3pby\",\"model\":\"stability-ai/sdxl\",\"version\":\"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5\",\"input\":{\"height\":512,\"prompt\":\"a
-      studio photo of a rainbow colored corgi\",\"seed\":42069,\"width\":512},\"logs\":\"Using
-      seed: 42069\\nPrompt: a studio photo of a rainbow colored corgi\\ntxt2img mode\\n
-      \ 0%|          | 0/50 [00:00\\u003c?, ?it/s]\\n  2%|\u258F         | 1/50 [00:00\\u003c00:31,
-      \ 1.57it/s]\\n  6%|\u258C         | 3/50 [00:00\\u003c00:09,  4.80it/s]\\n 10%|\u2588
-      \        | 5/50 [00:00\\u003c00:05,  7.60it/s]\\n 14%|\u2588\u258D        |
-      7/50 [00:00\\u003c00:04,  9.92it/s]\\n 18%|\u2588\u258A        | 9/50 [00:01\\u003c00:03,
-      11.76it/s]\\n 22%|\u2588\u2588\u258F       | 11/50 [00:01\\u003c00:02, 13.16it/s]\\n
-      26%|\u2588\u2588\u258C       | 13/50 [00:01\\u003c00:02, 14.22it/s]\\n 30%|\u2588\u2588\u2588
-      \      | 15/50 [00:01\\u003c00:02, 15.01it/s]\\n 34%|\u2588\u2588\u2588\u258D
-      \     | 17/50 [00:01\\u003c00:02, 15.56it/s]\\n 38%|\u2588\u2588\u2588\u258A
-      \     | 19/50 [00:01\\u003c00:01, 15.97it/s]\\n 42%|\u2588\u2588\u2588\u2588\u258F
-      \    | 21/50 [00:01\\u003c00:01, 16.24it/s]\\n 46%|\u2588\u2588\u2588\u2588\u258C
-      \    | 23/50 [00:01\\u003c00:01, 16.42it/s]\\n 50%|\u2588\u2588\u2588\u2588\u2588
-      \    | 25/50 [00:02\\u003c00:01, 16.56it/s]\\n 54%|\u2588\u2588\u2588\u2588\u2588\u258D
-      \   | 27/50 [00:02\\u003c00:01, 16.66it/s]\\n 58%|\u2588\u2588\u2588\u2588\u2588\u258A
-      \   | 29/50 [00:02\\u003c00:01, 16.72it/s]\\n 62%|\u2588\u2588\u2588\u2588\u2588\u2588\u258F
-      \  | 31/50 [00:02\\u003c00:01, 16.75it/s]\\n 66%|\u2588\u2588\u2588\u2588\u2588\u2588\u258C
-      \  | 33/50 [00:02\\u003c00:01, 16.78it/s]\\n 70%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588
-      \  | 35/50 [00:02\\u003c00:00, 16.78it/s]\\n 74%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258D
-      \ | 37/50 [00:02\\u003c00:00, 16.81it/s]\\n 78%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258A
-      \ | 39/50 [00:02\\u003c00:00, 16.80it/s]\\n 82%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258F
-      | 41/50 [00:03\\u003c00:00, 16.84it/s]\\n 86%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258C
-      | 43/50 [00:03\\u003c00:00, 16.88it/s]\\n 90%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588
-      | 45/50 [00:03\\u003c00:00, 16.89it/s]\\n 94%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258D|
-      47/50 [00:03\\u003c00:00, 16.82it/s]\\n 98%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258A|
-      49/50 [00:03\\u003c00:00, 16.83it/s]\\n\",\"error\":null,\"status\":\"processing\",\"created_at\":\"2023-11-16T11:46:16.0649Z\",\"started_at\":\"2023-11-16T11:46:16.539915Z\",\"urls\":{\"cancel\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby/cancel\",\"get\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby\"}}\n"
-    headers:
-      CF-Cache-Status:
-      - DYNAMIC
-      CF-RAY:
-      - 826f7e3849a36ffb-IAD
-      Connection:
-      - keep-alive
-      Content-Encoding:
-      - gzip
-      Content-Type:
-      - application/json
-      Date:
-      - Thu, 16 Nov 2023 11:46:22 GMT
-      NEL:
-      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
-      Report-To:
-      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=ZN6IT%2BHT2llIOmF12obHe9C0sD6qD2gMi6iPi8d1TakIUim5t5hD2DI2oRVZ%2Bh7bZkSNyB3T%2BcBFwj0EqAMXL4p67EXFWj2r5T5FmSvJxDmttXwXjb8ZwS2RBJriraUpZLjeS37t4n9Jr%2B6Nsol2"}],"group":"cf-nel","max_age":604800}'
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=15552000
-      Transfer-Encoding:
-      - chunked
-      ratelimit-remaining:
-      - '59999'
-      ratelimit-reset:
-      - '1'
-      via:
-      - 1.1 google
-    http_version: HTTP/1.1
-    status_code: 200
-- request:
-    body: ''
-    headers:
-      accept:
-      - '*/*'
-      accept-encoding:
-      - gzip, deflate
-      connection:
-      - keep-alive
-      host:
-      - api.replicate.com
-      user-agent:
-      - replicate-python/0.15.6
-    method: GET
-    uri: https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby
-  response:
-    content: "{\"id\":\"azaq55dbukgxg6kubr4k6g3pby\",\"model\":\"stability-ai/sdxl\",\"version\":\"a00d0b7dcbb9c3fbb34ba87d2d5b46c56969c84a628bf778a7fdaec30b1b99c5\",\"input\":{\"height\":512,\"prompt\":\"a
-      studio photo of a rainbow colored corgi\",\"seed\":42069,\"width\":512},\"logs\":\"Using
-      seed: 42069\\nPrompt: a studio photo of a rainbow colored corgi\\ntxt2img mode\\n
-      \ 0%|          | 0/50 [00:00\\u003c?, ?it/s]\\n  2%|\u258F         | 1/50 [00:00\\u003c00:31,
-      \ 1.57it/s]\\n  6%|\u258C         | 3/50 [00:00\\u003c00:09,  4.80it/s]\\n 10%|\u2588
-      \        | 5/50 [00:00\\u003c00:05,  7.60it/s]\\n 14%|\u2588\u258D        |
-      7/50 [00:00\\u003c00:04,  9.92it/s]\\n 18%|\u2588\u258A        | 9/50 [00:01\\u003c00:03,
-      11.76it/s]\\n 22%|\u2588\u2588\u258F       | 11/50 [00:01\\u003c00:02, 13.16it/s]\\n
-      26%|\u2588\u2588\u258C       | 13/50 [00:01\\u003c00:02, 14.22it/s]\\n 30%|\u2588\u2588\u2588
-      \      | 15/50 [00:01\\u003c00:02, 15.01it/s]\\n 34%|\u2588\u2588\u2588\u258D
-      \     | 17/50 [00:01\\u003c00:02, 15.56it/s]\\n 38%|\u2588\u2588\u2588\u258A
-      \     | 19/50 [00:01\\u003c00:01, 15.97it/s]\\n 42%|\u2588\u2588\u2588\u2588\u258F
-      \    | 21/50 [00:01\\u003c00:01, 16.24it/s]\\n 46%|\u2588\u2588\u2588\u2588\u258C
-      \    | 23/50 [00:01\\u003c00:01, 16.42it/s]\\n 50%|\u2588\u2588\u2588\u2588\u2588
-      \    | 25/50 [00:02\\u003c00:01, 16.56it/s]\\n 54%|\u2588\u2588\u2588\u2588\u2588\u258D
-      \   | 27/50 [00:02\\u003c00:01, 16.66it/s]\\n 58%|\u2588\u2588\u2588\u2588\u2588\u258A
-      \   | 29/50 [00:02\\u003c00:01, 16.72it/s]\\n 62%|\u2588\u2588\u2588\u2588\u2588\u2588\u258F
-      \  | 31/50 [00:02\\u003c00:01, 16.75it/s]\\n 66%|\u2588\u2588\u2588\u2588\u2588\u2588\u258C
-      \  | 33/50 [00:02\\u003c00:01, 16.78it/s]\\n 70%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588
-      \  | 35/50 [00:02\\u003c00:00, 16.78it/s]\\n 74%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258D
-      \ | 37/50 [00:02\\u003c00:00, 16.81it/s]\\n 78%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258A
-      \ | 39/50 [00:02\\u003c00:00, 16.80it/s]\\n 82%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258F
-      | 41/50 [00:03\\u003c00:00, 16.84it/s]\\n 86%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258C
-      | 43/50 [00:03\\u003c00:00, 16.88it/s]\\n 90%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588
-      | 45/50 [00:03\\u003c00:00, 16.89it/s]\\n 94%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258D|
-      47/50 [00:03\\u003c00:00, 16.82it/s]\\n 98%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258A|
-      49/50 [00:03\\u003c00:00, 16.83it/s]\\n100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588|
-      50/50 [00:03\\u003c00:00, 14.13it/s]\\n\",\"output\":[\"https://replicate.delivery/pbxt/gDoc64M9pRaQNdZb0evCRgm57WZJ5BKi0T5kzV6qm2tGmd8IA/out-0.png\"],\"error\":null,\"status\":\"succeeded\",\"created_at\":\"2023-11-16T11:46:16.0649Z\",\"started_at\":\"2023-11-16T11:46:16.539915Z\",\"completed_at\":\"2023-11-16T11:46:22.064427Z\",\"metrics\":{\"predict_time\":5.524512},\"urls\":{\"cancel\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby/cancel\",\"get\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby\"}}\n"
-    headers:
-      CF-Cache-Status:
-      - DYNAMIC
-      CF-RAY:
-      - 826f7e3c0c1e6ffb-IAD
-      Connection:
-      - keep-alive
-      Content-Encoding:
-      - gzip
-      Content-Type:
-      - application/json
-      Date:
-      - Thu, 16 Nov 2023 11:46:22 GMT
-      NEL:
-      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
-      Report-To:
-      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=YYtNu3L6gvlBdESBaIUJNqUiaIztItY8VrP1iPdt7Ro3lB%2Ff0l91dz3L5EDGTqy1cfliLb4nW8wsUUHsTLkWuIip9wNyxe%2BWYpJflgXIeIAADWzNZ6tmUr1xDnN2Ac4HvNKXhW0so2LaAmwHhXWX"}],"group":"cf-nel","max_age":604800}'
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=15552000
-      Transfer-Encoding:
-      - chunked
-      ratelimit-remaining:
-      - '59999'
-      ratelimit-reset:
-      - '1'
-      via:
-      - 1.1 google
-    http_version: HTTP/1.1
-    status_code: 200
+        '
+      headers:
+        CF-Cache-Status:
+          - DYNAMIC
+        CF-RAY:
+          - 826f7e1e0f056ffb-IAD
+        Connection:
+          - keep-alive
+        Content-Encoding:
+          - gzip
+        Content-Type:
+          - application/json
+        Date:
+          - Thu, 16 Nov 2023 11:46:18 GMT
+        NEL:
+          - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+        Report-To:
+          - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=15JQ1r7Zr8bxQOqYI9Nl4SC5ymH7JSogP2JrlEC6mefjjonY03rY63bFvqUS4Bgt7B93oiT065diWQ96gC4lh5a1cmPRchTiPLMr92zx1FihDVJ3fMPpR2DZpW%2BbtBOS1AixQj0Ys%2FHq5ELgf1Uj"}],"group":"cf-nel","max_age":604800}'
+        Server:
+          - cloudflare
+        Strict-Transport-Security:
+          - max-age=15552000
+        Transfer-Encoding:
+          - chunked
+        ratelimit-remaining:
+          - "59999"
+        ratelimit-reset:
+          - "1"
+        via:
+          - 1.1 google
+      http_version: HTTP/1.1
+      status_code: 200
+  - request:
+      body: ""
+      headers:
+        accept:
+          - "*/*"
+        accept-encoding:
+          - gzip, deflate
+        connection:
+          - keep-alive
+        host:
+          - api.replicate.com
+        user-agent:
+          - replicate-python/0.15.6
+      method: GET
+      uri: https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby
+    response:
+      content:
+        "{\"id\":\"azaq55dbukgxg6kubr4k6g3pby\",\"model\":\"stability-ai/sdxl\",\"version\":\"39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b\",\"input\":{\"height\":512,\"prompt\":\"a
+        studio photo of a rainbow colored corgi\",\"seed\":42069,\"width\":512},\"logs\":\"Using
+        seed: 42069\\nPrompt: a studio photo of a rainbow colored corgi\\ntxt2img mode\\n
+        \ 0%|          | 0/50 [00:00\\u003c?, ?it/s]\\n  2%|\u258F         | 1/50 [00:00\\u003c00:31,
+        \ 1.57it/s]\\n  6%|\u258C         | 3/50 [00:00\\u003c00:09,  4.80it/s]\\n 10%|\u2588
+        \        | 5/50 [00:00\\u003c00:05,  7.60it/s]\\n 14%|\u2588\u258D        |
+        7/50 [00:00\\u003c00:04,  9.92it/s]\\n 18%|\u2588\u258A        | 9/50 [00:01\\u003c00:03,
+        11.76it/s]\\n\",\"error\":null,\"status\":\"processing\",\"created_at\":\"2023-11-16T11:46:16.0649Z\",\"started_at\":\"2023-11-16T11:46:16.539915Z\",\"urls\":{\"cancel\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby/cancel\",\"get\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby\"}}\n"
+      headers:
+        CF-Cache-Status:
+          - DYNAMIC
+        CF-RAY:
+          - 826f7e21c9b86ffb-IAD
+        Connection:
+          - keep-alive
+        Content-Encoding:
+          - gzip
+        Content-Type:
+          - application/json
+        Date:
+          - Thu, 16 Nov 2023 11:46:18 GMT
+        NEL:
+          - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+        Report-To:
+          - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=ryNrT8rCOcmu14WXPyPWAOPGiP8rtco7TKC5mCXunD5fZnO4kbnSkjJGDGptw%2FkhjopzHKIr6t5HMgYozfNOhmUYZUUpfIVdeV9g5oyWptuAvG3Q25evqQY7BcP6gYhISk9%2BN%2B9WBQS%2BXIGWSz5S"}],"group":"cf-nel","max_age":604800}'
+        Server:
+          - cloudflare
+        Strict-Transport-Security:
+          - max-age=15552000
+        Transfer-Encoding:
+          - chunked
+        ratelimit-remaining:
+          - "59999"
+        ratelimit-reset:
+          - "1"
+        via:
+          - 1.1 google
+      http_version: HTTP/1.1
+      status_code: 200
+  - request:
+      body: ""
+      headers:
+        accept:
+          - "*/*"
+        accept-encoding:
+          - gzip, deflate
+        connection:
+          - keep-alive
+        host:
+          - api.replicate.com
+        user-agent:
+          - replicate-python/0.15.6
+      method: GET
+      uri: https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby
+    response:
+      content:
+        "{\"id\":\"azaq55dbukgxg6kubr4k6g3pby\",\"model\":\"stability-ai/sdxl\",\"version\":\"39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b\",\"input\":{\"height\":512,\"prompt\":\"a
+        studio photo of a rainbow colored corgi\",\"seed\":42069,\"width\":512},\"logs\":\"Using
+        seed: 42069\\nPrompt: a studio photo of a rainbow colored corgi\\ntxt2img mode\\n
+        \ 0%|          | 0/50 [00:00\\u003c?, ?it/s]\\n  2%|\u258F         | 1/50 [00:00\\u003c00:31,
+        \ 1.57it/s]\\n  6%|\u258C         | 3/50 [00:00\\u003c00:09,  4.80it/s]\\n 10%|\u2588
+        \        | 5/50 [00:00\\u003c00:05,  7.60it/s]\\n 14%|\u2588\u258D        |
+        7/50 [00:00\\u003c00:04,  9.92it/s]\\n 18%|\u2588\u258A        | 9/50 [00:01\\u003c00:03,
+        11.76it/s]\\n 22%|\u2588\u2588\u258F       | 11/50 [00:01\\u003c00:02, 13.16it/s]\\n
+        26%|\u2588\u2588\u258C       | 13/50 [00:01\\u003c00:02, 14.22it/s]\\n 30%|\u2588\u2588\u2588
+        \      | 15/50 [00:01\\u003c00:02, 15.01it/s]\\n 34%|\u2588\u2588\u2588\u258D
+        \     | 17/50 [00:01\\u003c00:02, 15.56it/s]\\n 38%|\u2588\u2588\u2588\u258A
+        \     | 19/50 [00:01\\u003c00:01, 15.97it/s]\\n\",\"error\":null,\"status\":\"processing\",\"created_at\":\"2023-11-16T11:46:16.0649Z\",\"started_at\":\"2023-11-16T11:46:16.539915Z\",\"urls\":{\"cancel\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby/cancel\",\"get\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby\"}}\n"
+      headers:
+        CF-Cache-Status:
+          - DYNAMIC
+        CF-RAY:
+          - 826f7e258c7c6ffb-IAD
+        Connection:
+          - keep-alive
+        Content-Encoding:
+          - gzip
+        Content-Type:
+          - application/json
+        Date:
+          - Thu, 16 Nov 2023 11:46:19 GMT
+        NEL:
+          - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+        Report-To:
+          - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=NHyv0MPB45sSyZrVlX2dXfsLtsdThkFTHmwqUH8a1yGDCBPb3rySrC5dUT3xvfKqB5QlNZNsed%2B4QEuQMY7qKJyivrWvcZK1BV5x63RXuLX%2F%2BrdZjCSxqlspqEg6xjzyPsL2UdxgnpSI7ZDSyRko"}],"group":"cf-nel","max_age":604800}'
+        Server:
+          - cloudflare
+        Strict-Transport-Security:
+          - max-age=15552000
+        Transfer-Encoding:
+          - chunked
+        ratelimit-remaining:
+          - "59999"
+        ratelimit-reset:
+          - "1"
+        via:
+          - 1.1 google
+      http_version: HTTP/1.1
+      status_code: 200
+  - request:
+      body: ""
+      headers:
+        accept:
+          - "*/*"
+        accept-encoding:
+          - gzip, deflate
+        connection:
+          - keep-alive
+        host:
+          - api.replicate.com
+        user-agent:
+          - replicate-python/0.15.6
+      method: GET
+      uri: https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby
+    response:
+      content:
+        "{\"id\":\"azaq55dbukgxg6kubr4k6g3pby\",\"model\":\"stability-ai/sdxl\",\"version\":\"39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b\",\"input\":{\"height\":512,\"prompt\":\"a
+        studio photo of a rainbow colored corgi\",\"seed\":42069,\"width\":512},\"logs\":\"Using
+        seed: 42069\\nPrompt: a studio photo of a rainbow colored corgi\\ntxt2img mode\\n
+        \ 0%|          | 0/50 [00:00\\u003c?, ?it/s]\\n  2%|\u258F         | 1/50 [00:00\\u003c00:31,
+        \ 1.57it/s]\\n  6%|\u258C         | 3/50 [00:00\\u003c00:09,  4.80it/s]\\n 10%|\u2588
+        \        | 5/50 [00:00\\u003c00:05,  7.60it/s]\\n 14%|\u2588\u258D        |
+        7/50 [00:00\\u003c00:04,  9.92it/s]\\n 18%|\u2588\u258A        | 9/50 [00:01\\u003c00:03,
+        11.76it/s]\\n 22%|\u2588\u2588\u258F       | 11/50 [00:01\\u003c00:02, 13.16it/s]\\n
+        26%|\u2588\u2588\u258C       | 13/50 [00:01\\u003c00:02, 14.22it/s]\\n 30%|\u2588\u2588\u2588
+        \      | 15/50 [00:01\\u003c00:02, 15.01it/s]\\n 34%|\u2588\u2588\u2588\u258D
+        \     | 17/50 [00:01\\u003c00:02, 15.56it/s]\\n 38%|\u2588\u2588\u2588\u258A
+        \     | 19/50 [00:01\\u003c00:01, 15.97it/s]\\n 42%|\u2588\u2588\u2588\u2588\u258F
+        \    | 21/50 [00:01\\u003c00:01, 16.24it/s]\\n 46%|\u2588\u2588\u2588\u2588\u258C
+        \    | 23/50 [00:01\\u003c00:01, 16.42it/s]\\n 50%|\u2588\u2588\u2588\u2588\u2588
+        \    | 25/50 [00:02\\u003c00:01, 16.56it/s]\\n 54%|\u2588\u2588\u2588\u2588\u2588\u258D
+        \   | 27/50 [00:02\\u003c00:01, 16.66it/s]\\n 58%|\u2588\u2588\u2588\u2588\u2588\u258A
+        \   | 29/50 [00:02\\u003c00:01, 16.72it/s]\\n\",\"error\":null,\"status\":\"processing\",\"created_at\":\"2023-11-16T11:46:16.0649Z\",\"started_at\":\"2023-11-16T11:46:16.539915Z\",\"urls\":{\"cancel\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby/cancel\",\"get\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby\"}}\n"
+      headers:
+        CF-Cache-Status:
+          - DYNAMIC
+        CF-RAY:
+          - 826f7e294f456ffb-IAD
+        Connection:
+          - keep-alive
+        Content-Encoding:
+          - gzip
+        Content-Type:
+          - application/json
+        Date:
+          - Thu, 16 Nov 2023 11:46:19 GMT
+        NEL:
+          - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+        Report-To:
+          - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=r3XkRLKtmZEOO8SWgO9cYQu%2B2RXUNKDPp4D%2BhlgPcneBPn5h3gyWPm7lICMyNp3Bseg78ywI6KQP4hDYOafhD9Usb1BfGWcvaaVD2b9eWgPZfxfWtynFZIlyI8ZNyW9FGdedT4G9pdtMc9h%2BmrhN"}],"group":"cf-nel","max_age":604800}'
+        Server:
+          - cloudflare
+        Strict-Transport-Security:
+          - max-age=15552000
+        Transfer-Encoding:
+          - chunked
+        ratelimit-remaining:
+          - "59999"
+        ratelimit-reset:
+          - "1"
+        via:
+          - 1.1 google
+      http_version: HTTP/1.1
+      status_code: 200
+  - request:
+      body: ""
+      headers:
+        accept:
+          - "*/*"
+        accept-encoding:
+          - gzip, deflate
+        connection:
+          - keep-alive
+        host:
+          - api.replicate.com
+        user-agent:
+          - replicate-python/0.15.6
+      method: GET
+      uri: https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby
+    response:
+      content:
+        "{\"id\":\"azaq55dbukgxg6kubr4k6g3pby\",\"model\":\"stability-ai/sdxl\",\"version\":\"39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b\",\"input\":{\"height\":512,\"prompt\":\"a
+        studio photo of a rainbow colored corgi\",\"seed\":42069,\"width\":512},\"logs\":\"Using
+        seed: 42069\\nPrompt: a studio photo of a rainbow colored corgi\\ntxt2img mode\\n
+        \ 0%|          | 0/50 [00:00\\u003c?, ?it/s]\\n  2%|\u258F         | 1/50 [00:00\\u003c00:31,
+        \ 1.57it/s]\\n  6%|\u258C         | 3/50 [00:00\\u003c00:09,  4.80it/s]\\n 10%|\u2588
+        \        | 5/50 [00:00\\u003c00:05,  7.60it/s]\\n 14%|\u2588\u258D        |
+        7/50 [00:00\\u003c00:04,  9.92it/s]\\n 18%|\u2588\u258A        | 9/50 [00:01\\u003c00:03,
+        11.76it/s]\\n 22%|\u2588\u2588\u258F       | 11/50 [00:01\\u003c00:02, 13.16it/s]\\n
+        26%|\u2588\u2588\u258C       | 13/50 [00:01\\u003c00:02, 14.22it/s]\\n 30%|\u2588\u2588\u2588
+        \      | 15/50 [00:01\\u003c00:02, 15.01it/s]\\n 34%|\u2588\u2588\u2588\u258D
+        \     | 17/50 [00:01\\u003c00:02, 15.56it/s]\\n 38%|\u2588\u2588\u2588\u258A
+        \     | 19/50 [00:01\\u003c00:01, 15.97it/s]\\n 42%|\u2588\u2588\u2588\u2588\u258F
+        \    | 21/50 [00:01\\u003c00:01, 16.24it/s]\\n 46%|\u2588\u2588\u2588\u2588\u258C
+        \    | 23/50 [00:01\\u003c00:01, 16.42it/s]\\n 50%|\u2588\u2588\u2588\u2588\u2588
+        \    | 25/50 [00:02\\u003c00:01, 16.56it/s]\\n 54%|\u2588\u2588\u2588\u2588\u2588\u258D
+        \   | 27/50 [00:02\\u003c00:01, 16.66it/s]\\n 58%|\u2588\u2588\u2588\u2588\u2588\u258A
+        \   | 29/50 [00:02\\u003c00:01, 16.72it/s]\\n 62%|\u2588\u2588\u2588\u2588\u2588\u2588\u258F
+        \  | 31/50 [00:02\\u003c00:01, 16.75it/s]\\n 66%|\u2588\u2588\u2588\u2588\u2588\u2588\u258C
+        \  | 33/50 [00:02\\u003c00:01, 16.78it/s]\\n 70%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588
+        \  | 35/50 [00:02\\u003c00:00, 16.78it/s]\\n 74%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258D
+        \ | 37/50 [00:02\\u003c00:00, 16.81it/s]\\n 78%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258A
+        \ | 39/50 [00:02\\u003c00:00, 16.80it/s]\\n\",\"error\":null,\"status\":\"processing\",\"created_at\":\"2023-11-16T11:46:16.0649Z\",\"started_at\":\"2023-11-16T11:46:16.539915Z\",\"urls\":{\"cancel\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby/cancel\",\"get\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby\"}}\n"
+      headers:
+        CF-Cache-Status:
+          - DYNAMIC
+        CF-RAY:
+          - 826f7e2d09d26ffb-IAD
+        Connection:
+          - keep-alive
+        Content-Encoding:
+          - gzip
+        Content-Type:
+          - application/json
+        Date:
+          - Thu, 16 Nov 2023 11:46:20 GMT
+        NEL:
+          - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+        Report-To:
+          - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=lShuq4osN%2F57I2J3KJPN6Pvx2LIbuE1JWdNBP1Or8R54ml%2B8z5gZAwO3kIB8ffwebPTk6%2B%2BBkUQ8ZFKzI42sMO1d4tOHgga6np5FhyGrIsVEyLaqySm0hiluULUlZ%2FjCBwKfKIeCkr%2BouAv%2FBnkA"}],"group":"cf-nel","max_age":604800}'
+        Server:
+          - cloudflare
+        Strict-Transport-Security:
+          - max-age=15552000
+        Transfer-Encoding:
+          - chunked
+        ratelimit-remaining:
+          - "59999"
+        ratelimit-reset:
+          - "1"
+        via:
+          - 1.1 google
+      http_version: HTTP/1.1
+      status_code: 200
+  - request:
+      body: ""
+      headers:
+        accept:
+          - "*/*"
+        accept-encoding:
+          - gzip, deflate
+        connection:
+          - keep-alive
+        host:
+          - api.replicate.com
+        user-agent:
+          - replicate-python/0.15.6
+      method: GET
+      uri: https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby
+    response:
+      content:
+        "{\"id\":\"azaq55dbukgxg6kubr4k6g3pby\",\"model\":\"stability-ai/sdxl\",\"version\":\"39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b\",\"input\":{\"height\":512,\"prompt\":\"a
+        studio photo of a rainbow colored corgi\",\"seed\":42069,\"width\":512},\"logs\":\"Using
+        seed: 42069\\nPrompt: a studio photo of a rainbow colored corgi\\ntxt2img mode\\n
+        \ 0%|          | 0/50 [00:00\\u003c?, ?it/s]\\n  2%|\u258F         | 1/50 [00:00\\u003c00:31,
+        \ 1.57it/s]\\n  6%|\u258C         | 3/50 [00:00\\u003c00:09,  4.80it/s]\\n 10%|\u2588
+        \        | 5/50 [00:00\\u003c00:05,  7.60it/s]\\n 14%|\u2588\u258D        |
+        7/50 [00:00\\u003c00:04,  9.92it/s]\\n 18%|\u2588\u258A        | 9/50 [00:01\\u003c00:03,
+        11.76it/s]\\n 22%|\u2588\u2588\u258F       | 11/50 [00:01\\u003c00:02, 13.16it/s]\\n
+        26%|\u2588\u2588\u258C       | 13/50 [00:01\\u003c00:02, 14.22it/s]\\n 30%|\u2588\u2588\u2588
+        \      | 15/50 [00:01\\u003c00:02, 15.01it/s]\\n 34%|\u2588\u2588\u2588\u258D
+        \     | 17/50 [00:01\\u003c00:02, 15.56it/s]\\n 38%|\u2588\u2588\u2588\u258A
+        \     | 19/50 [00:01\\u003c00:01, 15.97it/s]\\n 42%|\u2588\u2588\u2588\u2588\u258F
+        \    | 21/50 [00:01\\u003c00:01, 16.24it/s]\\n 46%|\u2588\u2588\u2588\u2588\u258C
+        \    | 23/50 [00:01\\u003c00:01, 16.42it/s]\\n 50%|\u2588\u2588\u2588\u2588\u2588
+        \    | 25/50 [00:02\\u003c00:01, 16.56it/s]\\n 54%|\u2588\u2588\u2588\u2588\u2588\u258D
+        \   | 27/50 [00:02\\u003c00:01, 16.66it/s]\\n 58%|\u2588\u2588\u2588\u2588\u2588\u258A
+        \   | 29/50 [00:02\\u003c00:01, 16.72it/s]\\n 62%|\u2588\u2588\u2588\u2588\u2588\u2588\u258F
+        \  | 31/50 [00:02\\u003c00:01, 16.75it/s]\\n 66%|\u2588\u2588\u2588\u2588\u2588\u2588\u258C
+        \  | 33/50 [00:02\\u003c00:01, 16.78it/s]\\n 70%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588
+        \  | 35/50 [00:02\\u003c00:00, 16.78it/s]\\n 74%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258D
+        \ | 37/50 [00:02\\u003c00:00, 16.81it/s]\\n 78%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258A
+        \ | 39/50 [00:02\\u003c00:00, 16.80it/s]\\n 82%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258F
+        | 41/50 [00:03\\u003c00:00, 16.84it/s]\\n 86%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258C
+        | 43/50 [00:03\\u003c00:00, 16.88it/s]\\n 90%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588
+        | 45/50 [00:03\\u003c00:00, 16.89it/s]\\n 94%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258D|
+        47/50 [00:03\\u003c00:00, 16.82it/s]\\n 98%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258A|
+        49/50 [00:03\\u003c00:00, 16.83it/s]\\n\",\"error\":null,\"status\":\"processing\",\"created_at\":\"2023-11-16T11:46:16.0649Z\",\"started_at\":\"2023-11-16T11:46:16.539915Z\",\"urls\":{\"cancel\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby/cancel\",\"get\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby\"}}\n"
+      headers:
+        CF-Cache-Status:
+          - DYNAMIC
+        CF-RAY:
+          - 826f7e30cca56ffb-IAD
+        Connection:
+          - keep-alive
+        Content-Encoding:
+          - gzip
+        Content-Type:
+          - application/json
+        Date:
+          - Thu, 16 Nov 2023 11:46:21 GMT
+        NEL:
+          - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+        Report-To:
+          - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=0HeGnZFh75bLtUJsu7%2BHa8%2Flad1hgIHD9UMU5Cl59avdPfdW3mfMsmvVm7GAJPgpNM32yv4J1119ryZNNJfkO0vgjAxNmYl2q1LM3cAO4U%2FJak8z4NGV%2Fm1p%2BfZ1MGFZuqB35YDAynXgnIYQtWT4"}],"group":"cf-nel","max_age":604800}'
+        Server:
+          - cloudflare
+        Strict-Transport-Security:
+          - max-age=15552000
+        Transfer-Encoding:
+          - chunked
+        ratelimit-remaining:
+          - "59999"
+        ratelimit-reset:
+          - "1"
+        via:
+          - 1.1 google
+      http_version: HTTP/1.1
+      status_code: 200
+  - request:
+      body: ""
+      headers:
+        accept:
+          - "*/*"
+        accept-encoding:
+          - gzip, deflate
+        connection:
+          - keep-alive
+        host:
+          - api.replicate.com
+        user-agent:
+          - replicate-python/0.15.6
+      method: GET
+      uri: https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby
+    response:
+      content:
+        "{\"id\":\"azaq55dbukgxg6kubr4k6g3pby\",\"model\":\"stability-ai/sdxl\",\"version\":\"39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b\",\"input\":{\"height\":512,\"prompt\":\"a
+        studio photo of a rainbow colored corgi\",\"seed\":42069,\"width\":512},\"logs\":\"Using
+        seed: 42069\\nPrompt: a studio photo of a rainbow colored corgi\\ntxt2img mode\\n
+        \ 0%|          | 0/50 [00:00\\u003c?, ?it/s]\\n  2%|\u258F         | 1/50 [00:00\\u003c00:31,
+        \ 1.57it/s]\\n  6%|\u258C         | 3/50 [00:00\\u003c00:09,  4.80it/s]\\n 10%|\u2588
+        \        | 5/50 [00:00\\u003c00:05,  7.60it/s]\\n 14%|\u2588\u258D        |
+        7/50 [00:00\\u003c00:04,  9.92it/s]\\n 18%|\u2588\u258A        | 9/50 [00:01\\u003c00:03,
+        11.76it/s]\\n 22%|\u2588\u2588\u258F       | 11/50 [00:01\\u003c00:02, 13.16it/s]\\n
+        26%|\u2588\u2588\u258C       | 13/50 [00:01\\u003c00:02, 14.22it/s]\\n 30%|\u2588\u2588\u2588
+        \      | 15/50 [00:01\\u003c00:02, 15.01it/s]\\n 34%|\u2588\u2588\u2588\u258D
+        \     | 17/50 [00:01\\u003c00:02, 15.56it/s]\\n 38%|\u2588\u2588\u2588\u258A
+        \     | 19/50 [00:01\\u003c00:01, 15.97it/s]\\n 42%|\u2588\u2588\u2588\u2588\u258F
+        \    | 21/50 [00:01\\u003c00:01, 16.24it/s]\\n 46%|\u2588\u2588\u2588\u2588\u258C
+        \    | 23/50 [00:01\\u003c00:01, 16.42it/s]\\n 50%|\u2588\u2588\u2588\u2588\u2588
+        \    | 25/50 [00:02\\u003c00:01, 16.56it/s]\\n 54%|\u2588\u2588\u2588\u2588\u2588\u258D
+        \   | 27/50 [00:02\\u003c00:01, 16.66it/s]\\n 58%|\u2588\u2588\u2588\u2588\u2588\u258A
+        \   | 29/50 [00:02\\u003c00:01, 16.72it/s]\\n 62%|\u2588\u2588\u2588\u2588\u2588\u2588\u258F
+        \  | 31/50 [00:02\\u003c00:01, 16.75it/s]\\n 66%|\u2588\u2588\u2588\u2588\u2588\u2588\u258C
+        \  | 33/50 [00:02\\u003c00:01, 16.78it/s]\\n 70%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588
+        \  | 35/50 [00:02\\u003c00:00, 16.78it/s]\\n 74%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258D
+        \ | 37/50 [00:02\\u003c00:00, 16.81it/s]\\n 78%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258A
+        \ | 39/50 [00:02\\u003c00:00, 16.80it/s]\\n 82%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258F
+        | 41/50 [00:03\\u003c00:00, 16.84it/s]\\n 86%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258C
+        | 43/50 [00:03\\u003c00:00, 16.88it/s]\\n 90%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588
+        | 45/50 [00:03\\u003c00:00, 16.89it/s]\\n 94%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258D|
+        47/50 [00:03\\u003c00:00, 16.82it/s]\\n 98%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258A|
+        49/50 [00:03\\u003c00:00, 16.83it/s]\\n\",\"error\":null,\"status\":\"processing\",\"created_at\":\"2023-11-16T11:46:16.0649Z\",\"started_at\":\"2023-11-16T11:46:16.539915Z\",\"urls\":{\"cancel\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby/cancel\",\"get\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby\"}}\n"
+      headers:
+        CF-Cache-Status:
+          - DYNAMIC
+        CF-RAY:
+          - 826f7e348f2c6ffb-IAD
+        Connection:
+          - keep-alive
+        Content-Encoding:
+          - gzip
+        Content-Type:
+          - application/json
+        Date:
+          - Thu, 16 Nov 2023 11:46:21 GMT
+        NEL:
+          - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+        Report-To:
+          - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=n%2ByjixpQI29R%2BcU3ZRdwQzW655t4BP%2BfLRpTX9T5vG0xq12NqIQtIGFEsSSdjvaxW8dXYAWNg4BkWbhuIzx0IlIb7JojHUhGr2Ywif3ZqIxK2Ohclo7SN5UH9rvX3Y7vB5BUzdNTaFc4aGSRM%2FAy"}],"group":"cf-nel","max_age":604800}'
+        Server:
+          - cloudflare
+        Strict-Transport-Security:
+          - max-age=15552000
+        Transfer-Encoding:
+          - chunked
+        ratelimit-remaining:
+          - "59999"
+        ratelimit-reset:
+          - "1"
+        via:
+          - 1.1 google
+      http_version: HTTP/1.1
+      status_code: 200
+  - request:
+      body: ""
+      headers:
+        accept:
+          - "*/*"
+        accept-encoding:
+          - gzip, deflate
+        connection:
+          - keep-alive
+        host:
+          - api.replicate.com
+        user-agent:
+          - replicate-python/0.15.6
+      method: GET
+      uri: https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby
+    response:
+      content:
+        "{\"id\":\"azaq55dbukgxg6kubr4k6g3pby\",\"model\":\"stability-ai/sdxl\",\"version\":\"39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b\",\"input\":{\"height\":512,\"prompt\":\"a
+        studio photo of a rainbow colored corgi\",\"seed\":42069,\"width\":512},\"logs\":\"Using
+        seed: 42069\\nPrompt: a studio photo of a rainbow colored corgi\\ntxt2img mode\\n
+        \ 0%|          | 0/50 [00:00\\u003c?, ?it/s]\\n  2%|\u258F         | 1/50 [00:00\\u003c00:31,
+        \ 1.57it/s]\\n  6%|\u258C         | 3/50 [00:00\\u003c00:09,  4.80it/s]\\n 10%|\u2588
+        \        | 5/50 [00:00\\u003c00:05,  7.60it/s]\\n 14%|\u2588\u258D        |
+        7/50 [00:00\\u003c00:04,  9.92it/s]\\n 18%|\u2588\u258A        | 9/50 [00:01\\u003c00:03,
+        11.76it/s]\\n 22%|\u2588\u2588\u258F       | 11/50 [00:01\\u003c00:02, 13.16it/s]\\n
+        26%|\u2588\u2588\u258C       | 13/50 [00:01\\u003c00:02, 14.22it/s]\\n 30%|\u2588\u2588\u2588
+        \      | 15/50 [00:01\\u003c00:02, 15.01it/s]\\n 34%|\u2588\u2588\u2588\u258D
+        \     | 17/50 [00:01\\u003c00:02, 15.56it/s]\\n 38%|\u2588\u2588\u2588\u258A
+        \     | 19/50 [00:01\\u003c00:01, 15.97it/s]\\n 42%|\u2588\u2588\u2588\u2588\u258F
+        \    | 21/50 [00:01\\u003c00:01, 16.24it/s]\\n 46%|\u2588\u2588\u2588\u2588\u258C
+        \    | 23/50 [00:01\\u003c00:01, 16.42it/s]\\n 50%|\u2588\u2588\u2588\u2588\u2588
+        \    | 25/50 [00:02\\u003c00:01, 16.56it/s]\\n 54%|\u2588\u2588\u2588\u2588\u2588\u258D
+        \   | 27/50 [00:02\\u003c00:01, 16.66it/s]\\n 58%|\u2588\u2588\u2588\u2588\u2588\u258A
+        \   | 29/50 [00:02\\u003c00:01, 16.72it/s]\\n 62%|\u2588\u2588\u2588\u2588\u2588\u2588\u258F
+        \  | 31/50 [00:02\\u003c00:01, 16.75it/s]\\n 66%|\u2588\u2588\u2588\u2588\u2588\u2588\u258C
+        \  | 33/50 [00:02\\u003c00:01, 16.78it/s]\\n 70%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588
+        \  | 35/50 [00:02\\u003c00:00, 16.78it/s]\\n 74%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258D
+        \ | 37/50 [00:02\\u003c00:00, 16.81it/s]\\n 78%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258A
+        \ | 39/50 [00:02\\u003c00:00, 16.80it/s]\\n 82%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258F
+        | 41/50 [00:03\\u003c00:00, 16.84it/s]\\n 86%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258C
+        | 43/50 [00:03\\u003c00:00, 16.88it/s]\\n 90%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588
+        | 45/50 [00:03\\u003c00:00, 16.89it/s]\\n 94%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258D|
+        47/50 [00:03\\u003c00:00, 16.82it/s]\\n 98%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258A|
+        49/50 [00:03\\u003c00:00, 16.83it/s]\\n\",\"error\":null,\"status\":\"processing\",\"created_at\":\"2023-11-16T11:46:16.0649Z\",\"started_at\":\"2023-11-16T11:46:16.539915Z\",\"urls\":{\"cancel\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby/cancel\",\"get\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby\"}}\n"
+      headers:
+        CF-Cache-Status:
+          - DYNAMIC
+        CF-RAY:
+          - 826f7e3849a36ffb-IAD
+        Connection:
+          - keep-alive
+        Content-Encoding:
+          - gzip
+        Content-Type:
+          - application/json
+        Date:
+          - Thu, 16 Nov 2023 11:46:22 GMT
+        NEL:
+          - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+        Report-To:
+          - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=ZN6IT%2BHT2llIOmF12obHe9C0sD6qD2gMi6iPi8d1TakIUim5t5hD2DI2oRVZ%2Bh7bZkSNyB3T%2BcBFwj0EqAMXL4p67EXFWj2r5T5FmSvJxDmttXwXjb8ZwS2RBJriraUpZLjeS37t4n9Jr%2B6Nsol2"}],"group":"cf-nel","max_age":604800}'
+        Server:
+          - cloudflare
+        Strict-Transport-Security:
+          - max-age=15552000
+        Transfer-Encoding:
+          - chunked
+        ratelimit-remaining:
+          - "59999"
+        ratelimit-reset:
+          - "1"
+        via:
+          - 1.1 google
+      http_version: HTTP/1.1
+      status_code: 200
+  - request:
+      body: ""
+      headers:
+        accept:
+          - "*/*"
+        accept-encoding:
+          - gzip, deflate
+        connection:
+          - keep-alive
+        host:
+          - api.replicate.com
+        user-agent:
+          - replicate-python/0.15.6
+      method: GET
+      uri: https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby
+    response:
+      content:
+        "{\"id\":\"azaq55dbukgxg6kubr4k6g3pby\",\"model\":\"stability-ai/sdxl\",\"version\":\"39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b\",\"input\":{\"height\":512,\"prompt\":\"a
+        studio photo of a rainbow colored corgi\",\"seed\":42069,\"width\":512},\"logs\":\"Using
+        seed: 42069\\nPrompt: a studio photo of a rainbow colored corgi\\ntxt2img mode\\n
+        \ 0%|          | 0/50 [00:00\\u003c?, ?it/s]\\n  2%|\u258F         | 1/50 [00:00\\u003c00:31,
+        \ 1.57it/s]\\n  6%|\u258C         | 3/50 [00:00\\u003c00:09,  4.80it/s]\\n 10%|\u2588
+        \        | 5/50 [00:00\\u003c00:05,  7.60it/s]\\n 14%|\u2588\u258D        |
+        7/50 [00:00\\u003c00:04,  9.92it/s]\\n 18%|\u2588\u258A        | 9/50 [00:01\\u003c00:03,
+        11.76it/s]\\n 22%|\u2588\u2588\u258F       | 11/50 [00:01\\u003c00:02, 13.16it/s]\\n
+        26%|\u2588\u2588\u258C       | 13/50 [00:01\\u003c00:02, 14.22it/s]\\n 30%|\u2588\u2588\u2588
+        \      | 15/50 [00:01\\u003c00:02, 15.01it/s]\\n 34%|\u2588\u2588\u2588\u258D
+        \     | 17/50 [00:01\\u003c00:02, 15.56it/s]\\n 38%|\u2588\u2588\u2588\u258A
+        \     | 19/50 [00:01\\u003c00:01, 15.97it/s]\\n 42%|\u2588\u2588\u2588\u2588\u258F
+        \    | 21/50 [00:01\\u003c00:01, 16.24it/s]\\n 46%|\u2588\u2588\u2588\u2588\u258C
+        \    | 23/50 [00:01\\u003c00:01, 16.42it/s]\\n 50%|\u2588\u2588\u2588\u2588\u2588
+        \    | 25/50 [00:02\\u003c00:01, 16.56it/s]\\n 54%|\u2588\u2588\u2588\u2588\u2588\u258D
+        \   | 27/50 [00:02\\u003c00:01, 16.66it/s]\\n 58%|\u2588\u2588\u2588\u2588\u2588\u258A
+        \   | 29/50 [00:02\\u003c00:01, 16.72it/s]\\n 62%|\u2588\u2588\u2588\u2588\u2588\u2588\u258F
+        \  | 31/50 [00:02\\u003c00:01, 16.75it/s]\\n 66%|\u2588\u2588\u2588\u2588\u2588\u2588\u258C
+        \  | 33/50 [00:02\\u003c00:01, 16.78it/s]\\n 70%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588
+        \  | 35/50 [00:02\\u003c00:00, 16.78it/s]\\n 74%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258D
+        \ | 37/50 [00:02\\u003c00:00, 16.81it/s]\\n 78%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258A
+        \ | 39/50 [00:02\\u003c00:00, 16.80it/s]\\n 82%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258F
+        | 41/50 [00:03\\u003c00:00, 16.84it/s]\\n 86%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258C
+        | 43/50 [00:03\\u003c00:00, 16.88it/s]\\n 90%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588
+        | 45/50 [00:03\\u003c00:00, 16.89it/s]\\n 94%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258D|
+        47/50 [00:03\\u003c00:00, 16.82it/s]\\n 98%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258A|
+        49/50 [00:03\\u003c00:00, 16.83it/s]\\n100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588|
+        50/50 [00:03\\u003c00:00, 14.13it/s]\\n\",\"output\":[\"https://replicate.delivery/pbxt/gDoc64M9pRaQNdZb0evCRgm57WZJ5BKi0T5kzV6qm2tGmd8IA/out-0.png\"],\"error\":null,\"status\":\"succeeded\",\"created_at\":\"2023-11-16T11:46:16.0649Z\",\"started_at\":\"2023-11-16T11:46:16.539915Z\",\"completed_at\":\"2023-11-16T11:46:22.064427Z\",\"metrics\":{\"predict_time\":5.524512},\"urls\":{\"cancel\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby/cancel\",\"get\":\"https://api.replicate.com/v1/predictions/azaq55dbukgxg6kubr4k6g3pby\"}}\n"
+      headers:
+        CF-Cache-Status:
+          - DYNAMIC
+        CF-RAY:
+          - 826f7e3c0c1e6ffb-IAD
+        Connection:
+          - keep-alive
+        Content-Encoding:
+          - gzip
+        Content-Type:
+          - application/json
+        Date:
+          - Thu, 16 Nov 2023 11:46:22 GMT
+        NEL:
+          - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+        Report-To:
+          - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=YYtNu3L6gvlBdESBaIUJNqUiaIztItY8VrP1iPdt7Ro3lB%2Ff0l91dz3L5EDGTqy1cfliLb4nW8wsUUHsTLkWuIip9wNyxe%2BWYpJflgXIeIAADWzNZ6tmUr1xDnN2Ac4HvNKXhW0so2LaAmwHhXWX"}],"group":"cf-nel","max_age":604800}'
+        Server:
+          - cloudflare
+        Strict-Transport-Security:
+          - max-age=15552000
+        Transfer-Encoding:
+          - chunked
+        ratelimit-remaining:
+          - "59999"
+        ratelimit-reset:
+          - "1"
+        via:
+          - 1.1 google
+      http_version: HTTP/1.1
+      status_code: 200
 version: 1

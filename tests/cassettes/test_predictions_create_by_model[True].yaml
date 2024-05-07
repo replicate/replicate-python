@@ -1,0 +1,120 @@
+interactions:
+- request:
+    body: '{"input": {"prompt": "write a haiku about llamas"}}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '51'
+      content-type:
+      - application/json
+      host:
+      - api.replicate.com
+      user-agent:
+      - replicate-python/0.25.1
+    method: POST
+    uri: https://api.replicate.com/v1/models/meta/meta-llama-3-8b-instruct/predictions
+  response:
+    content: '{"id":"vpx8dks2pnrgg0cf0p2b7p13hc","model":"replicate-internal/llama-3-8b-instruct-int8-triton","version":"dp-a557b7387b4940df25b23f779dc534c4","input":{"prompt":"write
+      a haiku about llamas"},"logs":"","error":null,"status":"starting","created_at":"2024-04-22T11:14:56.821Z","urls":{"cancel":"https://api.replicate.com/v1/predictions/vpx8dks2pnrgg0cf0p2b7p13hc/cancel","get":"https://api.replicate.com/v1/predictions/vpx8dks2pnrgg0cf0p2b7p13hc"}}
+
+      '
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 878531709ab476d6-SEA
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '447'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Mon, 22 Apr 2024 11:14:56 GMT
+      NEL:
+      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+      Report-To:
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v4?s=PGxIXq%2Fp%2FXsMcmw0GyjVGenwcrvsBa%2FAasnwL8Mm8c0ODadYfL9gsDVQMV0Cx%2Fg1xNNyWYL51rraqeV7xQkD9yj0UsgKYy70W4COulpbw6srEkT4TzSDdDOZA7Qo49eu2c5l"}],"group":"cf-nel","max_age":604800}'
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000
+      alt-svc:
+      - h3=":443"; ma=86400
+      ratelimit-remaining:
+      - '599'
+      ratelimit-reset:
+      - '1'
+      replicate-edge-cluster:
+      - us-central1
+      replicate-target-cluster:
+      - coreweave-us
+      via:
+      - 1.1 google
+    http_version: HTTP/1.1
+    status_code: 201
+- request:
+    body: '{"input": {"prompt": "write a haiku about llamas"}}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '51'
+      content-type:
+      - application/json
+      host:
+      - api.replicate.com
+      user-agent:
+      - replicate-python/0.25.1
+    method: POST
+    uri: https://api.replicate.com/v1/models/meta/meta-llama-3-8b-instruct/predictions
+  response:
+    content: '{"id":"vcp9g11jexrgp0cf0p2bweyqyg","model":"replicate-internal/llama-3-8b-instruct-int8-triton","version":"dp-a557b7387b4940df25b23f779dc534c4","input":{"prompt":"write
+      a haiku about llamas"},"logs":"","error":null,"status":"starting","created_at":"2024-04-22T11:15:00.855Z","urls":{"cancel":"https://api.replicate.com/v1/predictions/vcp9g11jexrgp0cf0p2bweyqyg/cancel","get":"https://api.replicate.com/v1/predictions/vcp9g11jexrgp0cf0p2bweyqyg"}}
+
+      '
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 87853189c84a9b79-SEA
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '447'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Mon, 22 Apr 2024 11:15:00 GMT
+      NEL:
+      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+      Report-To:
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v4?s=3IETw%2FWj35BwKNZG7vaA8O981ehk76n1iTstHAvJCMknGcuVRg9jDcQ1HPM0yiWRrl4oongZAJV%2Bky%2B36ee8yyz6%2Bqudt99I5D3yz9tzxzYGEZkrq05TFIAsVsS%2BaA2Sexnz"}],"group":"cf-nel","max_age":604800}'
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000
+      alt-svc:
+      - h3=":443"; ma=86400
+      ratelimit-remaining:
+      - '599'
+      ratelimit-reset:
+      - '1'
+      replicate-edge-cluster:
+      - us-central1
+      replicate-target-cluster:
+      - coreweave-us
+      via:
+      - 1.1 google
+    http_version: HTTP/1.1
+    status_code: 201
+version: 1
