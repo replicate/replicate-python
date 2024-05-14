@@ -244,6 +244,43 @@ class Models(Namespace):
 
         return _json_to_model(self._client, resp.json())
 
+    @overload
+    def delete(self, key: str) -> Model: ...
+
+    @overload
+    def delete(self, owner: str, name: str) -> Model: ...
+
+    def delete(self, *args, **kwargs) -> Model:
+        """
+        Delete a model by name.
+        """
+
+        url = _delete_model_url(*args, **kwargs)
+        resp = self._client._request("DELETE", url)
+
+        return _json_to_model(self._client, resp.json())
+
+    @overload
+    async def async_delete(self, key: str) -> Model: ...
+
+    @overload
+    async def async_delete(self, owner: str, name: str) -> Model: ...
+
+    async def async_delete(self, *args, **kwargs) -> Model:
+        """
+        Delete a model by name.
+
+        Args:
+            key: The qualified name of the model, in the format `owner/name`.
+        Returns:
+            The model.
+        """
+
+        url = _delete_model_url(*args, **kwargs)
+        resp = await self._client._async_request("DELETE", url)
+
+        return _json_to_model(self._client, resp.json())
+
     class CreateModelParams(TypedDict):
         """Parameters for creating a model."""
 
@@ -296,13 +333,6 @@ class Models(Namespace):
         resp = await self._client._async_request("POST", "/v1/models", json=body)
 
         return _json_to_model(self._client, resp.json())
-
-    def delete(self, key: str) -> None:
-        """
-        Delete a model.
-        """
-
-        self._client._request("DELETE", f"/v1/models/{key}")
 
 
 class ModelsPredictions(Namespace):
@@ -419,6 +449,10 @@ def _get_model_url(*args, **kwargs) -> str:
         key = f"{owner}/{name}"
 
     return f"/v1/models/{key}"
+
+
+def _delete_model_url(*args, **kwargs) -> str:
+    return _get_model_url(*args, **kwargs)
 
 
 def _json_to_model(client: "Client", json: Dict[str, Any]) -> Model:
