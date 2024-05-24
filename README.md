@@ -20,7 +20,7 @@ pip install replicate
 
 Before running any Python scripts that use the API, you need to set your Replicate API token in your environment.
 
-Grab your token from [replicate.com/account](https://replicate.com/account) and set it as an environment variable:
+Grab your token from [replicate.com/account/api-tokens](https://replicate.com/account/api-tokens) and set it as an environment variable:
 
 ```
 export REPLICATE_API_TOKEN=<your token>
