@@ -360,6 +360,20 @@ training = replicate.trainings.create(
 )
 ```
 
+
+## Use a custom token
+
+The `REPLICATE_API_TOKEN` environment variable is used by default. If you want to specify a different token, use the `Client` factory method to create a custom client:
+
+```python
+import os
+from replicate.client import Client
+
+replicate = Client(
+  api_token=os.environ["SOME_OTHER_REPLICATE_API_TOKEN"]
+)
+```
+
 ## Development
 
 See [CONTRIBUTING.md](CONTRIBUTING.md)
