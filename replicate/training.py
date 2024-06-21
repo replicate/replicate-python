@@ -418,4 +418,14 @@ def _create_training_url_from_model_and_version(
 def _json_to_training(client: "Client", json: Dict[str, Any]) -> Training:
     training = Training(**json)
     training._client = client
+
+    # FIXME: This should be populated by the API
+    if (
+        training.output
+        and isinstance(training.output, dict)
+        and "version" in training.output
+    ):
+        id = ModelVersionIdentifier.parse(training.output["version"])
+        training.destination = f"{id.owner}/{id.name}"
+
     return training
