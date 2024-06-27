@@ -58,7 +58,7 @@ Some models, like [andreasjansson/blip-2](https://replicate.com/andreasjansson/b
 To run a model that takes a file input,
 pass a URL to a publicly accessible file.
 Or, for smaller files (<10MB), you can pass a file handle directly.
-If you don't use the built-in file handler, you'll need to create a base64 encoded data URL of the file input.
+If you don't use the built-in file handler but want to pass a file handle directly, you'll need to create a base64 encoded data URL of the file input.
 
 ```python
 >>> output = replicate.run(
