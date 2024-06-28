@@ -30,7 +30,8 @@ We recommend not adding the token directly to your source code, because you don'
 
 ## Run a model
 
-Create a new Python file and add the following code, replacing the model identifier and input with your own:
+Create a new Python file and add the following code, 
+replacing the model identifier and input with your own:
 
 ```python
 >>> import replicate
@@ -40,18 +41,6 @@ Create a new Python file and add the following code, replacing the model identif
     )
 
 ['https://replicate.com/api/models/stability-ai/stable-diffusion/files/50fcac81-865d-499e-81ac-49de0cb79264/out-0.png']
-```
-
-Some models, particularly language models, may not require the version string. Refer to the API documentation for the model for more on the specifics:
-
-```python
-replicate.run(
-    "meta/meta-llama-3-70b-instruct",
-    input={
-        "prompt": "Can you write a poem about open source machine learning?",
-        "system_prompt": "You are a helpful, respectful and honest assistant.",
-    },
-)
 ```
 
 > [!TIP]
@@ -110,13 +99,17 @@ for event in replicate.stream(
     print(str(event), end="")
 ```
 
+> [!TIP]
+> Some models, like [meta/meta-llama-3-70b-instruct](https://replicate.com/meta/meta-llama-3-70b-instruct), 
+> don't require a version string. 
+> You can always refer to the API documentation on the model page for specifics.
+
 You can also stream the output of a prediction you create.
 This is helpful when you want the ID of the prediction separate from its output.
 
 ```python
-version = "02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3"
 prediction = replicate.predictions.create(
-    version=version,
+    model="meta/meta-llama-3-70b-instruct"
     input={"prompt": "Please write a haiku about llamas."},
     stream=True,
 )
