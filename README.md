@@ -54,21 +54,7 @@ replicate.run(
 )
 ```
 
-Some models, like [andreasjansson/blip-2](https://replicate.com/andreasjansson/blip-2), have files as inputs.
-To run a model that takes a file input,
-pass a URL to a publicly accessible file.
-Or, for smaller files (<10MB), you can pass a file handle directly.
-
-```python
->>> output = replicate.run(
-        "andreasjansson/blip-2:f677695e5e89f8b236e52ecd1d3f01beb44c34606419bcc19345e046d8f786f9",
-        input={ "image": open("path/to/mystery.jpg") }
-    )
-
-"an astronaut riding a horse"
-```
-
-> [!NOTE]
+> [!TIP]
 > You can also use the Replicate client asynchronously by prepending `async_` to the method name. 
 > 
 > Here's an example of how to run several predictions concurrently and wait for them all to complete:
@@ -93,6 +79,19 @@ Or, for smaller files (<10MB), you can pass a file handle directly.
 > results = await asyncio.gather(*tasks)
 > print(results)
 > ```
+
+To run a model that takes a file input you can pass either
+a URL to a publicly accessible file on the Internet
+or a handle to a file on your local device.
+
+```python
+>>> output = replicate.run(
+        "andreasjansson/blip-2:f677695e5e89f8b236e52ecd1d3f01beb44c34606419bcc19345e046d8f786f9",
+        input={ "image": open("path/to/mystery.jpg") }
+    )
+
+"an astronaut riding a horse"
+```
 
 ## Run a model and stream its output
 
