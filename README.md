@@ -42,28 +42,6 @@ Create a new Python file and add the following code, replacing the model identif
 ['https://replicate.com/api/models/stability-ai/stable-diffusion/files/50fcac81-865d-499e-81ac-49de0cb79264/out-0.png']
 ```
 
-Some models, particularly language models, may not require the version string. You can always refer to the API documentation on the model page for specifics (for example, [check out the Llama 3 API documentation](https://replicate.com/meta/meta-llama-3-70b-instruct/api)).
-
-```python
-replicate.run(
-    "meta/meta-llama-3-70b-instruct",
-    input={
-        "prompt": "Can you write a poem about open source machine learning?"
-    },
-)
-```
-
-Here is the async equivalent of the above:
-
-```python
-replicate.models.predictions.create(
-    "meta/meta-llama-3-70b-instruct",
-    input={
-        "prompt": "Can you write a poem about open source machine learning?"
-    },
-)
-```
-
 Some models, like [andreasjansson/blip-2](https://replicate.com/andreasjansson/blip-2), have files as inputs.
 To run a model that takes a file input,
 pass a URL to a publicly accessible file.
@@ -107,16 +85,13 @@ Or, for smaller files (<10MB), you can pass a file handle directly.
 ## Run a model and stream its output
 
 Replicate’s API supports server-sent event streams (SSEs) for language models.
-Use the `stream` method to consume tokens as they're produced by the model.
+Use the `stream` method to consume tokens as they're produced.
 
 ```python
 import replicate
 
-# https://replicate.com/meta/llama-2-70b-chat
-model_version = "meta/llama-2-70b-chat:02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3"
-
 for event in replicate.stream(
-    model_version,
+    "meta/meta-llama-3-70b-instruct,
     input={
         "prompt": "Please write a haiku about llamas.",
     },
@@ -124,13 +99,17 @@ for event in replicate.stream(
     print(str(event), end="")
 ```
 
+> [!TIP]
+> Some models, like [meta/meta-llama-3-70b-instruct](https://replicate.com/meta/meta-llama-3-70b-instruct), 
+> don't require a version string. 
+> You can always refer to the API documentation on the model page for specifics.
+
 You can also stream the output of a prediction you create.
 This is helpful when you want the ID of the prediction separate from its output.
 
 ```python
-version = "02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3"
 prediction = replicate.predictions.create(
-    version=version,
+    model="meta/meta-llama-3-70b-instruct",
     input={"prompt": "Please write a haiku about llamas."},
     stream=True,
 )
