@@ -54,7 +54,7 @@ replicate.run(
 )
 ```
 
-> [!NOTE]
+> [!TIP]
 > You can also use the Replicate client asynchronously by prepending `async_` to the method name. 
 > 
 > Here's an example of how to run several predictions concurrently and wait for them all to complete:
