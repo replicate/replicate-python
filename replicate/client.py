@@ -330,11 +330,11 @@ def _build_httpx_client(
     **kwargs,
 ) -> Union[httpx.Client, httpx.AsyncClient]:
     headers = kwargs.pop("headers", {})
-    headers["User-Agent"] = f"replicate-python/{__version__}"
-
-    if (
+    if "User-Agent" not in headers:
+        headers["User-Agent"] = f"replicate-python/{__version__}"
+    if "Authorization" not in headers and (
         api_token := api_token or os.environ.get("REPLICATE_API_TOKEN")
-    ) and api_token != "":
+    ):
         headers["Authorization"] = f"Bearer {api_token}"
 
     base_url = (
