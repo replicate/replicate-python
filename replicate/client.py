@@ -30,6 +30,7 @@ from replicate.prediction import Predictions
 from replicate.run import async_run, run
 from replicate.stream import async_stream, stream
 from replicate.training import Trainings
+from replicate.proxy import get_proxy
 
 if TYPE_CHECKING:
     from replicate.stream import ServerSentEvent
@@ -347,10 +348,11 @@ def _build_httpx_client(
         5.0, read=30.0, write=30.0, connect=5.0, pool=10.0
     )
 
+    proxy = get_proxy()
     transport = kwargs.pop("transport", None) or (
-        httpx.HTTPTransport()
+        httpx.HTTPTransport(proxy=proxy)
         if client_type is httpx.Client
-        else httpx.AsyncHTTPTransport()
+        else httpx.AsyncHTTPTransport(proxy=proxy)
     )
 
     return client_type(
