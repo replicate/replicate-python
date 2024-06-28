@@ -1,9 +1,16 @@
+import os
+
 import pytest
 
 import replicate
 from replicate.stream import ServerSentEvent
 
+skip_if_no_token = pytest.mark.skipif(
+    os.environ.get("REPLICATE_API_TOKEN") is None, reason="REPLICATE_API_TOKEN not set"
+)
 
+
+@skip_if_no_token
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_flag", [True, False])
 async def test_stream(async_flag, record_mode):
@@ -32,6 +39,7 @@ async def test_stream(async_flag, record_mode):
     assert any(event.event == ServerSentEvent.EventType.DONE for event in events)
 
 
+@skip_if_no_token
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_flag", [True, False])
 async def test_stream_prediction(async_flag, record_mode):
