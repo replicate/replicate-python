@@ -1,5 +1,28 @@
-#!/bin/bash
+#!/bin/sh
 
-set -e
+set -eu
 
-python -m pip install -r requirements.txt -r requirements-dev.txt .
+: "${RYE_INSTALL_OPTION:='--yes'}"
+: "${RYE_VERSION:='latest'}"
+
+if ! command -v rye > /dev/null 2>&1
+then
+    echo "rye is not installed."
+    printf "Do you want to install rye? (y/n) "
+    read -r REPLY
+    echo    # move to a new line
+    case "$REPLY" in 
+        [yY]) 
+            echo "Installing rye..."
+            curl -sSf https://rye-up.com/get | sh
+            echo "rye has been successfully installed."
+            ;;
+        *)
+            exit 1
+            ;;
+    esac
+else
+    echo "rye is already installed."
+fi
+
+exec rye sync

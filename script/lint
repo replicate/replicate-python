@@ -5,19 +5,19 @@ set -e
 STATUS=0
 
 echo "Running pyright"
-python -m pyright replicate || STATUS=$?
+rye run pyright replicate || STATUS=$?
 echo ""
 
 echo "Running pylint"
-python -m pylint --exit-zero replicate || STATUS=$?
+rye run pylint --exit-zero replicate || STATUS=$?
 echo ""
 
-echo "Running ruff check"
-python -m ruff check . || STATUS=$?
+echo "Running rye lint"
+rye lint . || STATUS=$?
 echo ""
 
-echo "Running ruff format check"
-python -m ruff format --check . || STATUS=$?
+echo "Running rye fmt --check"
+rye fmt --check || STATUS=$?
 echo ""
 
 exit $STATUS
