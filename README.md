@@ -270,7 +270,7 @@ background = Image.open("/tmp/out.png")
 
 ## List models
 
-You can the models you've created:
+You can list the models you've created:
 
 ```python
 replicate.models.list()
