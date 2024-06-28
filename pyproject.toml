@@ -80,4 +80,5 @@ ignore = [
     "S101",   # Use of assert
     "S106",   # Possible use of hard-coded password function arguments
     "ANN201", # Missing return type annotation for public function
+    "ANN202", # Missing return type annotation for private function
 ]

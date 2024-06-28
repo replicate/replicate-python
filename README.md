@@ -359,6 +359,33 @@ training = replicate.trainings.create(
 )
 ```
 
+## Customize client behavior
+
+The `replicate` package exports a default shared client.
+This client is initialized with an API token
+set by the `REPLICATE_API_TOKEN` environment variable.
+
+You can create your own client instance to
+pass a different API token value,
+add custom headers to requests,
+or control the behavior of the underlying [HTTPX client](https://www.python-httpx.org/api/#client):
+
+```python
+import os
+from replicate.client import Client
+
+replicate = Client(
+  api_token=os.environ["SOME_OTHER_REPLICATE_API_TOKEN"]
+  headers={
+    "User-Agent": "my-app/1.0
+  }
+)
+```
+
+> [!WARNING]
+> Never hardcode authentication credentials like API tokens into your code.
+> Instead, pass them as environment variables when running your program.
+
 ## Development
 
 See [CONTRIBUTING.md](CONTRIBUTING.md)

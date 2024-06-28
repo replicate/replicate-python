@@ -91,21 +91,26 @@ def test_custom_headers_are_applied():
     import replicate
     from replicate.exceptions import ReplicateError
 
-    custom_headers = {"Custom-Header": "CustomValue"}
+    custom_headers = {"User-Agent": "my-custom-user-agent/1.0"}
 
-    def mock_send(request: httpx.Request, **kwargs) -> httpx.Response:
-        assert "Custom-Header" in request.headers
-        assert request.headers["Custom-Header"] == "CustomValue"
-
+    def mock_send(request):
+        assert "User-Agent" in request.headers, "Custom header not found in request"
+        assert (
+            request.headers["User-Agent"] == "my-custom-user-agent/1.0"
+        ), "Custom header value is incorrect"
         return httpx.Response(401, json={})
+
+    mock_send_wrapper = mock.Mock(side_effect=mock_send)
 
     client = replicate.Client(
         api_token="dummy_token",
         headers=custom_headers,
-        transport=httpx.MockTransport(mock_send),
+        transport=httpx.MockTransport(mock_send_wrapper),
     )
 
     try:
         client.accounts.current()
     except ReplicateError:
         pass
+
+    mock_send_wrapper.assert_called_once()
