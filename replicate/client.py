@@ -30,6 +30,7 @@ from replicate.prediction import Predictions
 from replicate.run import async_run, run
 from replicate.stream import async_stream, stream
 from replicate.training import Trainings
+from replicate.webhook import Webhooks
 
 if TYPE_CHECKING:
     from replicate.stream import ServerSentEvent
@@ -143,6 +144,13 @@ class Client:
         Namespace for operations related to trainings.
         """
         return Trainings(client=self)
+
+    @property
+    def webhooks(self) -> Webhooks:
+        """
+        Namespace for operations related to webhooks.
+        """
+        return Webhooks(client=self)
 
     def run(
         self,
