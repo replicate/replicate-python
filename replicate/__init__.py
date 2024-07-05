@@ -19,3 +19,4 @@ deployments = default_client.deployments
 models = default_client.models
 predictions = default_client.predictions
 trainings = default_client.trainings
+webhooks = default_client.webhooks
