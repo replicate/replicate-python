@@ -5,6 +5,7 @@ import pytest
 import respx
 from httpx import Request
 
+import replicate
 from replicate.client import Client
 from replicate.webhook import (
     InvalidSecretKeyError,
@@ -12,7 +13,6 @@ from replicate.webhook import (
     InvalidTimestampError,
     MissingWebhookBodyError,
     MissingWebhookHeaderError,
-    Webhooks,
     WebhookSigningSecret,
 )
 
@@ -69,7 +69,9 @@ def test_validate_webhook_invalid_signature(webhook_signing_secret):
     body = '{"test": 2432232314}'
 
     with pytest.raises(InvalidSignatureError, match="Webhook signature is invalid"):
-        Webhooks.validate(headers=headers, body=body, secret=webhook_signing_secret)
+        replicate.webhooks.validate(
+            headers=headers, body=body, secret=webhook_signing_secret
+        )
 
 
 def test_validate_webhook_missing_webhook_id(webhook_signing_secret):
@@ -79,7 +81,9 @@ def test_validate_webhook_missing_webhook_id(webhook_signing_secret):
     body = '{"test": 2432232314}'
 
     with pytest.raises(MissingWebhookHeaderError, match="Missing webhook id"):
-        Webhooks.validate(headers=headers, body=body, secret=webhook_signing_secret)
+        replicate.webhooks.validate(
+            headers=headers, body=body, secret=webhook_signing_secret
+        )
 
 
 def test_validate_webhook_invalid_secret():
@@ -92,7 +96,7 @@ def test_validate_webhook_invalid_secret():
     body = '{"test": 2432232314}'
 
     with pytest.raises(InvalidSecretKeyError, match="Invalid secret key format"):
-        Webhooks.validate(
+        replicate.webhooks.validate(
             headers=headers,
             body=body,
             secret=WebhookSigningSecret(key="invalid_secret_format"),
@@ -104,7 +108,7 @@ def test_validate_webhook_missing_headers(webhook_signing_secret):
     body = '{"test": 2432232314}'
 
     with pytest.raises(MissingWebhookHeaderError, match="Missing webhook headers"):
-        Webhooks.validate(
+        replicate.webhooks.validate(
             headers=headers,  # type: ignore
             body=body,
             secret=webhook_signing_secret,
@@ -121,7 +125,7 @@ def test_validate_webhook_missing_body(webhook_signing_secret):
     body = None
 
     with pytest.raises(MissingWebhookBodyError, match="Missing webhook body"):
-        Webhooks.validate(
+        replicate.webhooks.validate(
             headers=headers,
             body=body,  # type: ignore
             secret=webhook_signing_secret,
@@ -154,7 +158,7 @@ def test_validate_webhook_timestamp(
     with pytest.raises(
         (InvalidTimestampError if timestamp_invalid else InvalidSignatureError),
     ):
-        Webhooks.validate(
+        replicate.webhooks.validate(
             headers=headers,
             body=body,
             secret=webhook_signing_secret,
