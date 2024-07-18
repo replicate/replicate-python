@@ -249,7 +249,7 @@ class Prediction(Resource):
             self.reload()
 
         if self.status == "failed":
-            raise ModelError(self.error)
+            raise ModelError(self)
 
         output = self.output or []
         new_output = output[len(previous_output) :]
@@ -272,7 +272,7 @@ class Prediction(Resource):
             await self.async_reload()
 
         if self.status == "failed":
-            raise ModelError(self.error)
+            raise ModelError(self)
 
         output = self.output or []
         new_output = output[len(previous_output) :]

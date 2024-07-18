@@ -7,7 +7,7 @@ import respx
 
 import replicate
 from replicate.client import Client
-from replicate.exceptions import ReplicateError
+from replicate.exceptions import ModelError, ReplicateError
 
 
 @pytest.mark.vcr("run.yaml")
@@ -184,3 +184,72 @@ async def test_run_version_with_invalid_cog_version(mock_replicate_api_token):
     )
 
     assert output == "Hello, world!"
+
+
+@pytest.mark.asyncio
+async def test_run_with_model_error(mock_replicate_api_token):
+    def prediction_with_status(status: str) -> dict:
+        return {
+            "id": "p1",
+            "model": "test/example",
+            "version": "v1",
+            "urls": {
+                "get": "https://api.replicate.com/v1/predictions/p1",
+                "cancel": "https://api.replicate.com/v1/predictions/p1/cancel",
+            },
+            "created_at": "2023-10-05T12:00:00.000000Z",
+            "source": "api",
+            "status": status,
+            "input": {"text": "world"},
+            "output": None,
+            "error": "OOM" if status == "failed" else None,
+            "logs": "",
+        }
+
+    router = respx.Router(base_url="https://api.replicate.com/v1")
+    router.route(method="POST", path="/predictions").mock(
+        return_value=httpx.Response(
+            201,
+            json=prediction_with_status("processing"),
+        )
+    )
+    router.route(method="GET", path="/predictions/p1").mock(
+        return_value=httpx.Response(
+            200,
+            json=prediction_with_status("failed"),
+        )
+    )
+    router.route(
+        method="GET",
+        path="/models/test/example/versions/v1",
+    ).mock(
+        return_value=httpx.Response(
+            201,
+            json={
+                "id": "f2d6b24e6002f25f77ae89c2b0a5987daa6d0bf751b858b94b8416e8542434d1",
+                "created_at": "2024-07-18T00:35:56.210272Z",
+                "cog_version": "0.9.10",
+                "openapi_schema": {
+                    "openapi": "3.0.2",
+                },
+            },
+        )
+    )
+    router.route(host="api.replicate.com").pass_through()
+
+    client = Client(
+        api_token="test-token", transport=httpx.MockTransport(router.handler)
+    )
+    client.poll_interval = 0.001
+
+    with pytest.raises(ModelError) as excinfo:
+        client.run(
+            "test/example:v1",
+            input={
+                "text": "Hello, world!",
+            },
+        )
+
+    assert str(excinfo.value) == "OOM"
+    assert excinfo.value.prediction.error == "OOM"
+    assert excinfo.value.prediction.status == "failed"

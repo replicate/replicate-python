@@ -82,6 +82,24 @@ or a handle to a file on your local device.
 "an astronaut riding a horse"
 ```
 
+`replicate.run` raises `ModelError` if the prediction fails.
+You can access the exception's `prediction` property 
+to get more information about the failure.
+
+```python
+import replicate
+from replicate.exceptions import ModelError
+
+try:
+  output = replicate.run("stability-ai/stable-diffusion-3", { "prompt": "An astronaut riding a rainbow unicorn" })
+except ModelError as e
+  if "(some known issue)" in e.logs:
+    pass
+
+  print("Failed prediction: " + e.prediction.id)
+```
+
+
 ## Run a model and stream its output
 
 Replicate’s API supports server-sent event streams (SSEs) for language models. 
