@@ -93,7 +93,7 @@ from replicate.exceptions import ModelError
 try:
   output = replicate.run("stability-ai/stable-diffusion-3", { "prompt": "An astronaut riding a rainbow unicorn" })
 except ModelError as e
-  if "(some known issue)" in e.logs:
+  if "(some known issue)" in e.prediction.logs:
     pass
 
   print("Failed prediction: " + e.prediction.id)
