@@ -1,6 +1,9 @@
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import httpx
+
+if TYPE_CHECKING:
+    from replicate.prediction import Prediction
 
 
 class ReplicateException(Exception):
@@ -10,11 +13,11 @@ class ReplicateException(Exception):
 class ModelError(ReplicateException):
     """An error from user's code in a model."""
 
-    prediction_id: str
+    prediction: "Prediction"
 
-    def __init__(self, error: Optional[str], prediction_id: str) -> None:
-        self.prediction_id = prediction_id
-        super().__init__(error)
+    def __init__(self, prediction: "Prediction") -> None:
+        self.prediction = prediction
+        super().__init__(prediction.error)
 
 
 class ReplicateError(ReplicateException):

@@ -58,7 +58,7 @@ def run(
     prediction.wait()
 
     if prediction.status == "failed":
-        raise ModelError(prediction.error, prediction.id)
+        raise ModelError(prediction)
 
     return prediction.output
 
@@ -97,7 +97,7 @@ async def async_run(
     await prediction.async_wait()
 
     if prediction.status == "failed":
-        raise ModelError(prediction.error, prediction.id)
+        raise ModelError(prediction)
 
     return prediction.output
 
