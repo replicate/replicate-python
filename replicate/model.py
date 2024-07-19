@@ -207,6 +207,46 @@ class Models(Namespace):
 
         return Page[Model](**obj)
 
+    def search(self, query: str) -> Page[Model]:
+        """
+        Search for public models.
+
+        Parameters:
+            query: The search query.
+        Returns:
+            Page[Model]: A page of models matching the search query.
+        """
+        resp = self._client._request(
+            "QUERY", "/v1/models", content=query, headers={"Content-Type": "text/plain"}
+        )
+
+        obj = resp.json()
+        obj["results"] = [
+            _json_to_model(self._client, result) for result in obj["results"]
+        ]
+
+        return Page[Model](**obj)
+
+    async def async_search(self, query: str) -> Page[Model]:
+        """
+        Asynchronously search for public models.
+
+        Parameters:
+            query: The search query.
+        Returns:
+            Page[Model]: A page of models matching the search query.
+        """
+        resp = await self._client._async_request(
+            "QUERY", "/v1/models", content=query, headers={"Content-Type": "text/plain"}
+        )
+
+        obj = resp.json()
+        obj["results"] = [
+            _json_to_model(self._client, result) for result in obj["results"]
+        ]
+
+        return Page[Model](**obj)
+
     @overload
     def get(self, key: str) -> Model: ...
 
