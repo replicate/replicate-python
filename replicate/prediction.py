@@ -381,7 +381,12 @@ class Predictions(Namespace):
         """List of events to trigger webhooks."""
 
         stream: NotRequired[bool]
-        """Enable streaming of prediction output."""
+        """
+        Enable streaming of prediction output.
+
+        Deprecated: Streaming is now enabled by default for all predictions.
+        For more information, see https://replicate.com/changelog/2024-07-15-streams-always-available-stream-parameter-deprecated
+        """
 
     @overload
     def create(
@@ -592,7 +597,7 @@ def _create_prediction_body(  # pylint: disable=too-many-arguments
     webhook: Optional[str] = None,
     webhook_completed: Optional[str] = None,
     webhook_events_filter: Optional[List[str]] = None,
-    stream: Optional[bool] = None,
+    stream: Optional[bool] = None,  # pylint: disable=unused-argument
 ) -> Dict[str, Any]:
     body = {}
 
@@ -610,9 +615,6 @@ def _create_prediction_body(  # pylint: disable=too-many-arguments
 
     if webhook_events_filter is not None:
         body["webhook_events_filter"] = webhook_events_filter
-
-    if stream is not None:
-        body["stream"] = stream
 
     return body
 

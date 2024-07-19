@@ -249,7 +249,6 @@ async def test_deployment_predictions_create(async_flag):
     assert request_body["input"] == {"text": "world"}
     assert request_body["webhook"] == "https://example.com/webhook"
     assert request_body["webhook_events_filter"] == ["completed"]
-    assert request_body["stream"] is True
 
     assert prediction.id == "p1"
     assert prediction.input == {"text": "world"}
@@ -285,7 +284,6 @@ async def test_deploymentspredictions_create(async_flag):
     assert request_body["input"] == {"text": "world"}
     assert request_body["webhook"] == "https://example.com/webhook"
     assert request_body["webhook_events_filter"] == ["completed"]
-    assert request_body["stream"] is True
 
     assert prediction.id == "p1"
     assert prediction.input == {"text": "world"}
