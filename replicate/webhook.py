@@ -15,6 +15,10 @@ if TYPE_CHECKING:
 
 
 class WebhookSigningSecret(Resource):
+    """
+    A webhook signing secret.
+    """
+
     key: str
 
 
@@ -43,6 +47,10 @@ class InvalidSignatureError(WebhookValidationError):
 
 
 class Webhooks(Namespace):
+    """
+    Namespace for operations related to webhooks.
+    """
+
     @property
     def default(self) -> "Webhooks.Default":
         """
@@ -52,6 +60,10 @@ class Webhooks(Namespace):
         return self.Default(self._client)
 
     class Default(Namespace):
+        """
+        Namespace for operations related to the default webhook.
+        """
+
         def secret(self) -> WebhookSigningSecret:
             """
             Get the default webhook signing secret.
@@ -94,7 +106,7 @@ class Webhooks(Namespace):
     ) -> bool: ...
 
     @staticmethod
-    def validate(  # type: ignore
+    def validate(  # type: ignore # pylint: disable=too-many-branches,too-many-locals
         request: Optional["httpx.Request"] = None,
         headers: Optional[Dict[str, str]] = None,
         body: Optional[str] = None,
