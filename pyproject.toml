@@ -75,6 +75,7 @@ ignore = [
     "ANN101", # Missing type annotation for self in method
     "ANN102", # Missing type annotation for cls in classmethod
     "W191",   # Indentation contains tabs
+    "UP037",  # Remove quotes from type annotation
 ]
 
 [tool.ruff.lint.per-file-ignores]
