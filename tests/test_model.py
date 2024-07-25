@@ -1,6 +1,7 @@
 import pytest
 
 import replicate
+from replicate.model import Model, Page
 
 
 @pytest.mark.vcr("models-get.yaml")
@@ -130,3 +131,26 @@ async def test_models_predictions_create(async_flag):
     # assert prediction.model == "meta/llama-2-70b-chat"
     assert prediction.model == "replicate/lifeboat-70b"  # FIXME: this is temporary
     assert prediction.status == "starting"
+
+
+@pytest.mark.vcr("models-search.yaml")
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_models_search(async_flag):
+    query = "llama"
+
+    if async_flag:
+        page = await replicate.models.async_search(query)
+    else:
+        page = replicate.models.search(query)
+
+    assert isinstance(page, Page)
+    assert len(page.results) > 0
+
+    for model in page.results:
+        assert isinstance(model, Model)
+        assert model.id is not None
+        assert model.owner is not None
+        assert model.name is not None
+
+    assert any("meta" in model.name.lower() for model in page.results)
