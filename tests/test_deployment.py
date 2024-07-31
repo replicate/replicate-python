@@ -178,6 +178,11 @@ router.route(
     )
 )
 
+router.route(
+    method="DELETE",
+    path="/deployments/acme/image-upscaler",
+    name="deployments.delete",
+).mock(return_value=httpx.Response(204))
 
 router.route(host="api.replicate.com").pass_through()
 
@@ -399,3 +404,28 @@ async def test_update_deployment(async_flag):
     assert updated_deployment.current_release.configuration.hardware == "gpu-v100"
     assert updated_deployment.current_release.configuration.min_instances == 2
     assert updated_deployment.current_release.configuration.max_instances == 10
+
+
+@respx.mock
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_delete_deployment(async_flag):
+    client = Client(
+        api_token="test-token", transport=httpx.MockTransport(router.handler)
+    )
+
+    if async_flag:
+        await client.deployments.async_delete(
+            deployment_owner="acme", deployment_name="image-upscaler"
+        )
+    else:
+        client.deployments.delete(
+            deployment_owner="acme", deployment_name="image-upscaler"
+        )
+
+    assert router["deployments.delete"].called
+    assert router["deployments.delete"].calls[0].request.method == "DELETE"
+    assert (
+        router["deployments.delete"].calls[0].request.url
+        == "https://api.replicate.com/v1/deployments/acme/image-upscaler"
+    )
