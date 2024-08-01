@@ -2,9 +2,137 @@ import base64
 import io
 import mimetypes
 import os
-from typing import Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import httpx
+
+from replicate.resource import Namespace, Resource
+
+
+class File(Resource):
+    """
+    A file uploaded to Replicate that can be used as an input to a model.
+    """
+
+    id: str
+    """The ID of the file."""
+
+    name: str
+    """The name of the file."""
+
+    content_type: str
+    """The content type of the file."""
+
+    size: int
+    """The size of the file in bytes."""
+
+    etag: str
+    """The ETag of the file."""
+
+    checksum: str
+    """The checksum of the file."""
+
+    metadata: Dict[str, Any]
+    """The metadata of the file."""
+
+    created_at: str
+    """The time the file was created."""
+
+    expires_at: Optional[str]
+    """The time the file will expire."""
+
+    urls: Dict[str, str]
+    """The URLs of the file."""
+
+
+class Files(Namespace):
+    def create(
+        self, file: io.IOBase, metadata: Optional[Dict[str, Any]] = None
+    ) -> File:
+        """Create a file that can be passed as an input when running a model."""
+
+        file.seek(0)
+
+        resp = self._client._request(
+            "POST",
+            "/files",
+            data={
+                "content": _file_content(file),
+                "metadata": metadata,
+            },
+            timeout=None,
+        )
+
+        return _json_to_file(resp.json())
+
+    async def async_create(
+        self, file: io.IOBase, metadata: Optional[Dict[str, Any]] = None
+    ) -> File:
+        """Create a file asynchronously that can be passed as an input when running a model."""
+
+        file.seek(0)
+
+        resp = await self._client._async_request(
+            "POST",
+            "/files",
+            data={
+                "content": _file_content(file),
+                "metadata": metadata,
+            },
+            timeout=None,
+        )
+
+        return _json_to_file(resp.json())
+
+    def get(self, file_id: str) -> File:
+        """Get a file from the server by its ID."""
+
+        resp = self._client._request("GET", f"/files/{file_id}")
+        return _json_to_file(resp.json())
+
+    async def async_get(self, file_id: str) -> File:
+        """Get a file from the server by its ID asynchronously."""
+
+        resp = await self._client._async_request("GET", f"/files/{file_id}")
+        return _json_to_file(resp.json())
+
+    def list(self) -> List[File]:
+        """List all files on the server."""
+
+        resp = self._client._request("GET", "/files")
+        return [_json_to_file(file_json) for file_json in resp.json()]
+
+    async def async_list(self) -> List[File]:
+        """List all files on the server asynchronously."""
+
+        resp = await self._client._async_request("GET", "/files")
+        return [_json_to_file(file_json) for file_json in resp.json()]
+
+    def delete(self, file_id: str) -> File:
+        """Delete a file from the server by its ID."""
+
+        resp = self._client._request("DELETE", f"/files/{file_id}")
+        return _json_to_file(resp.json())
+
+    async def async_delete(self, file_id: str) -> File:
+        """Delete a file from the server by its ID asynchronously."""
+
+        resp = await self._client._async_request("DELETE", f"/files/{file_id}")
+        return _json_to_file(resp.json())
+
+
+def _file_content(file: io.IOBase) -> Tuple[str, io.IOBase, str]:
+    """Get the file content details including name, file object, and content type."""
+
+    name = getattr(file, "name", "output")
+    content_type = (
+        mimetypes.guess_type(getattr(file, "name", ""))[0] or "application/octet-stream"
+    )
+    return (os.path.basename(name), file, content_type)
+
+
+def _json_to_file(json: Dict[str, Any]) -> File:
+    return File(**json)
 
 
 def upload_file(file: io.IOBase, output_file_prefix: Optional[str] = None) -> str:
