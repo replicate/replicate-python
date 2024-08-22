@@ -1,3 +1,4 @@
+import asyncio
 from typing import TYPE_CHECKING, Any, Dict, Literal, Optional, Tuple, Union, overload
 
 from typing_extensions import NotRequired, TypedDict, Unpack, deprecated
@@ -394,8 +395,14 @@ class ModelsPredictions(Namespace):
 
         url = _create_prediction_url_from_model(model)
 
+        file_encoding_strategy = params.pop("file_encoding_strategy", None)
         if input is not None:
-            input = encode_json(input, upload_file=upload_file)
+            input = encode_json(
+                input,
+                upload_file=upload_file
+                if file_encoding_strategy == "base64"
+                else lambda file: self._client.files.create(file).urls["get"],
+            )
         body = _create_prediction_body(version=None, input=input, **params)
 
         resp = self._client._request(
@@ -418,8 +425,16 @@ class ModelsPredictions(Namespace):
 
         url = _create_prediction_url_from_model(model)
 
+        file_encoding_strategy = params.pop("file_encoding_strategy", None)
         if input is not None:
-            input = encode_json(input, upload_file=upload_file)
+            input = encode_json(
+                input,
+                upload_file=upload_file
+                if file_encoding_strategy == "base64"
+                else lambda file: asyncio.get_event_loop()
+                .run_until_complete(self._client.files.async_create(file))
+                .urls["get"],
+            )
         body = _create_prediction_body(version=None, input=input, **params)
 
         resp = await self._client._async_request(

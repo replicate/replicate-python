@@ -1,3 +1,4 @@
+import asyncio
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -220,6 +221,7 @@ class Trainings(Namespace):
         webhook: NotRequired[str]
         webhook_completed: NotRequired[str]
         webhook_events_filter: NotRequired[List[str]]
+        file_encoding_strategy: NotRequired[Literal["upload", "base64"]]
 
     @overload
     def create(  # pylint: disable=too-many-arguments
@@ -277,10 +279,16 @@ class Trainings(Namespace):
         if not url:
             raise ValueError("model and version or shorthand version must be specified")
 
+        file_encoding_strategy = params.pop("file_encoding_strategy", None)
         if input is not None:
-            input = encode_json(input, upload_file=upload_file)
+            input = encode_json(
+                input,
+                upload_file=upload_file
+                if file_encoding_strategy == "base64"
+                else lambda file: self._client.files.create(file).urls["get"],
+            )
         body = _create_training_body(input, **params)
-        
+
         resp = self._client._request(
             "POST",
             url,
@@ -312,8 +320,16 @@ class Trainings(Namespace):
 
         url = _create_training_url_from_model_and_version(model, version)
 
+        file_encoding_strategy = params.pop("file_encoding_strategy", None)
         if input is not None:
-            input = encode_json(input, upload_file=upload_file)
+            input = encode_json(
+                input,
+                upload_file=upload_file
+                if file_encoding_strategy == "base64"
+                else lambda file: asyncio.get_event_loop()
+                .run_until_complete(self._client.files.async_create(file))
+                .urls["get"],
+            )
         body = _create_training_body(input, **params)
 
         resp = await self._client._async_request(
@@ -366,6 +382,7 @@ def _create_training_body(
     webhook: Optional[str] = None,
     webhook_completed: Optional[str] = None,
     webhook_events_filter: Optional[List[str]] = None,
+    **_kwargs,
 ) -> Dict[str, Any]:
     body = {}
 

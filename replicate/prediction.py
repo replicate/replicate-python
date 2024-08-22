@@ -383,6 +383,9 @@ class Predictions(Namespace):
         stream: NotRequired[bool]
         """Enable streaming of prediction output."""
 
+        file_encoding_strategy: NotRequired[Literal["upload", "base64"]]
+        """The strategy to use for encoding files in the prediction input."""
+
     @overload
     def create(
         self,
@@ -453,8 +456,14 @@ class Predictions(Namespace):
                 **params,
             )
 
+        file_encoding_strategy = params.pop("file_encoding_strategy", None)
         if input is not None:
-            input = encode_json(input, upload_file=upload_file)
+            input = encode_json(
+                input,
+                upload_file=upload_file
+                if file_encoding_strategy == "base64"
+                else lambda file: self._client.files.create(file).urls["get"],
+            )
         body = _create_prediction_body(
             version,
             input,
@@ -539,8 +548,16 @@ class Predictions(Namespace):
                 **params,
             )
 
+        file_encoding_strategy = params.pop("file_encoding_strategy", None)
         if input is not None:
-            input = encode_json(input, upload_file=upload_file)
+            input = encode_json(
+                input,
+                upload_file=upload_file
+                if file_encoding_strategy == "base64"
+                else lambda file: asyncio.get_event_loop()
+                .run_until_complete(self._client.files.async_create(file))
+                .urls["get"],
+            )
         body = _create_prediction_body(
             version,
             input,
@@ -597,6 +614,7 @@ def _create_prediction_body(  # pylint: disable=too-many-arguments
     webhook_completed: Optional[str] = None,
     webhook_events_filter: Optional[List[str]] = None,
     stream: Optional[bool] = None,
+    **_kwargs,
 ) -> Dict[str, Any]:
     body = {}
 
