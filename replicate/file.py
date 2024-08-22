@@ -6,7 +6,6 @@ import os
 import pathlib
 from typing import Any, BinaryIO, Dict, List, Optional, TypedDict, Union
 
-import httpx
 from typing_extensions import NotRequired, Unpack
 
 from replicate.resource import Namespace, Resource
@@ -171,33 +170,23 @@ def _json_to_file(json: Dict[str, Any]) -> File:  # pylint: disable=redefined-ou
     return File(**json)
 
 
-def upload_file(file: io.IOBase, output_file_prefix: Optional[str] = None) -> str:
+def base64_encode_file(file: io.IOBase) -> str:
     """
-    Upload a file to the server.
+    Base64 encode a file.
 
     Args:
         file: A file handle to upload.
-        output_file_prefix: A string to prepend to the output file name.
     Returns:
-        str: A URL to the uploaded file.
+        str: A base64-encoded data URI.
     """
-    # Lifted straight from cog.files
 
     file.seek(0)
-
-    if output_file_prefix is not None:
-        name = getattr(file, "name", "output")
-        url = output_file_prefix + os.path.basename(name)
-        resp = httpx.put(url, files={"file": file}, timeout=None)  # type: ignore
-        resp.raise_for_status()
-
-        return url
-
     body = file.read()
+
     # Ensure the file handle is in bytes
     body = body.encode("utf-8") if isinstance(body, str) else body
     encoded_body = base64.b64encode(body).decode("utf-8")
-    # Use getattr to avoid mypy complaints about io.IOBase having no attribute name
+
     mime_type = (
         mimetypes.guess_type(getattr(file, "name", ""))[0] or "application/octet-stream"
     )

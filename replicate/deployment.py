@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple, TypedDict, Union
 from typing_extensions import Unpack, deprecated
 
 from replicate.account import Account
-from replicate.file import upload_file
+from replicate.file import base64_encode_file
 from replicate.json import encode_json
 from replicate.pagination import Page
 from replicate.prediction import (
@@ -424,7 +424,7 @@ class DeploymentPredictions(Namespace):
         if input is not None:
             input = encode_json(
                 input,
-                upload_file=upload_file
+                upload_file=base64_encode_file
                 if file_encoding_strategy == "base64"
                 else lambda file: self._client.files.create(file).urls["get"],
             )
@@ -451,7 +451,7 @@ class DeploymentPredictions(Namespace):
         if input is not None:
             input = encode_json(
                 input,
-                upload_file=upload_file
+                upload_file=base64_encode_file
                 if file_encoding_strategy == "base64"
                 else lambda file: asyncio.get_event_loop()
                 .run_until_complete(self._client.files.async_create(file))
@@ -489,7 +489,7 @@ class DeploymentsPredictions(Namespace):
         if input is not None:
             input = encode_json(
                 input,
-                upload_file=upload_file
+                upload_file=base64_encode_file
                 if file_encoding_strategy == "base64"
                 else lambda file: self._client.files.create(file).urls["get"],
             )
@@ -519,7 +519,7 @@ class DeploymentsPredictions(Namespace):
         if input is not None:
             input = encode_json(
                 input,
-                upload_file=upload_file
+                upload_file=base64_encode_file
                 if file_encoding_strategy == "base64"
                 else lambda file: asyncio.get_event_loop()
                 .run_until_complete(self._client.files.async_create(file))
