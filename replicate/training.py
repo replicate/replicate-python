@@ -277,7 +277,10 @@ class Trainings(Namespace):
         if not url:
             raise ValueError("model and version or shorthand version must be specified")
 
+        if input is not None:
+            input = encode_json(input, upload_file=upload_file)
         body = _create_training_body(input, **params)
+        
         resp = self._client._request(
             "POST",
             url,
@@ -308,7 +311,11 @@ class Trainings(Namespace):
         """
 
         url = _create_training_url_from_model_and_version(model, version)
+
+        if input is not None:
+            input = encode_json(input, upload_file=upload_file)
         body = _create_training_body(input, **params)
+
         resp = await self._client._async_request(
             "POST",
             url,
@@ -363,7 +370,7 @@ def _create_training_body(
     body = {}
 
     if input is not None:
-        body["input"] = encode_json(input, upload_file=upload_file)
+        body["input"] = input
 
     if destination is None:
         raise ValueError(

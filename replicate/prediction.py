@@ -453,6 +453,8 @@ class Predictions(Namespace):
                 **params,
             )
 
+        if input is not None:
+            input = encode_json(input, upload_file=upload_file)
         body = _create_prediction_body(
             version,
             input,
@@ -537,6 +539,8 @@ class Predictions(Namespace):
                 **params,
             )
 
+        if input is not None:
+            input = encode_json(input, upload_file=upload_file)
         body = _create_prediction_body(
             version,
             input,
@@ -597,7 +601,7 @@ def _create_prediction_body(  # pylint: disable=too-many-arguments
     body = {}
 
     if input is not None:
-        body["input"] = encode_json(input, upload_file=upload_file)
+        body["input"] = input
 
     if version is not None:
         body["version"] = version.id if isinstance(version, Version) else version

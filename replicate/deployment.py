@@ -3,6 +3,8 @@ from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple, TypedDict, Union
 from typing_extensions import Unpack, deprecated
 
 from replicate.account import Account
+from replicate.file import upload_file
+from replicate.json import encode_json
 from replicate.pagination import Page
 from replicate.prediction import (
     Prediction,
@@ -417,6 +419,8 @@ class DeploymentPredictions(Namespace):
         Create a new prediction with the deployment.
         """
 
+        if input is not None:
+            input = encode_json(input, upload_file=upload_file)
         body = _create_prediction_body(version=None, input=input, **params)
 
         resp = self._client._request(
@@ -436,6 +440,8 @@ class DeploymentPredictions(Namespace):
         Create a new prediction with the deployment.
         """
 
+        if input is not None:
+            input = encode_json(input, upload_file=upload_file)
         body = _create_prediction_body(version=None, input=input, **params)
 
         resp = await self._client._async_request(
@@ -463,6 +469,9 @@ class DeploymentsPredictions(Namespace):
         """
 
         url = _create_prediction_url_from_deployment(deployment)
+
+        if input is not None:
+            input = encode_json(input, upload_file=upload_file)
         body = _create_prediction_body(version=None, input=input, **params)
 
         resp = self._client._request(
@@ -484,6 +493,9 @@ class DeploymentsPredictions(Namespace):
         """
 
         url = _create_prediction_url_from_deployment(deployment)
+
+        if input is not None:
+            input = encode_json(input, upload_file=upload_file)
         body = _create_prediction_body(version=None, input=input, **params)
 
         resp = await self._client._async_request(
