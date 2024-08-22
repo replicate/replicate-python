@@ -14,8 +14,9 @@ paginate = _paginate
 async_paginate = _async_paginate
 
 collections = default_client.collections
-hardware = default_client.hardware
 deployments = default_client.deployments
+files = default_client.files
+hardware = default_client.hardware
 models = default_client.models
 predictions = default_client.predictions
 trainings = default_client.trainings

@@ -19,7 +19,7 @@ from typing import (
 from typing_extensions import NotRequired, TypedDict, Unpack
 
 from replicate.exceptions import ModelError, ReplicateError
-from replicate.files import upload_file
+from replicate.file import upload_file
 from replicate.json import encode_json
 from replicate.pagination import Page
 from replicate.resource import Namespace, Resource
