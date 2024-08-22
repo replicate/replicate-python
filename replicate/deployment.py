@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple, TypedDict, Union
 from typing_extensions import Unpack, deprecated
 
 from replicate.account import Account
+from replicate.json import async_encode_json, encode_json
 from replicate.pagination import Page
 from replicate.prediction import (
     Prediction,
@@ -417,6 +418,13 @@ class DeploymentPredictions(Namespace):
         Create a new prediction with the deployment.
         """
 
+        file_encoding_strategy = params.pop("file_encoding_strategy", None)
+        if input is not None:
+            input = encode_json(
+                input,
+                client=self._client,
+                file_encoding_strategy=file_encoding_strategy,
+            )
         body = _create_prediction_body(version=None, input=input, **params)
 
         resp = self._client._request(
@@ -436,6 +444,13 @@ class DeploymentPredictions(Namespace):
         Create a new prediction with the deployment.
         """
 
+        file_encoding_strategy = params.pop("file_encoding_strategy", None)
+        if input is not None:
+            input = await async_encode_json(
+                input,
+                client=self._client,
+                file_encoding_strategy=file_encoding_strategy,
+            )
         body = _create_prediction_body(version=None, input=input, **params)
 
         resp = await self._client._async_request(
@@ -463,6 +478,14 @@ class DeploymentsPredictions(Namespace):
         """
 
         url = _create_prediction_url_from_deployment(deployment)
+
+        file_encoding_strategy = params.pop("file_encoding_strategy", None)
+        if input is not None:
+            input = encode_json(
+                input,
+                client=self._client,
+                file_encoding_strategy=file_encoding_strategy,
+            )
         body = _create_prediction_body(version=None, input=input, **params)
 
         resp = self._client._request(
@@ -484,6 +507,14 @@ class DeploymentsPredictions(Namespace):
         """
 
         url = _create_prediction_url_from_deployment(deployment)
+
+        file_encoding_strategy = params.pop("file_encoding_strategy", None)
+        if input is not None:
+            input = await async_encode_json(
+                input,
+                client=self._client,
+                file_encoding_strategy=file_encoding_strategy,
+            )
         body = _create_prediction_body(version=None, input=input, **params)
 
         resp = await self._client._async_request(

@@ -19,8 +19,8 @@ from typing import (
 from typing_extensions import NotRequired, TypedDict, Unpack
 
 from replicate.exceptions import ModelError, ReplicateError
-from replicate.file import upload_file
-from replicate.json import encode_json
+from replicate.file import FileEncodingStrategy
+from replicate.json import async_encode_json, encode_json
 from replicate.pagination import Page
 from replicate.resource import Namespace, Resource
 from replicate.stream import EventSource
@@ -383,6 +383,9 @@ class Predictions(Namespace):
         stream: NotRequired[bool]
         """Enable streaming of prediction output."""
 
+        file_encoding_strategy: NotRequired[FileEncodingStrategy]
+        """The strategy to use for encoding files in the prediction input."""
+
     @overload
     def create(
         self,
@@ -453,6 +456,13 @@ class Predictions(Namespace):
                 **params,
             )
 
+        file_encoding_strategy = params.pop("file_encoding_strategy", None)
+        if input is not None:
+            input = encode_json(
+                input,
+                client=self._client,
+                file_encoding_strategy=file_encoding_strategy,
+            )
         body = _create_prediction_body(
             version,
             input,
@@ -537,6 +547,13 @@ class Predictions(Namespace):
                 **params,
             )
 
+        file_encoding_strategy = params.pop("file_encoding_strategy", None)
+        if input is not None:
+            input = await async_encode_json(
+                input,
+                client=self._client,
+                file_encoding_strategy=file_encoding_strategy,
+            )
         body = _create_prediction_body(
             version,
             input,
@@ -593,11 +610,12 @@ def _create_prediction_body(  # pylint: disable=too-many-arguments
     webhook_completed: Optional[str] = None,
     webhook_events_filter: Optional[List[str]] = None,
     stream: Optional[bool] = None,
+    **_kwargs,
 ) -> Dict[str, Any]:
     body = {}
 
     if input is not None:
-        body["input"] = encode_json(input, upload_file=upload_file)
+        body["input"] = input
 
     if version is not None:
         body["version"] = version.id if isinstance(version, Version) else version

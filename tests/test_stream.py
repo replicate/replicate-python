@@ -1,14 +1,10 @@
-import os
-
 import pytest
 
 import replicate
 from replicate.exceptions import ReplicateError
 from replicate.stream import ServerSentEvent
 
-skip_if_no_token = pytest.mark.skipif(
-    os.environ.get("REPLICATE_API_TOKEN") is None, reason="REPLICATE_API_TOKEN not set"
-)
+from .conftest import skip_if_no_token
 
 
 @skip_if_no_token

@@ -3,6 +3,10 @@ from unittest import mock
 
 import pytest
 
+skip_if_no_token = pytest.mark.skipif(
+    os.environ.get("REPLICATE_API_TOKEN") is None, reason="REPLICATE_API_TOKEN not set"
+)
+
 
 @pytest.fixture(scope="session")
 def mock_replicate_api_token(scope="class"):
