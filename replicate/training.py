@@ -217,10 +217,19 @@ class Trainings(Namespace):
         """Parameters for creating a training."""
 
         destination: Union[str, Tuple[str, str], "Model"]
+        """The destination for the trained model."""
+
         webhook: NotRequired[str]
+        """The URL to receive a POST request with training updates."""
+
         webhook_completed: NotRequired[str]
+        """The URL to receive a POST request when the training is completed."""
+
         webhook_events_filter: NotRequired[List[str]]
+        """List of events to trigger webhooks."""
+
         file_encoding_strategy: NotRequired["FileEncodingStrategy"]
+        """The strategy to use for encoding files in the training input."""
 
     @overload
     def create(  # pylint: disable=too-many-arguments
