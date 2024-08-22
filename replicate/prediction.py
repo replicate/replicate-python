@@ -19,8 +19,8 @@ from typing import (
 from typing_extensions import NotRequired, TypedDict, Unpack
 
 from replicate.exceptions import ModelError, ReplicateError
-from replicate.file import base64_encode_file
-from replicate.json import encode_json
+from replicate.file import FileEncodingStrategy
+from replicate.json import async_encode_json, encode_json
 from replicate.pagination import Page
 from replicate.resource import Namespace, Resource
 from replicate.stream import EventSource
@@ -383,7 +383,7 @@ class Predictions(Namespace):
         stream: NotRequired[bool]
         """Enable streaming of prediction output."""
 
-        file_encoding_strategy: NotRequired[Literal["upload", "base64"]]
+        file_encoding_strategy: NotRequired[FileEncodingStrategy]
         """The strategy to use for encoding files in the prediction input."""
 
     @overload
@@ -460,9 +460,8 @@ class Predictions(Namespace):
         if input is not None:
             input = encode_json(
                 input,
-                upload_file=base64_encode_file
-                if file_encoding_strategy == "base64"
-                else lambda file: self._client.files.create(file).urls["get"],
+                client=self._client,
+                file_encoding_strategy=file_encoding_strategy,
             )
         body = _create_prediction_body(
             version,
@@ -550,13 +549,10 @@ class Predictions(Namespace):
 
         file_encoding_strategy = params.pop("file_encoding_strategy", None)
         if input is not None:
-            input = encode_json(
+            input = await async_encode_json(
                 input,
-                upload_file=base64_encode_file
-                if file_encoding_strategy == "base64"
-                else lambda file: asyncio.get_event_loop()
-                .run_until_complete(self._client.files.async_create(file))
-                .urls["get"],
+                client=self._client,
+                file_encoding_strategy=file_encoding_strategy,
             )
         body = _create_prediction_body(
             version,

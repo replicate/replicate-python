@@ -1,4 +1,3 @@
-import asyncio
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -14,9 +13,8 @@ from typing import (
 
 from typing_extensions import NotRequired, Unpack
 
-from replicate.file import base64_encode_file
 from replicate.identifier import ModelVersionIdentifier
-from replicate.json import encode_json
+from replicate.json import async_encode_json, encode_json
 from replicate.model import Model
 from replicate.pagination import Page
 from replicate.resource import Namespace, Resource
@@ -29,6 +27,7 @@ except ImportError:
 
 if TYPE_CHECKING:
     from replicate.client import Client
+    from replicate.file import FileEncodingStrategy
 
 
 class Training(Resource):
@@ -221,7 +220,7 @@ class Trainings(Namespace):
         webhook: NotRequired[str]
         webhook_completed: NotRequired[str]
         webhook_events_filter: NotRequired[List[str]]
-        file_encoding_strategy: NotRequired[Literal["upload", "base64"]]
+        file_encoding_strategy: NotRequired["FileEncodingStrategy"]
 
     @overload
     def create(  # pylint: disable=too-many-arguments
@@ -283,10 +282,10 @@ class Trainings(Namespace):
         if input is not None:
             input = encode_json(
                 input,
-                upload_file=base64_encode_file
-                if file_encoding_strategy == "base64"
-                else lambda file: self._client.files.create(file).urls["get"],
+                client=self._client,
+                file_encoding_strategy=file_encoding_strategy,
             )
+
         body = _create_training_body(input, **params)
 
         resp = self._client._request(
@@ -322,13 +321,10 @@ class Trainings(Namespace):
 
         file_encoding_strategy = params.pop("file_encoding_strategy", None)
         if input is not None:
-            input = encode_json(
+            input = await async_encode_json(
                 input,
-                upload_file=base64_encode_file
-                if file_encoding_strategy == "base64"
-                else lambda file: asyncio.get_event_loop()
-                .run_until_complete(self._client.files.async_create(file))
-                .urls["get"],
+                client=self._client,
+                file_encoding_strategy=file_encoding_strategy,
             )
         body = _create_training_body(input, **params)
 

@@ -1,11 +1,9 @@
-import asyncio
 from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple, TypedDict, Union
 
 from typing_extensions import Unpack, deprecated
 
 from replicate.account import Account
-from replicate.file import base64_encode_file
-from replicate.json import encode_json
+from replicate.json import async_encode_json, encode_json
 from replicate.pagination import Page
 from replicate.prediction import (
     Prediction,
@@ -424,9 +422,8 @@ class DeploymentPredictions(Namespace):
         if input is not None:
             input = encode_json(
                 input,
-                upload_file=base64_encode_file
-                if file_encoding_strategy == "base64"
-                else lambda file: self._client.files.create(file).urls["get"],
+                client=self._client,
+                file_encoding_strategy=file_encoding_strategy,
             )
         body = _create_prediction_body(version=None, input=input, **params)
 
@@ -449,13 +446,10 @@ class DeploymentPredictions(Namespace):
 
         file_encoding_strategy = params.pop("file_encoding_strategy", None)
         if input is not None:
-            input = encode_json(
+            input = await async_encode_json(
                 input,
-                upload_file=base64_encode_file
-                if file_encoding_strategy == "base64"
-                else lambda file: asyncio.get_event_loop()
-                .run_until_complete(self._client.files.async_create(file))
-                .urls["get"],
+                client=self._client,
+                file_encoding_strategy=file_encoding_strategy,
             )
         body = _create_prediction_body(version=None, input=input, **params)
 
@@ -489,9 +483,8 @@ class DeploymentsPredictions(Namespace):
         if input is not None:
             input = encode_json(
                 input,
-                upload_file=base64_encode_file
-                if file_encoding_strategy == "base64"
-                else lambda file: self._client.files.create(file).urls["get"],
+                client=self._client,
+                file_encoding_strategy=file_encoding_strategy,
             )
         body = _create_prediction_body(version=None, input=input, **params)
 
@@ -517,13 +510,10 @@ class DeploymentsPredictions(Namespace):
 
         file_encoding_strategy = params.pop("file_encoding_strategy", None)
         if input is not None:
-            input = encode_json(
+            input = await async_encode_json(
                 input,
-                upload_file=base64_encode_file
-                if file_encoding_strategy == "base64"
-                else lambda file: asyncio.get_event_loop()
-                .run_until_complete(self._client.files.async_create(file))
-                .urls["get"],
+                client=self._client,
+                file_encoding_strategy=file_encoding_strategy,
             )
         body = _create_prediction_body(version=None, input=input, **params)
 

@@ -1,4 +1,3 @@
-import base64
 import io
 import json
 import mimetypes
@@ -6,9 +5,11 @@ import os
 import pathlib
 from typing import Any, BinaryIO, Dict, List, Optional, TypedDict, Union
 
-from typing_extensions import NotRequired, Unpack
+from typing_extensions import Literal, NotRequired, Unpack
 
 from replicate.resource import Namespace, Resource
+
+FileEncodingStrategy = Literal["base64", "url"]
 
 
 class File(Resource):
@@ -168,26 +169,3 @@ def _create_file_params(
 
 def _json_to_file(json: Dict[str, Any]) -> File:  # pylint: disable=redefined-outer-name
     return File(**json)
-
-
-def base64_encode_file(file: io.IOBase) -> str:
-    """
-    Base64 encode a file.
-
-    Args:
-        file: A file handle to upload.
-    Returns:
-        str: A base64-encoded data URI.
-    """
-
-    file.seek(0)
-    body = file.read()
-
-    # Ensure the file handle is in bytes
-    body = body.encode("utf-8") if isinstance(body, str) else body
-    encoded_body = base64.b64encode(body).decode("utf-8")
-
-    mime_type = (
-        mimetypes.guess_type(getattr(file, "name", ""))[0] or "application/octet-stream"
-    )
-    return f"data:{mime_type};base64,{encoded_body}"
