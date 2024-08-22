@@ -1,3 +1,4 @@
+import os
 import tempfile
 
 import httpx
@@ -9,6 +10,7 @@ from .conftest import skip_if_no_token
 
 
 @skip_if_no_token
+@pytest.mark.skipif(os.environ.get("CI") is not None, reason="Do not run on CI")
 # @pytest.mark.vcr("file-prediction.yaml")
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_flag", [True, False])
