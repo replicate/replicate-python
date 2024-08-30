@@ -71,6 +71,8 @@ class Files(Namespace):
         """
 
         if isinstance(file, (str, pathlib.Path)):
+            file_path = pathlib.Path(file)
+            params["filename"] = file_path.name
             with open(file, "rb") as f:
                 return self.create(f, **params)
         elif not isinstance(file, (io.IOBase, BinaryIO)):
@@ -92,7 +94,9 @@ class Files(Namespace):
         """Upload a file asynchronously that can be passed as an input when running a model."""
 
         if isinstance(file, (str, pathlib.Path)):
-            with open(file, "rb") as f:
+            file_path = pathlib.Path(file)
+            params["filename"] = file_path.name
+            with open(file_path, "rb") as f:
                 return await self.async_create(f, **params)
         elif not isinstance(file, (io.IOBase, BinaryIO)):
             raise ValueError(
