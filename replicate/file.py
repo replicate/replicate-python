@@ -93,7 +93,7 @@ class Files(Namespace):
 
         if isinstance(file, (str, pathlib.Path)):
             with open(file, "rb") as f:
-                return self.create(f, **params)
+                return await self.async_create(f, **params)
         elif not isinstance(file, (io.IOBase, BinaryIO)):
             raise ValueError(
                 "Unsupported file type. Must be a file path or file-like object."
