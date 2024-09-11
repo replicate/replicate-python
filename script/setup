@@ -14,7 +14,7 @@ then
     case "$REPLY" in 
         [yY]) 
             echo "Installing rye..."
-            curl -sSf https://rye-up.com/get | sh
+            curl -sSf https://rye.astral.sh/get | sh
             echo "rye has been successfully installed."
             ;;
         *)
