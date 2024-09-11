@@ -4,7 +4,7 @@ from typing_extensions import NotRequired, TypedDict, Unpack, deprecated
 
 from replicate.exceptions import ReplicateException
 from replicate.identifier import ModelVersionIdentifier
-from replicate.json import async_encode_json, encode_json
+from replicate.helpers import async_encode_json, encode_json
 from replicate.pagination import Page
 from replicate.prediction import (
     Prediction,

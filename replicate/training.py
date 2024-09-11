@@ -14,7 +14,7 @@ from typing import (
 from typing_extensions import NotRequired, Unpack
 
 from replicate.identifier import ModelVersionIdentifier
-from replicate.json import async_encode_json, encode_json
+from replicate.helpers import async_encode_json, encode_json
 from replicate.model import Model
 from replicate.pagination import Page
 from replicate.resource import Namespace, Resource

@@ -2,7 +2,7 @@ import io
 
 import pytest
 
-from replicate.json import base64_encode_file
+from replicate.helpers import base64_encode_file
 
 
 @pytest.mark.parametrize(

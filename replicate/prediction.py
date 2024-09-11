@@ -20,7 +20,7 @@ from typing_extensions import NotRequired, TypedDict, Unpack
 
 from replicate.exceptions import ModelError, ReplicateError
 from replicate.file import FileEncodingStrategy
-from replicate.json import async_encode_json, encode_json
+from replicate.helpers import async_encode_json, encode_json
 from replicate.pagination import Page
 from replicate.resource import Namespace, Resource
 from replicate.stream import EventSource
