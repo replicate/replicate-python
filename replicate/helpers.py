@@ -145,9 +145,6 @@ class FileOutput(httpx.SyncByteStream, httpx.AsyncByteStream):
     def __str__(self) -> str:
         return self.url
 
-    def __repr__(self) -> str:
-        return self.url
-
 
 def transform_output(value: Any, client: "Client") -> Any:
     def transform(obj: Any) -> Any:
