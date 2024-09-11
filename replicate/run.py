@@ -30,7 +30,7 @@ def run(
     client: "Client",
     ref: Union["Model", "Version", "ModelVersionIdentifier", str],
     input: Optional[Dict[str, Any]] = None,
-    use_file_output: bool = False,
+    use_file_output: Optional[bool] = None,
     **params: Unpack["Predictions.CreatePredictionParams"],
 ) -> Union[Any, Iterator[Any]]:  # noqa: ANN401
     """
@@ -73,7 +73,7 @@ async def async_run(
     client: "Client",
     ref: Union["Model", "Version", "ModelVersionIdentifier", str],
     input: Optional[Dict[str, Any]] = None,
-    use_file_output: bool = False,
+    use_file_output: Optional[bool] = None,
     **params: Unpack["Predictions.CreatePredictionParams"],
 ) -> Union[Any, AsyncIterator[Any]]:  # noqa: ANN401
     """

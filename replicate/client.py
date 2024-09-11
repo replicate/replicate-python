@@ -164,7 +164,7 @@ class Client:
         self,
         ref: str,
         input: Optional[Dict[str, Any]] = None,
-        use_file_output: bool = False,
+        use_file_output: Optional[bool] = None,
         **params: Unpack["Predictions.CreatePredictionParams"],
     ) -> Union[Any, Iterator[Any]]:  # noqa: ANN401
         """
@@ -177,7 +177,7 @@ class Client:
         self,
         ref: str,
         input: Optional[Dict[str, Any]] = None,
-        use_file_output: bool = False,
+        use_file_output: Optional[bool] = None,
         **params: Unpack["Predictions.CreatePredictionParams"],
     ) -> Union[Any, AsyncIterator[Any]]:  # noqa: ANN401
         """
