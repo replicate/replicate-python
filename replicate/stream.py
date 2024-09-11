@@ -1,3 +1,6 @@
+import io
+import base64
+import httpx
 from enum import Enum
 from typing import (
     TYPE_CHECKING,
@@ -9,8 +12,9 @@ from typing import (
     Optional,
     Union,
 )
-
+from contextlib import asynccontextmanager, contextmanager
 from typing_extensions import Unpack
+
 
 from replicate import identifier
 from replicate.exceptions import ReplicateError
@@ -22,13 +26,68 @@ except ImportError:
 
 
 if TYPE_CHECKING:
-    import httpx
-
     from replicate.client import Client
     from replicate.identifier import ModelVersionIdentifier
     from replicate.model import Model
     from replicate.prediction import Predictions
     from replicate.version import Version
+
+
+class FileOutputProvider:
+    url: str
+    client: "Client"
+
+    def __init__(self, url: str, client: "Client"):
+        self.url = url
+        self.client = client
+
+    def read(self) -> bytes:
+        with self.stream() as file:
+            return file.read()
+
+    @contextmanager
+    def stream(self) -> Iterator["FileOutput"]:
+        with self.client._client.stream("GET", self.url) as response:
+            response.raise_for_status()
+            yield FileOutput(response)
+
+    @asynccontextmanager
+    async def astream(self) -> AsyncIterator["FileOutput"]:
+        async with self.client._async_client.stream("GET", self.url) as response:
+            response.raise_for_status()
+            yield FileOutput(response)
+
+    async def aread(self) -> bytes:
+        async with self.astream() as file:
+            return await file.aread()
+
+    def __repr__(self) -> str:
+        return self.url
+
+
+class FileOutput(httpx.ByteStream, httpx.AsyncByteStream):
+    def __init__(self, response: httpx.Response):
+        self.response = response
+
+    def __iter__(self) -> Iterator[bytes]:
+        for bytes in self.response.iter_bytes():
+            yield bytes
+
+    def close(self):
+        return self.response.close()
+
+    def read(self):
+        return self.response.read()
+
+    async def __aiter__(self) -> AsyncIterator[bytes]:
+        async for bytes in self.response.aiter_bytes():
+            yield bytes
+
+    async def aclose(self):
+        return await self.response.aclose()
+
+    async def aread(self):
+        return await self.response.aread()
 
 
 class ServerSentEvent(pydantic.BaseModel):  # type: ignore
