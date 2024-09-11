@@ -87,20 +87,14 @@ git interpret-trailers --if-exists doNothing --trailer \
 ## Development
 
 The Python project is managed using [`rye`](https://rye.astral.sh). 
-You will need this installed and available locally. 
-See the [installation instructions](https://rye.astral.sh/guide/installation/) for details.
-
-To setup the project:
+Run the setup script to install Rye and install the project's dependencies.
 
 ```console
-rye sync
+./script/setup
 ```
 
-To run the tests:
-
-```sh
-rye run pytest
-```
+You can run the `format`, `lint`, and `test` scripts before commiting
+to validate your changes locally before going through CI.
 
 ### Environment variables
 
