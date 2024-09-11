@@ -9,7 +9,7 @@ import respx
 import replicate
 from replicate.client import Client
 from replicate.exceptions import ModelError, ReplicateError
-from replicate.stream import FileOutput
+from replicate.helpers import FileOutput
 
 
 @pytest.mark.vcr("run.yaml")

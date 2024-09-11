@@ -4,7 +4,9 @@ import mimetypes
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from types import GeneratorType
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, AsyncIterator, Iterator, Optional
+
+import httpx
 
 if TYPE_CHECKING:
     from replicate.client import Client
@@ -111,9 +113,44 @@ def base64_encode_file(file: io.IOBase) -> str:
     return f"data:{mime_type};base64,{encoded_body}"
 
 
-def transform_output(value: Any, client: "Client") -> Any:
-    from replicate.stream import FileOutput  # pylint: disable=import-outside-toplevel
+class FileOutput(httpx.ByteStream, httpx.AsyncByteStream):
+    url: str
+    client: "Client"
 
+    def __init__(self, url: str, client: "Client"):
+        self.url = url
+        self.client = client
+
+    def read(self) -> bytes:
+        with self.client._client.stream("GET", self.url) as response:
+            response.raise_for_status()
+            return response.read()
+
+    def __iter__(self) -> Iterator[bytes]:
+        with self.client._client.stream("GET", self.url) as response:
+            response.raise_for_status()
+            for chunk in response.iter_bytes():
+                yield chunk
+
+    async def aread(self) -> bytes:
+        async with self.client._async_client.stream("GET", self.url) as response:
+            response.raise_for_status()
+            return await response.aread()
+
+    async def __aiter__(self) -> AsyncIterator[bytes]:
+        async with self.client._async_client.stream("GET", self.url) as response:
+            response.raise_for_status()
+            async for chunk in response.aiter_bytes():
+                yield chunk
+
+    def __str__(self) -> str:
+        return self.url
+
+    def __repr__(self) -> str:
+        return self.url
+
+
+def transform_output(value: Any, client: "Client") -> Any:
     def transform(obj: Any) -> Any:
         if isinstance(obj, Mapping):
             return {k: transform(v) for k, v in obj.items()}

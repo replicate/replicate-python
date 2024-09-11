@@ -1,6 +1,3 @@
-import io
-import base64
-import httpx
 from enum import Enum
 from typing import (
     TYPE_CHECKING,
@@ -12,9 +9,9 @@ from typing import (
     Optional,
     Union,
 )
-from contextlib import asynccontextmanager, contextmanager
-from typing_extensions import Unpack
 
+import httpx
+from typing_extensions import Unpack
 
 from replicate import identifier
 from replicate.exceptions import ReplicateError
@@ -31,43 +28,6 @@ if TYPE_CHECKING:
     from replicate.model import Model
     from replicate.prediction import Predictions
     from replicate.version import Version
-
-
-class FileOutput(httpx.ByteStream, httpx.AsyncByteStream):
-    url: str
-    client: "Client"
-
-    def __init__(self, url: str, client: "Client"):
-        self.url = url
-        self.client = client
-
-    def read(self) -> bytes:
-        with self.client._client.stream("GET", self.url) as response:
-            response.raise_for_status()
-            return response.read()
-
-    def __iter__(self) -> Iterator[bytes]:
-        with self.client._client.stream("GET", self.url) as response:
-            response.raise_for_status()
-            for chunk in response.iter_bytes():
-                yield chunk
-
-    async def aread(self) -> bytes:
-        async with self.client._async_client.stream("GET", self.url) as response:
-            response.raise_for_status()
-            return await response.aread()
-
-    async def __aiter__(self) -> AsyncIterator[bytes]:
-        async with self.client._async_client.stream("GET", self.url) as response:
-            response.raise_for_status()
-            async for chunk in response.aiter_bytes():
-                yield chunk
-
-    def __str__(self) -> str:
-        return self.url
-
-    def __repr__(self) -> str:
-        return self.url
 
 
 class ServerSentEvent(pydantic.BaseModel):  # type: ignore
