@@ -124,32 +124,29 @@ class FileOutput(httpx.SyncByteStream, httpx.AsyncByteStream):
     The file URL.
     """
 
-    client: "Client"
-    """
-    A Replicate client used to download the file.
-    """
+    _client: "Client"
 
     def __init__(self, url: str, client: "Client") -> None:
         self.url = url
-        self.client = client
+        self._client = client
 
     def read(self) -> bytes:
-        with self.client._client.stream("GET", self.url) as response:
+        with self._client._client.stream("GET", self.url) as response:
             response.raise_for_status()
             return response.read()
 
     def __iter__(self) -> Iterator[bytes]:
-        with self.client._client.stream("GET", self.url) as response:
+        with self._client._client.stream("GET", self.url) as response:
             response.raise_for_status()
             yield from response.iter_bytes()
 
     async def aread(self) -> bytes:
-        async with self.client._async_client.stream("GET", self.url) as response:
+        async with self._client._async_client.stream("GET", self.url) as response:
             response.raise_for_status()
             return await response.aread()
 
     async def __aiter__(self) -> AsyncIterator[bytes]:
-        async with self.client._async_client.stream("GET", self.url) as response:
+        async with self._client._async_client.stream("GET", self.url) as response:
             response.raise_for_status()
             async for chunk in response.aiter_bytes():
                 yield chunk
