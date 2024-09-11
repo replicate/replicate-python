@@ -55,7 +55,7 @@ You can also create a git hook which will sign off all your commits automaticall
 
 First, create the hook file and make it executable:
 
-```sh
+```console
 cd your/checkout/of/replicate-python
 touch .git/hooks/prepare-commit-msg
 chmod +x .git/hooks/prepare-commit-msg
@@ -63,7 +63,7 @@ chmod +x .git/hooks/prepare-commit-msg
 
 Then paste the following into the file:
 
-```
+```sh
 #!/bin/sh
 
 NAME=$(git config user.name)
@@ -86,11 +86,13 @@ git interpret-trailers --if-exists doNothing --trailer \
 
 ## Development
 
-The Python project is managed using [`rye`](https://rye.astral.sh) you will need this installed and available locally. See the [installation instructions](https://rye.astral.sh/guide/installation/) for details.
+The Python project is managed using [`rye`](https://rye.astral.sh). 
+You will need this installed and available locally. 
+See the [installation instructions](https://rye.astral.sh/guide/installation/) for details.
 
 To setup the project:
 
-```
+```console
 rye sync
 ```
 
