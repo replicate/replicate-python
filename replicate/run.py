@@ -17,6 +17,7 @@ from replicate.model import Model
 from replicate.prediction import Prediction
 from replicate.schema import make_schema_backwards_compatible
 from replicate.version import Version, Versions
+from replicate.stream import FileOutput
 
 if TYPE_CHECKING:
     from replicate.client import Client
@@ -28,6 +29,7 @@ def run(
     client: "Client",
     ref: Union["Model", "Version", "ModelVersionIdentifier", str],
     input: Optional[Dict[str, Any]] = None,
+    use_file_output: bool = False,
     **params: Unpack["Predictions.CreatePredictionParams"],
 ) -> Union[Any, Iterator[Any]]:  # noqa: ANN401
     """
@@ -60,6 +62,9 @@ def run(
     if prediction.status == "failed":
         raise ModelError(prediction)
 
+    if use_file_output:
+        return transform_output(prediction.output, client)
+
     return prediction.output
 
 
@@ -67,6 +72,7 @@ async def async_run(
     client: "Client",
     ref: Union["Model", "Version", "ModelVersionIdentifier", str],
     input: Optional[Dict[str, Any]] = None,
+    use_file_output: bool = False,
     **params: Unpack["Predictions.CreatePredictionParams"],
 ) -> Union[Any, AsyncIterator[Any]]:  # noqa: ANN401
     """
@@ -99,6 +105,9 @@ async def async_run(
     if prediction.status == "failed":
         raise ModelError(prediction)
 
+    if use_file_output:
+        return transform_output(prediction.output, client)
+
     return prediction.output
 
 
@@ -128,6 +137,24 @@ def _make_async_output_iterator(
         return prediction.async_output_iterator()
 
     return None
+
+
+def transform(obj, func):
+    if isinstance(obj, dict):
+        return {k: transform(v, func) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [transform(item, func) for item in obj]
+    else:
+        return func(obj)
+
+
+def transform_output(value: Any, client: "Client"):
+    def wrapper(x):
+        if isinstance(x, str) and (x.startswith("https:") or x.startswith("data:")):
+            return FileOutput(x, client)
+        return x
+
+    return transform(value, wrapper)
 
 
 __all__: List = []

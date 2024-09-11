@@ -164,25 +164,27 @@ class Client:
         self,
         ref: str,
         input: Optional[Dict[str, Any]] = None,
+        use_file_output: bool = False,
         **params: Unpack["Predictions.CreatePredictionParams"],
     ) -> Union[Any, Iterator[Any]]:  # noqa: ANN401
         """
         Run a model and wait for its output.
         """
 
-        return run(self, ref, input, **params)
+        return run(self, ref, input, use_file_output, **params)
 
     async def async_run(
         self,
         ref: str,
         input: Optional[Dict[str, Any]] = None,
+        use_file_output: bool = False,
         **params: Unpack["Predictions.CreatePredictionParams"],
     ) -> Union[Any, AsyncIterator[Any]]:  # noqa: ANN401
         """
         Run a model and wait for its output asynchronously.
         """
 
-        return await async_run(self, ref, input, **params)
+        return await async_run(self, ref, input, use_file_output, **params)
 
     def stream(
         self,
