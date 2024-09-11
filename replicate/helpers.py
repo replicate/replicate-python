@@ -114,8 +114,20 @@ def base64_encode_file(file: io.IOBase) -> str:
 
 
 class FileOutput(httpx.SyncByteStream, httpx.AsyncByteStream):
+    """
+    An object that can be used to read the contents of an output file
+    created by running a Replicate model.
+    """
+
     url: str
+    """
+    The file URL.
+    """
+
     client: "Client"
+    """
+    A Replicate client used to download the file.
+    """
 
     def __init__(self, url: str, client: "Client") -> None:
         self.url = url
@@ -147,6 +159,10 @@ class FileOutput(httpx.SyncByteStream, httpx.AsyncByteStream):
 
 
 def transform_output(value: Any, client: "Client") -> Any:
+    """
+    Transform the output of a prediction to a `FileOutput` object if it's a URL.
+    """
+
     def transform(obj: Any) -> Any:
         if isinstance(obj, Mapping):
             return {k: transform(v) for k, v in obj.items()}
