@@ -113,7 +113,7 @@ def base64_encode_file(file: io.IOBase) -> str:
     return f"data:{mime_type};base64,{encoded_body}"
 
 
-class FileOutput(httpx.ByteStream, httpx.AsyncByteStream):
+class FileOutput(httpx.SyncByteStream, httpx.AsyncByteStream):
     url: str
     client: "Client"
 
