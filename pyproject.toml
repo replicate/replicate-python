@@ -75,6 +75,7 @@ ignore = [
     "ANN003", # Missing type annotation for `**kwargs`
     "ANN101", # Missing type annotation for self in method
     "ANN102", # Missing type annotation for cls in classmethod
+    "ANN401", # Dynamically typed expressions (typing.Any) are disallowed in {name}
     "W191",   # Indentation contains tabs
     "UP037",  # Remove quotes from type annotation
 ]
