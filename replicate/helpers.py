@@ -117,7 +117,7 @@ class FileOutput(httpx.SyncByteStream, httpx.AsyncByteStream):
     url: str
     client: "Client"
 
-    def __init__(self, url: str, client: "Client"):
+    def __init__(self, url: str, client: "Client") -> None:
         self.url = url
         self.client = client
 
@@ -129,8 +129,7 @@ class FileOutput(httpx.SyncByteStream, httpx.AsyncByteStream):
     def __iter__(self) -> Iterator[bytes]:
         with self.client._client.stream("GET", self.url) as response:
             response.raise_for_status()
-            for chunk in response.iter_bytes():
-                yield chunk
+            yield from response.iter_bytes()
 
     async def aread(self) -> bytes:
         async with self.client._async_client.stream("GET", self.url) as response:
