@@ -1,4 +1,3 @@
-from collections.abc import Mapping, Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -14,10 +13,10 @@ from typing_extensions import Unpack
 
 from replicate import identifier
 from replicate.exceptions import ModelError
+from replicate.helpers import transform_output
 from replicate.model import Model
 from replicate.prediction import Prediction
 from replicate.schema import make_schema_backwards_compatible
-from replicate.stream import FileOutput
 from replicate.version import Version, Versions
 
 if TYPE_CHECKING:
@@ -138,21 +137,6 @@ def _make_async_output_iterator(
         return prediction.async_output_iterator()
 
     return None
-
-
-def transform_output(value: Any, client: "Client") -> Any:
-    def transform(obj: Any) -> Any:
-        if isinstance(obj, Mapping):
-            return {k: transform(v) for k, v in obj.items()}
-        elif isinstance(obj, Sequence) and not isinstance(obj, str):
-            return [transform(item) for item in obj]
-        elif isinstance(obj, str) and (
-            obj.startswith("https:") or obj.startswith("data:")
-        ):
-            return FileOutput(obj, client)
-        return obj
-
-    return transform(value)
 
 
 __all__: List = []

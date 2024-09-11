@@ -1,6 +1,7 @@
 import base64
 import io
 import mimetypes
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from types import GeneratorType
 from typing import TYPE_CHECKING, Any, Optional
@@ -108,3 +109,20 @@ def base64_encode_file(file: io.IOBase) -> str:
         mimetypes.guess_type(getattr(file, "name", ""))[0] or "application/octet-stream"
     )
     return f"data:{mime_type};base64,{encoded_body}"
+
+
+def transform_output(value: Any, client: "Client") -> Any:
+    from replicate.stream import FileOutput  # pylint: disable=import-outside-toplevel
+
+    def transform(obj: Any) -> Any:
+        if isinstance(obj, Mapping):
+            return {k: transform(v) for k, v in obj.items()}
+        elif isinstance(obj, Sequence) and not isinstance(obj, str):
+            return [transform(item) for item in obj]
+        elif isinstance(obj, str) and (
+            obj.startswith("https:") or obj.startswith("data:")
+        ):
+            return FileOutput(obj, client)
+        return obj
+
+    return transform(value)

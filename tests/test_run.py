@@ -1,11 +1,11 @@
 import asyncio
 import sys
+from typing import cast
 
 import httpx
 import pytest
 import respx
 
-from typing import cast
 import replicate
 from replicate.client import Client
 from replicate.exceptions import ModelError, ReplicateError
