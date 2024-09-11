@@ -86,3 +86,7 @@ ignore = [
     "ANN201", # Missing return type annotation for public function
     "ANN202", # Missing return type annotation for private function
 ]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
