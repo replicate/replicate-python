@@ -131,21 +131,37 @@ class FileOutput(httpx.SyncByteStream, httpx.AsyncByteStream):
         self._client = client
 
     def read(self) -> bytes:
+        if self.url.startswith("data:"):
+            _, encoded = self.url.split(",", 1)
+            return base64.b64decode(encoded)
+
         with self._client._client.stream("GET", self.url) as response:
             response.raise_for_status()
             return response.read()
 
     def __iter__(self) -> Iterator[bytes]:
+        if self.url.startswith("data:"):
+            yield self.read()
+            return
+
         with self._client._client.stream("GET", self.url) as response:
             response.raise_for_status()
             yield from response.iter_bytes()
 
     async def aread(self) -> bytes:
+        if self.url.startswith("data:"):
+            _, encoded = self.url.split(",", 1)
+            return base64.b64decode(encoded)
+
         async with self._client._async_client.stream("GET", self.url) as response:
             response.raise_for_status()
             return await response.aread()
 
     async def __aiter__(self) -> AsyncIterator[bytes]:
+        if self.url.startswith("data:"):
+            yield await self.aread()
+            return
+
         async with self._client._async_client.stream("GET", self.url) as response:
             response.raise_for_status()
             async for chunk in response.aiter_bytes():
