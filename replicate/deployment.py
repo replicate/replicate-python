@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple, TypedDict, Union
 from typing_extensions import Unpack, deprecated
 
 from replicate.account import Account
-from replicate.json import async_encode_json, encode_json
+from replicate.helpers import async_encode_json, encode_json
 from replicate.pagination import Page
 from replicate.prediction import (
     Prediction,

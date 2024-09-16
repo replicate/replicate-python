@@ -1,9 +1,12 @@
 import base64
 import io
 import mimetypes
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from types import GeneratorType
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, AsyncIterator, Iterator, Optional
+
+import httpx
 
 if TYPE_CHECKING:
     from replicate.client import Client
@@ -108,3 +111,80 @@ def base64_encode_file(file: io.IOBase) -> str:
         mimetypes.guess_type(getattr(file, "name", ""))[0] or "application/octet-stream"
     )
     return f"data:{mime_type};base64,{encoded_body}"
+
+
+class FileOutput(httpx.SyncByteStream, httpx.AsyncByteStream):
+    """
+    An object that can be used to read the contents of an output file
+    created by running a Replicate model.
+    """
+
+    url: str
+    """
+    The file URL.
+    """
+
+    _client: "Client"
+
+    def __init__(self, url: str, client: "Client") -> None:
+        self.url = url
+        self._client = client
+
+    def read(self) -> bytes:
+        if self.url.startswith("data:"):
+            _, encoded = self.url.split(",", 1)
+            return base64.b64decode(encoded)
+
+        with self._client._client.stream("GET", self.url) as response:
+            response.raise_for_status()
+            return response.read()
+
+    def __iter__(self) -> Iterator[bytes]:
+        if self.url.startswith("data:"):
+            yield self.read()
+            return
+
+        with self._client._client.stream("GET", self.url) as response:
+            response.raise_for_status()
+            yield from response.iter_bytes()
+
+    async def aread(self) -> bytes:
+        if self.url.startswith("data:"):
+            _, encoded = self.url.split(",", 1)
+            return base64.b64decode(encoded)
+
+        async with self._client._async_client.stream("GET", self.url) as response:
+            response.raise_for_status()
+            return await response.aread()
+
+    async def __aiter__(self) -> AsyncIterator[bytes]:
+        if self.url.startswith("data:"):
+            yield await self.aread()
+            return
+
+        async with self._client._async_client.stream("GET", self.url) as response:
+            response.raise_for_status()
+            async for chunk in response.aiter_bytes():
+                yield chunk
+
+    def __str__(self) -> str:
+        return self.url
+
+
+def transform_output(value: Any, client: "Client") -> Any:
+    """
+    Transform the output of a prediction to a `FileOutput` object if it's a URL.
+    """
+
+    def transform(obj: Any) -> Any:
+        if isinstance(obj, Mapping):
+            return {k: transform(v) for k, v in obj.items()}
+        elif isinstance(obj, Sequence) and not isinstance(obj, str):
+            return [transform(item) for item in obj]
+        elif isinstance(obj, str) and (
+            obj.startswith("https:") or obj.startswith("data:")
+        ):
+            return FileOutput(obj, client)
+        return obj
+
+    return transform(value)

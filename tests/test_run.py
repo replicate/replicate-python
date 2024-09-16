@@ -1,5 +1,6 @@
 import asyncio
 import sys
+from typing import cast
 
 import httpx
 import pytest
@@ -8,6 +9,7 @@ import respx
 import replicate
 from replicate.client import Client
 from replicate.exceptions import ModelError, ReplicateError
+from replicate.helpers import FileOutput
 
 
 @pytest.mark.vcr("run.yaml")
@@ -73,7 +75,7 @@ async def test_run_concurrently(mock_replicate_api_token, record_mode):
     results = await asyncio.gather(*tasks)
     assert len(results) == len(prompts)
     assert all(isinstance(result, list) for result in results)
-    assert all(len(result) > 0 for result in results)
+    assert all(len(results) > 0 for result in results)
 
 
 @pytest.mark.vcr("run.yaml")
@@ -253,3 +255,255 @@ async def test_run_with_model_error(mock_replicate_api_token):
     assert str(excinfo.value) == "OOM"
     assert excinfo.value.prediction.error == "OOM"
     assert excinfo.value.prediction.status == "failed"
+
+
+@pytest.mark.asyncio
+async def test_run_with_file_output(mock_replicate_api_token):
+    def prediction_with_status(
+        status: str, output: str | list[str] | None = None
+    ) -> dict:
+        return {
+            "id": "p1",
+            "model": "test/example",
+            "version": "v1",
+            "urls": {
+                "get": "https://api.replicate.com/v1/predictions/p1",
+                "cancel": "https://api.replicate.com/v1/predictions/p1/cancel",
+            },
+            "created_at": "2023-10-05T12:00:00.000000Z",
+            "source": "api",
+            "status": status,
+            "input": {"text": "world"},
+            "output": output,
+            "error": "OOM" if status == "failed" else None,
+            "logs": "",
+        }
+
+    router = respx.Router(base_url="https://api.replicate.com/v1")
+    router.route(method="POST", path="/predictions").mock(
+        return_value=httpx.Response(
+            201,
+            json=prediction_with_status("processing"),
+        )
+    )
+    router.route(method="GET", path="/predictions/p1").mock(
+        return_value=httpx.Response(
+            200,
+            json=prediction_with_status(
+                "succeeded", "https://api.replicate.com/v1/assets/output.txt"
+            ),
+        )
+    )
+    router.route(
+        method="GET",
+        path="/models/test/example/versions/v1",
+    ).mock(
+        return_value=httpx.Response(
+            201,
+            json={
+                "id": "f2d6b24e6002f25f77ae89c2b0a5987daa6d0bf751b858b94b8416e8542434d1",
+                "created_at": "2024-07-18T00:35:56.210272Z",
+                "cog_version": "0.9.10",
+                "openapi_schema": {
+                    "openapi": "3.0.2",
+                },
+            },
+        )
+    )
+    router.route(method="GET", path="/assets/output.txt").mock(
+        return_value=httpx.Response(200, content=b"Hello, world!")
+    )
+
+    client = Client(
+        api_token="test-token", transport=httpx.MockTransport(router.handler)
+    )
+    client.poll_interval = 0.001
+
+    output = cast(
+        FileOutput,
+        client.run(
+            "test/example:v1",
+            input={
+                "text": "Hello, world!",
+            },
+            use_file_output=True,
+        ),
+    )
+
+    assert output.url == "https://api.replicate.com/v1/assets/output.txt"
+
+    assert output.read() == b"Hello, world!"
+    for chunk in output:
+        assert chunk == b"Hello, world!"
+
+    assert await output.aread() == b"Hello, world!"
+    async for chunk in output:
+        assert chunk == b"Hello, world!"
+
+
+@pytest.mark.asyncio
+async def test_run_with_file_output_array(mock_replicate_api_token):
+    def prediction_with_status(
+        status: str, output: str | list[str] | None = None
+    ) -> dict:
+        return {
+            "id": "p1",
+            "model": "test/example",
+            "version": "v1",
+            "urls": {
+                "get": "https://api.replicate.com/v1/predictions/p1",
+                "cancel": "https://api.replicate.com/v1/predictions/p1/cancel",
+            },
+            "created_at": "2023-10-05T12:00:00.000000Z",
+            "source": "api",
+            "status": status,
+            "input": {"text": "world"},
+            "output": output,
+            "error": "OOM" if status == "failed" else None,
+            "logs": "",
+        }
+
+    router = respx.Router(base_url="https://api.replicate.com/v1")
+    router.route(method="POST", path="/predictions").mock(
+        return_value=httpx.Response(
+            201,
+            json=prediction_with_status("processing"),
+        )
+    )
+    router.route(method="GET", path="/predictions/p1").mock(
+        return_value=httpx.Response(
+            200,
+            json=prediction_with_status(
+                "succeeded",
+                [
+                    "https://api.replicate.com/v1/assets/hello.txt",
+                    "https://api.replicate.com/v1/assets/world.txt",
+                ],
+            ),
+        )
+    )
+    router.route(
+        method="GET",
+        path="/models/test/example/versions/v1",
+    ).mock(
+        return_value=httpx.Response(
+            201,
+            json={
+                "id": "f2d6b24e6002f25f77ae89c2b0a5987daa6d0bf751b858b94b8416e8542434d1",
+                "created_at": "2024-07-18T00:35:56.210272Z",
+                "cog_version": "0.9.10",
+                "openapi_schema": {
+                    "openapi": "3.0.2",
+                },
+            },
+        )
+    )
+    router.route(method="GET", path="/assets/hello.txt").mock(
+        return_value=httpx.Response(200, content=b"Hello,")
+    )
+    router.route(method="GET", path="/assets/world.txt").mock(
+        return_value=httpx.Response(200, content=b" world!")
+    )
+
+    client = Client(
+        api_token="test-token", transport=httpx.MockTransport(router.handler)
+    )
+    client.poll_interval = 0.001
+
+    [output1, output2] = cast(
+        list[FileOutput],
+        client.run(
+            "test/example:v1",
+            input={
+                "text": "Hello, world!",
+            },
+            use_file_output=True,
+        ),
+    )
+
+    assert output1.url == "https://api.replicate.com/v1/assets/hello.txt"
+    assert output2.url == "https://api.replicate.com/v1/assets/world.txt"
+
+    assert output1.read() == b"Hello,"
+    assert output2.read() == b" world!"
+
+
+@pytest.mark.asyncio
+async def test_run_with_file_output_data_uri(mock_replicate_api_token):
+    def prediction_with_status(
+        status: str, output: str | list[str] | None = None
+    ) -> dict:
+        return {
+            "id": "p1",
+            "model": "test/example",
+            "version": "v1",
+            "urls": {
+                "get": "https://api.replicate.com/v1/predictions/p1",
+                "cancel": "https://api.replicate.com/v1/predictions/p1/cancel",
+            },
+            "created_at": "2023-10-05T12:00:00.000000Z",
+            "source": "api",
+            "status": status,
+            "input": {"text": "world"},
+            "output": output,
+            "error": "OOM" if status == "failed" else None,
+            "logs": "",
+        }
+
+    router = respx.Router(base_url="https://api.replicate.com/v1")
+    router.route(method="POST", path="/predictions").mock(
+        return_value=httpx.Response(
+            201,
+            json=prediction_with_status("processing"),
+        )
+    )
+    router.route(method="GET", path="/predictions/p1").mock(
+        return_value=httpx.Response(
+            200,
+            json=prediction_with_status(
+                "succeeded",
+                "data:text/plain;base64,SGVsbG8sIHdvcmxkIQ==",
+            ),
+        )
+    )
+    router.route(
+        method="GET",
+        path="/models/test/example/versions/v1",
+    ).mock(
+        return_value=httpx.Response(
+            201,
+            json={
+                "id": "f2d6b24e6002f25f77ae89c2b0a5987daa6d0bf751b858b94b8416e8542434d1",
+                "created_at": "2024-07-18T00:35:56.210272Z",
+                "cog_version": "0.9.10",
+                "openapi_schema": {
+                    "openapi": "3.0.2",
+                },
+            },
+        )
+    )
+
+    client = Client(
+        api_token="test-token", transport=httpx.MockTransport(router.handler)
+    )
+    client.poll_interval = 0.001
+
+    output = cast(
+        FileOutput,
+        client.run(
+            "test/example:v1",
+            input={
+                "text": "Hello, world!",
+            },
+            use_file_output=True,
+        ),
+    )
+
+    assert output.url == "data:text/plain;base64,SGVsbG8sIHdvcmxkIQ=="
+    assert output.read() == b"Hello, world!"
+    for chunk in output:
+        assert chunk == b"Hello, world!"
+
+    assert await output.aread() == b"Hello, world!"
+    async for chunk in output:
+        assert chunk == b"Hello, world!"

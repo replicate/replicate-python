@@ -10,6 +10,7 @@ from typing import (
     Union,
 )
 
+import httpx
 from typing_extensions import Unpack
 
 from replicate import identifier
@@ -22,8 +23,6 @@ except ImportError:
 
 
 if TYPE_CHECKING:
-    import httpx
-
     from replicate.client import Client
     from replicate.identifier import ModelVersionIdentifier
     from replicate.model import Model

@@ -13,6 +13,7 @@ from typing_extensions import Unpack
 
 from replicate import identifier
 from replicate.exceptions import ModelError
+from replicate.helpers import transform_output
 from replicate.model import Model
 from replicate.prediction import Prediction
 from replicate.schema import make_schema_backwards_compatible
@@ -28,6 +29,7 @@ def run(
     client: "Client",
     ref: Union["Model", "Version", "ModelVersionIdentifier", str],
     input: Optional[Dict[str, Any]] = None,
+    use_file_output: Optional[bool] = None,
     **params: Unpack["Predictions.CreatePredictionParams"],
 ) -> Union[Any, Iterator[Any]]:  # noqa: ANN401
     """
@@ -60,6 +62,9 @@ def run(
     if prediction.status == "failed":
         raise ModelError(prediction)
 
+    if use_file_output:
+        return transform_output(prediction.output, client)
+
     return prediction.output
 
 
@@ -67,6 +72,7 @@ async def async_run(
     client: "Client",
     ref: Union["Model", "Version", "ModelVersionIdentifier", str],
     input: Optional[Dict[str, Any]] = None,
+    use_file_output: Optional[bool] = None,
     **params: Unpack["Predictions.CreatePredictionParams"],
 ) -> Union[Any, AsyncIterator[Any]]:  # noqa: ANN401
     """
@@ -98,6 +104,9 @@ async def async_run(
 
     if prediction.status == "failed":
         raise ModelError(prediction)
+
+    if use_file_output:
+        return transform_output(prediction.output, client)
 
     return prediction.output
 
