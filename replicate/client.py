@@ -190,25 +190,27 @@ class Client:
         self,
         ref: str,
         input: Optional[Dict[str, Any]] = None,
+        use_file_output: Optional[bool] = None,
         **params: Unpack["Predictions.CreatePredictionParams"],
     ) -> Iterator["ServerSentEvent"]:
         """
         Stream a model's output.
         """
 
-        return stream(self, ref, input, **params)
+        return stream(self, ref, input, use_file_output, **params)
 
     async def async_stream(
         self,
         ref: str,
         input: Optional[Dict[str, Any]] = None,
+        use_file_output: Optional[bool] = None,
         **params: Unpack["Predictions.CreatePredictionParams"],
     ) -> AsyncIterator["ServerSentEvent"]:
         """
         Stream a model's output asynchronously.
         """
 
-        return async_stream(self, ref, input, **params)
+        return async_stream(self, ref, input, use_file_output, **params)
 
 
 # Adapted from https://github.com/encode/httpx/issues/108#issuecomment-1132753155

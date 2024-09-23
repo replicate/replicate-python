@@ -153,7 +153,10 @@ class Prediction(Resource):
             await asyncio.sleep(self._client.poll_interval)
             await self.async_reload()
 
-    def stream(self) -> Iterator["ServerSentEvent"]:
+    def stream(
+        self,
+        use_file_output: Optional[bool] = None,
+    ) -> Iterator["ServerSentEvent"]:
         """
         Stream the prediction output.
 
@@ -170,9 +173,14 @@ class Prediction(Resource):
         headers["Cache-Control"] = "no-store"
 
         with self._client._client.stream("GET", url, headers=headers) as response:
-            yield from EventSource(response)
+            yield from EventSource(
+                self._client, response, use_file_output=use_file_output
+            )
 
-    async def async_stream(self) -> AsyncIterator["ServerSentEvent"]:
+    async def async_stream(
+        self,
+        use_file_output: Optional[bool] = None,
+    ) -> AsyncIterator["ServerSentEvent"]:
         """
         Stream the prediction output asynchronously.
 
@@ -194,7 +202,9 @@ class Prediction(Resource):
         async with self._client._async_client.stream(
             "GET", url, headers=headers
         ) as response:
-            async for event in EventSource(response):
+            async for event in EventSource(
+                self._client, response, use_file_output=use_file_output
+            ):
                 yield event
 
     def cancel(self) -> None:
