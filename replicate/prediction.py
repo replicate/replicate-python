@@ -383,6 +383,9 @@ class Predictions(Namespace):
         stream: NotRequired[bool]
         """Enable streaming of prediction output."""
 
+        block: NotRequired[bool]
+        """Wait until the prediction is completed before returning."""
+
         file_encoding_strategy: NotRequired[FileEncodingStrategy]
         """The strategy to use for encoding files in the prediction input."""
 
@@ -463,6 +466,7 @@ class Predictions(Namespace):
                 client=self._client,
                 file_encoding_strategy=file_encoding_strategy,
             )
+        headers = _create_prediction_headers(block=params.pop("block", None))
         body = _create_prediction_body(
             version,
             input,
@@ -472,6 +476,7 @@ class Predictions(Namespace):
         resp = self._client._request(
             "POST",
             "/v1/predictions",
+            headers=headers,
             json=body,
         )
 
@@ -554,6 +559,7 @@ class Predictions(Namespace):
                 client=self._client,
                 file_encoding_strategy=file_encoding_strategy,
             )
+        headers = _create_prediction_headers(block=params.pop("block", None))
         body = _create_prediction_body(
             version,
             input,
@@ -563,6 +569,7 @@ class Predictions(Namespace):
         resp = await self._client._async_request(
             "POST",
             "/v1/predictions",
+            headers=headers,
             json=body,
         )
 
@@ -601,6 +608,18 @@ class Predictions(Namespace):
         )
 
         return _json_to_prediction(self._client, resp.json())
+
+
+def _create_prediction_headers(
+    *,
+    block: Optional[bool] = None,
+) -> Dict[str, Any]:
+    headers = {}
+
+    if block:
+        headers["X-Sync"] = "true"
+
+    return headers
 
 
 def _create_prediction_body(  # pylint: disable=too-many-arguments
