@@ -617,7 +617,7 @@ def _create_prediction_headers(
     headers = {}
 
     if block:
-        headers["X-Sync"] = "true"
+        headers["Prefer"] = "wait"
 
     return headers
 
