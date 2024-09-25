@@ -383,8 +383,14 @@ class Predictions(Namespace):
         stream: NotRequired[bool]
         """Enable streaming of prediction output."""
 
-        block: NotRequired[bool]
-        """Wait until the prediction is completed before returning."""
+        wait: NotRequired[Union[int, bool]]
+        """
+        Wait until the prediction is completed before returning.
+
+        If `True`, wait a predetermined number of seconds until the prediction
+        is completed before returning.
+        If an `int`, wait for the specified number of seconds.
+        """
 
         file_encoding_strategy: NotRequired[FileEncodingStrategy]
         """The strategy to use for encoding files in the prediction input."""
@@ -466,7 +472,7 @@ class Predictions(Namespace):
                 client=self._client,
                 file_encoding_strategy=file_encoding_strategy,
             )
-        headers = _create_prediction_headers(block=params.pop("block", None))
+        headers = _create_prediction_headers(wait=params.pop("wait", None))
         body = _create_prediction_body(
             version,
             input,
@@ -559,7 +565,7 @@ class Predictions(Namespace):
                 client=self._client,
                 file_encoding_strategy=file_encoding_strategy,
             )
-        headers = _create_prediction_headers(block=params.pop("block", None))
+        headers = _create_prediction_headers(wait=params.pop("wait", None))
         body = _create_prediction_body(
             version,
             input,
@@ -612,13 +618,15 @@ class Predictions(Namespace):
 
 def _create_prediction_headers(
     *,
-    block: Optional[bool] = None,
+    wait: Optional[Union[int, bool]] = None,
 ) -> Dict[str, Any]:
     headers = {}
 
-    if block:
-        headers["Prefer"] = "wait"
-
+    if wait:
+        if isinstance(wait, bool):
+            headers["Prefer"] = "wait"
+        elif isinstance(wait, int):
+            headers["Prefer"] = f"wait={wait}"
     return headers
 
 

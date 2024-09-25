@@ -426,7 +426,7 @@ class DeploymentPredictions(Namespace):
                 client=self._client,
                 file_encoding_strategy=file_encoding_strategy,
             )
-        headers = _create_prediction_headers(block=params.pop("block", None))
+        headers = _create_prediction_headers(wait=params.pop("wait", None))
         body = _create_prediction_body(version=None, input=input, **params)
 
         resp = self._client._request(
@@ -454,7 +454,7 @@ class DeploymentPredictions(Namespace):
                 client=self._client,
                 file_encoding_strategy=file_encoding_strategy,
             )
-        headers = _create_prediction_headers(block=params.pop("block", None))
+        headers = _create_prediction_headers(wait=params.pop("wait", None))
         body = _create_prediction_body(version=None, input=input, **params)
 
         resp = await self._client._async_request(
