@@ -358,7 +358,7 @@ class Deployments(Namespace):
 
         return _json_to_deployment(self._client, resp.json())
 
-    def delete(self, deployment_owner: str, deployment_name: str) -> None:
+    def delete(self, deployment_owner: str, deployment_name: str) -> bool:
         """
         Delete an existing deployment.
 
@@ -366,12 +366,13 @@ class Deployments(Namespace):
             deployment_owner: The owner of the deployment.
             deployment_name: The name of the deployment.
         """
-        self._client._request(
+        resp = self._client._request(
             "DELETE",
             f"/v1/deployments/{deployment_owner}/{deployment_name}",
         )
+        return resp.status_code == 204
 
-    async def async_delete(self, deployment_owner: str, deployment_name: str) -> None:
+    async def async_delete(self, deployment_owner: str, deployment_name: str) -> bool:
         """
         Delete an existing deployment asynchronously.
 
@@ -379,10 +380,11 @@ class Deployments(Namespace):
             deployment_owner: The owner of the deployment.
             deployment_name: The name of the deployment.
         """
-        await self._client._async_request(
+        resp = await self._client._async_request(
             "DELETE",
             f"/v1/deployments/{deployment_owner}/{deployment_name}",
         )
+        return resp.status_code == 204
 
     @property
     def predictions(self) -> "DeploymentsPredictions":

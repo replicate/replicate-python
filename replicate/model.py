@@ -287,41 +287,38 @@ class Models(Namespace):
         return _json_to_model(self._client, resp.json())
 
     @overload
-    def delete(self, key: str) -> Model: ...
+    def delete(self, key: str) -> bool: ...
 
     @overload
-    def delete(self, owner: str, name: str) -> Model: ...
+    def delete(self, owner: str, name: str) -> bool: ...
 
-    def delete(self, *args, **kwargs) -> Model:
+    def delete(self, *args, **kwargs) -> bool:
         """
         Delete a model by name.
-        """
 
+        Returns:
+            `True` if deletion was successful, otherwise `False`.
+        """
         url = _delete_model_url(*args, **kwargs)
         resp = self._client._request("DELETE", url)
-
-        return _json_to_model(self._client, resp.json())
-
-    @overload
-    async def async_delete(self, key: str) -> Model: ...
+        return resp.status_code == 204
 
     @overload
-    async def async_delete(self, owner: str, name: str) -> Model: ...
+    async def async_delete(self, key: str) -> bool: ...
 
-    async def async_delete(self, *args, **kwargs) -> Model:
+    @overload
+    async def async_delete(self, owner: str, name: str) -> bool: ...
+
+    async def async_delete(self, *args, **kwargs) -> bool:
         """
-        Delete a model by name.
+        Asynchronously delete a model by name.
 
-        Args:
-            key: The qualified name of the model, in the format `owner/name`.
         Returns:
-            The model.
+            `True` if deletion was successful, otherwise `False`.
         """
-
         url = _delete_model_url(*args, **kwargs)
         resp = await self._client._async_request("DELETE", url)
-
-        return _json_to_model(self._client, resp.json())
+        return resp.status_code == 204
 
     class CreateModelParams(TypedDict):
         """Parameters for creating a model."""
