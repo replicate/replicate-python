@@ -15,6 +15,7 @@ from typing_extensions import Unpack
 
 from replicate import identifier
 from replicate.exceptions import ReplicateError
+from replicate.helpers import transform_output
 
 try:
     from pydantic import v1 as pydantic  # type: ignore
@@ -62,10 +63,19 @@ class EventSource:
     A server-sent event source.
     """
 
+    client: "Client"
     response: "httpx.Response"
+    use_file_output: bool
 
-    def __init__(self, response: "httpx.Response") -> None:
+    def __init__(
+        self,
+        client: "Client",
+        response: "httpx.Response",
+        use_file_output: Optional[bool] = None,
+    ) -> None:
+        self.client = client
         self.response = response
+        self.use_file_output = use_file_output or False
         content_type, _, _ = response.headers["content-type"].partition(";")
         if content_type != "text/event-stream":
             raise ValueError(
@@ -147,6 +157,12 @@ class EventSource:
                 if sse.event == ServerSentEvent.EventType.ERROR:
                     raise RuntimeError(sse.data)
 
+                if (
+                    self.use_file_output
+                    and sse.event == ServerSentEvent.EventType.OUTPUT
+                ):
+                    sse.data = transform_output(sse.data, client=self.client)
+
                 yield sse
 
                 if sse.event == ServerSentEvent.EventType.DONE:
@@ -161,6 +177,12 @@ class EventSource:
                 if sse.event == ServerSentEvent.EventType.ERROR:
                     raise RuntimeError(sse.data)
 
+                if (
+                    self.use_file_output
+                    and sse.event == ServerSentEvent.EventType.OUTPUT
+                ):
+                    sse.data = transform_output(sse.data, client=self.client)
+
                 yield sse
 
                 if sse.event == ServerSentEvent.EventType.DONE:
@@ -171,6 +193,7 @@ def stream(
     client: "Client",
     ref: Union["Model", "Version", "ModelVersionIdentifier", str],
     input: Optional[Dict[str, Any]] = None,
+    use_file_output: Optional[bool] = None,
     **params: Unpack["Predictions.CreatePredictionParams"],
 ) -> Iterator[ServerSentEvent]:
     """
@@ -204,13 +227,14 @@ def stream(
     headers["Cache-Control"] = "no-store"
 
     with client._client.stream("GET", url, headers=headers) as response:
-        yield from EventSource(response)
+        yield from EventSource(client, response, use_file_output=use_file_output)
 
 
 async def async_stream(
     client: "Client",
     ref: Union["Model", "Version", "ModelVersionIdentifier", str],
     input: Optional[Dict[str, Any]] = None,
+    use_file_output: Optional[bool] = None,
     **params: Unpack["Predictions.CreatePredictionParams"],
 ) -> AsyncIterator[ServerSentEvent]:
     """
@@ -244,7 +268,9 @@ async def async_stream(
     headers["Cache-Control"] = "no-store"
 
     async with client._async_client.stream("GET", url, headers=headers) as response:
-        async for event in EventSource(response):
+        async for event in EventSource(
+            client, response, use_file_output=use_file_output
+        ):
             yield event
 
 
