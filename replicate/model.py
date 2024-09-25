@@ -9,6 +9,7 @@ from replicate.pagination import Page
 from replicate.prediction import (
     Prediction,
     _create_prediction_body,
+    _create_prediction_headers,
     _json_to_prediction,
 )
 from replicate.resource import Namespace, Resource
@@ -400,12 +401,14 @@ class ModelsPredictions(Namespace):
                 client=self._client,
                 file_encoding_strategy=file_encoding_strategy,
             )
+        headers = _create_prediction_headers(wait=params.pop("wait", None))
         body = _create_prediction_body(version=None, input=input, **params)
 
         resp = self._client._request(
             "POST",
             url,
             json=body,
+            headers=headers,
         )
 
         return _json_to_prediction(self._client, resp.json())
@@ -429,12 +432,14 @@ class ModelsPredictions(Namespace):
                 client=self._client,
                 file_encoding_strategy=file_encoding_strategy,
             )
+        headers = _create_prediction_headers(wait=params.pop("wait", None))
         body = _create_prediction_body(version=None, input=input, **params)
 
         resp = await self._client._async_request(
             "POST",
             url,
             json=body,
+            headers=headers,
         )
 
         return _json_to_prediction(self._client, resp.json())
