@@ -133,15 +133,17 @@ class Files(Namespace):
         resp = await self._client._async_request("GET", "/v1/files")
         return [_json_to_file(obj) for obj in resp.json().get("results", [])]
 
-    def delete(self, file_id: str) -> None:
+    def delete(self, file_id: str) -> bool:
         """Delete an uploaded file by its ID."""
 
-        _ = self._client._request("DELETE", f"/v1/files/{file_id}")
+        resp = self._client._request("DELETE", f"/v1/files/{file_id}")
+        return resp.status_code == 204
 
-    async def async_delete(self, file_id: str) -> None:
+    async def async_delete(self, file_id: str) -> bool:
         """Delete an uploaded file by its ID asynchronously."""
 
-        _ = await self._client._async_request("DELETE", f"/v1/files/{file_id}")
+        resp = await self._client._async_request("DELETE", f"/v1/files/{file_id}")
+        return resp.status_code == 204
 
 
 def _create_file_params(
