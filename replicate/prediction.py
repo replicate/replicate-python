@@ -395,11 +395,13 @@ class Predictions(Namespace):
 
         wait: NotRequired[Union[int, bool]]
         """
-        Wait until the prediction is completed before returning.
+        Block until the prediction is completed before returning.
 
-        If `True`, wait a predetermined number of seconds until the prediction
-        is completed before returning.
-        If an `int`, wait for the specified number of seconds.
+        If `True`, keep the request open for up to 60 seconds, falling back to
+        polling until the prediction is completed.
+        If an `int`, same as True but hold the request for a specified number of
+        seconds (between 1 and 60).
+        If `False`, poll for the prediction status until completed.
         """
 
         file_encoding_strategy: NotRequired[FileEncodingStrategy]

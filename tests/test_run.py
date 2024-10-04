@@ -123,7 +123,7 @@ async def test_run_version_with_invalid_cog_version(mock_replicate_api_token):
     router.route(method="POST", path="/predictions").mock(
         return_value=httpx.Response(
             201,
-            json=prediction_with_status("processing"),
+            json=prediction_with_status("starting"),
         )
     )
     router.route(method="GET", path="/predictions/p1").mock(
@@ -212,7 +212,7 @@ async def test_run_with_model_error(mock_replicate_api_token):
     router.route(method="POST", path="/predictions").mock(
         return_value=httpx.Response(
             201,
-            json=prediction_with_status("processing"),
+            json=prediction_with_status("starting"),
         )
     )
     router.route(method="GET", path="/predictions/p1").mock(
@@ -454,7 +454,7 @@ async def test_run_with_file_output_array(mock_replicate_api_token):
     router.route(method="POST", path="/predictions").mock(
         return_value=httpx.Response(
             201,
-            json=prediction_with_status("processing"),
+            json=prediction_with_status("starting"),
         )
     )
     router.route(method="GET", path="/predictions/p1").mock(
@@ -541,7 +541,7 @@ async def test_run_with_file_output_data_uri(mock_replicate_api_token):
     router.route(method="POST", path="/predictions").mock(
         return_value=httpx.Response(
             201,
-            json=prediction_with_status("processing"),
+            json=prediction_with_status("starting"),
         )
     )
     router.route(method="GET", path="/predictions/p1").mock(
