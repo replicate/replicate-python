@@ -184,7 +184,9 @@ class Client:
         Run a model and wait for its output asynchronously.
         """
 
-        return await async_run(self, ref, input, use_file_output=use_file_output, **params)
+        return await async_run(
+            self, ref, input, use_file_output=use_file_output, **params
+        )
 
     def stream(
         self,

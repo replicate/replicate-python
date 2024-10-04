@@ -111,7 +111,8 @@ async def async_run(
     if version and (iterator := _make_async_output_iterator(version, prediction)):
         return iterator
 
-    await prediction.async_wait()
+    if not (is_blocking and prediction.status != "starting"):
+        await prediction.async_wait()
 
     if prediction.status == "failed":
         raise ModelError(prediction)
