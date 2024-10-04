@@ -29,14 +29,18 @@ def run(
     client: "Client",
     ref: Union["Model", "Version", "ModelVersionIdentifier", str],
     input: Optional[Dict[str, Any]] = None,
-    use_file_output: Optional[bool] = None,
+    *,
+    use_file_output: Optional[bool] = True,
     **params: Unpack["Predictions.CreatePredictionParams"],
 ) -> Union[Any, Iterator[Any]]:  # noqa: ANN401
     """
     Run a model and wait for its output.
     """
 
-    is_blocking = "wait" in params
+    if "wait" not in params:
+        params["wait"] = True
+    is_blocking = params["wait"] != False  # noqa: E712
+
     version, owner, name, version_id = identifier._resolve(ref)
 
     if version_id is not None:
@@ -74,12 +78,17 @@ async def async_run(
     client: "Client",
     ref: Union["Model", "Version", "ModelVersionIdentifier", str],
     input: Optional[Dict[str, Any]] = None,
-    use_file_output: Optional[bool] = None,
+    *,
+    use_file_output: Optional[bool] = True,
     **params: Unpack["Predictions.CreatePredictionParams"],
 ) -> Union[Any, AsyncIterator[Any]]:  # noqa: ANN401
     """
     Run a model and wait for its output asynchronously.
     """
+
+    if "wait" not in params:
+        params["wait"] = True
+    is_blocking = params["wait"] != False  # noqa: E712
 
     version, owner, name, version_id = identifier._resolve(ref)
 
