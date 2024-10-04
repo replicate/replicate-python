@@ -269,7 +269,9 @@ async def test_deployment_predictions_create(router, async_flag):
 @pytest.mark.parametrize("wait_param", [True, 10])
 @pytest.mark.parametrize("async_flag", [True, False])
 async def test_deployment_predictions_create_blocking(
-    router, async_flag: bool, wait_param: bool | int # noqa: FBT001
+    router,
+    async_flag: bool,
+    wait_param: bool | int,  # noqa: FBT001
 ):
     client = Client(
         api_token="test-token", transport=httpx.MockTransport(router.handler)
@@ -360,7 +362,9 @@ async def test_deployments_predictions_create(router, async_flag):
 @pytest.mark.parametrize("wait_param", [True, 10])
 @pytest.mark.parametrize("async_flag", [True, False])
 async def test_deployments_predictions_create_blocking(
-    router, async_flag: bool, wait_param: bool | int # noqa: FBT001
+    router,
+    async_flag: bool,
+    wait_param: bool | int,  # noqa: FBT001
 ):
     client = Client(
         api_token="test-token", transport=httpx.MockTransport(router.handler)
