@@ -40,6 +40,47 @@ async def test_predictions_create(async_flag):
     assert prediction.status == "starting"
 
 
+@pytest.mark.vcr()
+# @pytest.mark.asyncio
+@pytest.mark.parametrize("wait_param", [True, 10])
+@pytest.mark.parametrize("async_flag", [True, False])
+def test_predictions_create_blocking(async_flag, wait_param):
+    input = {
+        "prompt": "a studio photo of a rainbow colored corgi",
+        "width": 512,
+        "height": 512,
+        "seed": 42069,
+    }
+
+    if False:
+        model = replicate.models.async_get("stability-ai/sdxl")
+        version = model.versions.async_get(
+            "7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc"
+        )
+        prediction = replicate.predictions.async_create(
+            version=version,
+            input=input,
+            wait=wait_param,
+        )
+    else:
+        model = replicate.models.get("stability-ai/sdxl")
+        version = model.versions.get(
+            "7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc"
+        )
+        prediction = replicate.predictions.create(
+            version=version,
+            input=input,
+            wait=wait_param,
+        )
+
+    assert prediction.id is not None
+    assert prediction.version == version.id
+    assert prediction.status == "processing"
+
+    assert prediction.output
+    assert prediction.output[0].startswith("data:")
+
+
 @pytest.mark.vcr("predictions-create.yaml")
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_flag", [True, False])

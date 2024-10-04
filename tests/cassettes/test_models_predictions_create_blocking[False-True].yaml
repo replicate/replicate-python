@@ -1,0 +1,67 @@
+interactions:
+- request:
+    body: '{"input": {"prompt": "Please write a haiku about llamas"}}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '58'
+      content-type:
+      - application/json
+      host:
+      - api.replicate.com
+      prefer:
+      - wait
+      user-agent:
+      - replicate-python/0.32.1
+    method: POST
+    uri: https://api.replicate.com/v1/models/meta/meta-llama-3-8b-instruct/predictions
+  response:
+    body:
+      string: '{"id":"7vr9my1z3nrj40cjb2vv9pshw0","model":"meta/meta-llama-3-8b-instruct","version":"dp-a557b7387b4940df25b23f779dc534c4","input":{"prompt":"Please
+        write a haiku about llamas"},"logs":"","output":["\n\n","Fuzzy",", gentle","
+        soul\n","Llama","''s soft"," eyes meet"," my"," gaze","\nPeace","ful,"," gentle","
+        friend",""],"data_removed":false,"error":null,"status":"processing","created_at":"2024-10-04T18:07:37.245Z","urls":{"cancel":"https://api.replicate.com/v1/predictions/7vr9my1z3nrj40cjb2vv9pshw0/cancel","get":"https://api.replicate.com/v1/predictions/7vr9my1z3nrj40cjb2vv9pshw0","stream":"https://streaming-api.svc.rno2.c.replicate.net/v1/streams/yr4xaj6trsqlyhoxrxg3fcl2c2vifsatl7paqk2ltc7tbtrvfb2q"}}'
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 8cd71cd159ba06a9-SJC
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '709'
+      Content-Type:
+      - application/json; charset=UTF-8
+      Date:
+      - Fri, 04 Oct 2024 18:07:40 GMT
+      NEL:
+      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+      Preference-Applied:
+      - wait
+      Report-To:
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v4?s=71TSJZwByfLF51QiGNpTc3HqXXGR%2BTyDJViyA75xfguBlFdel4vpaOp2YGz0lZTndn7Wu8P%2BEMLi%2BjsvNg7QCQxblOezZ9NgGMT%2Fpqxh1gvACXTCOWlzHgg2XPlRxe1WJAyN"}],"group":"cf-nel","max_age":604800}'
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000
+      Vary:
+      - Accept-Encoding
+      alt-svc:
+      - h3=":443"; ma=86400
+      ratelimit-remaining:
+      - '599'
+      ratelimit-reset:
+      - '1'
+      replicate-edge-cluster:
+      - services-aws-us-west-2
+      replicate-target-cluster:
+      - coreweave-rno2
+    status:
+      code: 201
+      message: Created
+version: 1

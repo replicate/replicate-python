@@ -36,6 +36,7 @@ def run(
     Run a model and wait for its output.
     """
 
+    is_blocking = "wait" in params
     version, owner, name, version_id = identifier._resolve(ref)
 
     if version_id is not None:
@@ -57,7 +58,8 @@ def run(
     if version and (iterator := _make_output_iterator(version, prediction)):
         return iterator
 
-    prediction.wait()
+    if not (is_blocking and prediction.status != "starting"):
+        prediction.wait()
 
     if prediction.status == "failed":
         raise ModelError(prediction)
