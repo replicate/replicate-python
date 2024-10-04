@@ -7,6 +7,7 @@ from typing import cast
 
 from replicate.client import Client
 
+
 @pytest.fixture
 def router():
     router = respx.Router(base_url="https://api.replicate.com/v1")
@@ -150,7 +151,6 @@ def router():
         )
     )
 
-
     router.route(
         method="PATCH",
         path="/deployments/acme/image-upscaler",
@@ -264,10 +264,13 @@ async def test_deployment_predictions_create(router, async_flag):
     assert prediction.id == "p1"
     assert prediction.input == {"text": "world"}
 
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize("wait_param", [True, 10])
 @pytest.mark.parametrize("async_flag", [True, False])
-async def test_deployment_predictions_create_blocking(router, async_flag: bool, wait_param: bool | int):
+async def test_deployment_predictions_create_blocking(
+    router, async_flag: bool, wait_param: bool | int
+):
     client = Client(
         api_token="test-token", transport=httpx.MockTransport(router.handler)
     )
@@ -282,7 +285,7 @@ async def test_deployment_predictions_create_blocking(router, async_flag: bool, 
             webhook="https://example.com/webhook",
             webhook_events_filter=["completed"],
             stream=True,
-            wait=wait_param
+            wait=wait_param,
         )
     else:
         deployment = client.deployments.get("replicate/my-app-image-generator")
@@ -292,11 +295,13 @@ async def test_deployment_predictions_create_blocking(router, async_flag: bool, 
             webhook="https://example.com/webhook",
             webhook_events_filter=["completed"],
             stream=True,
-            wait=wait_param
+            wait=wait_param,
         )
 
     assert router["deployments.predictions.create"].called
-    request = cast(httpx.Request, router["deployments.predictions.create"].calls[0].request)
+    request = cast(
+        httpx.Request, router["deployments.predictions.create"].calls[0].request
+    )
 
     if wait_param is True:
         assert request.headers.get("Prefer") == f"wait"
@@ -356,7 +361,9 @@ async def test_deployments_predictions_create(router, async_flag):
 @pytest.mark.asyncio
 @pytest.mark.parametrize("wait_param", [True, 10])
 @pytest.mark.parametrize("async_flag", [True, False])
-async def test_deployments_predictions_create_blocking(router, async_flag: bool, wait_param: bool | int):
+async def test_deployments_predictions_create_blocking(
+    router, async_flag: bool, wait_param: bool | int
+):
     client = Client(
         api_token="test-token", transport=httpx.MockTransport(router.handler)
     )
@@ -368,7 +375,7 @@ async def test_deployments_predictions_create_blocking(router, async_flag: bool,
             webhook="https://example.com/webhook",
             webhook_events_filter=["completed"],
             stream=True,
-            wait=wait_param
+            wait=wait_param,
         )
     else:
         prediction = client.deployments.predictions.create(
@@ -377,11 +384,13 @@ async def test_deployments_predictions_create_blocking(router, async_flag: bool,
             webhook="https://example.com/webhook",
             webhook_events_filter=["completed"],
             stream=True,
-            wait=wait_param
+            wait=wait_param,
         )
 
     assert router["deployments.predictions.create"].called
-    request = cast(httpx.Request, router["deployments.predictions.create"].calls[0].request)
+    request = cast(
+        httpx.Request, router["deployments.predictions.create"].calls[0].request
+    )
 
     if wait_param is True:
         assert request.headers.get("Prefer") == f"wait"

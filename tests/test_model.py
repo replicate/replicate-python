@@ -132,6 +132,7 @@ async def test_models_predictions_create(async_flag):
     assert prediction.model == "replicate/lifeboat-70b"  # FIXME: this is temporary
     assert prediction.status == "starting"
 
+
 @pytest.mark.vcr()
 @pytest.mark.asyncio
 @pytest.mark.parametrize("wait_param", [True, 10])
@@ -151,6 +152,7 @@ async def test_models_predictions_create_blocking(async_flag, wait_param):
     assert prediction.id is not None
     assert prediction.model == "meta/meta-llama-3-8b-instruct"
     assert prediction.status == "processing"
+
 
 @pytest.mark.vcr("models-search.yaml")
 @pytest.mark.asyncio

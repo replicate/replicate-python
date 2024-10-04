@@ -39,8 +39,9 @@ async def test_predictions_create(async_flag):
     assert prediction.version == version.id
     assert prediction.status == "starting"
 
+
 @pytest.mark.vcr()
-#@pytest.mark.asyncio
+# @pytest.mark.asyncio
 @pytest.mark.parametrize("wait_param", [True, 10])
 @pytest.mark.parametrize("async_flag", [True, False])
 def test_predictions_create_blocking(async_flag, wait_param):
@@ -77,7 +78,8 @@ def test_predictions_create_blocking(async_flag, wait_param):
     assert prediction.status == "processing"
 
     assert prediction.output
-    assert prediction.output[0].startswith('data:')
+    assert prediction.output[0].startswith("data:")
+
 
 @pytest.mark.vcr("predictions-create.yaml")
 @pytest.mark.asyncio

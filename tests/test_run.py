@@ -367,7 +367,9 @@ async def test_run_with_file_output_blocking(mock_replicate_api_token):
     predictions_create_route = router.route(method="POST", path="/predictions").mock(
         return_value=httpx.Response(
             201,
-            json=prediction_with_status("processing", "data:text/plain;base64,SGVsbG8sIHdvcmxkIQ=="),
+            json=prediction_with_status(
+                "processing", "data:text/plain;base64,SGVsbG8sIHdvcmxkIQ=="
+            ),
         )
     )
     predictions_get_route = router.route(method="GET", path="/predictions/p1").mock(
@@ -424,7 +426,6 @@ async def test_run_with_file_output_blocking(mock_replicate_api_token):
     assert await output.aread() == b"Hello, world!"
     async for chunk in output:
         assert chunk == b"Hello, world!"
-
 
 
 @pytest.mark.asyncio
