@@ -1,9 +1,9 @@
 import json
+from typing import cast
 
 import httpx
 import pytest
 import respx
-from typing import cast
 
 from replicate.client import Client
 
@@ -269,7 +269,7 @@ async def test_deployment_predictions_create(router, async_flag):
 @pytest.mark.parametrize("wait_param", [True, 10])
 @pytest.mark.parametrize("async_flag", [True, False])
 async def test_deployment_predictions_create_blocking(
-    router, async_flag: bool, wait_param: bool | int
+    router, async_flag: bool, wait_param: bool | int # noqa: FBT001
 ):
     client = Client(
         api_token="test-token", transport=httpx.MockTransport(router.handler)
@@ -279,8 +279,7 @@ async def test_deployment_predictions_create_blocking(
         deployment = await client.deployments.async_get(
             "replicate/my-app-image-generator"
         )
-        prediction = await client.deployments.predictions.async_create(
-            deployment="replicate/my-app-image-generator",
+        prediction = await deployment.predictions.async_create(
             input={"text": "world"},
             webhook="https://example.com/webhook",
             webhook_events_filter=["completed"],
@@ -289,8 +288,7 @@ async def test_deployment_predictions_create_blocking(
         )
     else:
         deployment = client.deployments.get("replicate/my-app-image-generator")
-        prediction = client.deployments.predictions.create(
-            deployment="replicate/my-app-image-generator",
+        prediction = deployment.predictions.create(
             input={"text": "world"},
             webhook="https://example.com/webhook",
             webhook_events_filter=["completed"],
@@ -304,7 +302,7 @@ async def test_deployment_predictions_create_blocking(
     )
 
     if wait_param is True:
-        assert request.headers.get("Prefer") == f"wait"
+        assert request.headers.get("Prefer") == "wait"
     else:
         assert request.headers.get("Prefer") == f"wait={wait_param}"
 
@@ -362,7 +360,7 @@ async def test_deployments_predictions_create(router, async_flag):
 @pytest.mark.parametrize("wait_param", [True, 10])
 @pytest.mark.parametrize("async_flag", [True, False])
 async def test_deployments_predictions_create_blocking(
-    router, async_flag: bool, wait_param: bool | int
+    router, async_flag: bool, wait_param: bool | int # noqa: FBT001
 ):
     client = Client(
         api_token="test-token", transport=httpx.MockTransport(router.handler)
@@ -393,7 +391,7 @@ async def test_deployments_predictions_create_blocking(
     )
 
     if wait_param is True:
-        assert request.headers.get("Prefer") == f"wait"
+        assert request.headers.get("Prefer") == "wait"
     else:
         assert request.headers.get("Prefer") == f"wait={wait_param}"
 
