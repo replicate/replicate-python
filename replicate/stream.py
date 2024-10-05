@@ -71,11 +71,12 @@ class EventSource:
         self,
         client: "Client",
         response: "httpx.Response",
-        use_file_output: Optional[bool] = None,
+        *,
+        use_file_output: Optional[bool] = True,
     ) -> None:
         self.client = client
         self.response = response
-        self.use_file_output = use_file_output or False
+        self.use_file_output = use_file_output or True
         content_type, _, _ = response.headers["content-type"].partition(";")
         if content_type != "text/event-stream":
             raise ValueError(
@@ -193,7 +194,8 @@ def stream(
     client: "Client",
     ref: Union["Model", "Version", "ModelVersionIdentifier", str],
     input: Optional[Dict[str, Any]] = None,
-    use_file_output: Optional[bool] = None,
+    *,
+    use_file_output: Optional[bool] = True,
     **params: Unpack["Predictions.CreatePredictionParams"],
 ) -> Iterator[ServerSentEvent]:
     """
@@ -234,7 +236,8 @@ async def async_stream(
     client: "Client",
     ref: Union["Model", "Version", "ModelVersionIdentifier", str],
     input: Optional[Dict[str, Any]] = None,
-    use_file_output: Optional[bool] = None,
+    *,
+    use_file_output: Optional[bool] = True,
     **params: Unpack["Predictions.CreatePredictionParams"],
 ) -> AsyncIterator[ServerSentEvent]:
     """
