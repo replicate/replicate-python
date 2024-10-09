@@ -32,17 +32,20 @@ async def test_run(async_flag, record_mode):
         output = await replicate.async_run(
             f"stability-ai/sdxl:{version}",
             input=input,
+            use_file_output=True,
         )
     else:
         output = replicate.run(
             f"stability-ai/sdxl:{version}",
             input=input,
+            use_file_output=True,
         )
 
     assert output is not None
     assert isinstance(output, list)
     assert len(output) > 0
-    assert output[0].startswith("https://")
+    assert isinstance(output[0], FileOutput)
+    assert output[0].url.startswith("https://")
 
 
 @pytest.mark.vcr("run__concurrently.yaml")
