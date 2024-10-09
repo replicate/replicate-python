@@ -327,6 +327,7 @@ async def test_run_with_file_output(mock_replicate_api_token):
                 "text": "Hello, world!",
             },
             use_file_output=True,
+            wait=False,
         ),
     )
 
@@ -409,7 +410,7 @@ async def test_run_with_file_output_blocking(mock_replicate_api_token):
                 "text": "Hello, world!",
             },
             use_file_output=True,
-            wait=True,
+            # wait=True (this is the default)
         ),
     )
 
@@ -505,6 +506,7 @@ async def test_run_with_file_output_array(mock_replicate_api_token):
                 "text": "Hello, world!",
             },
             use_file_output=True,
+            wait=False,
         ),
     )
 
@@ -583,6 +585,7 @@ async def test_run_with_file_output_data_uri(mock_replicate_api_token):
                 "text": "Hello, world!",
             },
             use_file_output=True,
+            wait=False,
         ),
     )
 
