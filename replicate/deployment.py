@@ -8,7 +8,7 @@ from replicate.pagination import Page
 from replicate.prediction import (
     Prediction,
     _create_prediction_body,
-    _create_prediction_headers,
+    _create_prediction_request_params,
     _json_to_prediction,
 )
 from replicate.resource import Namespace, Resource
@@ -421,21 +421,25 @@ class DeploymentPredictions(Namespace):
         Create a new prediction with the deployment.
         """
 
+        wait = params.pop("wait", None)
         file_encoding_strategy = params.pop("file_encoding_strategy", None)
+
         if input is not None:
             input = encode_json(
                 input,
                 client=self._client,
                 file_encoding_strategy=file_encoding_strategy,
             )
-        headers = _create_prediction_headers(wait=params.pop("wait", None))
-        body = _create_prediction_body(version=None, input=input, **params)
 
+        body = _create_prediction_body(version=None, input=input, **params)
+        extras = _create_prediction_request_params(
+            wait=wait,
+        )
         resp = self._client._request(
             "POST",
             f"/v1/deployments/{self._deployment.owner}/{self._deployment.name}/predictions",
             json=body,
-            headers=headers,
+            **extras,
         )
 
         return _json_to_prediction(self._client, resp.json())
@@ -449,6 +453,7 @@ class DeploymentPredictions(Namespace):
         Create a new prediction with the deployment.
         """
 
+        wait = params.pop("wait", None)
         file_encoding_strategy = params.pop("file_encoding_strategy", None)
         if input is not None:
             input = await async_encode_json(
@@ -456,14 +461,16 @@ class DeploymentPredictions(Namespace):
                 client=self._client,
                 file_encoding_strategy=file_encoding_strategy,
             )
-        headers = _create_prediction_headers(wait=params.pop("wait", None))
-        body = _create_prediction_body(version=None, input=input, **params)
 
+        body = _create_prediction_body(version=None, input=input, **params)
+        extras = _create_prediction_request_params(
+            wait=wait,
+        )
         resp = await self._client._async_request(
             "POST",
             f"/v1/deployments/{self._deployment.owner}/{self._deployment.name}/predictions",
             json=body,
-            headers=headers,
+            **extras,
         )
 
         return _json_to_prediction(self._client, resp.json())
@@ -484,24 +491,20 @@ class DeploymentsPredictions(Namespace):
         Create a new prediction with the deployment.
         """
 
-        url = _create_prediction_url_from_deployment(deployment)
-
+        wait = params.pop("wait", None)
         file_encoding_strategy = params.pop("file_encoding_strategy", None)
+
+        url = _create_prediction_url_from_deployment(deployment)
         if input is not None:
             input = encode_json(
                 input,
                 client=self._client,
                 file_encoding_strategy=file_encoding_strategy,
             )
-        headers = _create_prediction_headers(wait=params.pop("wait", None))
-        body = _create_prediction_body(version=None, input=input, **params)
 
-        resp = self._client._request(
-            "POST",
-            url,
-            json=body,
-            headers=headers,
-        )
+        body = _create_prediction_body(version=None, input=input, **params)
+        extras = _create_prediction_request_params(wait=wait)
+        resp = self._client._request("POST", url, json=body, **extras)
 
         return _json_to_prediction(self._client, resp.json())
 
@@ -515,9 +518,10 @@ class DeploymentsPredictions(Namespace):
         Create a new prediction with the deployment.
         """
 
-        url = _create_prediction_url_from_deployment(deployment)
-
+        wait = params.pop("wait", None)
         file_encoding_strategy = params.pop("file_encoding_strategy", None)
+
+        url = _create_prediction_url_from_deployment(deployment)
         if input is not None:
             input = await async_encode_json(
                 input,
@@ -525,15 +529,9 @@ class DeploymentsPredictions(Namespace):
                 file_encoding_strategy=file_encoding_strategy,
             )
 
-        headers = _create_prediction_headers(wait=params.pop("wait", None))
         body = _create_prediction_body(version=None, input=input, **params)
-
-        resp = await self._client._async_request(
-            "POST",
-            url,
-            json=body,
-            headers=headers,
-        )
+        extras = _create_prediction_request_params(wait=wait)
+        resp = await self._client._async_request("POST", url, json=body, **extras)
 
         return _json_to_prediction(self._client, resp.json())
 

@@ -9,7 +9,7 @@ from replicate.pagination import Page
 from replicate.prediction import (
     Prediction,
     _create_prediction_body,
-    _create_prediction_headers,
+    _create_prediction_request_params,
     _json_to_prediction,
 )
 from replicate.resource import Namespace, Resource
@@ -389,24 +389,20 @@ class ModelsPredictions(Namespace):
         Create a new prediction with the deployment.
         """
 
-        url = _create_prediction_url_from_model(model)
-
+        wait = params.pop("wait", None)
         file_encoding_strategy = params.pop("file_encoding_strategy", None)
+
+        path = _create_prediction_path_from_model(model)
         if input is not None:
             input = encode_json(
                 input,
                 client=self._client,
                 file_encoding_strategy=file_encoding_strategy,
             )
-        headers = _create_prediction_headers(wait=params.pop("wait", None))
-        body = _create_prediction_body(version=None, input=input, **params)
 
-        resp = self._client._request(
-            "POST",
-            url,
-            json=body,
-            headers=headers,
-        )
+        body = _create_prediction_body(version=None, input=input, **params)
+        extras = _create_prediction_request_params(wait=wait)
+        resp = self._client._request("POST", path, json=body, **extras)
 
         return _json_to_prediction(self._client, resp.json())
 
@@ -420,24 +416,21 @@ class ModelsPredictions(Namespace):
         Create a new prediction with the deployment.
         """
 
-        url = _create_prediction_url_from_model(model)
-
+        wait = params.pop("wait", None)
         file_encoding_strategy = params.pop("file_encoding_strategy", None)
+
+        path = _create_prediction_path_from_model(model)
+
         if input is not None:
             input = await async_encode_json(
                 input,
                 client=self._client,
                 file_encoding_strategy=file_encoding_strategy,
             )
-        headers = _create_prediction_headers(wait=params.pop("wait", None))
-        body = _create_prediction_body(version=None, input=input, **params)
 
-        resp = await self._client._async_request(
-            "POST",
-            url,
-            json=body,
-            headers=headers,
-        )
+        body = _create_prediction_body(version=None, input=input, **params)
+        extras = _create_prediction_request_params(wait=wait)
+        resp = await self._client._async_request("POST", path, json=body, **extras)
 
         return _json_to_prediction(self._client, resp.json())
 
@@ -522,7 +515,7 @@ def _json_to_model(client: "Client", json: Dict[str, Any]) -> Model:
     return model
 
 
-def _create_prediction_url_from_model(
+def _create_prediction_path_from_model(
     model: Union[str, Tuple[str, str], "Model"],
 ) -> str:
     owner, name = None, None

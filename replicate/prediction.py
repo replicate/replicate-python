@@ -16,6 +16,7 @@ from typing import (
     overload,
 )
 
+import httpx
 from typing_extensions import NotRequired, TypedDict, Unpack
 
 from replicate.exceptions import ModelError, ReplicateError
@@ -446,6 +447,9 @@ class Predictions(Namespace):
         Create a new prediction for the specified model, version, or deployment.
         """
 
+        wait = params.pop("wait", None)
+        file_encoding_strategy = params.pop("file_encoding_strategy", None)
+
         if args:
             version = args[0] if len(args) > 0 else None
             input = args[1] if len(args) > 1 else input
@@ -477,26 +481,20 @@ class Predictions(Namespace):
                 **params,
             )
 
-        file_encoding_strategy = params.pop("file_encoding_strategy", None)
         if input is not None:
             input = encode_json(
                 input,
                 client=self._client,
                 file_encoding_strategy=file_encoding_strategy,
             )
-        headers = _create_prediction_headers(wait=params.pop("wait", None))
+
         body = _create_prediction_body(
             version,
             input,
             **params,
         )
-
-        resp = self._client._request(
-            "POST",
-            "/v1/predictions",
-            headers=headers,
-            json=body,
-        )
+        extras = _create_prediction_request_params(wait=wait)
+        resp = self._client._request("POST", "/v1/predictions", json=body, **extras)
 
         return _json_to_prediction(self._client, resp.json())
 
@@ -538,6 +536,8 @@ class Predictions(Namespace):
         """
         Create a new prediction for the specified model, version, or deployment.
         """
+        wait = params.pop("wait", None)
+        file_encoding_strategy = params.pop("file_encoding_strategy", None)
 
         if args:
             version = args[0] if len(args) > 0 else None
@@ -570,25 +570,21 @@ class Predictions(Namespace):
                 **params,
             )
 
-        file_encoding_strategy = params.pop("file_encoding_strategy", None)
         if input is not None:
             input = await async_encode_json(
                 input,
                 client=self._client,
                 file_encoding_strategy=file_encoding_strategy,
             )
-        headers = _create_prediction_headers(wait=params.pop("wait", None))
+
         body = _create_prediction_body(
             version,
             input,
             **params,
         )
-
+        extras = _create_prediction_request_params(wait=wait)
         resp = await self._client._async_request(
-            "POST",
-            "/v1/predictions",
-            headers=headers,
-            json=body,
+            "POST", "/v1/predictions", json=body, **extras
         )
 
         return _json_to_prediction(self._client, resp.json())
@@ -626,6 +622,40 @@ class Predictions(Namespace):
         )
 
         return _json_to_prediction(self._client, resp.json())
+
+
+class CreatePredictionRequestParams(TypedDict):
+    headers: NotRequired[Optional[dict]]
+    timeout: NotRequired[Optional[httpx.Timeout]]
+
+
+def _create_prediction_request_params(
+    wait: Optional[Union[int, bool]],
+) -> CreatePredictionRequestParams:
+    timeout = _create_prediction_timeout(wait=wait)
+    headers = _create_prediction_headers(wait=wait)
+
+    return {
+        "headers": headers,
+        "timeout": timeout,
+    }
+
+
+def _create_prediction_timeout(
+    *, wait: Optional[Union[int, bool]] = None
+) -> Union[httpx.Timeout, None]:
+    """
+    Returns an `httpx.Timeout` instances appropriate for the optional
+    `Prefer: wait=x` header that can be provided with the request. This
+    will ensure that we give the server enough time to respond with
+    a partial prediction in the event that the request times out.
+    """
+
+    if not wait:
+        return None
+
+    read_timeout = 60.0 if isinstance(wait, bool) else wait
+    return httpx.Timeout(5.0, read=read_timeout + 0.5)
 
 
 def _create_prediction_headers(
