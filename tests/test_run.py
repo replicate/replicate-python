@@ -1,6 +1,6 @@
 import asyncio
 import sys
-from typing import cast
+from typing import AsyncIterator, Iterator, Optional, cast
 
 import httpx
 import pytest
@@ -10,6 +10,19 @@ import replicate
 from replicate.client import Client
 from replicate.exceptions import ModelError, ReplicateError
 from replicate.helpers import FileOutput
+
+
+async def anext(async_iterator, default=None):
+    """
+    `anext` is only available from Python 3.10 onwards so here
+    we use an equivalent to ensure tests work in earlier versions.
+    """
+    try:
+        return await async_iterator.__anext__()
+    except StopAsyncIteration:
+        if default is None:
+            raise
+        return default
 
 
 @pytest.mark.vcr("run.yaml")
@@ -46,6 +59,274 @@ async def test_run(async_flag, record_mode):
     assert len(output) > 0
     assert isinstance(output[0], FileOutput)
     assert output[0].url.startswith("https://")
+
+
+@pytest.mark.asyncio
+async def test_run_with_iterator(mock_replicate_api_token):
+    router = respx.Router(base_url="https://api.replicate.com/v1")
+    router.route(method="POST", path="/predictions").mock(
+        return_value=httpx.Response(
+            201,
+            json=_prediction_with_status("starting"),
+        )
+    )
+    router.route(method="GET", path="/predictions/p1").mock(
+        side_effect=[
+            httpx.Response(
+                200,
+                json=_prediction_with_status(
+                    "processing",
+                    [
+                        "Hello, ",
+                    ],
+                ),
+            ),
+            httpx.Response(
+                200,
+                json=_prediction_with_status(
+                    "succeeded",
+                    [
+                        "Hello, ",
+                        "world!",
+                    ],
+                ),
+            ),
+        ]
+    )
+    router.route(
+        method="GET",
+        path="/models/test/example/versions/v1",
+    ).mock(
+        return_value=httpx.Response(
+            201,
+            json=_version_with_schema(
+                "p1",
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                    },
+                    "x-cog-array-type": "iterator",
+                },
+            ),
+        )
+    )
+
+    client = Client(
+        api_token="test-token", transport=httpx.MockTransport(router.handler)
+    )
+    client.poll_interval = 0.001
+
+    stream = cast(
+        Iterator[FileOutput],
+        client.run(
+            "test/example:v1",
+            input={
+                "text": "Hello, world!",
+            },
+            wait=False,
+        ),
+    )
+
+    output1 = next(stream)
+    output2 = next(stream)
+    with pytest.raises(StopIteration):
+        next(stream)
+
+    assert output1 == "Hello, "
+    assert output2 == "world!"
+
+
+@pytest.mark.asyncio
+async def test_async_run_with_iterator(mock_replicate_api_token):
+    router = respx.Router(base_url="https://api.replicate.com/v1")
+    router.route(method="POST", path="/predictions").mock(
+        return_value=httpx.Response(
+            201,
+            json=_prediction_with_status("starting"),
+        )
+    )
+    router.route(method="GET", path="/predictions/p1").mock(
+        side_effect=[
+            httpx.Response(
+                200,
+                json=_prediction_with_status(
+                    "processing",
+                    [
+                        "Hello, ",
+                    ],
+                ),
+            ),
+            httpx.Response(
+                200,
+                json=_prediction_with_status(
+                    "succeeded",
+                    [
+                        "Hello, ",
+                        "world!",
+                    ],
+                ),
+            ),
+        ]
+    )
+    router.route(
+        method="GET",
+        path="/models/test/example/versions/v1",
+    ).mock(
+        return_value=httpx.Response(
+            201,
+            json=_version_with_schema(
+                "p1",
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                    },
+                    "x-cog-array-type": "iterator",
+                },
+            ),
+        )
+    )
+
+    client = Client(
+        api_token="test-token", transport=httpx.MockTransport(router.handler)
+    )
+    client.poll_interval = 0.001
+
+    stream = cast(
+        AsyncIterator[FileOutput],
+        await client.async_run(
+            "test/example:v1",
+            input={
+                "text": "Hello, world!",
+            },
+            wait=False,
+        ),
+    )
+
+    output1 = await anext(stream)
+    output2 = await anext(stream)
+    with pytest.raises(StopAsyncIteration):
+        await anext(stream)
+
+    assert output1 == "Hello, "
+    assert output2 == "world!"
+
+
+@pytest.mark.asyncio
+async def test_run_blocking_with_iterator(mock_replicate_api_token):
+    router = respx.Router(base_url="https://api.replicate.com/v1")
+    router.route(method="POST", path="/predictions", headers={"Prefer": "wait"}).mock(
+        return_value=httpx.Response(
+            201,
+            json=_prediction_with_status(
+                "processing",
+                [
+                    "Hello, ",
+                    "world!",
+                ],
+            ),
+        )
+    )
+    router.route(
+        method="GET",
+        path="/models/test/example/versions/v1",
+    ).mock(
+        return_value=httpx.Response(
+            201,
+            json=_version_with_schema(
+                "p1",
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                    },
+                    "x-cog-array-type": "iterator",
+                },
+            ),
+        )
+    )
+
+    client = Client(
+        api_token="test-token", transport=httpx.MockTransport(router.handler)
+    )
+    client.poll_interval = 0.001
+
+    stream = cast(
+        Iterator[FileOutput],
+        client.run(
+            "test/example:v1",
+            input={
+                "text": "Hello, world!",
+            },
+        ),
+    )
+
+    output1 = next(stream)
+    output2 = next(stream)
+    with pytest.raises(StopIteration):
+        next(stream)
+
+    assert output1 == "Hello, "
+    assert output2 == "world!"
+
+
+@pytest.mark.asyncio
+async def test_async_run_blocking_with_iterator(mock_replicate_api_token):
+    router = respx.Router(base_url="https://api.replicate.com/v1")
+    router.route(method="POST", path="/predictions", headers={"Prefer": "wait"}).mock(
+        return_value=httpx.Response(
+            201,
+            json=_prediction_with_status(
+                "processing",
+                [
+                    "Hello, ",
+                    "world!",
+                ],
+            ),
+        )
+    )
+    router.route(
+        method="GET",
+        path="/models/test/example/versions/v1",
+    ).mock(
+        return_value=httpx.Response(
+            201,
+            json=_version_with_schema(
+                "p1",
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                    },
+                    "x-cog-array-type": "iterator",
+                },
+            ),
+        )
+    )
+
+    client = Client(
+        api_token="test-token", transport=httpx.MockTransport(router.handler)
+    )
+    client.poll_interval = 0.001
+
+    stream = cast(
+        AsyncIterator[FileOutput],
+        await client.async_run(
+            "test/example:v1",
+            input={
+                "text": "Hello, world!",
+            },
+        ),
+    )
+
+    output1 = await anext(stream)
+    output2 = await anext(stream)
+    with pytest.raises(StopAsyncIteration):
+        await anext(stream)
+
+    assert output1 == "Hello, "
+    assert output2 == "world!"
 
 
 @pytest.mark.vcr("run__concurrently.yaml")
@@ -104,35 +385,17 @@ async def test_run_with_invalid_token():
 
 @pytest.mark.asyncio
 async def test_run_version_with_invalid_cog_version(mock_replicate_api_token):
-    def prediction_with_status(status: str) -> dict:
-        return {
-            "id": "p1",
-            "model": "test/example",
-            "version": "v1",
-            "urls": {
-                "get": "https://api.replicate.com/v1/predictions/p1",
-                "cancel": "https://api.replicate.com/v1/predictions/p1/cancel",
-            },
-            "created_at": "2023-10-05T12:00:00.000000Z",
-            "source": "api",
-            "status": status,
-            "input": {"text": "world"},
-            "output": "Hello, world!" if status == "succeeded" else None,
-            "error": None,
-            "logs": "",
-        }
-
     router = respx.Router(base_url="https://api.replicate.com/v1")
     router.route(method="POST", path="/predictions").mock(
         return_value=httpx.Response(
             201,
-            json=prediction_with_status("starting"),
+            json=_prediction_with_status("starting"),
         )
     )
     router.route(method="GET", path="/predictions/p1").mock(
         return_value=httpx.Response(
             200,
-            json=prediction_with_status("succeeded"),
+            json=_prediction_with_status("succeeded", "Hello, world!"),
         )
     )
     router.route(
@@ -141,37 +404,7 @@ async def test_run_version_with_invalid_cog_version(mock_replicate_api_token):
     ).mock(
         return_value=httpx.Response(
             201,
-            json={
-                "id": "f2d6b24e6002f25f77ae89c2b0a5987daa6d0bf751b858b94b8416e8542434d1",
-                "created_at": "2022-03-16T00:35:56.210272Z",
-                "cog_version": "dev",
-                "openapi_schema": {
-                    "openapi": "3.0.2",
-                    "info": {"title": "Cog", "version": "0.1.0"},
-                    "paths": {},
-                    "components": {
-                        "schemas": {
-                            "Input": {
-                                "type": "object",
-                                "title": "Input",
-                                "required": ["text"],
-                                "properties": {
-                                    "text": {
-                                        "type": "string",
-                                        "title": "Text",
-                                        "x-order": 0,
-                                        "description": "The text input",
-                                    },
-                                },
-                            },
-                            "Output": {
-                                "type": "string",
-                                "title": "Output",
-                            },
-                        }
-                    },
-                },
-            },
+            json=_version_with_schema(),
         )
     )
     router.route(host="api.replicate.com").pass_through()
@@ -193,35 +426,17 @@ async def test_run_version_with_invalid_cog_version(mock_replicate_api_token):
 
 @pytest.mark.asyncio
 async def test_run_with_model_error(mock_replicate_api_token):
-    def prediction_with_status(status: str) -> dict:
-        return {
-            "id": "p1",
-            "model": "test/example",
-            "version": "v1",
-            "urls": {
-                "get": "https://api.replicate.com/v1/predictions/p1",
-                "cancel": "https://api.replicate.com/v1/predictions/p1/cancel",
-            },
-            "created_at": "2023-10-05T12:00:00.000000Z",
-            "source": "api",
-            "status": status,
-            "input": {"text": "world"},
-            "output": None,
-            "error": "OOM" if status == "failed" else None,
-            "logs": "",
-        }
-
     router = respx.Router(base_url="https://api.replicate.com/v1")
     router.route(method="POST", path="/predictions").mock(
         return_value=httpx.Response(
             201,
-            json=prediction_with_status("starting"),
+            json=_prediction_with_status("starting"),
         )
     )
     router.route(method="GET", path="/predictions/p1").mock(
         return_value=httpx.Response(
             200,
-            json=prediction_with_status("failed"),
+            json=_prediction_with_status("failed"),
         )
     )
     router.route(
@@ -230,14 +445,7 @@ async def test_run_with_model_error(mock_replicate_api_token):
     ).mock(
         return_value=httpx.Response(
             201,
-            json={
-                "id": "f2d6b24e6002f25f77ae89c2b0a5987daa6d0bf751b858b94b8416e8542434d1",
-                "created_at": "2024-07-18T00:35:56.210272Z",
-                "cog_version": "0.9.10",
-                "openapi_schema": {
-                    "openapi": "3.0.2",
-                },
-            },
+            json=_version_with_schema(),
         )
     )
     router.route(host="api.replicate.com").pass_through()
@@ -262,37 +470,17 @@ async def test_run_with_model_error(mock_replicate_api_token):
 
 @pytest.mark.asyncio
 async def test_run_with_file_output(mock_replicate_api_token):
-    def prediction_with_status(
-        status: str, output: str | list[str] | None = None
-    ) -> dict:
-        return {
-            "id": "p1",
-            "model": "test/example",
-            "version": "v1",
-            "urls": {
-                "get": "https://api.replicate.com/v1/predictions/p1",
-                "cancel": "https://api.replicate.com/v1/predictions/p1/cancel",
-            },
-            "created_at": "2023-10-05T12:00:00.000000Z",
-            "source": "api",
-            "status": status,
-            "input": {"text": "world"},
-            "output": output,
-            "error": "OOM" if status == "failed" else None,
-            "logs": "",
-        }
-
     router = respx.Router(base_url="https://api.replicate.com/v1")
     router.route(method="POST", path="/predictions").mock(
         return_value=httpx.Response(
             201,
-            json=prediction_with_status("starting"),
+            json=_prediction_with_status("starting"),
         )
     )
     router.route(method="GET", path="/predictions/p1").mock(
         return_value=httpx.Response(
             200,
-            json=prediction_with_status(
+            json=_prediction_with_status(
                 "succeeded", "https://api.replicate.com/v1/assets/output.txt"
             ),
         )
@@ -303,14 +491,7 @@ async def test_run_with_file_output(mock_replicate_api_token):
     ).mock(
         return_value=httpx.Response(
             201,
-            json={
-                "id": "f2d6b24e6002f25f77ae89c2b0a5987daa6d0bf751b858b94b8416e8542434d1",
-                "created_at": "2024-07-18T00:35:56.210272Z",
-                "cog_version": "0.9.10",
-                "openapi_schema": {
-                    "openapi": "3.0.2",
-                },
-            },
+            json=_version_with_schema(),
         )
     )
     router.route(method="GET", path="/assets/output.txt").mock(
@@ -347,31 +528,11 @@ async def test_run_with_file_output(mock_replicate_api_token):
 
 @pytest.mark.asyncio
 async def test_run_with_file_output_blocking(mock_replicate_api_token):
-    def prediction_with_status(
-        status: str, output: str | list[str] | None = None
-    ) -> dict:
-        return {
-            "id": "p1",
-            "model": "test/example",
-            "version": "v1",
-            "urls": {
-                "get": "https://api.replicate.com/v1/predictions/p1",
-                "cancel": "https://api.replicate.com/v1/predictions/p1/cancel",
-            },
-            "created_at": "2023-10-05T12:00:00.000000Z",
-            "source": "api",
-            "status": status,
-            "input": {"text": "world"},
-            "output": output,
-            "error": "OOM" if status == "failed" else None,
-            "logs": "",
-        }
-
     router = respx.Router(base_url="https://api.replicate.com/v1")
     predictions_create_route = router.route(method="POST", path="/predictions").mock(
         return_value=httpx.Response(
             201,
-            json=prediction_with_status(
+            json=_prediction_with_status(
                 "processing", "data:text/plain;base64,SGVsbG8sIHdvcmxkIQ=="
             ),
         )
@@ -379,7 +540,7 @@ async def test_run_with_file_output_blocking(mock_replicate_api_token):
     predictions_get_route = router.route(method="GET", path="/predictions/p1").mock(
         return_value=httpx.Response(
             200,
-            json=prediction_with_status(
+            json=_prediction_with_status(
                 "succeeded", "https://api.replicate.com/v1/assets/output.txt"
             ),
         )
@@ -387,26 +548,14 @@ async def test_run_with_file_output_blocking(mock_replicate_api_token):
     router.route(
         method="GET",
         path="/models/test/example/versions/v1",
-    ).mock(
-        return_value=httpx.Response(
-            201,
-            json={
-                "id": "f2d6b24e6002f25f77ae89c2b0a5987daa6d0bf751b858b94b8416e8542434d1",
-                "created_at": "2024-07-18T00:35:56.210272Z",
-                "cog_version": "0.9.10",
-                "openapi_schema": {
-                    "openapi": "3.0.2",
-                },
-            },
-        )
-    )
+    ).mock(return_value=httpx.Response(201, json=_version_with_schema()))
     client = Client(
         api_token="test-token", transport=httpx.MockTransport(router.handler)
     )
     client.poll_interval = 0.001
 
     output = cast(
-        list[FileOutput],
+        FileOutput,
         client.run(
             "test/example:v1",
             input={
@@ -434,37 +583,17 @@ async def test_run_with_file_output_blocking(mock_replicate_api_token):
 
 @pytest.mark.asyncio
 async def test_run_with_file_output_array(mock_replicate_api_token):
-    def prediction_with_status(
-        status: str, output: str | list[str] | None = None
-    ) -> dict:
-        return {
-            "id": "p1",
-            "model": "test/example",
-            "version": "v1",
-            "urls": {
-                "get": "https://api.replicate.com/v1/predictions/p1",
-                "cancel": "https://api.replicate.com/v1/predictions/p1/cancel",
-            },
-            "created_at": "2023-10-05T12:00:00.000000Z",
-            "source": "api",
-            "status": status,
-            "input": {"text": "world"},
-            "output": output,
-            "error": "OOM" if status == "failed" else None,
-            "logs": "",
-        }
-
     router = respx.Router(base_url="https://api.replicate.com/v1")
     router.route(method="POST", path="/predictions").mock(
         return_value=httpx.Response(
             201,
-            json=prediction_with_status("starting"),
+            json=_prediction_with_status("starting"),
         )
     )
     router.route(method="GET", path="/predictions/p1").mock(
         return_value=httpx.Response(
             200,
-            json=prediction_with_status(
+            json=_prediction_with_status(
                 "succeeded",
                 [
                     "https://api.replicate.com/v1/assets/hello.txt",
@@ -479,14 +608,7 @@ async def test_run_with_file_output_array(mock_replicate_api_token):
     ).mock(
         return_value=httpx.Response(
             201,
-            json={
-                "id": "f2d6b24e6002f25f77ae89c2b0a5987daa6d0bf751b858b94b8416e8542434d1",
-                "created_at": "2024-07-18T00:35:56.210272Z",
-                "cog_version": "0.9.10",
-                "openapi_schema": {
-                    "openapi": "3.0.2",
-                },
-            },
+            json=_version_with_schema(),
         )
     )
     router.route(method="GET", path="/assets/hello.txt").mock(
@@ -521,38 +643,103 @@ async def test_run_with_file_output_array(mock_replicate_api_token):
 
 
 @pytest.mark.asyncio
-async def test_run_with_file_output_data_uri(mock_replicate_api_token):
-    def prediction_with_status(
-        status: str, output: str | list[str] | None = None
-    ) -> dict:
-        return {
-            "id": "p1",
-            "model": "test/example",
-            "version": "v1",
-            "urls": {
-                "get": "https://api.replicate.com/v1/predictions/p1",
-                "cancel": "https://api.replicate.com/v1/predictions/p1/cancel",
-            },
-            "created_at": "2023-10-05T12:00:00.000000Z",
-            "source": "api",
-            "status": status,
-            "input": {"text": "world"},
-            "output": output,
-            "error": "OOM" if status == "failed" else None,
-            "logs": "",
-        }
-
+async def test_run_with_file_output_iterator(mock_replicate_api_token):
     router = respx.Router(base_url="https://api.replicate.com/v1")
     router.route(method="POST", path="/predictions").mock(
         return_value=httpx.Response(
             201,
-            json=prediction_with_status("starting"),
+            json=_prediction_with_status("starting"),
+        )
+    )
+    router.route(method="GET", path="/predictions/p1").mock(
+        side_effect=[
+            httpx.Response(
+                200,
+                json=_prediction_with_status(
+                    "processing",
+                    [
+                        "https://api.replicate.com/v1/assets/hello.txt",
+                    ],
+                ),
+            ),
+            httpx.Response(
+                200,
+                json=_prediction_with_status(
+                    "succeeded",
+                    [
+                        "https://api.replicate.com/v1/assets/hello.txt",
+                        "https://api.replicate.com/v1/assets/world.txt",
+                    ],
+                ),
+            ),
+        ]
+    )
+    router.route(
+        method="GET",
+        path="/models/test/example/versions/v1",
+    ).mock(
+        return_value=httpx.Response(
+            201,
+            json=_version_with_schema(
+                "p1",
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "format": "uri",
+                    },
+                    "x-cog-array-type": "iterator",
+                },
+            ),
+        )
+    )
+    router.route(method="GET", path="/assets/hello.txt").mock(
+        return_value=httpx.Response(200, content=b"Hello,")
+    )
+    router.route(method="GET", path="/assets/world.txt").mock(
+        return_value=httpx.Response(200, content=b" world!")
+    )
+
+    client = Client(
+        api_token="test-token", transport=httpx.MockTransport(router.handler)
+    )
+    client.poll_interval = 0.001
+
+    stream = cast(
+        Iterator[FileOutput],
+        client.run(
+            "test/example:v1",
+            input={
+                "text": "Hello, world!",
+            },
+            use_file_output=True,
+            wait=False,
+        ),
+    )
+
+    output1 = next(stream)
+    output2 = next(stream)
+
+    assert output1.url == "https://api.replicate.com/v1/assets/hello.txt"
+    assert output2.url == "https://api.replicate.com/v1/assets/world.txt"
+
+    assert output1.read() == b"Hello,"
+    assert output2.read() == b" world!"
+
+
+@pytest.mark.asyncio
+async def test_run_with_file_output_data_uri(mock_replicate_api_token):
+    router = respx.Router(base_url="https://api.replicate.com/v1")
+    router.route(method="POST", path="/predictions").mock(
+        return_value=httpx.Response(
+            201,
+            json=_prediction_with_status("starting"),
         )
     )
     router.route(method="GET", path="/predictions/p1").mock(
         return_value=httpx.Response(
             200,
-            json=prediction_with_status(
+            json=_prediction_with_status(
                 "succeeded",
                 "data:text/plain;base64,SGVsbG8sIHdvcmxkIQ==",
             ),
@@ -564,14 +751,7 @@ async def test_run_with_file_output_data_uri(mock_replicate_api_token):
     ).mock(
         return_value=httpx.Response(
             201,
-            json={
-                "id": "f2d6b24e6002f25f77ae89c2b0a5987daa6d0bf751b858b94b8416e8542434d1",
-                "created_at": "2024-07-18T00:35:56.210272Z",
-                "cog_version": "0.9.10",
-                "openapi_schema": {
-                    "openapi": "3.0.2",
-                },
-            },
+            json=_version_with_schema(),
         )
     )
 
@@ -600,3 +780,57 @@ async def test_run_with_file_output_data_uri(mock_replicate_api_token):
     assert await output.aread() == b"Hello, world!"
     async for chunk in output:
         assert chunk == b"Hello, world!"
+
+
+def _prediction_with_status(status: str, output: str | list[str] | None = None) -> dict:
+    return {
+        "id": "p1",
+        "model": "test/example",
+        "version": "v1",
+        "urls": {
+            "get": "https://api.replicate.com/v1/predictions/p1",
+            "cancel": "https://api.replicate.com/v1/predictions/p1/cancel",
+        },
+        "created_at": "2023-10-05T12:00:00.000000Z",
+        "source": "api",
+        "status": status,
+        "input": {"text": "world"},
+        "output": output,
+        "error": "OOM" if status == "failed" else None,
+        "logs": "",
+    }
+
+
+def _version_with_schema(id: str = "v1", output_schema: Optional[object] = None):
+    return {
+        "id": id,
+        "created_at": "2022-03-16T00:35:56.210272Z",
+        "cog_version": "dev",
+        "openapi_schema": {
+            "openapi": "3.0.2",
+            "info": {"title": "Cog", "version": "0.1.0"},
+            "paths": {},
+            "components": {
+                "schemas": {
+                    "Input": {
+                        "type": "object",
+                        "title": "Input",
+                        "required": ["text"],
+                        "properties": {
+                            "text": {
+                                "type": "string",
+                                "title": "Text",
+                                "x-order": 0,
+                                "description": "The text input",
+                            },
+                        },
+                    },
+                    "Output": output_schema
+                    or {
+                        "type": "string",
+                        "title": "Output",
+                    },
+                }
+            },
+        },
+    }
