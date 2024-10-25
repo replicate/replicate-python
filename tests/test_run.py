@@ -242,6 +242,151 @@ async def test_run_blocking_with_iterator(mock_replicate_api_token):
     assert list(stream) == ["Hello, ", "world!"]
 
 
+@pytest.mark.asyncio
+async def test_run_blocking_timeout_with_iterator(mock_replicate_api_token):
+    router = respx.Router(base_url="https://api.replicate.com/v1")
+    # Initial request times out and returns "starting" state.
+    router.route(method="POST", path="/predictions", headers={"Prefer": "wait"}).mock(
+        return_value=httpx.Response(
+            201,
+            json=_prediction_with_status(
+                "starting",
+            ),
+        )
+    )
+    # Client should start polling for the prediction.
+    router.route(method="GET", path="/predictions/p1").mock(
+        side_effect=[
+            httpx.Response(
+                200,
+                json=_prediction_with_status(
+                    "processing",
+                    [
+                        "Hello, ",
+                    ],
+                ),
+            ),
+            httpx.Response(
+                200,
+                json=_prediction_with_status(
+                    "succeeded",
+                    [
+                        "Hello, ",
+                        "world!",
+                    ],
+                ),
+            ),
+        ]
+    )
+    router.route(
+        method="GET",
+        path="/models/test/example/versions/v1",
+    ).mock(
+        return_value=httpx.Response(
+            201,
+            json=_version_with_schema(
+                "p1",
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                    },
+                    "x-cog-array-type": "iterator",
+                },
+            ),
+        )
+    )
+
+    client = Client(
+        api_token="test-token", transport=httpx.MockTransport(router.handler)
+    )
+    client.poll_interval = 0.001
+
+    stream = cast(
+        Iterator[str],
+        client.run(
+            "test/example:v1",
+            input={
+                "text": "Hello, world!",
+            },
+        ),
+    )
+
+    assert list(stream) == ["Hello, ", "world!"]
+
+
+@pytest.mark.asyncio
+async def test_async_run_blocking_timeout_with_iterator(mock_replicate_api_token):
+    router = respx.Router(base_url="https://api.replicate.com/v1")
+    # Initial request times out and returns "starting" state.
+    router.route(method="POST", path="/predictions", headers={"Prefer": "wait"}).mock(
+        return_value=httpx.Response(
+            201,
+            json=_prediction_with_status(
+                "starting",
+            ),
+        )
+    )
+    # Client should start polling for the prediction.
+    router.route(method="GET", path="/predictions/p1").mock(
+        side_effect=[
+            httpx.Response(
+                200,
+                json=_prediction_with_status(
+                    "processing",
+                    [
+                        "Hello, ",
+                    ],
+                ),
+            ),
+            httpx.Response(
+                200,
+                json=_prediction_with_status(
+                    "succeeded",
+                    [
+                        "Hello, ",
+                        "world!",
+                    ],
+                ),
+            ),
+        ]
+    )
+    router.route(
+        method="GET",
+        path="/models/test/example/versions/v1",
+    ).mock(
+        return_value=httpx.Response(
+            201,
+            json=_version_with_schema(
+                "p1",
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                    },
+                    "x-cog-array-type": "iterator",
+                },
+            ),
+        )
+    )
+
+    client = Client(
+        api_token="test-token", transport=httpx.MockTransport(router.handler)
+    )
+    client.poll_interval = 0.001
+
+    stream = cast(
+        AsyncIterator[str],
+        await client.async_run(
+            "test/example:v1",
+            input={
+                "text": "Hello, world!",
+            },
+        ),
+    )
+
+    output = [chunk async for chunk in stream]
+    assert output == ["Hello, ", "world!"]
 
 
 @pytest.mark.asyncio
