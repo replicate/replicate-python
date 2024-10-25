@@ -15,7 +15,6 @@ from replicate import identifier
 from replicate.exceptions import ModelError
 from replicate.helpers import transform_output
 from replicate.model import Model
-from replicate.prediction import Prediction
 from replicate.schema import make_schema_backwards_compatible
 from replicate.version import Version, Versions
 
