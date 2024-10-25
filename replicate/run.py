@@ -61,9 +61,14 @@ def run(
 
     # Currently the "Prefer: wait" interface will return a prediction with a status
     # of "processing" rather than a terminal state because it returns before the
-    # prediction has been fully processed. If request exceeds the wait time, the
-    # prediction will be in a "starting" state.
-    if not (is_blocking and prediction.status != "starting"):
+    # prediction has been fully processed. If request exceeds the wait time, even if
+    # it is actually processing, the prediction will be in a "starting" state.
+    #
+    # We should fix this in the blocking API itself. Predictions that are done should
+    # be in a terminal state and predictions that are processing should be in state
+    # "processing".
+    in_terminal_state = is_blocking and prediction.status != "starting"
+    if not in_terminal_state:
         # Return a "polling" iterator if the model has an output iterator array type.
         if version and (iterator := _make_output_iterator(client, version, prediction)):
             return iterator
@@ -119,9 +124,14 @@ async def async_run(
 
     # Currently the "Prefer: wait" interface will return a prediction with a status
     # of "processing" rather than a terminal state because it returns before the
-    # prediction has been fully processed. If request exceeds the wait time, the
-    # prediction will be in a "starting" state.
-    if not (is_blocking and prediction.status != "starting"):
+    # prediction has been fully processed. If request exceeds the wait time, even if
+    # it is actually processing, the prediction will be in a "starting" state.
+    #
+    # We should fix this in the blocking API itself. Predictions that are done should
+    # be in a terminal state and predictions that are processing should be in state
+    # "processing".
+    in_terminal_state = is_blocking and prediction.status != "starting"
+    if not in_terminal_state:
         # Return a "polling" iterator if the model has an output iterator array type.
         if version and (
             iterator := _make_async_output_iterator(client, version, prediction)
