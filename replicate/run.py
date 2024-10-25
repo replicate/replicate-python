@@ -70,8 +70,11 @@ def run(
     in_terminal_state = is_blocking and prediction.status != "starting"
     if not in_terminal_state:
         # Return a "polling" iterator if the model has an output iterator array type.
-        if version and (iterator := _make_output_iterator(client, version, prediction)):
-            return iterator
+        if version and _has_output_iterator_array_type(version):
+            return (
+                transform_output(chunk, client)
+                for chunk in prediction.output_iterator()
+            )
 
         prediction.wait()
 
@@ -79,8 +82,12 @@ def run(
         raise ModelError(prediction)
 
     # Return an iterator for the completed prediction when needed.
-    if version and (iterator := _make_output_iterator(client, version, prediction)):
-        return iterator
+    if (
+        version
+        and _has_output_iterator_array_type(version)
+        and prediction.output is not None
+    ):
+        return (transform_output(chunk, client) for chunk in prediction.output)
 
     if use_file_output:
         return transform_output(prediction.output, client)
@@ -133,21 +140,27 @@ async def async_run(
     in_terminal_state = is_blocking and prediction.status != "starting"
     if not in_terminal_state:
         # Return a "polling" iterator if the model has an output iterator array type.
-        if version and (
-            iterator := _make_async_output_iterator(client, version, prediction)
-        ):
-            return iterator
+        if version and _has_output_iterator_array_type(version):
+            return (
+                transform_output(chunk, client)
+                async for chunk in prediction.async_output_iterator()
+            )
 
         await prediction.async_wait()
 
-    # Return an iterator for completed output if the model has an output iterator array type.
-    if version and (
-        iterator := _make_async_output_iterator(client, version, prediction)
-    ):
-        return iterator
-
     if prediction.status == "failed":
         raise ModelError(prediction)
+
+    # Return an iterator for completed output if the model has an output iterator array type.
+    if (
+        version
+        and _has_output_iterator_array_type(version)
+        and prediction.output is not None
+    ):
+        return (
+            transform_output(chunk, client)
+            async for chunk in _make_async_iterator(prediction.output)
+        )
 
     if use_file_output:
         return transform_output(prediction.output, client)
@@ -165,49 +178,9 @@ def _has_output_iterator_array_type(version: Version) -> bool:
     )
 
 
-def _make_output_iterator(
-    client: "Client", version: Version, prediction: Prediction
-) -> Optional[Iterator[Any]]:
-    if not _has_output_iterator_array_type(version):
-        return None
-
-    if prediction.status == "starting":
-        iterator = prediction.output_iterator()
-    elif prediction.output is not None:
-        iterator = iter(prediction.output)
-    else:
-        return None
-
-    def _iterate(iter: Iterator[Any]) -> Iterator[Any]:
-        for chunk in iter:
-            yield transform_output(chunk, client)
-
-    return _iterate(iterator)
-
-
-def _make_async_output_iterator(
-    client: "Client", version: Version, prediction: Prediction
-) -> Optional[AsyncIterator[Any]]:
-    if not _has_output_iterator_array_type(version):
-        return None
-
-    if prediction.status == "starting":
-        iterator = prediction.async_output_iterator()
-    elif prediction.output is not None:
-
-        async def _list_to_aiter(lst: list) -> AsyncIterator:
-            for item in lst:
-                yield item
-
-        iterator = _list_to_aiter(prediction.output)
-    else:
-        return None
-
-    async def _transform(iter: AsyncIterator[Any]) -> AsyncIterator:
-        async for chunk in iter:
-            yield transform_output(chunk, client)
-
-    return _transform(iterator)
+async def _make_async_iterator(list: list) -> AsyncIterator:
+    for item in list:
+        yield item
 
 
 __all__: List = []
