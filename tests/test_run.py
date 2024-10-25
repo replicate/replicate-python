@@ -12,19 +12,6 @@ from replicate.exceptions import ModelError, ReplicateError
 from replicate.helpers import FileOutput
 
 
-async def anext(async_iterator, default=None):
-    """
-    `anext` is only available from Python 3.10 onwards so here
-    we use an equivalent to ensure tests work in earlier versions.
-    """
-    try:
-        return await async_iterator.__anext__()
-    except StopAsyncIteration:
-        if default is None:
-            raise
-        return default
-
-
 @pytest.mark.vcr("run.yaml")
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_flag", [True, False])
@@ -118,7 +105,7 @@ async def test_run_with_iterator(mock_replicate_api_token):
     client.poll_interval = 0.001
 
     stream = cast(
-        Iterator[FileOutput],
+        Iterator[str],
         client.run(
             "test/example:v1",
             input={
@@ -128,13 +115,8 @@ async def test_run_with_iterator(mock_replicate_api_token):
         ),
     )
 
-    output1 = next(stream)
-    output2 = next(stream)
-    with pytest.raises(StopIteration):
-        next(stream)
-
-    assert output1 == "Hello, "
-    assert output2 == "world!"
+    output = [chunk for chunk in stream]
+    assert output == ["Hello, ", "world!"]
 
 
 @pytest.mark.asyncio
@@ -204,13 +186,8 @@ async def test_async_run_with_iterator(mock_replicate_api_token):
         ),
     )
 
-    output1 = await anext(stream)
-    output2 = await anext(stream)
-    with pytest.raises(StopAsyncIteration):
-        await anext(stream)
-
-    assert output1 == "Hello, "
-    assert output2 == "world!"
+    output = [chunk async for chunk in stream]
+    assert output == ["Hello, ", "world!"]
 
 
 @pytest.mark.asyncio
@@ -253,7 +230,7 @@ async def test_run_blocking_with_iterator(mock_replicate_api_token):
     client.poll_interval = 0.001
 
     stream = cast(
-        Iterator[FileOutput],
+        Iterator[str],
         client.run(
             "test/example:v1",
             input={
@@ -262,13 +239,9 @@ async def test_run_blocking_with_iterator(mock_replicate_api_token):
         ),
     )
 
-    output1 = next(stream)
-    output2 = next(stream)
-    with pytest.raises(StopIteration):
-        next(stream)
+    assert list(stream) == ["Hello, ", "world!"]
 
-    assert output1 == "Hello, "
-    assert output2 == "world!"
+
 
 
 @pytest.mark.asyncio
@@ -320,13 +293,8 @@ async def test_async_run_blocking_with_iterator(mock_replicate_api_token):
         ),
     )
 
-    output1 = await anext(stream)
-    output2 = await anext(stream)
-    with pytest.raises(StopAsyncIteration):
-        await anext(stream)
-
-    assert output1 == "Hello, "
-    assert output2 == "world!"
+    output = [chunk async for chunk in stream]
+    assert output == ["Hello, ", "world!"]
 
 
 @pytest.mark.vcr("run__concurrently.yaml")
@@ -717,14 +685,14 @@ async def test_run_with_file_output_iterator(mock_replicate_api_token):
         ),
     )
 
-    output1 = next(stream)
-    output2 = next(stream)
+    expected = [
+        {"url": "https://api.replicate.com/v1/assets/hello.txt", "content": b"Hello,"},
+        {"url": "https://api.replicate.com/v1/assets/world.txt", "content": b" world!"},
+    ]
 
-    assert output1.url == "https://api.replicate.com/v1/assets/hello.txt"
-    assert output2.url == "https://api.replicate.com/v1/assets/world.txt"
-
-    assert output1.read() == b"Hello,"
-    assert output2.read() == b" world!"
+    for output, expect in zip(stream, expected):
+        assert output.url == expect["url"]
+        assert output.read() == expect["content"]
 
 
 @pytest.mark.asyncio
