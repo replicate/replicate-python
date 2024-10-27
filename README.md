@@ -35,13 +35,32 @@ replacing the model identifier and input with your own:
 
 ```python
 >>> import replicate
->>> replicate.run(
+>>> output = replicate.run(
         "stability-ai/stable-diffusion:27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478",
         input={"prompt": "a 19th century portrait of a wombat gentleman"}
     )
 
-['https://replicate.com/api/models/stability-ai/stable-diffusion/files/50fcac81-865d-499e-81ac-49de0cb79264/out-0.png']
+>>> output.url()  # Get the URL or data URI for the image
+'https://replicate.delivery/...'
+
+>>> # Save the file directly to disk
+>>> with open("wombat.png", "wb") as f:
+...     output.save(f)
 ```
+
+> [!NOTE]
+> Models that output files return a `FileOutput` object that can be used to access or save the file data. 
+> The `url()` method returns either a remote URL or a data URI containing the file contents, optimized 
+> for fast delivery.
+> 
+> If you prefer the old behavior of receiving URLs directly, you can disable this feature:
+> ```python
+> replicate.run(
+>     "stability-ai/stable-diffusion",
+>     input={"prompt": "wombat gentleman"},
+>     use_file_output=False
+> )
+> ```
 
 > [!TIP]
 > You can also use the Replicate client asynchronously by prepending `async_` to the method name. 
@@ -99,6 +118,20 @@ except ModelError as e
   print("Failed prediction: " + e.prediction.id)
 ```
 
+> [!NOTE]
+> By default, `replicate.run()` uses a synchronous connection that waits for the model to complete.
+> For longer-running models, you can use polling mode instead:
+>
+> ```python
+> output = replicate.run(
+>     "stability-ai/stable-diffusion",
+>     input={"prompt": "wombat gentleman"},
+>     wait={
+>         "type": "poll",  # Use polling instead of blocking
+>         "interval": 0.5  # Poll every 0.5 seconds
+>     }
+> )
+> ```
 
 ## Run a model and stream its output
 
@@ -142,14 +175,16 @@ For more information, see
 
 ## Run a model in the background
 
-You can start a model and run it in the background:
+You can start a model and run it in the background using polling mode:
 
 ```python
 >>> model = replicate.models.get("kvfrans/clipdraw")
 >>> version = model.versions.get("5797a99edc939ea0e9242d5e8c9cb3bc7d125b1eac21bda852e5cb79ede2cd9b")
 >>> prediction = replicate.predictions.create(
     version=version,
-    input={"prompt":"Watercolor painting of an underwater submarine"})
+    input={"prompt": "Watercolor painting of an underwater submarine"},
+    wait={"type": "poll"}  # Use polling instead of blocking
+)
 
 >>> prediction
 Prediction(...)
@@ -175,8 +210,8 @@ iteration: 30, render:loss: -1.3994140625
 >>> prediction.status
 'succeeded'
 
->>> prediction.output
-'https://.../output.png'
+>>> output = prediction.output
+>>> output.save("submarine.png")  # Save the output file
 ```
 
 ## Run a model in the background and get a webhook
@@ -263,20 +298,70 @@ if page1.next:
 
 ## Load output files
 
-Output files are returned as HTTPS URLs. You can load an output file as a buffer:
+Model outputs that return files provide a `FileOutput` object with several methods for handling the data:
 
 ```python
 import replicate
 from PIL import Image
-from urllib.request import urlretrieve
+import io
 
-out = replicate.run(
+output = replicate.run(
     "stability-ai/stable-diffusion:27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478",
     input={"prompt": "wavy colorful abstract patterns, oceans"}
-    )
+)
 
-urlretrieve(out[0], "/tmp/out.png")
-background = Image.open("/tmp/out.png")
+# Save directly to a file
+output.save("output.png")
+
+# Get the URL (may be a data URI for faster delivery)
+url = output.url()
+
+# Load into PIL Image
+image_data = output.read()
+image = Image.open(io.BytesIO(image_data))
+```
+
+## Stream file data
+
+When working with file outputs, you can stream the data in chunks:
+
+```python
+import replicate
+
+output = replicate.run(
+    "stability-ai/stable-diffusion",
+    input={"prompt": "an astronaut riding a horse"}
+)
+
+# Stream the file data in chunks
+for chunk in output:
+    process_chunk(chunk)  # Process each chunk of binary data
+
+# Or stream directly to a file
+with open("astronaut.png", "wb") as f:
+    for chunk in output:
+        f.write(chunk)
+```
+
+This is particularly useful when working with web frameworks:
+
+```python
+from fastapi import FastAPI
+from fastapi.responses import StreamingResponse
+
+app = FastAPI()
+
+@app.get("/generate")
+async def generate_image():
+    output = replicate.run(
+        "stability-ai/stable-diffusion",
+        input={"prompt": "an astronaut riding a horse"}
+    )
+    
+    return StreamingResponse(
+        output,
+        media_type="image/png"
+    )
 ```
 
 ## List models
@@ -376,20 +461,26 @@ The `replicate` package exports a default shared client.
 This client is initialized with an API token
 set by the `REPLICATE_API_TOKEN` environment variable.
 
-You can create your own client instance to
-pass a different API token value,
-add custom headers to requests,
-or control the behavior of the underlying [HTTPX client](https://www.python-httpx.org/api/#client):
+You can create your own client instance to customize its behavior:
 
 ```python
 import os
 from replicate.client import Client
 
 replicate = Client(
-  api_token=os.environ["SOME_OTHER_REPLICATE_API_TOKEN"]
-  headers={
-    "User-Agent": "my-app/1.0"
-  }
+    api_token=os.environ["SOME_OTHER_REPLICATE_API_TOKEN"],
+    headers={
+        "User-Agent": "my-app/1.0"
+    },
+    # Control file output behavior
+    use_file_output=True,  # Enable FileOutput objects (default: True)
+    
+    # Configure default wait behavior
+    wait={
+        "type": "block",      # Use blocking mode (default)
+        "timeout": 60,        # Maximum time to hold connection open
+        "fallback": "poll"    # Fall back to polling if timeout reached
+    }
 )
 ```
 
