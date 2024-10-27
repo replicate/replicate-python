@@ -48,20 +48,6 @@ replacing the model identifier and input with your own:
 ...     output.save(f)
 ```
 
-> [!NOTE]
-> Models that output files return a `FileOutput` object that can be used to access or save the file data. 
-> The `url()` method returns either a remote URL or a data URI containing the file contents, optimized 
-> for fast delivery.
-> 
-> If you prefer the old behavior of receiving URLs directly, you can disable this feature:
-> ```python
-> replicate.run(
->     "stability-ai/stable-diffusion",
->     input={"prompt": "wombat gentleman"},
->     use_file_output=False
-> )
-> ```
-
 > [!TIP]
 > You can also use the Replicate client asynchronously by prepending `async_` to the method name. 
 > 
