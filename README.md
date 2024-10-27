@@ -2,6 +2,21 @@
 
 This is a Python client for [Replicate](https://replicate.com). It lets you run models from your Python code or Jupyter notebook, and do various other things on Replicate.
 
+## Breaking Changes in 1.0.0
+
+The 1.0.0 release contains breaking changes:
+
+- The `replicate.run()` method now returns `FileObject`s instead of URL strings by default for models that output files.
+- `FileObject` implements an iterable interface similar to `httpx.Response`, making it easier to work with files efficiently.
+
+To revert to the previous behavior, you can opt out of `FileObject` by passing `use_file_output=False`:
+
+```python
+output = replicate.run("acmecorp/acme-model", use_file_output=False)
+```
+
+In most cases, updating existing applications to call `output.url()` should resolve any issues.
+
 > **👋** Check out an interactive version of this tutorial on [Google Colab](https://colab.research.google.com/drive/1K91q4p-OhL96FHBAVLsv9FlwFdu6Pn3c).
 >
 > [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1K91q4p-OhL96FHBAVLsv9FlwFdu6Pn3c)
@@ -36,89 +51,56 @@ replacing the model identifier and input with your own:
 ```python
 >>> import replicate
 >>> output = replicate.run(
-        "stability-ai/stable-diffusion:27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478",
-        input={"prompt": "a 19th century portrait of a wombat gentleman"}
+        "black-forest-labs/flux-schnell",
+        input={"prompt": "astronaut riding a rocket like a horse"}
     )
 
->>> output.url()  # Get the URL or data URI for the image
+>>> output.url()  # Get the URL for the image
 'https://replicate.delivery/...'
 
 >>> # Save the file directly to disk
->>> with open("wombat.png", "wb") as f:
-...     output.save(f)
-```
+>>> with open("astronaut.png", "wb") as f:
+...     f.write(output.read())
 
-> [!TIP]
-> You can also use the Replicate client asynchronously by prepending `async_` to the method name. 
-> 
-> Here's an example of how to run several predictions concurrently and wait for them all to complete:
->
-> ```python
-> import asyncio
-> import replicate
-> 
-> # https://replicate.com/stability-ai/sdxl
-> model_version = "stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"
-> prompts = [
->     f"A chariot pulled by a team of {count} rainbow unicorns"
->     for count in ["two", "four", "six", "eight"]
-> ]
->
-> async with asyncio.TaskGroup() as tg:
->     tasks = [
->         tg.create_task(replicate.async_run(model_version, input={"prompt": prompt}))
->         for prompt in prompts
->     ]
->
-> results = await asyncio.gather(*tasks)
-> print(results)
-> ```
-
-To run a model that takes a file input you can pass either
-a URL to a publicly accessible file on the Internet
-or a handle to a file on your local device.
-
-```python
->>> output = replicate.run(
-        "andreasjansson/blip-2:f677695e5e89f8b236e52ecd1d3f01beb44c34606419bcc19345e046d8f786f9",
-        input={ "image": open("path/to/mystery.jpg") }
-    )
-
-"an astronaut riding a horse"
-```
-
-`replicate.run` raises `ModelError` if the prediction fails.
-You can access the exception's `prediction` property 
-to get more information about the failure.
-
-```python
-import replicate
-from replicate.exceptions import ModelError
-
-try:
-  output = replicate.run("stability-ai/stable-diffusion-3", { "prompt": "An astronaut riding a rainbow unicorn" })
-except ModelError as e
-  if "(some known issue)" in e.prediction.logs:
-    pass
-
-  print("Failed prediction: " + e.prediction.id)
+>>> # For very large files, you can stream the content
+>>> with open("large_file.bin", "wb") as f:
+...     for chunk in output:
+...         f.write(chunk)
 ```
 
 > [!NOTE]
-> By default, `replicate.run()` uses a synchronous connection that waits for the model to complete.
-> For longer-running models, you can use polling mode instead:
->
-> ```python
-> output = replicate.run(
->     "stability-ai/stable-diffusion",
->     input={"prompt": "wombat gentleman"},
->     wait={
->         "type": "poll",  # Use polling instead of blocking
->         "interval": 0.5  # Poll every 0.5 seconds
->     }
-> )
-> ```
+> The `FileObject` returned by `replicate.run()` for file outputs provides methods like `url()`, `read()`, 
+> and supports iteration for efficient handling of large files.
 
+## Async Usage
+
+The Replicate client supports asynchronous operations. Here's how to use the async API:
+
+```python
+import asyncio
+import aiofiles
+import replicate
+
+async def save_file(output, filename):
+    async with aiofiles.open(filename, 'wb') as f:
+        await f.write(await output.aread())
+
+async def stream_file(output, filename):
+    async with aiofiles.open(filename, 'wb') as f:
+        async for chunk in output:
+            await f.write(chunk)
+
+async def main():
+    output = await replicate.async_run(
+        "black-forest-labs/flux-schnell",
+        input={"prompt": "astronaut riding a rocket like a horse"}
+    )
+    
+    await save_file(output, "astronaut1.png")
+    await stream_file(output, "astronaut2.png")
+
+asyncio.run(main())
+```
 ## Run a model and stream its output
 
 Replicate’s API supports server-sent event streams (SSEs) for language models. 
@@ -292,7 +274,7 @@ from PIL import Image
 import io
 
 output = replicate.run(
-    "stability-ai/stable-diffusion:27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478",
+    "black-forest-labs/flux-schnell",
     input={"prompt": "wavy colorful abstract patterns, oceans"}
 )
 
@@ -315,7 +297,7 @@ When working with file outputs, you can stream the data in chunks:
 import replicate
 
 output = replicate.run(
-    "stability-ai/stable-diffusion",
+    "black-forest-labs/flux-schnell",
     input={"prompt": "an astronaut riding a horse"}
 )
 
@@ -340,7 +322,7 @@ app = FastAPI()
 @app.get("/generate")
 async def generate_image():
     output = replicate.run(
-        "stability-ai/stable-diffusion",
+        "black-forest-labs/flux-schnell",
         input={"prompt": "an astronaut riding a horse"}
     )
     
