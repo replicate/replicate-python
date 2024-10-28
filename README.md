@@ -43,45 +43,6 @@ replacing the model identifier and input with your own:
 [<replicate.helpers.FileOutput object at 0x107179b50>]
 ```
 
-> [!TIP]
-> You can also use the Replicate client asynchronously by prepending `async_` to the method name. 
-> 
-> Here's an example of how to run several predictions concurrently and wait for them all to complete:
->
-> ```python
-> import asyncio
-> import replicate
-> 
-> # https://replicate.com/stability-ai/sdxl
-> model_version = "stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"
-> prompts = [
->     f"A chariot pulled by a team of {count} rainbow unicorns"
->     for count in ["two", "four", "six", "eight"]
-> ]
->
-> async with asyncio.TaskGroup() as tg:
->     tasks = [
->         tg.create_task(replicate.async_run(model_version, input={"prompt": prompt}))
->         for prompt in prompts
->     ]
->
-> results = await asyncio.gather(*tasks)
-> print(results)
-> ```
-
-To run a model that takes a file input you can pass either
-a URL to a publicly accessible file on the Internet
-or a handle to a file on your local device.
-
-```python
->>> output = replicate.run(
-        "andreasjansson/blip-2:f677695e5e89f8b236e52ecd1d3f01beb44c34606419bcc19345e046d8f786f9",
-        input={ "image": open("path/to/mystery.jpg") }
-    )
-
-"an astronaut riding a horse"
-```
-
 `replicate.run` raises `ModelError` if the prediction fails.
 You can access the exception's `prediction` property 
 to get more information about the failure.
@@ -99,6 +60,55 @@ except ModelError as e
   print("Failed prediction: " + e.prediction.id)
 ```
 
+> [!NOTE]
+> By default the Replicate client will hold the connection open for up to 60 seconds while waiting
+> for the prediction to complete. This is designed to optimize getting the model output back to the
+> client as quickly as possible. For models that output files the file data will be inlined into
+> the response as a data-uri.
+>
+> The timeout can be configured by passing `wait=x` to `replicate.run()` where `x` is a timeout
+> in seconds between 1 and 60. To disable the sync mode and the data-uri response you can pass
+> `wait=False` to `replicate.run()`.
+
+## AsyncIO support
+
+You can also use the Replicate client asynchronously by prepending `async_` to the method name. 
+
+Here's an example of how to run several predictions concurrently and wait for them all to complete:
+
+```python
+import asyncio
+import replicate
+ 
+# https://replicate.com/stability-ai/sdxl
+model_version = "stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"
+prompts = [
+    f"A chariot pulled by a team of {count} rainbow unicorns"
+    for count in ["two", "four", "six", "eight"]
+]
+
+async with asyncio.TaskGroup() as tg:
+    tasks = [
+        tg.create_task(replicate.async_run(model_version, input={"prompt": prompt}))
+        for prompt in prompts
+    ]
+
+results = await asyncio.gather(*tasks)
+print(results)
+```
+
+To run a model that takes a file input you can pass either
+a URL to a publicly accessible file on the Internet
+or a handle to a file on your local device.
+
+```python
+>>> output = replicate.run(
+        "andreasjansson/blip-2:f677695e5e89f8b236e52ecd1d3f01beb44c34606419bcc19345e046d8f786f9",
+        input={ "image": open("path/to/mystery.jpg") }
+    )
+
+"an astronaut riding a horse"
+```
 
 ## Run a model and stream its output
 
