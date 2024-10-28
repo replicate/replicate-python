@@ -40,46 +40,7 @@ replacing the model identifier and input with your own:
         input={"prompt": "a 19th century portrait of a wombat gentleman"}
     )
 
-['https://replicate.com/api/models/stability-ai/stable-diffusion/files/50fcac81-865d-499e-81ac-49de0cb79264/out-0.png']
-```
-
-> [!TIP]
-> You can also use the Replicate client asynchronously by prepending `async_` to the method name. 
-> 
-> Here's an example of how to run several predictions concurrently and wait for them all to complete:
->
-> ```python
-> import asyncio
-> import replicate
-> 
-> # https://replicate.com/stability-ai/sdxl
-> model_version = "stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"
-> prompts = [
->     f"A chariot pulled by a team of {count} rainbow unicorns"
->     for count in ["two", "four", "six", "eight"]
-> ]
->
-> async with asyncio.TaskGroup() as tg:
->     tasks = [
->         tg.create_task(replicate.async_run(model_version, input={"prompt": prompt}))
->         for prompt in prompts
->     ]
->
-> results = await asyncio.gather(*tasks)
-> print(results)
-> ```
-
-To run a model that takes a file input you can pass either
-a URL to a publicly accessible file on the Internet
-or a handle to a file on your local device.
-
-```python
->>> output = replicate.run(
-        "andreasjansson/blip-2:f677695e5e89f8b236e52ecd1d3f01beb44c34606419bcc19345e046d8f786f9",
-        input={ "image": open("path/to/mystery.jpg") }
-    )
-
-"an astronaut riding a horse"
+[<replicate.helpers.FileOutput object at 0x107179b50>]
 ```
 
 `replicate.run` raises `ModelError` if the prediction fails.
@@ -99,6 +60,55 @@ except ModelError as e
   print("Failed prediction: " + e.prediction.id)
 ```
 
+> [!NOTE]
+> By default the Replicate client will hold the connection open for up to 60 seconds while waiting
+> for the prediction to complete. This is designed to optimize getting the model output back to the
+> client as quickly as possible. For models that output files the file data will be inlined into
+> the response as a data-uri.
+>
+> The timeout can be configured by passing `wait=x` to `replicate.run()` where `x` is a timeout
+> in seconds between 1 and 60. To disable the sync mode and the data-uri response you can pass
+> `wait=False` to `replicate.run()`.
+
+## AsyncIO support
+
+You can also use the Replicate client asynchronously by prepending `async_` to the method name. 
+
+Here's an example of how to run several predictions concurrently and wait for them all to complete:
+
+```python
+import asyncio
+import replicate
+ 
+# https://replicate.com/stability-ai/sdxl
+model_version = "stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"
+prompts = [
+    f"A chariot pulled by a team of {count} rainbow unicorns"
+    for count in ["two", "four", "six", "eight"]
+]
+
+async with asyncio.TaskGroup() as tg:
+    tasks = [
+        tg.create_task(replicate.async_run(model_version, input={"prompt": prompt}))
+        for prompt in prompts
+    ]
+
+results = await asyncio.gather(*tasks)
+print(results)
+```
+
+To run a model that takes a file input you can pass either
+a URL to a publicly accessible file on the Internet
+or a handle to a file on your local device.
+
+```python
+>>> output = replicate.run(
+        "andreasjansson/blip-2:f677695e5e89f8b236e52ecd1d3f01beb44c34606419bcc19345e046d8f786f9",
+        input={ "image": open("path/to/mystery.jpg") }
+    )
+
+"an astronaut riding a horse"
+```
 
 ## Run a model and stream its output
 
@@ -176,7 +186,7 @@ iteration: 30, render:loss: -1.3994140625
 'succeeded'
 
 >>> prediction.output
-'https://.../output.png'
+<replicate.helpers.FileOutput object at 0x107179b50>
 ```
 
 ## Run a model in the background and get a webhook
@@ -217,8 +227,9 @@ iterator = replicate.run(
     input={"prompts": "san francisco sunset"}
 )
 
-for image in iterator:
-    display(image)
+for index, image in enumerate(iterator):
+    with open(f"file_{index}.png", "wb") as file:
+        file.write(image.read())
 ```
 
 ## Cancel a prediction
@@ -263,20 +274,104 @@ if page1.next:
 
 ## Load output files
 
-Output files are returned as HTTPS URLs. You can load an output file as a buffer:
+Output files are returned as `FileOutput` objects:
 
 ```python
 import replicate
-from PIL import Image
-from urllib.request import urlretrieve
+from PIL import Image # pip install pillow
 
-out = replicate.run(
+output = replicate.run(
     "stability-ai/stable-diffusion:27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478",
     input={"prompt": "wavy colorful abstract patterns, oceans"}
     )
 
-urlretrieve(out[0], "/tmp/out.png")
-background = Image.open("/tmp/out.png")
+# This has a .read() method that returns the binary data.
+with open("my_output.png", "wb") as file:
+  file.write(output[0].read())
+  
+# It also implements the iterator protocol to stream the data.
+background = Image.open(output[0])
+```
+
+### FileOutput
+
+Is a file-like object returned from the `replicate.run()` method that makes it easier to work with models
+that output files. It implements `Iterator` and `AsyncIterator` for reading the file data in chunks as well
+as `read` and `aread()` to read the entire file into memory.
+
+Lastly, the underlying datasource is available on the `url` attribute.
+
+> [!NOTE]
+> The `url` attribute can vary between a remote URL and a data-uri depending on whether the server has
+> optimized the request. For small files <5mb using the syncronous API data-uris will be returned to
+> remove the need to make subsequent requests for the file data. To disable this pass `wait=false`
+> to the replicate.run() function.
+
+To access the file URL:
+
+```python
+print(output.url) #=> "data:image/png;base64,xyz123..." or "https://delivery.replicate.com/..."
+```
+
+To consume the file directly:
+
+```python
+with open('output.bin', 'wb') as file:
+    file.write(output.read())
+```
+
+Or for very large files they can be streamed:
+
+```python
+with open(file_path, 'wb') as file:
+    for chunk in output:
+        file.write(chunk)
+```
+
+Each of these methods has an equivalent `asyncio` API.
+
+```python
+async with aiofiles.open(filename, 'w') as file:
+    await file.write(await output.aread())
+
+async with aiofiles.open(filename, 'w') as file:
+    await for chunk in output:
+        await file.write(chunk)
+```
+
+For streaming responses from common frameworks, all support taking `Iterator` types:
+
+**Django**
+
+```python
+@condition(etag_func=None)
+def stream_response(request):
+    output = replicate.run("black-forest-labs/flux-schnell", input={...}, use_file_output =True)
+    return HttpResponse(output, content_type='image/webp')
+```
+  
+**FastAPI**
+
+```python
+@app.get("/")
+async def main():
+    output = replicate.run("black-forest-labs/flux-schnell", input={...}, use_file_output =True)
+    return StreamingResponse(output)
+```
+
+**Flask**
+
+```python
+@app.route('/stream')
+def streamed_response():
+    output = replicate.run("black-forest-labs/flux-schnell", input={...}, use_file_output =True)
+    return app.response_class(stream_with_context(output))
+```
+
+You can opt out of `FileOutput` by passing `use_file_output=False` to the `replicate.run()` method.
+
+```python
+const replicate = replicate.run("acmecorp/acme-model", use_file_output=False);
 ```
 
 ## List models
