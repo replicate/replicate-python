@@ -26,6 +26,7 @@ from replicate.deployment import Deployments
 from replicate.exceptions import ReplicateError
 from replicate.file import Files
 from replicate.hardware import HardwareNamespace as Hardware
+from replicate.helpers import FileOutput
 from replicate.model import Models
 from replicate.prediction import Predictions
 from replicate.run import async_run, run
