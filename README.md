@@ -6,15 +6,15 @@ This is a Python client for [Replicate](https://replicate.com). It lets you run 
 
 The 1.0.0 release contains breaking changes:
 
-- The `replicate.run()` method now returns `FileObject`s instead of URL strings by default for models that output files. `FileObject` implements an iterable interface similar to `httpx.Response`, making it easier to work with files efficiently.
+- The `replicate.run()` method now returns `FileOutput`s instead of URL strings by default for models that output files. `FileOutput` implements an iterable interface similar to `httpx.Response`, making it easier to work with files efficiently.
 
-To revert to the previous behavior, you can opt out of `FileObject` by passing `use_file_output=False` to `replicate.run()`:
+To revert to the previous behavior, you can opt out of `FileOutput` by passing `use_file_output=False` to `replicate.run()`:
 
 ```python
 output = replicate.run("acmecorp/acme-model", use_file_output=False)
 ```
 
-In most cases, updating existing applications to call `output.url()` should resolve any issues.
+In most cases, updating existing applications to call `output.url` should resolve any issues. But we recommend using the `FileOutput` objects directly as we have further improvements planned to this API and this approach is guaranteed to give the fastest results.
 
 > [!TIP]
 > **👋** Check out an interactive version of this tutorial on [Google Colab](https://colab.research.google.com/drive/1K91q4p-OhL96FHBAVLsv9FlwFdu6Pn3c).
@@ -49,7 +49,7 @@ Create a new Python file and add the following code, replacing the model identif
 
 ```python
 >>> import replicate
->>> output = replicate.run(
+>>> outputs = replicate.run(
         "black-forest-labs/flux-schnell",
         input={"prompt": "astronaut riding a rocket like a horse"}
     )
@@ -173,8 +173,7 @@ You can start a model and run it in the background using async mode:
 >>> version = model.versions.get("5797a99edc939ea0e9242d5e8c9cb3bc7d125b1eac21bda852e5cb79ede2cd9b")
 >>> prediction = replicate.predictions.create(
     version=version,
-    input={"prompt":"Watercolor painting of an underwater submarine"}
-    wait=False) # Use polling instead of blocking
+    input={"prompt":"Watercolor painting of an underwater submarine"})
 
 >>> prediction
 Prediction(...)
@@ -313,9 +312,12 @@ background = Image.open(output[0])
 
 ### FileOutput
 
-Is a file-like object returned from the `replicate.run()` method that makes it easier to work with models that output files. It implements `Iterator` and `AsyncIterator` for reading the file data in chunks as well as `read` and `aread()` to read the entire file into memory.
+Is a [file-like](https://docs.python.org/3/glossary.html#term-file-object) object returned from the `replicate.run()` method that makes it easier to work with models that output files. It implements `Iterator` and `AsyncIterator` for reading the file data in chunks as well as `read()` and `aread()` to read the entire file into memory.
 
-Lastly, the URL of the underlying data source is available on the `url` attribute.
+> [!NOTE]
+> It is worth noting that at this time `read()` and `aread()` do not currently accept a `size` argument to read up to `size` bytes.
+
+Lastly, the URL of the underlying data source is available on the `url` attribute though we recommend you use the object as an iterator or use its `read()` or `aread()` methods, as the `url` property may not always return HTTP URLs in future.
 
 ```python
 print(output.url) #=> "data:image/png;base64,xyz123..." or "https://delivery.replicate.com/..."
