@@ -2,6 +2,21 @@
 
 This is a Python client for [Replicate](https://replicate.com). It lets you run models from your Python code or Jupyter notebook, and do various other things on Replicate.
 
+## Breaking Changes in 1.0.0
+
+The 1.0.0 release contains breaking changes:
+
+- The `replicate.run()` method now returns `FileOutput`s instead of URL strings by default for models that output files. `FileOutput` implements an iterable interface similar to `httpx.Response`, making it easier to work with files efficiently.
+
+To revert to the previous behavior, you can opt out of `FileOutput` by passing `use_file_output=False` to `replicate.run()`:
+
+```python
+output = replicate.run("acmecorp/acme-model", use_file_output=False)
+```
+
+In most cases, updating existing applications to call `output.url` should resolve any issues. But we recommend using the `FileOutput` objects directly as we have further improvements planned to this API and this approach is guaranteed to give the fastest results.
+
+> [!TIP]
 > **👋** Check out an interactive version of this tutorial on [Google Colab](https://colab.research.google.com/drive/1K91q4p-OhL96FHBAVLsv9FlwFdu6Pn3c).
 >
 > [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1K91q4p-OhL96FHBAVLsv9FlwFdu6Pn3c)
@@ -30,17 +45,18 @@ We recommend not adding the token directly to your source code, because you don'
 
 ## Run a model
 
-Create a new Python file and add the following code, 
-replacing the model identifier and input with your own:
+Create a new Python file and add the following code, replacing the model identifier and input with your own:
 
 ```python
 >>> import replicate
->>> replicate.run(
-        "stability-ai/stable-diffusion:27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478",
-        input={"prompt": "a 19th century portrait of a wombat gentleman"}
+>>> outputs = replicate.run(
+        "black-forest-labs/flux-schnell",
+        input={"prompt": "astronaut riding a rocket like a horse"}
     )
-
 [<replicate.helpers.FileOutput object at 0x107179b50>]
+>>> for index, output in enumerate(outputs):
+        with open(f"output_{index}.webp", "wb") as file:
+            file.write(output.read())
 ```
 
 `replicate.run` raises `ModelError` if the prediction fails.
@@ -63,12 +79,10 @@ except ModelError as e
 > [!NOTE]
 > By default the Replicate client will hold the connection open for up to 60 seconds while waiting
 > for the prediction to complete. This is designed to optimize getting the model output back to the
-> client as quickly as possible. For models that output files the file data will be inlined into
-> the response as a data-uri.
+> client as quickly as possible.
 >
 > The timeout can be configured by passing `wait=x` to `replicate.run()` where `x` is a timeout
-> in seconds between 1 and 60. To disable the sync mode and the data-uri response you can pass
-> `wait=False` to `replicate.run()`.
+> in seconds between 1 and 60. To disable the sync mode you can pass `wait=False`.
 
 ## AsyncIO support
 
@@ -152,7 +166,7 @@ For more information, see
 
 ## Run a model in the background
 
-You can start a model and run it in the background:
+You can start a model and run it in the background using async mode:
 
 ```python
 >>> model = replicate.models.get("kvfrans/clipdraw")
@@ -187,6 +201,9 @@ iteration: 30, render:loss: -1.3994140625
 
 >>> prediction.output
 <replicate.helpers.FileOutput object at 0x107179b50>
+
+>>> with open("output.png", "wb") as file:
+        file.write(prediction.output.read())
 ```
 
 ## Run a model in the background and get a webhook
@@ -295,19 +312,12 @@ background = Image.open(output[0])
 
 ### FileOutput
 
-Is a file-like object returned from the `replicate.run()` method that makes it easier to work with models
-that output files. It implements `Iterator` and `AsyncIterator` for reading the file data in chunks as well
-as `read` and `aread()` to read the entire file into memory.
-
-Lastly, the underlying datasource is available on the `url` attribute.
+Is a [file-like](https://docs.python.org/3/glossary.html#term-file-object) object returned from the `replicate.run()` method that makes it easier to work with models that output files. It implements `Iterator` and `AsyncIterator` for reading the file data in chunks as well as `read()` and `aread()` to read the entire file into memory.
 
 > [!NOTE]
-> The `url` attribute can vary between a remote URL and a data-uri depending on whether the server has
-> optimized the request. For small files <5mb using the syncronous API data-uris will be returned to
-> remove the need to make subsequent requests for the file data. To disable this pass `wait=false`
-> to the replicate.run() function.
+> It is worth noting that at this time `read()` and `aread()` do not currently accept a `size` argument to read up to `size` bytes.
 
-To access the file URL:
+Lastly, the URL of the underlying data source is available on the `url` attribute though we recommend you use the object as an iterator or use its `read()` or `aread()` methods, as the `url` property may not always return HTTP URLs in future.
 
 ```python
 print(output.url) #=> "data:image/png;base64,xyz123..." or "https://delivery.replicate.com/..."
@@ -439,13 +449,9 @@ Here's how to list of all the available hardware for running models on Replicate
 
 ## Fine-tune a model
 
-Use the [training API](https://replicate.com/docs/fine-tuning) 
-to fine-tune models to make them better at a particular task. 
-To see what **language models** currently support fine-tuning, 
-check out Replicate's [collection of trainable language models](https://replicate.com/collections/trainable-language-models).
+Use the [training API](https://replicate.com/docs/fine-tuning) to fine-tune models to make them better at a particular task.  To see what **language models** currently support fine-tuning,  check out Replicate's [collection of trainable language models](https://replicate.com/collections/trainable-language-models).
 
-If you're looking to fine-tune **image models**, 
-check out Replicate's [guide to fine-tuning image models](https://replicate.com/docs/guides/fine-tune-an-image-model).
+If you're looking to fine-tune **image models**, check out Replicate's [guide to fine-tuning image models](https://replicate.com/docs/guides/fine-tune-an-image-model).
 
 Here's how to fine-tune a model on Replicate:
 
@@ -467,24 +473,19 @@ training = replicate.trainings.create(
 
 ## Customize client behavior
 
-The `replicate` package exports a default shared client.
-This client is initialized with an API token
-set by the `REPLICATE_API_TOKEN` environment variable.
+The `replicate` package exports a default shared client. This client is initialized with an API token set by the `REPLICATE_API_TOKEN` environment variable.
 
-You can create your own client instance to
-pass a different API token value,
-add custom headers to requests,
-or control the behavior of the underlying [HTTPX client](https://www.python-httpx.org/api/#client):
+You can create your own client instance to pass a different API token value, add custom headers to requests, or control the behavior of the underlying [HTTPX client](https://www.python-httpx.org/api/#client):
 
 ```python
 import os
 from replicate.client import Client
 
 replicate = Client(
-  api_token=os.environ["SOME_OTHER_REPLICATE_API_TOKEN"]
-  headers={
-    "User-Agent": "my-app/1.0"
-  }
+    api_token=os.environ["SOME_OTHER_REPLICATE_API_TOKEN"]
+    headers={
+        "User-Agent": "my-app/1.0"
+    }
 )
 ```
 
