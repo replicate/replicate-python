@@ -43,7 +43,7 @@ def encode_json(
             return encode_json(file, client, file_encoding_strategy)
     if isinstance(obj, io.IOBase):
         if file_encoding_strategy == "base64":
-            return base64.b64encode(obj.read()).decode("utf-8")
+            return base64_encode_file(obj)
         else:
             return client.files.create(obj).urls["get"]
     if HAS_NUMPY:
@@ -77,9 +77,13 @@ async def async_encode_json(
         ]
     if isinstance(obj, Path):
         with obj.open("rb") as file:
-            return encode_json(file, client, file_encoding_strategy)
+            return await async_encode_json(file, client, file_encoding_strategy)
     if isinstance(obj, io.IOBase):
-        return (await client.files.async_create(obj)).urls["get"]
+        if file_encoding_strategy == "base64":
+            # TODO: This should ideally use an async based file reader path.
+            return base64_encode_file(obj)
+        else:
+            return (await client.files.async_create(obj)).urls["get"]
     if HAS_NUMPY:
         if isinstance(obj, np.integer):  # type: ignore
             return int(obj)
