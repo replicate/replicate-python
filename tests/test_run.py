@@ -1,5 +1,10 @@
 import asyncio
+import io
+import json
 import sys
+from email.message import EmailMessage
+from email.parser import BytesParser
+from email.policy import HTTP
 from typing import AsyncIterator, Iterator, Optional, cast
 
 import httpx
@@ -579,6 +584,130 @@ async def test_run_with_model_error(mock_replicate_api_token):
     assert str(excinfo.value) == "OOM"
     assert excinfo.value.prediction.error == "OOM"
     assert excinfo.value.prediction.status == "failed"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_run_with_file_input_files_api(async_flag, mock_replicate_api_token):
+    router = respx.Router(base_url="https://api.replicate.com/v1")
+    mock_predictions_create = router.route(method="POST", path="/predictions").mock(
+        return_value=httpx.Response(
+            201,
+            json=_prediction_with_status("processing"),
+        )
+    )
+    router.route(
+        method="GET",
+        path="/models/test/example/versions/v1",
+    ).mock(
+        return_value=httpx.Response(
+            200,
+            json=_version_with_schema(),
+        )
+    )
+    mock_files_create = router.route(
+        method="POST",
+        path="/files",
+    ).mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "id": "file1",
+                "name": "file.png",
+                "content_type": "image/png",
+                "size": 10,
+                "etag": "123",
+                "checksums": {},
+                "metadata": {},
+                "created_at": "",
+                "expires_at": "",
+                "urls": {"get": "https://api.replicate.com/files/file.txt"},
+            },
+        )
+    )
+    router.route(host="api.replicate.com").pass_through()
+
+    client = Client(
+        api_token="test-token", transport=httpx.MockTransport(router.handler)
+    )
+    if async_flag:
+        await client.async_run(
+            "test/example:v1",
+            input={"file": io.BytesIO(initial_bytes=b"hello world")},
+        )
+    else:
+        client.run(
+            "test/example:v1",
+            input={"file": io.BytesIO(initial_bytes=b"hello world")},
+        )
+
+    assert mock_predictions_create.called
+    prediction_payload = json.loads(mock_predictions_create.calls[0].request.content)
+    assert (
+        prediction_payload.get("input", {}).get("file")
+        == "https://api.replicate.com/files/file.txt"
+    )
+
+    # Validate the Files API request
+    req = mock_files_create.calls[0].request
+    body = req.content
+    content_type = req.headers["Content-Type"]
+
+    # Parse the multipart data
+    parser = BytesParser(EmailMessage, policy=HTTP)
+    headers = f"Content-Type: {content_type}\n\n".encode()
+    parsed_message_generator = parser.parsebytes(headers + body).walk()
+    next(parsed_message_generator)  # wrapper
+    input_file = next(parsed_message_generator)
+    assert mock_files_create.called
+    assert input_file.get_content() == b"hello world"
+    assert input_file.get_content_type() == "application/octet-stream"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_run_with_file_input_data_url(async_flag, mock_replicate_api_token):
+    router = respx.Router(base_url="https://api.replicate.com/v1")
+    mock_predictions_create = router.route(method="POST", path="/predictions").mock(
+        return_value=httpx.Response(
+            201,
+            json=_prediction_with_status("processing"),
+        )
+    )
+    router.route(
+        method="GET",
+        path="/models/test/example/versions/v1",
+    ).mock(
+        return_value=httpx.Response(
+            200,
+            json=_version_with_schema(),
+        )
+    )
+    router.route(host="api.replicate.com").pass_through()
+
+    client = Client(
+        api_token="test-token", transport=httpx.MockTransport(router.handler)
+    )
+
+    if async_flag:
+        await client.async_run(
+            "test/example:v1",
+            input={"file": io.BytesIO(initial_bytes=b"hello world")},
+            file_encoding_strategy="base64",
+        )
+    else:
+        client.run(
+            "test/example:v1",
+            input={"file": io.BytesIO(initial_bytes=b"hello world")},
+            file_encoding_strategy="base64",
+        )
+
+    assert mock_predictions_create.called
+    prediction_payload = json.loads(mock_predictions_create.calls[0].request.content)
+    assert (
+        prediction_payload.get("input", {}).get("file")
+        == "data:application/octet-stream;base64,aGVsbG8gd29ybGQ="
+    )
 
 
 @pytest.mark.asyncio
