@@ -91,3 +91,4 @@ ignore = [
 [tool.pyright]
 venvPath = "."
 venv = ".venv"
+[![Python application](https://github.com/Naweedfazli77/Naweed-Fazli/actions/workflows/python-app.yml/badge.svg?branch=main&event=public)](https://github.com/Naweedfazli77/Naweed-Fazli/actions/workflows/python-app.yml)
