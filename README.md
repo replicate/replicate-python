@@ -151,7 +151,7 @@ This is helpful when you want the ID of the prediction separate from its output.
 
 ```python
 prediction = replicate.predictions.create(
-    model="meta/meta-llama-3-70b-instruct"
+    model="meta/meta-llama-3-70b-instruct",
     input={"prompt": "Please write a haiku about llamas."},
     stream=True,
 )
