@@ -95,9 +95,9 @@ def test_custom_headers_are_applied():
 
     def mock_send(request):
         assert "User-Agent" in request.headers, "Custom header not found in request"
-        assert (
-            request.headers["User-Agent"] == "my-custom-user-agent/1.0"
-        ), "Custom header value is incorrect"
+        assert request.headers["User-Agent"] == "my-custom-user-agent/1.0", (
+            "Custom header value is incorrect"
+        )
         return httpx.Response(401, json={})
 
     mock_send_wrapper = mock.Mock(side_effect=mock_send)
