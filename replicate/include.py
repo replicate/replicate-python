@@ -1,7 +1,7 @@
 import os
 import sys
+import threading
 from contextlib import contextmanager
-from contextvars import ContextVar
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, Literal, Optional, Tuple
 
@@ -13,38 +13,75 @@ from .prediction import Prediction
 from .run import _has_output_iterator_array_type
 from .version import Version
 
-__all__ = ["include"]
+__all__ = ["get_run_state", "get_run_token", "include", "run_state", "run_token"]
 
 
-_RUN_STATE: ContextVar[Literal["load", "setup", "run"] | None] = ContextVar(
-    "run_state",
-    default=None,
-)
-_RUN_TOKEN: ContextVar[str | None] = ContextVar("run_token", default=None)
+_run_state: Optional[Literal["load", "setup", "run"]] = None
+_run_token: Optional[str] = None
+
+_state_stack = []
+_token_stack = []
+
+_state_lock = threading.RLock()
+_token_lock = threading.RLock()
+
+
+def get_run_state() -> Optional[Literal["load", "setup", "run"]]:
+    """
+    Get the current run state.
+    """
+    return _run_state
+
+
+def get_run_token() -> Optional[str]:
+    """
+    Get the current API token.
+    """
+    return _run_token
 
 
 @contextmanager
 def run_state(state: Literal["load", "setup", "run"]) -> Any:
     """
-    Internal context manager for execution state.
+    Context manager for setting the current run state.
     """
-    s = _RUN_STATE.set(state)
+    global _run_state
+
+    if threading.current_thread() is not threading.main_thread():
+        raise RuntimeError("Only the main thread can modify run state")
+
+    with _state_lock:
+        _state_stack.append(_run_state)
+
+        _run_state = state
+
     try:
         yield
     finally:
-        _RUN_STATE.reset(s)
+        with _state_lock:
+            _run_state = _state_stack.pop()
 
 
 @contextmanager
 def run_token(token: str) -> Any:
     """
-    Sets the API token for the current context.
+    Context manager for setting the current API token.
     """
-    t = _RUN_TOKEN.set(token)
+    global _run_token
+
+    if threading.current_thread() is not threading.main_thread():
+        raise RuntimeError("Only the main thread can modify API token")
+
+    with _token_lock:
+        _token_stack.append(_run_token)
+
+        _run_token = token
+
     try:
         yield
     finally:
-        _RUN_TOKEN.reset(t)
+        with _token_lock:
+            _run_token = _token_stack.pop()
 
 
 def _find_api_token() -> str:
@@ -53,12 +90,11 @@ def _find_api_token() -> str:
         print("Using Replicate API token from environment", file=sys.stderr)
         return token
 
-    token = _RUN_TOKEN.get()
-
-    if not token:
+    current_token = get_run_token()
+    if current_token is None:
         raise ValueError("No run token found")
 
-    return token
+    return current_token
 
 
 @dataclass
@@ -158,7 +194,7 @@ def include(function_ref: str) -> Callable[..., Any]:
 
     This function can only be called at the top level.
     """
-    if _RUN_STATE.get() != "load":
+    if get_run_state() != "load":
         raise RuntimeError("You may only call replicate.include at the top level.")
 
     return Function(function_ref)

@@ -1,4 +1,5 @@
 import os
+import threading
 import unittest.mock as mock
 
 import pytest
@@ -7,6 +8,8 @@ from replicate.exceptions import ModelError
 from replicate.include import (
     Function,
     Run,
+    get_run_state,
+    get_run_token,
     include,
     run_state,
     run_token,
@@ -291,3 +294,48 @@ def test_run_logs(prediction, version):
 
     prediction.reload.assert_called_once()
     assert logs == "log content"
+
+
+def test_thread_safety_concepts():
+    with run_state("load"), run_token("test-token"):
+        assert get_run_state() == "load"
+        assert get_run_token() == "test-token"
+
+        results = []
+
+        def worker_thread_fn():
+            thread_sees_state = get_run_state() == "load"
+            thread_sees_token = get_run_token() == "test-token"
+
+            can_modify = True
+            try:
+                with run_state("setup"):
+                    pass
+                can_modify = True
+            except RuntimeError:
+                can_modify = False
+
+            results.append(
+                {
+                    "reads_state": thread_sees_state,
+                    "reads_token": thread_sees_token,
+                    "can_modify": can_modify,
+                }
+            )
+
+        threads = []
+        for _ in range(3):
+            t = threading.Thread(target=worker_thread_fn)
+            threads.append(t)
+            t.start()
+
+        for t in threads:
+            t.join()
+
+        for result in results:
+            assert result["reads_state"]
+            assert result["reads_token"]
+            assert not result["can_modify"]
+
+    assert get_run_state() is None
+    assert get_run_token() is None
