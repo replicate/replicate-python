@@ -1,4 +1,5 @@
 from replicate.client import Client
+from replicate.include import include as _include
 from replicate.pagination import async_paginate as _async_paginate
 from replicate.pagination import paginate as _paginate
 
@@ -21,3 +22,5 @@ models = default_client.models
 predictions = default_client.predictions
 trainings = default_client.trainings
 webhooks = default_client.webhooks
+
+include = _include
