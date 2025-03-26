@@ -16,6 +16,22 @@ from replicate.include import (
 )
 
 
+@pytest.fixture(autouse=True)
+def no_api_token_in_env():
+    """
+    Remove REPLICATE_API_TOKEN from environment during tests and restore it after.
+    """
+    original_token = os.environ.get("REPLICATE_API_TOKEN")
+
+    if "REPLICATE_API_TOKEN" in os.environ:
+        del os.environ["REPLICATE_API_TOKEN"]
+
+    yield
+
+    if original_token is not None:
+        os.environ["REPLICATE_API_TOKEN"] = original_token
+
+
 @pytest.fixture
 def client():
     with mock.patch("replicate.Client") as client_class:
@@ -111,10 +127,11 @@ def test_find_api_token_from_context(client):
 
 
 def test_find_api_token_raises_error():
-    with mock.patch.dict(os.environ, {}, clear=True):
-        fn = Function("owner/model:version")
-        with pytest.raises(ValueError, match="No run token found"):
-            fn._client()
+    assert "REPLICATE_API_TOKEN" not in os.environ
+
+    fn = Function("owner/model:version")
+    with pytest.raises(ValueError, match="No run token found"):
+        fn._client()
 
 
 def test_include_outside_load_state():
