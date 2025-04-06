@@ -126,13 +126,14 @@ async def test_file_prediction(async_flag):
 
     with tempfile.NamedTemporaryFile(delete=False) as temp_file:
         temp_file.write(response.content)
+        temp_file.seek(0)  # Rewind to start so it can be read
 
         model = "fofr/flux-dev-controlnet:56ac7b66bd9a1b5eb7d15da5ac5625e4c8c9c5bc26da892caf6249cf38a611ed"
         input = {
             "steps": 28,
             "prompt": "a cyberpunk with natural greys and whites and browns",
             "control_type": "depth",
-            "control_image": open(temp_file.name, "rb"),
+            "control_image": temp_file,  # File is still open for reading
             "output_format": "webp",
             "guidance_scale": 2.5,
             "output_quality": 100,
