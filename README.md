@@ -401,6 +401,8 @@ from replicate.pagination import paginate
 models = []
 for page in paginate(replicate.models.list):
     models.extend(page)
+    if len(models) > 100:
+        break
 
 # Manual pagination using `next` cursors
 page = replicate.models.list()
