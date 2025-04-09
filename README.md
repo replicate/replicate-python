@@ -396,11 +396,11 @@ Lists of models are paginated. You can get the next page of models by passing th
 
 ```python
 # Automatic pagination using `replicate.paginate` (recommended)
+from replicate.pagination import paginate
+
 models = []
-for page in replicate.paginate(replicate.models.list):
-    models.extend(page.results)
-    if len(models) > 100:
-        break
+for page in paginate(client.trainings.list):
+    models.extend(page)
 
 # Manual pagination using `next` cursors
 page = replicate.models.list()
