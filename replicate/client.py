@@ -348,6 +348,22 @@ class RetryTransport(httpx.AsyncBaseTransport, httpx.BaseTransport):
         self._wrapped_transport.close()  # type: ignore
 
 
+def _get_api_token_from_environment() -> Optional[str]:
+    """Get API token from cog current scope if available, otherwise from environment."""
+    try:
+        import cog
+
+        if hasattr(cog, "current_scope"):
+            scope = cog.current_scope()
+            if scope and hasattr(scope, "content") and isinstance(scope.content, dict):
+                if "replicate_api_token" in scope.content:
+                    return scope.content["replicate_api_token"]
+    except (ImportError, AttributeError, Exception):
+        pass
+
+    return os.environ.get("REPLICATE_API_TOKEN")
+
+
 def _build_httpx_client(
     client_type: Type[Union[httpx.Client, httpx.AsyncClient]],
     api_token: Optional[str] = None,
@@ -359,7 +375,7 @@ def _build_httpx_client(
     if "User-Agent" not in headers:
         headers["User-Agent"] = f"replicate-python/{__version__}"
     if "Authorization" not in headers and (
-        api_token := api_token or os.environ.get("REPLICATE_API_TOKEN")
+        api_token := api_token or _get_api_token_from_environment()
     ):
         headers["Authorization"] = f"Bearer {api_token}"
 
