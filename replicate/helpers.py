@@ -44,8 +44,7 @@ def encode_json(
     if isinstance(obj, io.IOBase):
         if file_encoding_strategy == "base64":
             return base64_encode_file(obj)
-        else:
-            return client.files.create(obj).urls["get"]
+        return client.files.create(obj).urls["get"]
     if HAS_NUMPY:
         if isinstance(obj, np.integer):  # type: ignore
             return int(obj)
@@ -82,8 +81,7 @@ async def async_encode_json(
         if file_encoding_strategy == "base64":
             # TODO: This should ideally use an async based file reader path.
             return base64_encode_file(obj)
-        else:
-            return (await client.files.async_create(obj)).urls["get"]
+        return (await client.files.async_create(obj)).urls["get"]
     if HAS_NUMPY:
         if isinstance(obj, np.integer):  # type: ignore
             return int(obj)
@@ -183,9 +181,9 @@ def transform_output(value: Any, client: "Client") -> Any:
     def transform(obj: Any) -> Any:
         if isinstance(obj, Mapping):
             return {k: transform(v) for k, v in obj.items()}
-        elif isinstance(obj, Sequence) and not isinstance(obj, str):
+        if isinstance(obj, Sequence) and not isinstance(obj, str):
             return [transform(item) for item in obj]
-        elif isinstance(obj, str) and (
+        if isinstance(obj, str) and (
             obj.startswith("https:") or obj.startswith("data:")
         ):
             return FileOutput(obj, client)
