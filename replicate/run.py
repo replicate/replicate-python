@@ -38,7 +38,7 @@ def run(
 
     if "wait" not in params:
         params["wait"] = True
-    is_blocking = params["wait"] != False  # noqa: E712
+    is_blocking = params["wait"] is not False
 
     version, owner, name, version_id = identifier._resolve(ref)
 
@@ -108,7 +108,7 @@ async def async_run(
 
     if "wait" not in params:
         params["wait"] = True
-    is_blocking = params["wait"] != False  # noqa: E712
+    is_blocking = params["wait"] is not False
 
     version, owner, name, version_id = identifier._resolve(ref)
 
