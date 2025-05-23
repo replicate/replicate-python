@@ -353,12 +353,9 @@ def _get_api_token_from_environment() -> Optional[str]:
     try:
         import cog
 
-        if hasattr(cog, "current_scope"):
-            scope = cog.current_scope()
-            if scope and hasattr(scope, "context") and isinstance(scope.context, dict):
-                for key, value in scope.context.items():
-                    if key.upper() == "REPLICATE_API_TOKEN":
-                        return scope.context[key]
+        for key, value in cog.current_scope().context.items():
+            if key.upper() == "REPLICATE_API_TOKEN":
+                return value
     except:  # noqa: S110,E722,BLE001 we don't want this code to cause clients to fail
         pass
 
