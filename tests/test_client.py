@@ -127,7 +127,7 @@ class TestGetApiToken:
         with mock.patch.dict(os.environ, {"REPLICATE_API_TOKEN": "env-token"}):
             with mock.patch.dict(sys.modules, {"cog": None}):
                 token = _get_api_token_from_environment()
-                assert token == "env-token"
+                assert token == "env-token"  # noqa: S105
 
     def test_cog_import_error_falls_back_to_env(self):
         """Test fallback to environment when cog import raises exception."""
@@ -137,7 +137,7 @@ class TestGetApiToken:
                 side_effect=ModuleNotFoundError("No module named 'cog'"),
             ):
                 token = _get_api_token_from_environment()
-                assert token == "env-token"
+                assert token == "env-token"  # noqa: S105
 
     def test_cog_no_current_scope_method_falls_back_to_env(self):
         """Test fallback when cog exists but has no current_scope method."""
@@ -147,7 +147,7 @@ class TestGetApiToken:
         with mock.patch.dict(os.environ, {"REPLICATE_API_TOKEN": "env-token"}):
             with mock.patch.dict(sys.modules, {"cog": mock_cog}):
                 token = _get_api_token_from_environment()
-                assert token == "env-token"
+                assert token == "env-token"  # noqa: S105
 
     def test_cog_current_scope_returns_none_falls_back_to_env(self):
         """Test fallback when current_scope() returns None."""
@@ -157,12 +157,12 @@ class TestGetApiToken:
         with mock.patch.dict(os.environ, {"REPLICATE_API_TOKEN": "env-token"}):
             with mock.patch.dict(sys.modules, {"cog": mock_cog}):
                 token = _get_api_token_from_environment()
-                assert token == "env-token"
+                assert token == "env-token"  # noqa: S105
 
-    def test_cog_scope_no_content_attr_falls_back_to_env(self):
-        """Test fallback when scope has no content attribute."""
+    def test_cog_scope_no_context_attr_falls_back_to_env(self):
+        """Test fallback when scope has no context attribute."""
         mock_scope = mock.MagicMock()
-        del mock_scope.content  # Remove the content attribute
+        del mock_scope.context  # Remove the context attribute
 
         mock_cog = mock.MagicMock()
         mock_cog.current_scope.return_value = mock_scope
@@ -170,12 +170,12 @@ class TestGetApiToken:
         with mock.patch.dict(os.environ, {"REPLICATE_API_TOKEN": "env-token"}):
             with mock.patch.dict(sys.modules, {"cog": mock_cog}):
                 token = _get_api_token_from_environment()
-                assert token == "env-token"
+                assert token == "env-token"  # noqa: S105
 
-    def test_cog_scope_content_not_dict_falls_back_to_env(self):
-        """Test fallback when scope.content is not a dictionary."""
+    def test_cog_scope_context_not_dict_falls_back_to_env(self):
+        """Test fallback when scope.context is not a dictionary."""
         mock_scope = mock.MagicMock()
-        mock_scope.content = "not a dict"
+        mock_scope.context = "not a dict"
 
         mock_cog = mock.MagicMock()
         mock_cog.current_scope.return_value = mock_scope
@@ -183,12 +183,12 @@ class TestGetApiToken:
         with mock.patch.dict(os.environ, {"REPLICATE_API_TOKEN": "env-token"}):
             with mock.patch.dict(sys.modules, {"cog": mock_cog}):
                 token = _get_api_token_from_environment()
-                assert token == "env-token"
+                assert token == "env-token"  # noqa: S105
 
     def test_cog_scope_no_replicate_api_token_key_falls_back_to_env(self):
-        """Test fallback when replicate_api_token key is missing from content."""
+        """Test fallback when replicate_api_token key is missing from context."""
         mock_scope = mock.MagicMock()
-        mock_scope.content = {"other_key": "other_value"}  # Missing replicate_api_token
+        mock_scope.context = {"other_key": "other_value"}  # Missing replicate_api_token
 
         mock_cog = mock.MagicMock()
         mock_cog.current_scope.return_value = mock_scope
@@ -196,12 +196,12 @@ class TestGetApiToken:
         with mock.patch.dict(os.environ, {"REPLICATE_API_TOKEN": "env-token"}):
             with mock.patch.dict(sys.modules, {"cog": mock_cog}):
                 token = _get_api_token_from_environment()
-                assert token == "env-token"
+                assert token == "env-token"  # noqa: S105
 
     def test_cog_scope_replicate_api_token_valid_string(self):
         """Test successful retrieval of non-empty token from cog."""
         mock_scope = mock.MagicMock()
-        mock_scope.content = {"replicate_api_token": "cog-token"}
+        mock_scope.context = {"REPLICATE_API_TOKEN": "cog-token"}
 
         mock_cog = mock.MagicMock()
         mock_cog.current_scope.return_value = mock_scope
@@ -209,12 +209,25 @@ class TestGetApiToken:
         with mock.patch.dict(os.environ, {"REPLICATE_API_TOKEN": "env-token"}):
             with mock.patch.dict(sys.modules, {"cog": mock_cog}):
                 token = _get_api_token_from_environment()
-                assert token == "cog-token"
+                assert token == "cog-token"  # noqa: S105
+
+    def test_cog_scope_replicate_api_token_case_insensitive(self):
+        """Test successful retrieval of non-empty token from cog ignoring case."""
+        mock_scope = mock.MagicMock()
+        mock_scope.context = {"replicate_api_token": "cog-token"}
+
+        mock_cog = mock.MagicMock()
+        mock_cog.current_scope.return_value = mock_scope
+
+        with mock.patch.dict(os.environ, {"REPLICATE_API_TOKEN": "env-token"}):
+            with mock.patch.dict(sys.modules, {"cog": mock_cog}):
+                token = _get_api_token_from_environment()
+                assert token == "cog-token"  # noqa: S105
 
     def test_cog_scope_replicate_api_token_empty_string(self):
         """Test that empty string from cog is returned (not falling back to env)."""
         mock_scope = mock.MagicMock()
-        mock_scope.content = {"replicate_api_token": ""}  # Empty string
+        mock_scope.context = {"replicate_api_token": ""}  # Empty string
 
         mock_cog = mock.MagicMock()
         mock_cog.current_scope.return_value = mock_scope
@@ -227,7 +240,7 @@ class TestGetApiToken:
     def test_cog_scope_replicate_api_token_none(self):
         """Test that None from cog is returned (not falling back to env)."""
         mock_scope = mock.MagicMock()
-        mock_scope.content = {"replicate_api_token": None}
+        mock_scope.context = {"replicate_api_token": None}
 
         mock_cog = mock.MagicMock()
         mock_cog.current_scope.return_value = mock_scope
@@ -245,7 +258,7 @@ class TestGetApiToken:
         with mock.patch.dict(os.environ, {"REPLICATE_API_TOKEN": "env-token"}):
             with mock.patch.dict(sys.modules, {"cog": mock_cog}):
                 token = _get_api_token_from_environment()
-                assert token == "env-token"
+                assert token == "env-token"  # noqa: S105
 
     def test_no_env_token_returns_none(self):
         """Test that None is returned when no environment token is set and cog unavailable."""
