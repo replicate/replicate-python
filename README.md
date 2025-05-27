@@ -47,7 +47,7 @@ We recommend not adding the token directly to your source code, because you don'
 
 <summary>Alternative authentication</summary>
 
-As of [replicate 1.0.5](https://github.com/replicate/replicate-python/releases/tag/1.0.5) and [cog 0.14.11](https://github.com/replicate/cog/releases/tag/v0.14.11) it is possible to pass a `REPLICATE_API_TOKEN` via the `context` as part of a prediction request.
+As of [replicate 1.0.7](https://github.com/replicate/replicate-python/releases/tag/1.0.7) and [cog 0.14.11](https://github.com/replicate/cog/releases/tag/v0.14.11) it is possible to pass a `REPLICATE_API_TOKEN` via the `context` as part of a prediction request.
 
 The `Replicate()` constructor will now use this context when available. This grants cog models the ability to use the Replicate client libraries, scoped to a user on a per request basis.
 
