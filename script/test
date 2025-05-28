@@ -2,4 +2,4 @@
 
 set -e
 
-exec rye test -v
+exec uv run -- pytest -v "$@"

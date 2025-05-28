@@ -86,8 +86,8 @@ git interpret-trailers --if-exists doNothing --trailer \
 
 ## Development
 
-The Python project is managed using [`rye`](https://rye.astral.sh). 
-Run the setup script to install Rye and install the project's dependencies.
+The Python project is managed using [`uv`](https://uv.astral.sh). 
+Run the setup script to install uv and install the project's dependencies.
 
 ```console
 ./script/setup
