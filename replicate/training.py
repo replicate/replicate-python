@@ -61,6 +61,9 @@ class Training(Resource):
     logs: Optional[str]
     """The logs of the training."""
 
+    metrics: Optional[Dict[str, Any]]
+    """Metrics for the training."""
+
     error: Optional[str]
     """The error encountered during the training, if any."""
 
