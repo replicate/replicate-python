@@ -2,19 +2,19 @@
 
 set -eu
 
-: "${RYE_INSTALL_OPTION:='--yes'}"
-: "${RYE_VERSION:='latest'}"
+: "${UV_INSTALL_OPTION:='--yes'}"
+: "${UV_VERSION:='latest'}"
 
-if ! command -v rye > /dev/null 2>&1
+if ! command -v uv > /dev/null 2>&1
 then
-    echo "rye is not installed."
-    printf "Do you want to install rye? (y/n) "
+    echo "uv is not installed."
+    printf "Do you want to install uv? (y/n) "
     read -r REPLY
     echo    # move to a new line
     case "$REPLY" in 
         [yY]) 
-            echo "Installing rye..."
-            curl -sSf https://rye.astral.sh/get | sh
+            echo "Installing uv..."
+            curl -LsSf https://astral.sh/uv/install.sh | sh
             echo "rye has been successfully installed."
             ;;
         *)
@@ -22,7 +22,7 @@ then
             ;;
     esac
 else
-    echo "rye is already installed."
+    echo "uv is already installed."
 fi
 
-exec rye sync
+exec uv sync
