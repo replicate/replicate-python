@@ -405,10 +405,12 @@ replicate.models.list()
 Lists of models are paginated. You can get the next page of models by passing the `next` property as an argument to the `list` method, or you can use the `paginate` method to fetch pages automatically.
 
 ```python
-# Automatic pagination using `replicate.paginate` (recommended)
+# Automatic pagination using `paginate` (recommended)
+from replicate.pagination import paginate
+
 models = []
-for page in replicate.paginate(replicate.models.list):
-    models.extend(page.results)
+for page in paginate(replicate.models.list):
+    models.extend(page)
     if len(models) > 100:
         break
 
