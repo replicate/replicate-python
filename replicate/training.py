@@ -314,8 +314,9 @@ class Trainings(Namespace):
     ) -> Training:
         """
         Create a new training using the specified model version as a base.
-
+    
         Args:
+            model: The model identifier (e.g., "owner/name") or a Model object.
             version: The ID of the base model version that you're using to train a new model version.
             input: The input to the training.
             destination: The desired model to push to in the format `{owner}/{model_name}`. This should be an existing model owned by the user or organization making the API request.
