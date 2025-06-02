@@ -1,20 +1,20 @@
 # TODO
-# - [ ] Support downloading files and conversion into Path when schema is URL
-# - [ ] Support asyncio variant
-# - [ ] Support list outputs
+# - [x] Support downloading files and conversion into Path when schema is URL
+# - [x] Support list outputs
 # - [ ] Support iterator outputs
-# - [ ] Support text streaming
-# - [ ] Support file streaming
+# - [ ] Support helpers for working with ContatenateIterator
 # - [ ] Support reusing output URL when passing to new method
 # - [ ] Support lazy downloading of files into Path
-# - [ ] Support helpers for working with ContatenateIterator
+# - [ ] Support text streaming
+# - [ ] Support file streaming
+# - [ ] Support asyncio variant
 import inspect
 import os
 import tempfile
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Iterator, Optional, Tuple, Union
 from urllib.parse import urlparse
 
 import httpx
@@ -66,6 +66,16 @@ def _has_concatenate_iterator_output_type(openapi_schema: dict) -> bool:
     return True
 
 
+def _has_iterator_output_type(openapi_schema: dict) -> bool:
+    """
+    Returns true if the model output type is an iterator (non-concatenate).
+    """
+    output = openapi_schema.get("components", {}).get("schemas", {}).get("Output", {})
+    return (
+        output.get("type") == "array" and output.get("x-cog-array-type") == "iterator"
+    )
+
+
 def _download_file(url: str) -> Path:
     """
     Download a file from URL to a temporary location and return the Path.
@@ -84,6 +94,23 @@ def _download_file(url: str) -> Path:
                 temp_file.write(chunk)
 
     return Path(temp_file.name)
+
+
+def _process_iterator_item(item: Any, openapi_schema: dict) -> Any:
+    """
+    Process a single item from an iterator output based on schema.
+    """
+    output_schema = openapi_schema.get("components", {}).get("schemas", {}).get("Output", {})
+
+    # For array/iterator types, check the items schema
+    if output_schema.get("type") == "array" and output_schema.get("x-cog-array-type") == "iterator":
+        items_schema = output_schema.get("items", {})
+        # If items are file URLs, download them
+        if items_schema.get("type") == "string" and items_schema.get("format") == "uri":
+            if isinstance(item, str) and item.startswith(("http://", "https://")):
+                return _download_file(item)
+
+    return item
 
 
 def _process_output_with_schema(output: Any, openapi_schema: dict) -> Any:
@@ -159,7 +186,7 @@ class Run:
     prediction: Prediction
     schema: dict
 
-    def wait(self) -> Any:
+    def wait(self) -> Union[Any, Iterator[Any]]:
         """
         Wait for the prediction to complete and return its output.
         """
@@ -170,6 +197,13 @@ class Run:
 
         if _has_concatenate_iterator_output_type(self.schema):
             return "".join(self.prediction.output)
+
+        # Return an iterator for iterator output types
+        if _has_iterator_output_type(self.schema) and self.prediction.output is not None:
+            return (
+                _process_iterator_item(chunk, self.schema)
+                for chunk in self.prediction.output
+            )
 
         # Process output for file downloads based on schema
         return _process_output_with_schema(self.prediction.output, self.schema)
@@ -286,8 +320,6 @@ def use(function_ref: str) -> Function:
 
     """
     if not _in_module_scope():
-        raise RuntimeError(
-            "You may only call cog.ext.pipelines.include at the top level."
-        )
+        raise RuntimeError("You may only call replicate.use() at the top level.")
 
     return Function(function_ref)

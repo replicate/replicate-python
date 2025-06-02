@@ -1,4 +1,6 @@
 import os
+import types
+from pathlib import Path
 
 import httpx
 import pytest
@@ -417,8 +419,11 @@ async def test_use_iterator_of_strings_output(use_async_client):
     # Call function with prompt="hello world"
     output = hotdog_detector(prompt="hello world")
 
-    # Assert that output is returned as a list (iterators are returned as lists)
-    assert output == ["hello", "world", "test"]
+    # Assert that output is returned as an iterator
+    assert isinstance(output, types.GeneratorType)
+    # Convert to list to check contents
+    output_list = list(output)
+    assert output_list == ["hello", "world", "test"]
 
 
 @pytest.mark.asyncio
@@ -448,9 +453,6 @@ async def test_use_path_output(use_async_client):
 
     # Call function with prompt="hello world"
     output = hotdog_detector(prompt="hello world")
-
-    # Assert that output is returned as a Path object
-    from pathlib import Path
 
     assert isinstance(output, Path)
     assert output.exists()
@@ -496,9 +498,6 @@ async def test_use_list_of_paths_output(use_async_client):
 
     # Call function with prompt="hello world"
     output = hotdog_detector(prompt="hello world")
-
-    # Assert that output is returned as a list of Path objects
-    from pathlib import Path
 
     assert isinstance(output, list)
     assert len(output) == 2
@@ -549,15 +548,15 @@ async def test_use_iterator_of_paths_output(use_async_client):
     # Call function with prompt="hello world"
     output = hotdog_detector(prompt="hello world")
 
-    # Assert that output is returned as a list of Path objects
-    from pathlib import Path
-
-    assert isinstance(output, list)
-    assert len(output) == 2
-    assert all(isinstance(path, Path) for path in output)
-    assert all(path.exists() for path in output)
-    assert output[0].read_bytes() == b"fake image 1 data"
-    assert output[1].read_bytes() == b"fake image 2 data"
+    # Assert that output is returned as an iterator of Path objects
+    assert isinstance(output, types.GeneratorType)
+    # Convert to list to check contents
+    output_list = list(output)
+    assert len(output_list) == 2
+    assert all(isinstance(path, Path) for path in output_list)
+    assert all(path.exists() for path in output_list)
+    assert output_list[0].read_bytes() == b"fake image 1 data"
+    assert output_list[1].read_bytes() == b"fake image 2 data"
 
 
 @pytest.mark.asyncio
@@ -681,9 +680,6 @@ async def test_use_object_output_with_file_properties(use_async_client):
     # Call function with prompt="hello world"
     output = hotdog_detector(prompt="hello world")
 
-    # Assert that output is returned as an object with file downloaded
-    from pathlib import Path
-
     assert isinstance(output, dict)
     assert output["text"] == "Generated text"
     assert output["count"] == 42
@@ -741,9 +737,6 @@ async def test_use_object_output_with_file_list_property(use_async_client):
 
     # Call function with prompt="hello world"
     output = hotdog_detector(prompt="hello world")
-
-    # Assert that output is returned as an object with files downloaded
-    from pathlib import Path
 
     assert isinstance(output, dict)
     assert output["text"] == "Generated text"
