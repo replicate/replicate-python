@@ -113,7 +113,7 @@ def _process_iterator_item(item: Any, openapi_schema: dict) -> Any:
         # If items are file URLs, download them
         if items_schema.get("type") == "string" and items_schema.get("format") == "uri":
             if isinstance(item, str) and item.startswith(("http://", "https://")):
-                return _download_file(item)
+                return PathProxy(item)
 
     return item
 
@@ -206,6 +206,37 @@ class OutputIterator:
             return "".join([str(segment) for segment in self.iterator_factory()])
         else:
             return str(self.iterator_factory())
+
+
+class PathProxy(Path):
+    def __init__(self, target: str) -> None:
+        path: Path | None = None
+
+        def ensure_path() -> Path:
+            nonlocal path
+            if path is None:
+                path = _download_file(target)
+            return path
+
+        object.__setattr__(self, "__target__", target)
+        object.__setattr__(self, "__path__", ensure_path)
+
+    def __getattribute__(self, name) -> Any:
+        if name in ("__path__", "__target__"):
+            return object.__getattribute__(self, name)
+
+        return getattr(object.__getattribute__(self, "__path__")(), name)
+
+    def __setattr__(self, name, value) -> None:
+        if name in ("__path__", "__target__"):
+            raise ValueError()
+
+        object.__setattr__(object.__getattribute__(self, "__path__")(), name, value)
+
+    def __delattr__(self, name) -> None:
+        if name in ("__path__", "__target__"):
+            raise ValueError()
+        delattr(object.__getattribute__(self, "__path__")(), name)
 
 
 @dataclass
