@@ -21,7 +21,6 @@ from replicate.prediction import Prediction
 from replicate.run import make_schema_backwards_compatible
 from replicate.version import Version
 
-
 __all__ = ["use", "get_path_url"]
 
 

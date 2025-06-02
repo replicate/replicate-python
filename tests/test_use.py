@@ -398,7 +398,7 @@ async def test_use_concatenate_iterator_output(use_async_client):
     )
 
     # Pass the OutputIterator as input to create()
-    run = hotdog_detector.create(text_input=output)
+    hotdog_detector.create(text_input=output)
 
     # Verify the request body contains the stringified version
     parsed_body = json.loads(request_body)
@@ -610,7 +610,7 @@ async def test_use_iterator_of_paths_output(use_async_client):
 
 def test_get_path_url_with_pathproxy():
     """Test get_path_url returns the URL for PathProxy instances."""
-    from replicate.use import get_path_url, PathProxy
+    from replicate.use import PathProxy, get_path_url
 
     url = "https://example.com/test.jpg"
     path_proxy = PathProxy(url)
@@ -623,7 +623,7 @@ def test_get_path_url_with_regular_path():
     """Test get_path_url returns None for regular Path instances."""
     from replicate.use import get_path_url
 
-    regular_path = Path("/tmp/test.txt")
+    regular_path = Path("test.txt")
 
     result = get_path_url(regular_path)
     assert result is None
@@ -651,7 +651,7 @@ def test_get_path_url_with_object_with_target():
     from replicate.use import get_path_url
 
     class MockObjectWithTarget:
-        def __init__(self, target):
+        def __init__(self, target) -> None:
             object.__setattr__(self, "__replicate_target__", target)
 
     url = "https://example.com/mock.png"
@@ -666,7 +666,7 @@ def test_get_path_url_with_empty_target():
     from replicate.use import get_path_url
 
     class MockObjectWithEmptyTarget:
-        def __init__(self, target):
+        def __init__(self, target) -> None:
             object.__setattr__(self, "__replicate_target__", target)
 
     # Test with empty string
@@ -729,7 +729,7 @@ async def test_use_pathproxy_input_conversion(use_async_client):
 
     # Call use and create with PathProxy
     hotdog_detector = replicate.use("acme/hotdog-detector")
-    run = hotdog_detector.create(image=path_proxy)
+    hotdog_detector.create(image=path_proxy)
 
     # Verify the request body contains the URL, not the downloaded file
     parsed_body = json.loads(request_body)
