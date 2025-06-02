@@ -438,14 +438,23 @@ async def test_use_path_output(use_async_client):
     )
     mock_prediction_endpoints(output_data="https://example.com/output.jpg")
 
+    # Mock the file download
+    respx.get("https://example.com/output.jpg").mock(
+        return_value=httpx.Response(200, content=b"fake image data")
+    )
+
     # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use("acme/hotdog-detector")
 
     # Call function with prompt="hello world"
     output = hotdog_detector(prompt="hello world")
 
-    # Assert that output is returned as a string URL
-    assert output == "https://example.com/output.jpg"
+    # Assert that output is returned as a Path object
+    from pathlib import Path
+
+    assert isinstance(output, Path)
+    assert output.exists()
+    assert output.read_bytes() == b"fake image data"
 
 
 @pytest.mark.asyncio
@@ -474,17 +483,29 @@ async def test_use_list_of_paths_output(use_async_client):
         ]
     )
 
+    # Mock the file downloads
+    respx.get("https://example.com/output1.jpg").mock(
+        return_value=httpx.Response(200, content=b"fake image 1 data")
+    )
+    respx.get("https://example.com/output2.jpg").mock(
+        return_value=httpx.Response(200, content=b"fake image 2 data")
+    )
+
     # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use("acme/hotdog-detector")
 
     # Call function with prompt="hello world"
     output = hotdog_detector(prompt="hello world")
 
-    # Assert that output is returned as a list of URLs
-    assert output == [
-        "https://example.com/output1.jpg",
-        "https://example.com/output2.jpg",
-    ]
+    # Assert that output is returned as a list of Path objects
+    from pathlib import Path
+
+    assert isinstance(output, list)
+    assert len(output) == 2
+    assert all(isinstance(path, Path) for path in output)
+    assert all(path.exists() for path in output)
+    assert output[0].read_bytes() == b"fake image 1 data"
+    assert output[1].read_bytes() == b"fake image 2 data"
 
 
 @pytest.mark.asyncio
@@ -514,17 +535,29 @@ async def test_use_iterator_of_paths_output(use_async_client):
         ]
     )
 
+    # Mock the file downloads
+    respx.get("https://example.com/output1.jpg").mock(
+        return_value=httpx.Response(200, content=b"fake image 1 data")
+    )
+    respx.get("https://example.com/output2.jpg").mock(
+        return_value=httpx.Response(200, content=b"fake image 2 data")
+    )
+
     # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use("acme/hotdog-detector")
 
     # Call function with prompt="hello world"
     output = hotdog_detector(prompt="hello world")
 
-    # Assert that output is returned as a list of URLs
-    assert output == [
-        "https://example.com/output1.jpg",
-        "https://example.com/output2.jpg",
-    ]
+    # Assert that output is returned as a list of Path objects
+    from pathlib import Path
+
+    assert isinstance(output, list)
+    assert len(output) == 2
+    assert all(isinstance(path, Path) for path in output)
+    assert all(path.exists() for path in output)
+    assert output[0].read_bytes() == b"fake image 1 data"
+    assert output[1].read_bytes() == b"fake image 2 data"
 
 
 @pytest.mark.asyncio
@@ -600,3 +633,123 @@ async def test_use_function_logs_method_polling(use_async_client):
     # Call logs method again to get updated logs (simulates polling)
     updated_logs = run.logs()
     assert updated_logs == "Starting prediction...\nProcessing input..."
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("use_async_client", [False])
+@respx.mock
+async def test_use_object_output_with_file_properties(use_async_client):
+    mock_model_endpoints(
+        version_overrides={
+            "openapi_schema": {
+                "components": {
+                    "schemas": {
+                        "Output": {
+                            "type": "object",
+                            "properties": {
+                                "text": {"type": "string", "title": "Text"},
+                                "image": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "title": "Image",
+                                },
+                                "count": {"type": "integer", "title": "Count"},
+                            },
+                            "title": "Output",
+                        }
+                    }
+                }
+            }
+        }
+    )
+    mock_prediction_endpoints(
+        output_data={
+            "text": "Generated text",
+            "image": "https://example.com/generated.png",
+            "count": 42,
+        }
+    )
+
+    # Mock the file download
+    respx.get("https://example.com/generated.png").mock(
+        return_value=httpx.Response(200, content=b"fake png data")
+    )
+
+    # Call use with "acme/hotdog-detector"
+    hotdog_detector = replicate.use("acme/hotdog-detector")
+
+    # Call function with prompt="hello world"
+    output = hotdog_detector(prompt="hello world")
+
+    # Assert that output is returned as an object with file downloaded
+    from pathlib import Path
+
+    assert isinstance(output, dict)
+    assert output["text"] == "Generated text"
+    assert output["count"] == 42
+    assert isinstance(output["image"], Path)
+    assert output["image"].exists()
+    assert output["image"].read_bytes() == b"fake png data"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("use_async_client", [False])
+@respx.mock
+async def test_use_object_output_with_file_list_property(use_async_client):
+    mock_model_endpoints(
+        version_overrides={
+            "openapi_schema": {
+                "components": {
+                    "schemas": {
+                        "Output": {
+                            "type": "object",
+                            "properties": {
+                                "text": {"type": "string", "title": "Text"},
+                                "images": {
+                                    "type": "array",
+                                    "items": {"type": "string", "format": "uri"},
+                                    "title": "Images",
+                                },
+                            },
+                            "title": "Output",
+                        }
+                    }
+                }
+            }
+        }
+    )
+    mock_prediction_endpoints(
+        output_data={
+            "text": "Generated text",
+            "images": [
+                "https://example.com/image1.png",
+                "https://example.com/image2.png",
+            ],
+        }
+    )
+
+    # Mock the file downloads
+    respx.get("https://example.com/image1.png").mock(
+        return_value=httpx.Response(200, content=b"fake png 1 data")
+    )
+    respx.get("https://example.com/image2.png").mock(
+        return_value=httpx.Response(200, content=b"fake png 2 data")
+    )
+
+    # Call use with "acme/hotdog-detector"
+    hotdog_detector = replicate.use("acme/hotdog-detector")
+
+    # Call function with prompt="hello world"
+    output = hotdog_detector(prompt="hello world")
+
+    # Assert that output is returned as an object with files downloaded
+    from pathlib import Path
+
+    assert isinstance(output, dict)
+    assert output["text"] == "Generated text"
+    assert isinstance(output["images"], list)
+    assert len(output["images"]) == 2
+    assert all(isinstance(path, Path) for path in output["images"])
+    assert all(path.exists() for path in output["images"])
+    assert output["images"][0].read_bytes() == b"fake png 1 data"
+    assert output["images"][1].read_bytes() == b"fake png 2 data"

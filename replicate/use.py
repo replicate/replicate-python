@@ -10,9 +10,14 @@
 # - [ ] Support helpers for working with ContatenateIterator
 import inspect
 import os
+import tempfile
 from dataclasses import dataclass
 from functools import cached_property
+from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
+from urllib.parse import urlparse
+
+import httpx
 
 from replicate.client import Client
 from replicate.exceptions import ModelError, ReplicateError
@@ -61,6 +66,90 @@ def _has_concatenate_iterator_output_type(openapi_schema: dict) -> bool:
     return True
 
 
+def _download_file(url: str) -> Path:
+    """
+    Download a file from URL to a temporary location and return the Path.
+    """
+    parsed_url = urlparse(url)
+    filename = os.path.basename(parsed_url.path)
+
+    if not filename or "." not in filename:
+        filename = "download"
+
+    _, ext = os.path.splitext(filename)
+    with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as temp_file:
+        with httpx.stream("GET", url) as response:
+            response.raise_for_status()
+            for chunk in response.iter_bytes():
+                temp_file.write(chunk)
+
+    return Path(temp_file.name)
+
+
+def _process_output_with_schema(output: Any, openapi_schema: dict) -> Any:
+    """
+    Process output data, downloading files based on OpenAPI schema.
+    """
+    output_schema = (
+        openapi_schema.get("components", {}).get("schemas", {}).get("Output", {})
+    )
+
+    # Handle direct string with format=uri
+    if output_schema.get("type") == "string" and output_schema.get("format") == "uri":
+        if isinstance(output, str) and output.startswith(("http://", "https://")):
+            return _download_file(output)
+        return output
+
+    # Handle array of strings with format=uri
+    if output_schema.get("type") == "array":
+        items = output_schema.get("items", {})
+        if items.get("type") == "string" and items.get("format") == "uri":
+            if isinstance(output, list):
+                return [
+                    _download_file(url)
+                    if isinstance(url, str) and url.startswith(("http://", "https://"))
+                    else url
+                    for url in output
+                ]
+        return output
+
+    # Handle object with properties
+    if output_schema.get("type") == "object" and isinstance(output, dict):
+        properties = output_schema.get("properties", {})
+        result = output.copy()
+
+        for prop_name, prop_schema in properties.items():
+            if prop_name in result:
+                value = result[prop_name]
+
+                # Direct file property
+                if (
+                    prop_schema.get("type") == "string"
+                    and prop_schema.get("format") == "uri"
+                ):
+                    if isinstance(value, str) and value.startswith(
+                        ("http://", "https://")
+                    ):
+                        result[prop_name] = _download_file(value)
+
+                # Array of files property
+                elif prop_schema.get("type") == "array":
+                    items = prop_schema.get("items", {})
+                    if items.get("type") == "string" and items.get("format") == "uri":
+                        if isinstance(value, list):
+                            result[prop_name] = [
+                                _download_file(url)
+                                if isinstance(url, str)
+                                and url.startswith(("http://", "https://"))
+                                else url
+                                for url in value
+                            ]
+
+        return result
+
+    return output
+
+
 @dataclass
 class Run:
     """
@@ -82,7 +171,8 @@ class Run:
         if _has_concatenate_iterator_output_type(self.schema):
             return "".join(self.prediction.output)
 
-        return self.prediction.output
+        # Process output for file downloads based on schema
+        return _process_output_with_schema(self.prediction.output, self.schema)
 
     def logs(self) -> Optional[str]:
         """
