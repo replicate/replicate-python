@@ -1,8 +1,8 @@
 # TODO
 # - [x] Support downloading files and conversion into Path when schema is URL
 # - [x] Support list outputs
-# - [ ] Support iterator outputs
-# - [ ] Support helpers for working with ContatenateIterator
+# - [x] Support iterator outputs
+# - [x] Support helpers for working with ContatenateIterator
 # - [ ] Support reusing output URL when passing to new method
 # - [ ] Support lazy downloading of files into Path
 # - [ ] Support text streaming
@@ -187,12 +187,12 @@ class OutputIterator:
     An iterator wrapper that handles both regular iteration and string conversion.
     """
 
-    def __init__(self, iterator_factory, schema: dict, is_concatenate: bool):
+    def __init__(self, iterator_factory, schema: dict, *, is_concatenate: bool) -> None:
         self.iterator_factory = iterator_factory
         self.schema = schema
         self.is_concatenate = is_concatenate
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Any]:
         """Iterate over output items."""
         for chunk in self.iterator_factory():
             if self.is_concatenate:
@@ -230,7 +230,9 @@ class Run:
         if _has_iterator_output_type(self.schema):
             is_concatenate = _has_concatenate_iterator_output_type(self.schema)
             return OutputIterator(
-                lambda: self.prediction.output_iterator(), self.schema, is_concatenate
+                lambda: self.prediction.output_iterator(),
+                self.schema,
+                is_concatenate=is_concatenate,
             )
 
         # Process output for file downloads based on schema
@@ -299,15 +301,23 @@ class Function:
         """
         Start a prediction with the specified inputs.
         """
+        # Process inputs to convert concatenate OutputIterators to strings
+        processed_inputs = {}
+        for key, value in inputs.items():
+            if isinstance(value, OutputIterator) and value.is_concatenate:
+                processed_inputs[key] = str(value)
+            else:
+                processed_inputs[key] = value
+
         version = self._version
 
         if version:
             prediction = self._client().predictions.create(
-                version=version, input=inputs
+                version=version, input=processed_inputs
             )
         else:
             prediction = self._client().models.predictions.create(
-                model=self._model, input=inputs
+                model=self._model, input=processed_inputs
             )
 
         return Run(prediction, self.openapi_schema)

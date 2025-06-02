@@ -1,3 +1,4 @@
+import json
 import os
 from pathlib import Path
 
@@ -364,6 +365,44 @@ async def test_use_concatenate_iterator_output(use_async_client):
     # Also test that it's iterable
     output_list = list(output)
     assert output_list == ["Hello", " ", "world", "!"]
+
+    # Test that concatenate OutputIterators are stringified when passed to create()
+    # Set up a mock for the prediction creation to capture the request
+    request_body = None
+
+    def capture_request(request):
+        nonlocal request_body
+        request_body = request.read()
+        return httpx.Response(
+            201,
+            json={
+                "id": "pred456",
+                "model": "acme/hotdog-detector",
+                "version": "xyz123",
+                "urls": {
+                    "get": "https://api.replicate.com/v1/predictions/pred456",
+                    "cancel": "https://api.replicate.com/v1/predictions/pred456/cancel",
+                },
+                "created_at": "2024-01-01T00:00:00Z",
+                "source": "api",
+                "status": "processing",
+                "input": {"text_input": "Hello world!"},
+                "output": None,
+                "error": None,
+                "logs": "",
+            },
+        )
+
+    respx.post("https://api.replicate.com/v1/predictions").mock(
+        side_effect=capture_request
+    )
+
+    # Pass the OutputIterator as input to create()
+    run = hotdog_detector.create(text_input=output)
+
+    # Verify the request body contains the stringified version
+    parsed_body = json.loads(request_body)
+    assert parsed_body["input"]["text_input"] == "Hello world!"
 
 
 @pytest.mark.asyncio
