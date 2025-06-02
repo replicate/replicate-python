@@ -1,5 +1,6 @@
 import json
 import os
+from enum import Enum
 from pathlib import Path
 
 import httpx
@@ -7,6 +8,12 @@ import pytest
 import respx
 
 import replicate
+
+
+class ClientMode(str, Enum):
+    DEFAULT = "default"
+    ASYNC = "async"
+
 
 # Allow use() to be called in test context
 os.environ["REPLICATE_ALWAYS_ALLOW_USE"] = "1"
@@ -240,9 +247,9 @@ def mock_prediction_endpoints(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("use_async_client", [False])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
 @respx.mock
-async def test_use(use_async_client):
+async def test_use(client_mode):
     mock_model_endpoints()
     mock_prediction_endpoints()
 
@@ -257,9 +264,9 @@ async def test_use(use_async_client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("use_async_client", [False])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
 @respx.mock
-async def test_use_with_version_identifier(use_async_client):
+async def test_use_with_version_identifier(client_mode):
     mock_model_endpoints()
     mock_prediction_endpoints()
 
@@ -274,9 +281,9 @@ async def test_use_with_version_identifier(use_async_client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("use_async_client", [False])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
 @respx.mock
-async def test_use_versionless_empty_versions_list(use_async_client):
+async def test_use_versionless_empty_versions_list(client_mode):
     mock_model_endpoints(has_no_versions=True, uses_versionless_api=True)
     mock_prediction_endpoints(uses_versionless_api=True)
 
@@ -291,9 +298,9 @@ async def test_use_versionless_empty_versions_list(use_async_client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("use_async_client", [False])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
 @respx.mock
-async def test_use_versionless_404_versions_list(use_async_client):
+async def test_use_versionless_404_versions_list(client_mode):
     mock_model_endpoints(uses_versionless_api=True)
     mock_prediction_endpoints(uses_versionless_api=True)
 
@@ -308,9 +315,9 @@ async def test_use_versionless_404_versions_list(use_async_client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("use_async_client", [False])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
 @respx.mock
-async def test_use_function_create_method(use_async_client):
+async def test_use_function_create_method(client_mode):
     mock_model_endpoints()
     mock_prediction_endpoints()
 
@@ -328,9 +335,9 @@ async def test_use_function_create_method(use_async_client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("use_async_client", [False])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
 @respx.mock
-async def test_use_concatenate_iterator_output(use_async_client):
+async def test_use_concatenate_iterator_output(client_mode):
     mock_model_endpoints(
         version_overrides={
             "openapi_schema": {
@@ -406,9 +413,9 @@ async def test_use_concatenate_iterator_output(use_async_client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("use_async_client", [False])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
 @respx.mock
-async def test_use_list_of_strings_output(use_async_client):
+async def test_use_list_of_strings_output(client_mode):
     mock_model_endpoints(
         version_overrides={
             "openapi_schema": {
@@ -437,9 +444,9 @@ async def test_use_list_of_strings_output(use_async_client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("use_async_client", [False])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
 @respx.mock
-async def test_use_iterator_of_strings_output(use_async_client):
+async def test_use_iterator_of_strings_output(client_mode):
     mock_model_endpoints(
         version_overrides={
             "openapi_schema": {
@@ -474,9 +481,9 @@ async def test_use_iterator_of_strings_output(use_async_client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("use_async_client", [False])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
 @respx.mock
-async def test_use_path_output(use_async_client):
+async def test_use_path_output(client_mode):
     mock_model_endpoints(
         version_overrides={
             "openapi_schema": {
@@ -507,9 +514,9 @@ async def test_use_path_output(use_async_client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("use_async_client", [False])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
 @respx.mock
-async def test_use_list_of_paths_output(use_async_client):
+async def test_use_list_of_paths_output(client_mode):
     mock_model_endpoints(
         version_overrides={
             "openapi_schema": {
@@ -555,9 +562,9 @@ async def test_use_list_of_paths_output(use_async_client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("use_async_client", [False])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
 @respx.mock
-async def test_use_iterator_of_paths_output(use_async_client):
+async def test_use_iterator_of_paths_output(client_mode):
     mock_model_endpoints(
         version_overrides={
             "openapi_schema": {
@@ -681,9 +688,9 @@ def test_get_path_url_with_empty_target():
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("use_async_client", [False])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
 @respx.mock
-async def test_use_pathproxy_input_conversion(use_async_client):
+async def test_use_pathproxy_input_conversion(client_mode):
     """Test that PathProxy instances are converted to URLs when passed to create()."""
     mock_model_endpoints()
 
@@ -740,9 +747,9 @@ async def test_use_pathproxy_input_conversion(use_async_client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("use_async_client", [False])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
 @respx.mock
-async def test_use_function_logs_method(use_async_client):
+async def test_use_function_logs_method(client_mode):
     mock_model_endpoints()
     mock_prediction_endpoints()
 
@@ -758,9 +765,9 @@ async def test_use_function_logs_method(use_async_client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("use_async_client", [False])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
 @respx.mock
-async def test_use_function_logs_method_polling(use_async_client):
+async def test_use_function_logs_method_polling(client_mode):
     mock_model_endpoints()
 
     # Mock prediction endpoints with updated logs on polling
@@ -815,9 +822,9 @@ async def test_use_function_logs_method_polling(use_async_client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("use_async_client", [False])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
 @respx.mock
-async def test_use_object_output_with_file_properties(use_async_client):
+async def test_use_object_output_with_file_properties(client_mode):
     mock_model_endpoints(
         version_overrides={
             "openapi_schema": {
@@ -869,9 +876,9 @@ async def test_use_object_output_with_file_properties(use_async_client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("use_async_client", [False])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
 @respx.mock
-async def test_use_object_output_with_file_list_property(use_async_client):
+async def test_use_object_output_with_file_list_property(client_mode):
     mock_model_endpoints(
         version_overrides={
             "openapi_schema": {
