@@ -1,5 +1,4 @@
 import os
-import types
 from pathlib import Path
 
 import httpx
@@ -356,8 +355,15 @@ async def test_use_concatenate_iterator_output(use_async_client):
     # Call function with prompt="hello world"
     output = hotdog_detector(prompt="hello world")
 
-    # Assert that output is concatenated from the list
-    assert output == "Hello world!"
+    # Assert that output is an OutputIterator that concatenates when converted to string
+    from replicate.use import OutputIterator
+
+    assert isinstance(output, OutputIterator)
+    assert str(output) == "Hello world!"
+
+    # Also test that it's iterable
+    output_list = list(output)
+    assert output_list == ["Hello", " ", "world", "!"]
 
 
 @pytest.mark.asyncio
@@ -419,8 +425,10 @@ async def test_use_iterator_of_strings_output(use_async_client):
     # Call function with prompt="hello world"
     output = hotdog_detector(prompt="hello world")
 
-    # Assert that output is returned as an iterator
-    assert isinstance(output, types.GeneratorType)
+    # Assert that output is returned as an OutputIterator
+    from replicate.use import OutputIterator
+
+    assert isinstance(output, OutputIterator)
     # Convert to list to check contents
     output_list = list(output)
     assert output_list == ["hello", "world", "test"]
@@ -548,8 +556,10 @@ async def test_use_iterator_of_paths_output(use_async_client):
     # Call function with prompt="hello world"
     output = hotdog_detector(prompt="hello world")
 
-    # Assert that output is returned as an iterator of Path objects
-    assert isinstance(output, types.GeneratorType)
+    # Assert that output is returned as an OutputIterator of Path objects
+    from replicate.use import OutputIterator
+
+    assert isinstance(output, OutputIterator)
     # Convert to list to check contents
     output_list = list(output)
     assert len(output_list) == 2

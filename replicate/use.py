@@ -100,10 +100,15 @@ def _process_iterator_item(item: Any, openapi_schema: dict) -> Any:
     """
     Process a single item from an iterator output based on schema.
     """
-    output_schema = openapi_schema.get("components", {}).get("schemas", {}).get("Output", {})
+    output_schema = (
+        openapi_schema.get("components", {}).get("schemas", {}).get("Output", {})
+    )
 
     # For array/iterator types, check the items schema
-    if output_schema.get("type") == "array" and output_schema.get("x-cog-array-type") == "iterator":
+    if (
+        output_schema.get("type") == "array"
+        and output_schema.get("x-cog-array-type") == "iterator"
+    ):
         items_schema = output_schema.get("items", {})
         # If items are file URLs, download them
         if items_schema.get("type") == "string" and items_schema.get("format") == "uri":
@@ -177,6 +182,32 @@ def _process_output_with_schema(output: Any, openapi_schema: dict) -> Any:
     return output
 
 
+class OutputIterator:
+    """
+    An iterator wrapper that handles both regular iteration and string conversion.
+    """
+
+    def __init__(self, iterator_factory, schema: dict, is_concatenate: bool):
+        self.iterator_factory = iterator_factory
+        self.schema = schema
+        self.is_concatenate = is_concatenate
+
+    def __iter__(self):
+        """Iterate over output items."""
+        for chunk in self.iterator_factory():
+            if self.is_concatenate:
+                yield str(chunk)
+            else:
+                yield _process_iterator_item(chunk, self.schema)
+
+    def __str__(self) -> str:
+        """Convert to string by joining segments with empty string."""
+        if self.is_concatenate:
+            return "".join([str(segment) for segment in self.iterator_factory()])
+        else:
+            return str(self.iterator_factory())
+
+
 @dataclass
 class Run:
     """
@@ -195,14 +226,11 @@ class Run:
         if self.prediction.status == "failed":
             raise ModelError(self.prediction)
 
-        if _has_concatenate_iterator_output_type(self.schema):
-            return "".join(self.prediction.output)
-
-        # Return an iterator for iterator output types
-        if _has_iterator_output_type(self.schema) and self.prediction.output is not None:
-            return (
-                _process_iterator_item(chunk, self.schema)
-                for chunk in self.prediction.output
+        # Return an OutputIterator for iterator output types (including concatenate iterators)
+        if _has_iterator_output_type(self.schema):
+            is_concatenate = _has_concatenate_iterator_output_type(self.schema)
+            return OutputIterator(
+                lambda: self.prediction.output_iterator(), self.schema, is_concatenate
             )
 
         # Process output for file downloads based on schema
