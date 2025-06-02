@@ -3,6 +3,26 @@ from replicate.pagination import async_paginate as _async_paginate
 from replicate.pagination import paginate as _paginate
 from replicate.use import use
 
+__all__ = [
+    "Client",
+    "use",
+    "run",
+    "async_run",
+    "stream",
+    "async_stream",
+    "paginate",
+    "async_paginate",
+    "collections",
+    "deployments",
+    "files",
+    "hardware",
+    "models",
+    "predictions",
+    "trainings",
+    "webhooks",
+    "default_client",
+]
+
 default_client = Client()
 
 run = default_client.run
