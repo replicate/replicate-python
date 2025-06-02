@@ -503,6 +503,106 @@ replicate = Client(
 > Never hardcode authentication credentials like API tokens into your code.
 > Instead, pass them as environment variables when running your program.
 
+## Experimental `use()` interface
+
+The latest versions of `replicate >= 1.0.8` include a new experimental `use()` function that is intended to make running a model closer to calling a function rather than an API request.
+
+Some key differences to `replicate.run()`.
+
+ 1. You "import" the model using the `use()` syntax, after that you call the model like a function.
+ 2. The output type matches the model definition. i.e. if the model uses an iterator output will be an iterator.
+ 3. Files will be downloaded output as `Path` objects*.
+
+> [!NOTE]
+
+\* We've replaced the `FileOutput` implementation with `Path` objects. However to avoid unnecessary downloading of files until they are needed we've implemented a `PathProxy` class that will defer the download until the first time the object is used. If you need the underlying URL of the `Path` object you can use the `get_path_url(path: Path) -> str` helper.
+
+### Examples
+
+To use a model:
+
+> [!IMPORTANT]
+> For now `use()` MUST be called in the top level module scope. We may relax this in future.
+
+```py
+from replicate import use
+
+flux_dev = use("black-forest-labs/flux-dev")
+outputs = flux_dev(prompt="a cat wearing an amusing hat")
+
+for output in outputs:
+    print(output) # Path(/tmp/output.webp)
+```
+
+Models that output iterators will return iterators:
+
+
+```py
+claude = use("anthropic/claude-4-sonnet")
+
+output = claude(prompt="Give me a recipe for tasty smashed avocado on sourdough toast that could feed all of California.")
+
+for token in output:
+    print(token) # "Here's a recipe"
+```
+
+You can call `str()` on a language model to get the full output when done rather than iterating over tokens:
+
+```py
+str(output) # "Here's a recipe to feed all of California (about 39 million people)! ..."
+```
+
+You can pass the results of one model directly into another:
+
+```py
+from replicate import use
+
+flux_dev = use("black-forest-labs/flux-dev")
+claude = use("anthropic/claude-4-sonnet")
+
+images = flux_dev(prompt="a cat wearing an amusing hat")
+
+result = claude(prompt="describe this image for me", image=images[0])
+
+print(str(result)) # "This shows an image of a cat wearing a hat ..."
+```
+
+To create an individual prediction that has not yet resolved, use the `create()` method:
+
+```
+claude = use("anthropic/claude-4-sonnet")
+
+prediction = claude.create(prompt="Give me a recipe for tasty smashed avocado on sourdough toast that could feed all of California.")
+
+prediction.logs() # get current logs (WIP)
+
+prediction.output() # get the output
+```
+
+You can access the underlying URL for a Path object returned from a model call by using the `get_path_url()` helper.
+
+```py
+from replicate import use
+from replicate.use import get_url_path
+
+flux_dev = use("black-forest-labs/flux-dev")
+outputs = flux_dev(prompt="a cat wearing an amusing hat")
+
+for output in outputs:
+    print(get_url_path(output)) # "https://replicate.delivery/xyz"
+```
+
+### TODO
+
+There are several key things still outstanding:
+
+ 1. Support for asyncio.
+ 2. Support for typing the return value.
+ 3. Support for streaming text when available (rather than polling)
+ 4. Support for streaming files when available (rather than polling)
+ 5. Support for cleaning up downloaded files.
+ 6. Support for streaming logs using `OutputIterator`.
+
 ## Development
 
 See [CONTRIBUTING.md](CONTRIBUTING.md)
