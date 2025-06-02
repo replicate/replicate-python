@@ -1,6 +1,7 @@
 from replicate.client import Client
 from replicate.pagination import async_paginate as _async_paginate
 from replicate.pagination import paginate as _paginate
+from replicate.use import use
 
 default_client = Client()
 
