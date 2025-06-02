@@ -9,6 +9,7 @@
 # - [ ] Support lazy downloading of files into Path
 # - [ ] Support helpers for working with ContatenateIterator
 import inspect
+import os
 from dataclasses import dataclass
 from functools import cached_property
 from typing import Any, Dict, Optional, Tuple
@@ -26,10 +27,9 @@ def _in_module_scope() -> bool:
     """
     Returns True when called from top level module scope.
     """
-    import os
     if os.getenv("REPLICATE_ALWAYS_ALLOW_USE"):
         return True
-        
+
     if frame := inspect.currentframe():
         if caller := frame.f_back:
             return caller.f_code.co_name == "<module>"
@@ -172,8 +172,13 @@ class Function:
         """
         Get the OpenAPI schema for this model version.
         """
-        schema = self._model.latest_version.openapi_schema
-        if cog_version := self._model.latest_version.cog_version:
+        latest_version = self._model.latest_version
+        if latest_version is None:
+            msg = f"Model {self._model.owner}/{self._model.name} has no latest version"
+            raise ValueError(msg)
+
+        schema = latest_version.openapi_schema
+        if cog_version := latest_version.cog_version:
             schema = make_schema_backwards_compatible(schema, cog_version)
         return schema
 
