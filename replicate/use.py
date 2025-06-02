@@ -1,10 +1,4 @@
 # TODO
-# - [x] Support downloading files and conversion into Path when schema is URL
-# - [x] Support list outputs
-# - [x] Support iterator outputs
-# - [x] Support helpers for working with ContatenateIterator
-# - [ ] Support reusing output URL when passing to new method
-# - [ ] Support lazy downloading of files into Path
 # - [ ] Support text streaming
 # - [ ] Support file streaming
 # - [ ] Support asyncio variant
@@ -28,6 +22,9 @@ from replicate.run import make_schema_backwards_compatible
 from replicate.version import Version
 
 
+__all__ = ["use", "get_path_url"]
+
+
 def _in_module_scope() -> bool:
     """
     Returns True when called from top level module scope.
@@ -39,9 +36,6 @@ def _in_module_scope() -> bool:
         if caller := frame.f_back:
             return caller.f_code.co_name == "<module>"
     return False
-
-
-__all__ = ["use"]
 
 
 def _has_concatenate_iterator_output_type(openapi_schema: dict) -> bool:
@@ -218,29 +212,41 @@ class PathProxy(Path):
                 path = _download_file(target)
             return path
 
-        object.__setattr__(self, "__target__", target)
-        object.__setattr__(self, "__path__", ensure_path)
+        object.__setattr__(self, "__replicate_target__", target)
+        object.__setattr__(self, "__replicate_path__", ensure_path)
 
     def __getattribute__(self, name) -> Any:
-        if name in ("__path__", "__target__"):
+        if name in ("__replicate_path__", "__replicate_target__"):
             return object.__getattribute__(self, name)
 
         # TODO: We should cover other common properties on Path...
         if name == "__class__":
             return Path
 
-        return getattr(object.__getattribute__(self, "__path__")(), name)
+        return getattr(object.__getattribute__(self, "__replicate_path__")(), name)
 
     def __setattr__(self, name, value) -> None:
-        if name in ("__path__", "__target__"):
+        if name in ("__replicate_path__", "__replicate_target__"):
             raise ValueError()
 
-        object.__setattr__(object.__getattribute__(self, "__path__")(), name, value)
+        object.__setattr__(
+            object.__getattribute__(self, "__replicate_path__")(), name, value
+        )
 
     def __delattr__(self, name) -> None:
-        if name in ("__path__", "__target__"):
+        if name in ("__replicate_path__", "__replicate_target__"):
             raise ValueError()
-        delattr(object.__getattribute__(self, "__path__")(), name)
+        delattr(object.__getattribute__(self, "__replicate_path__")(), name)
+
+
+def get_path_url(path: Any) -> str | None:
+    """
+    Return the remote URL (if any) for a Path output from a model.
+    """
+    try:
+        return object.__getattribute__(path, "__replicate_target__")
+    except AttributeError:
+        return None
 
 
 @dataclass
@@ -252,7 +258,7 @@ class Run:
     prediction: Prediction
     schema: dict
 
-    def wait(self) -> Union[Any, Iterator[Any]]:
+    def output(self) -> Union[Any, Iterator[Any]]:
         """
         Wait for the prediction to complete and return its output.
         """
@@ -330,7 +336,7 @@ class Function:
 
     def __call__(self, **inputs: Dict[str, Any]) -> Any:
         run = self.create(**inputs)
-        return run.wait()
+        return run.output()
 
     def create(self, **inputs: Dict[str, Any]) -> Run:
         """
@@ -341,8 +347,8 @@ class Function:
         for key, value in inputs.items():
             if isinstance(value, OutputIterator) and value.is_concatenate:
                 processed_inputs[key] = str(value)
-            elif isinstance(value, PathProxy):
-                processed_inputs[key] = object.__getattribute__(value, "__target__")
+            elif url := get_path_url(value):
+                processed_inputs[key] = url
             else:
                 processed_inputs[key] = value
 

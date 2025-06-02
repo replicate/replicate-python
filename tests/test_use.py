@@ -608,6 +608,78 @@ async def test_use_iterator_of_paths_output(use_async_client):
     assert output_list[1].read_bytes() == b"fake image 2 data"
 
 
+def test_get_path_url_with_pathproxy():
+    """Test get_path_url returns the URL for PathProxy instances."""
+    from replicate.use import get_path_url, PathProxy
+
+    url = "https://example.com/test.jpg"
+    path_proxy = PathProxy(url)
+
+    result = get_path_url(path_proxy)
+    assert result == url
+
+
+def test_get_path_url_with_regular_path():
+    """Test get_path_url returns None for regular Path instances."""
+    from replicate.use import get_path_url
+
+    regular_path = Path("/tmp/test.txt")
+
+    result = get_path_url(regular_path)
+    assert result is None
+
+
+def test_get_path_url_with_object_without_target():
+    """Test get_path_url returns None for objects without __replicate_target__."""
+    from replicate.use import get_path_url
+
+    # Test with a string
+    result = get_path_url("not a path")
+    assert result is None
+
+    # Test with a dict
+    result = get_path_url({"key": "value"})
+    assert result is None
+
+    # Test with None
+    result = get_path_url(None)
+    assert result is None
+
+
+def test_get_path_url_with_object_with_target():
+    """Test get_path_url returns URL for any object with __replicate_target__."""
+    from replicate.use import get_path_url
+
+    class MockObjectWithTarget:
+        def __init__(self, target):
+            object.__setattr__(self, "__replicate_target__", target)
+
+    url = "https://example.com/mock.png"
+    mock_obj = MockObjectWithTarget(url)
+
+    result = get_path_url(mock_obj)
+    assert result == url
+
+
+def test_get_path_url_with_empty_target():
+    """Test get_path_url with empty/falsy target values."""
+    from replicate.use import get_path_url
+
+    class MockObjectWithEmptyTarget:
+        def __init__(self, target):
+            object.__setattr__(self, "__replicate_target__", target)
+
+    # Test with empty string
+    mock_obj = MockObjectWithEmptyTarget("")
+    result = get_path_url(mock_obj)
+    assert result == ""
+
+    # Test with None
+    mock_obj = MockObjectWithEmptyTarget(None)
+    result = get_path_url(mock_obj)
+    assert result is None
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize("use_async_client", [False])
 @respx.mock
