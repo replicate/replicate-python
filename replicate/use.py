@@ -8,7 +8,7 @@ import tempfile
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
-from typing import Any, Dict, Iterator, Optional, Tuple, Union
+from typing import Any, Iterator, Optional, Tuple, Union
 from urllib.parse import urlparse
 
 import httpx
@@ -333,11 +333,11 @@ class Function:
 
         return version
 
-    def __call__(self, **inputs: Dict[str, Any]) -> Any:
+    def __call__(self, **inputs: Any) -> Any:
         run = self.create(**inputs)
         return run.output()
 
-    def create(self, **inputs: Dict[str, Any]) -> Run:
+    def create(self, **inputs: Any) -> Run:
         """
         Start a prediction with the specified inputs.
         """
