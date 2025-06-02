@@ -611,6 +611,65 @@ async def test_use_iterator_of_paths_output(use_async_client):
 @pytest.mark.asyncio
 @pytest.mark.parametrize("use_async_client", [False])
 @respx.mock
+async def test_use_pathproxy_input_conversion(use_async_client):
+    """Test that PathProxy instances are converted to URLs when passed to create()."""
+    mock_model_endpoints()
+
+    # Mock the file download - this should NOT be called
+    file_request_mock = respx.get("https://example.com/input.jpg").mock(
+        return_value=httpx.Response(200, content=b"fake input image data")
+    )
+
+    # Create a PathProxy instance
+    from replicate.use import PathProxy
+
+    path_proxy = PathProxy("https://example.com/input.jpg")
+
+    # Set up a mock for the prediction creation to capture the request
+    request_body = None
+
+    def capture_request(request):
+        nonlocal request_body
+        request_body = request.read()
+        return httpx.Response(
+            201,
+            json={
+                "id": "pred789",
+                "model": "acme/hotdog-detector",
+                "version": "xyz123",
+                "urls": {
+                    "get": "https://api.replicate.com/v1/predictions/pred789",
+                    "cancel": "https://api.replicate.com/v1/predictions/pred789/cancel",
+                },
+                "created_at": "2024-01-01T00:00:00Z",
+                "source": "api",
+                "status": "processing",
+                "input": {"image": "https://example.com/input.jpg"},
+                "output": None,
+                "error": None,
+                "logs": "",
+            },
+        )
+
+    respx.post("https://api.replicate.com/v1/predictions").mock(
+        side_effect=capture_request
+    )
+
+    # Call use and create with PathProxy
+    hotdog_detector = replicate.use("acme/hotdog-detector")
+    run = hotdog_detector.create(image=path_proxy)
+
+    # Verify the request body contains the URL, not the downloaded file
+    parsed_body = json.loads(request_body)
+    assert parsed_body["input"]["image"] == "https://example.com/input.jpg"
+
+    # Assert that the file was never downloaded
+    assert file_request_mock.call_count == 0
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("use_async_client", [False])
+@respx.mock
 async def test_use_function_logs_method(use_async_client):
     mock_model_endpoints()
     mock_prediction_endpoints()

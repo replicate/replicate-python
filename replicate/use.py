@@ -225,6 +225,10 @@ class PathProxy(Path):
         if name in ("__path__", "__target__"):
             return object.__getattribute__(self, name)
 
+        # TODO: We should cover other common properties on Path...
+        if name == "__class__":
+            return Path
+
         return getattr(object.__getattribute__(self, "__path__")(), name)
 
     def __setattr__(self, name, value) -> None:
@@ -332,11 +336,13 @@ class Function:
         """
         Start a prediction with the specified inputs.
         """
-        # Process inputs to convert concatenate OutputIterators to strings
+        # Process inputs to convert concatenate OutputIterators to strings and PathProxy to URLs
         processed_inputs = {}
         for key, value in inputs.items():
             if isinstance(value, OutputIterator) and value.is_concatenate:
                 processed_inputs[key] = str(value)
+            elif isinstance(value, PathProxy):
+                processed_inputs[key] = object.__getattribute__(value, "__target__")
             else:
                 processed_inputs[key] = value
 
