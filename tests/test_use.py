@@ -34,7 +34,6 @@ def _deep_merge(base, override):
 
 
 def create_mock_version(version_overrides=None, version_id="xyz123"):
-    """Create a mock version by merging overrides with default version."""
     default_version = {
         "id": version_id,
         "created_at": "2024-01-01T00:00:00Z",
@@ -83,6 +82,31 @@ def create_mock_version(version_overrides=None, version_id="xyz123"):
     }
 
     return _deep_merge(default_version, version_overrides)
+
+
+def create_mock_prediction(
+    prediction_overrides=None, prediction_id="pred123", uses_versionless_api=None
+):
+    default_prediction = {
+        "id": prediction_id,
+        "model": "acme/hotdog-detector",
+        "version": "hidden"
+        if uses_versionless_api in ("notfound", "empty")
+        else "xyz123",
+        "urls": {
+            "get": f"https://api.replicate.com/v1/predictions/{prediction_id}",
+            "cancel": f"https://api.replicate.com/v1/predictions/{prediction_id}/cancel",
+        },
+        "created_at": "2024-01-01T00:00:00Z",
+        "source": "api",
+        "status": "processing",
+        "input": {"prompt": "hello world"},
+        "output": None,
+        "error": None,
+        "logs": "Starting prediction...",
+    }
+
+    return _deep_merge(default_prediction, prediction_overrides)
 
 
 def mock_model_endpoints(
@@ -146,106 +170,45 @@ def mock_model_endpoints(
 
 
 def mock_prediction_endpoints(
-    output_data="not hotdog",
+    predictions=None,
     *,
     uses_versionless_api=None,
-    polling_responses=None,
 ):
-    """Mock the prediction creation and polling endpoints."""
-
-    if polling_responses is None:
-        polling_responses = [
-            {
-                "id": "pred123",
-                "model": "acme/hotdog-detector",
-                "version": "hidden"
-                if uses_versionless_api in ("notfound", "empty")
-                else "xyz123",
-                "urls": {
-                    "get": "https://api.replicate.com/v1/predictions/pred123",
-                    "cancel": "https://api.replicate.com/v1/predictions/pred123/cancel",
+    if predictions is None:
+        # Create default two-step prediction flow (processing -> succeeded)
+        predictions = [
+            create_mock_prediction(
+                {
+                    "status": "processing",
+                    "output": None,
+                    "logs": "",
                 },
-                "created_at": "2024-01-01T00:00:00Z",
-                "source": "api",
-                "status": "processing",
-                "input": {"prompt": "hello world"},
-                "output": None,
-                "error": None,
-                "logs": "Starting prediction...",
-            },
-            {
-                "id": "pred123",
-                "model": "acme/hotdog-detector",
-                "version": "hidden"
-                if uses_versionless_api in ("notfound", "empty")
-                else "xyz123",
-                "urls": {
-                    "get": "https://api.replicate.com/v1/predictions/pred123",
-                    "cancel": "https://api.replicate.com/v1/predictions/pred123/cancel",
+                uses_versionless_api=uses_versionless_api,
+            ),
+            create_mock_prediction(
+                {
+                    "status": "succeeded",
+                    "output": "not hotdog",
+                    "logs": "Starting prediction...\nPrediction completed.",
                 },
-                "created_at": "2024-01-01T00:00:00Z",
-                "source": "api",
-                "status": "succeeded",
-                "input": {"prompt": "hello world"},
-                "output": output_data,
-                "error": None,
-                "logs": "Starting prediction...\nPrediction completed.",
-            },
+                uses_versionless_api=uses_versionless_api,
+            ),
         ]
 
-    # Mock the prediction creation endpoint
+    initial_prediction = predictions[0]
     if uses_versionless_api in ("notfound", "empty"):
         respx.post(
             "https://api.replicate.com/v1/models/acme/hotdog-detector/predictions"
-        ).mock(
-            return_value=httpx.Response(
-                201,
-                json={
-                    "id": "pred123",
-                    "model": "acme/hotdog-detector",
-                    "version": "hidden",
-                    "urls": {
-                        "get": "https://api.replicate.com/v1/predictions/pred123",
-                        "cancel": "https://api.replicate.com/v1/predictions/pred123/cancel",
-                    },
-                    "created_at": "2024-01-01T00:00:00Z",
-                    "source": "api",
-                    "status": "processing",
-                    "input": {"prompt": "hello world"},
-                    "output": None,
-                    "error": None,
-                    "logs": "",
-                },
-            )
-        )
+        ).mock(return_value=httpx.Response(201, json=initial_prediction))
     else:
         respx.post("https://api.replicate.com/v1/predictions").mock(
-            return_value=httpx.Response(
-                201,
-                json={
-                    "id": "pred123",
-                    "model": "acme/hotdog-detector",
-                    "version": "xyz123",
-                    "urls": {
-                        "get": "https://api.replicate.com/v1/predictions/pred123",
-                        "cancel": "https://api.replicate.com/v1/predictions/pred123/cancel",
-                    },
-                    "created_at": "2024-01-01T00:00:00Z",
-                    "source": "api",
-                    "status": "processing",
-                    "input": {"prompt": "hello world"},
-                    "output": None,
-                    "error": None,
-                    "logs": "",
-                },
-            )
+            return_value=httpx.Response(201, json=initial_prediction)
         )
 
     # Mock the prediction polling endpoint
-    respx.get("https://api.replicate.com/v1/predictions/pred123").mock(
-        side_effect=[
-            httpx.Response(200, json=response) for response in polling_responses
-        ]
+    prediction_id = initial_prediction["id"]
+    respx.get(f"https://api.replicate.com/v1/predictions/{prediction_id}").mock(
+        side_effect=[httpx.Response(200, json=response) for response in predictions]
     )
 
 
@@ -383,7 +346,14 @@ async def test_use_concatenate_iterator_output(client_mode):
             )
         ]
     )
-    mock_prediction_endpoints(output_data=["Hello", " ", "world", "!"])
+    mock_prediction_endpoints(
+        predictions=[
+            create_mock_prediction({"status": "processing", "output": None}),
+            create_mock_prediction(
+                {"status": "succeeded", "output": ["Hello", " ", "world", "!"]}
+            ),
+        ]
+    )
 
     # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use("acme/hotdog-detector")
@@ -463,7 +433,14 @@ async def test_use_list_of_strings_output(client_mode):
             )
         ]
     )
-    mock_prediction_endpoints(output_data=["hello", "world", "test"])
+    mock_prediction_endpoints(
+        predictions=[
+            create_mock_prediction({"status": "processing", "output": None}),
+            create_mock_prediction(
+                {"status": "succeeded", "output": ["hello", "world", "test"]}
+            ),
+        ]
+    )
 
     # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use("acme/hotdog-detector")
@@ -499,7 +476,14 @@ async def test_use_iterator_of_strings_output(client_mode):
             )
         ]
     )
-    mock_prediction_endpoints(output_data=["hello", "world", "test"])
+    mock_prediction_endpoints(
+        predictions=[
+            create_mock_prediction({"status": "processing", "output": None}),
+            create_mock_prediction(
+                {"status": "succeeded", "output": ["hello", "world", "test"]}
+            ),
+        ]
+    )
 
     # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use("acme/hotdog-detector")
@@ -539,7 +523,14 @@ async def test_use_path_output(client_mode):
             )
         ]
     )
-    mock_prediction_endpoints(output_data="https://example.com/output.jpg")
+    mock_prediction_endpoints(
+        predictions=[
+            create_mock_prediction({"status": "processing", "output": None}),
+            create_mock_prediction(
+                {"status": "succeeded", "output": "https://example.com/output.jpg"}
+            ),
+        ]
+    )
 
     # Mock the file download
     respx.get("https://example.com/output.jpg").mock(
@@ -581,9 +572,17 @@ async def test_use_list_of_paths_output(client_mode):
         ]
     )
     mock_prediction_endpoints(
-        output_data=[
-            "https://example.com/output1.jpg",
-            "https://example.com/output2.jpg",
+        predictions=[
+            create_mock_prediction({"status": "processing", "output": None}),
+            create_mock_prediction(
+                {
+                    "status": "succeeded",
+                    "output": [
+                        "https://example.com/output1.jpg",
+                        "https://example.com/output2.jpg",
+                    ],
+                }
+            ),
         ]
     )
 
@@ -634,9 +633,17 @@ async def test_use_iterator_of_paths_output(client_mode):
         ]
     )
     mock_prediction_endpoints(
-        output_data=[
-            "https://example.com/output1.jpg",
-            "https://example.com/output2.jpg",
+        predictions=[
+            create_mock_prediction({"status": "processing", "output": None}),
+            create_mock_prediction(
+                {
+                    "status": "succeeded",
+                    "output": [
+                        "https://example.com/output1.jpg",
+                        "https://example.com/output2.jpg",
+                    ],
+                }
+            ),
         ]
     )
 
@@ -803,7 +810,17 @@ async def test_use_pathproxy_input_conversion(client_mode):
 @respx.mock
 async def test_use_function_logs_method(client_mode):
     mock_model_endpoints()
-    mock_prediction_endpoints()
+    mock_prediction_endpoints(
+        predictions=[
+            create_mock_prediction(
+                {
+                    "status": "processing",
+                    "output": None,
+                    "logs": "Starting prediction...",
+                },
+            ),
+        ]
+    )
 
     # Call use and then create method
     hotdog_detector = replicate.use("acme/hotdog-detector")
@@ -824,41 +841,19 @@ async def test_use_function_logs_method_polling(client_mode):
 
     # Mock prediction endpoints with updated logs on polling
     polling_responses = [
-        {
-            "id": "pred123",
-            "model": "acme/hotdog-detector",
-            "version": "xyz123",
-            "urls": {
-                "get": "https://api.replicate.com/v1/predictions/pred123",
-                "cancel": "https://api.replicate.com/v1/predictions/pred123/cancel",
-            },
-            "created_at": "2024-01-01T00:00:00Z",
-            "source": "api",
-            "status": "processing",
-            "input": {"prompt": "hello world"},
-            "output": None,
-            "error": None,
-            "logs": "Starting prediction...",
-        },
-        {
-            "id": "pred123",
-            "model": "acme/hotdog-detector",
-            "version": "xyz123",
-            "urls": {
-                "get": "https://api.replicate.com/v1/predictions/pred123",
-                "cancel": "https://api.replicate.com/v1/predictions/pred123/cancel",
-            },
-            "created_at": "2024-01-01T00:00:00Z",
-            "source": "api",
-            "status": "processing",
-            "input": {"prompt": "hello world"},
-            "output": None,
-            "error": None,
-            "logs": "Starting prediction...\nProcessing input...",
-        },
+        create_mock_prediction(
+            {
+                "logs": "Starting prediction...",
+            }
+        ),
+        create_mock_prediction(
+            {
+                "logs": "Starting prediction...\nProcessing input...",
+            }
+        ),
     ]
 
-    mock_prediction_endpoints(polling_responses=polling_responses)
+    mock_prediction_endpoints(predictions=polling_responses)
 
     # Call use and then create method
     hotdog_detector = replicate.use("acme/hotdog-detector")
@@ -905,11 +900,19 @@ async def test_use_object_output_with_file_properties(client_mode):
         ]
     )
     mock_prediction_endpoints(
-        output_data={
-            "text": "Generated text",
-            "image": "https://example.com/generated.png",
-            "count": 42,
-        }
+        predictions=[
+            create_mock_prediction({"status": "processing", "output": None}),
+            create_mock_prediction(
+                {
+                    "status": "succeeded",
+                    "output": {
+                        "text": "Generated text",
+                        "image": "https://example.com/generated.png",
+                        "count": 42,
+                    },
+                }
+            ),
+        ]
     )
 
     # Mock the file download
@@ -965,13 +968,21 @@ async def test_use_object_output_with_file_list_property(client_mode):
         ]
     )
     mock_prediction_endpoints(
-        output_data={
-            "text": "Generated text",
-            "images": [
-                "https://example.com/image1.png",
-                "https://example.com/image2.png",
-            ],
-        }
+        predictions=[
+            create_mock_prediction({"status": "processing", "output": None}),
+            create_mock_prediction(
+                {
+                    "status": "succeeded",
+                    "output": {
+                        "text": "Generated text",
+                        "images": [
+                            "https://example.com/image1.png",
+                            "https://example.com/image2.png",
+                        ],
+                    },
+                }
+            ),
+        ]
     )
 
     # Mock the file downloads
