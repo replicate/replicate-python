@@ -154,7 +154,7 @@ def _process_output_with_schema(output: Any, openapi_schema: dict) -> Any:
     # Handle direct string with format=uri
     if output_schema.get("type") == "string" and output_schema.get("format") == "uri":
         if isinstance(output, str) and output.startswith(("http://", "https://")):
-            return _download_file(output)
+            return PathProxy(output)
         return output
 
     # Handle array of strings with format=uri
@@ -163,7 +163,7 @@ def _process_output_with_schema(output: Any, openapi_schema: dict) -> Any:
         if items.get("type") == "string" and items.get("format") == "uri":
             if isinstance(output, list):
                 return [
-                    _download_file(url)
+                    PathProxy(url)
                     if isinstance(url, str) and url.startswith(("http://", "https://"))
                     else url
                     for url in output
@@ -187,7 +187,7 @@ def _process_output_with_schema(output: Any, openapi_schema: dict) -> Any:
                     if isinstance(value, str) and value.startswith(
                         ("http://", "https://")
                     ):
-                        result[prop_name] = _download_file(value)
+                        result[prop_name] = PathProxy(value)
 
                 # Array of files property
                 elif prop_schema.get("type") == "array":
@@ -195,7 +195,7 @@ def _process_output_with_schema(output: Any, openapi_schema: dict) -> Any:
                     if items.get("type") == "string" and items.get("format") == "uri":
                         if isinstance(value, list):
                             result[prop_name] = [
-                                _download_file(url)
+                                PathProxy(url)
                                 if isinstance(url, str)
                                 and url.startswith(("http://", "https://"))
                                 else url

@@ -9,6 +9,7 @@ import pytest
 import respx
 
 import replicate
+from replicate.use import PathProxy
 
 
 class ClientMode(str, Enum):
@@ -540,6 +541,7 @@ async def test_use_path_output(client_mode):
     # Call function with prompt="hello world"
     output = hotdog_detector(prompt="hello world")
 
+    assert isinstance(output, PathProxy)
     assert isinstance(output, Path)
     assert output.exists()
     assert output.read_bytes() == b"fake image data"
@@ -598,6 +600,7 @@ async def test_use_list_of_paths_output(client_mode):
 
     assert isinstance(output, list)
     assert len(output) == 2
+    assert all(isinstance(path, PathProxy) for path in output)
     assert all(isinstance(path, Path) for path in output)
     assert all(path.exists() for path in output)
     assert output[0].read_bytes() == b"fake image 1 data"
@@ -663,6 +666,7 @@ async def test_use_iterator_of_paths_output(client_mode):
     # Convert to list to check contents
     output_list = list(output)
     assert len(output_list) == 2
+    assert all(isinstance(path, PathProxy) for path in output_list)
     assert all(isinstance(path, Path) for path in output_list)
     assert all(path.exists() for path in output_list)
     assert output_list[0].read_bytes() == b"fake image 1 data"
