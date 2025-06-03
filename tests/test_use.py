@@ -337,7 +337,6 @@ async def test_use_concatenate_iterator_output(client_mode):
                                     "items": {"type": "string"},
                                     "x-cog-array-type": "iterator",
                                     "x-cog-array-display": "concatenate",
-                                    "title": "Output",
                                 }
                             }
                         }
@@ -348,7 +347,7 @@ async def test_use_concatenate_iterator_output(client_mode):
     )
     mock_prediction_endpoints(
         predictions=[
-            create_mock_prediction({"status": "processing", "output": None}),
+            create_mock_prediction(),
             create_mock_prediction(
                 {"status": "succeeded", "output": ["Hello", " ", "world", "!"]}
             ),
@@ -424,7 +423,6 @@ async def test_use_list_of_strings_output(client_mode):
                                 "Output": {
                                     "type": "array",
                                     "items": {"type": "string"},
-                                    "title": "Output",
                                 }
                             }
                         }
@@ -435,7 +433,7 @@ async def test_use_list_of_strings_output(client_mode):
     )
     mock_prediction_endpoints(
         predictions=[
-            create_mock_prediction({"status": "processing", "output": None}),
+            create_mock_prediction(),
             create_mock_prediction(
                 {"status": "succeeded", "output": ["hello", "world", "test"]}
             ),
@@ -467,7 +465,6 @@ async def test_use_iterator_of_strings_output(client_mode):
                                     "type": "array",
                                     "items": {"type": "string"},
                                     "x-cog-array-type": "iterator",
-                                    "title": "Output",
                                 }
                             }
                         }
@@ -478,7 +475,7 @@ async def test_use_iterator_of_strings_output(client_mode):
     )
     mock_prediction_endpoints(
         predictions=[
-            create_mock_prediction({"status": "processing", "output": None}),
+            create_mock_prediction(),
             create_mock_prediction(
                 {"status": "succeeded", "output": ["hello", "world", "test"]}
             ),
@@ -514,7 +511,6 @@ async def test_use_path_output(client_mode):
                                 "Output": {
                                     "type": "string",
                                     "format": "uri",
-                                    "title": "Output",
                                 }
                             }
                         }
@@ -525,7 +521,7 @@ async def test_use_path_output(client_mode):
     )
     mock_prediction_endpoints(
         predictions=[
-            create_mock_prediction({"status": "processing", "output": None}),
+            create_mock_prediction(),
             create_mock_prediction(
                 {"status": "succeeded", "output": "https://example.com/output.jpg"}
             ),
@@ -562,7 +558,6 @@ async def test_use_list_of_paths_output(client_mode):
                                 "Output": {
                                     "type": "array",
                                     "items": {"type": "string", "format": "uri"},
-                                    "title": "Output",
                                 }
                             }
                         }
@@ -573,7 +568,7 @@ async def test_use_list_of_paths_output(client_mode):
     )
     mock_prediction_endpoints(
         predictions=[
-            create_mock_prediction({"status": "processing", "output": None}),
+            create_mock_prediction(),
             create_mock_prediction(
                 {
                     "status": "succeeded",
@@ -623,7 +618,6 @@ async def test_use_iterator_of_paths_output(client_mode):
                                     "type": "array",
                                     "items": {"type": "string", "format": "uri"},
                                     "x-cog-array-type": "iterator",
-                                    "title": "Output",
                                 }
                             }
                         }
@@ -634,7 +628,7 @@ async def test_use_iterator_of_paths_output(client_mode):
     )
     mock_prediction_endpoints(
         predictions=[
-            create_mock_prediction({"status": "processing", "output": None}),
+            create_mock_prediction(),
             create_mock_prediction(
                 {
                     "status": "succeeded",
@@ -810,17 +804,7 @@ async def test_use_pathproxy_input_conversion(client_mode):
 @respx.mock
 async def test_use_function_logs_method(client_mode):
     mock_model_endpoints()
-    mock_prediction_endpoints(
-        predictions=[
-            create_mock_prediction(
-                {
-                    "status": "processing",
-                    "output": None,
-                    "logs": "Starting prediction...",
-                },
-            ),
-        ]
-    )
+    mock_prediction_endpoints(predictions=[create_mock_prediction()])
 
     # Call use and then create method
     hotdog_detector = replicate.use("acme/hotdog-detector")
@@ -882,15 +866,13 @@ async def test_use_object_output_with_file_properties(client_mode):
                                 "Output": {
                                     "type": "object",
                                     "properties": {
-                                        "text": {"type": "string", "title": "Text"},
+                                        "text": {"type": "string"},
                                         "image": {
                                             "type": "string",
                                             "format": "uri",
-                                            "title": "Image",
                                         },
-                                        "count": {"type": "integer", "title": "Count"},
+                                        "count": {"type": "integer"},
                                     },
-                                    "title": "Output",
                                 }
                             }
                         }
@@ -901,7 +883,7 @@ async def test_use_object_output_with_file_properties(client_mode):
     )
     mock_prediction_endpoints(
         predictions=[
-            create_mock_prediction({"status": "processing", "output": None}),
+            create_mock_prediction(),
             create_mock_prediction(
                 {
                     "status": "succeeded",
@@ -948,17 +930,15 @@ async def test_use_object_output_with_file_list_property(client_mode):
                                 "Output": {
                                     "type": "object",
                                     "properties": {
-                                        "text": {"type": "string", "title": "Text"},
+                                        "text": {"type": "string"},
                                         "images": {
                                             "type": "array",
                                             "items": {
                                                 "type": "string",
                                                 "format": "uri",
                                             },
-                                            "title": "Images",
                                         },
                                     },
-                                    "title": "Output",
                                 }
                             }
                         }
@@ -969,7 +949,7 @@ async def test_use_object_output_with_file_list_property(client_mode):
     )
     mock_prediction_endpoints(
         predictions=[
-            create_mock_prediction({"status": "processing", "output": None}),
+            create_mock_prediction(),
             create_mock_prediction(
                 {
                     "status": "succeeded",
