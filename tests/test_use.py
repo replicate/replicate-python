@@ -18,6 +18,7 @@ class ClientMode(str, Enum):
 
 # Allow use() to be called in test context
 os.environ["REPLICATE_ALWAYS_ALLOW_USE"] = "1"
+os.environ["REPLICATE_POLL_INTERVAL"] = "0"
 
 
 def _deep_merge(base, override):
