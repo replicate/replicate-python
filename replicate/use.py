@@ -436,7 +436,9 @@ def use(ref: FunctionRef[Input, Output]) -> Function[Input, Output]: ...
 
 
 @overload
-def use(ref: str, *, hint: Callable[Input, Output]) -> Function[Input, Output]: ...
+def use(
+    ref: str, *, hint: Callable[Input, Output] | None = None
+) -> Function[Input, Output]: ...
 
 
 def use(

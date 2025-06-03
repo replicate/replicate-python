@@ -2,6 +2,7 @@ import json
 import os
 from enum import Enum
 from pathlib import Path
+from typing import Literal, Union
 
 import httpx
 import pytest
@@ -32,22 +33,10 @@ def _deep_merge(base, override):
     return result
 
 
-def mock_model_endpoints(
-    version_overrides=None,
-    *,
-    uses_versionless_api=False,
-    has_no_versions=False,
-):
-    """Mock the model and versions endpoints."""
-    # Validate arguments
-    if version_overrides and has_no_versions:
-        raise ValueError(
-            "Cannot specify both 'version_overrides' and 'has_no_versions=True'"
-        )
-
-    # Create default version
+def create_mock_version(version_overrides=None, version_id="xyz123"):
+    """Create a mock version by merging overrides with default version."""
     default_version = {
-        "id": "xyz123",
+        "id": version_id,
         "created_at": "2024-01-01T00:00:00Z",
         "cog_version": "0.8.0",
         "openapi_schema": {
@@ -93,7 +82,21 @@ def mock_model_endpoints(
         },
     }
 
-    version = _deep_merge(default_version, version_overrides)
+    return _deep_merge(default_version, version_overrides)
+
+
+def mock_model_endpoints(
+    versions=None,
+    *,
+    # This is a workaround while we have a bug in the api
+    uses_versionless_api: Union[Literal["notfound"], Literal["empty"], None] = None,
+):
+    if versions is None:
+        versions = [create_mock_version()]
+
+    # Get the latest version (first in list) for the model endpoint
+    # For empty case, we provide the version in latest_version but return empty versions list
+    latest_version = versions[0] if versions else None
     respx.get("https://api.replicate.com/v1/models/acme/hotdog-detector").mock(
         return_value=httpx.Response(
             200,
@@ -111,21 +114,17 @@ def mock_model_endpoints(
                 "default_example": None,
                 # This one is a bit weird due to a bug in procedures that currently return an empty
                 # version list from the `model.versions.list` endpoint instead of 404ing
-                "latest_version": None
-                if has_no_versions and not uses_versionless_api
-                else version,
+                "latest_version": latest_version,
             },
         )
     )
 
-    # Determine versions list
-    if uses_versionless_api or has_no_versions:
+    versions_results = versions
+    if uses_versionless_api == "empty":
         versions_results = []
-    else:
-        versions_results = [version] if version else []
 
     # Mock the versions list endpoint
-    if uses_versionless_api:
+    if uses_versionless_api == "notfound":
         respx.get(
             "https://api.replicate.com/v1/models/acme/hotdog-detector/versions"
         ).mock(return_value=httpx.Response(404, json={"detail": "Not found"}))
@@ -136,7 +135,7 @@ def mock_model_endpoints(
 
     # Mock specific version endpoints
     for version_obj in versions_results:
-        if uses_versionless_api:
+        if uses_versionless_api == "notfound":
             respx.get(
                 f"https://api.replicate.com/v1/models/acme/hotdog-detector/versions/{version_obj['id']}"
             ).mock(return_value=httpx.Response(404, json={}))
@@ -149,7 +148,7 @@ def mock_model_endpoints(
 def mock_prediction_endpoints(
     output_data="not hotdog",
     *,
-    uses_versionless_api=False,
+    uses_versionless_api=None,
     polling_responses=None,
 ):
     """Mock the prediction creation and polling endpoints."""
@@ -159,7 +158,9 @@ def mock_prediction_endpoints(
             {
                 "id": "pred123",
                 "model": "acme/hotdog-detector",
-                "version": "hidden" if uses_versionless_api else "xyz123",
+                "version": "hidden"
+                if uses_versionless_api in ("notfound", "empty")
+                else "xyz123",
                 "urls": {
                     "get": "https://api.replicate.com/v1/predictions/pred123",
                     "cancel": "https://api.replicate.com/v1/predictions/pred123/cancel",
@@ -175,7 +176,9 @@ def mock_prediction_endpoints(
             {
                 "id": "pred123",
                 "model": "acme/hotdog-detector",
-                "version": "hidden" if uses_versionless_api else "xyz123",
+                "version": "hidden"
+                if uses_versionless_api in ("notfound", "empty")
+                else "xyz123",
                 "urls": {
                     "get": "https://api.replicate.com/v1/predictions/pred123",
                     "cancel": "https://api.replicate.com/v1/predictions/pred123/cancel",
@@ -191,7 +194,7 @@ def mock_prediction_endpoints(
         ]
 
     # Mock the prediction creation endpoint
-    if uses_versionless_api:
+    if uses_versionless_api in ("notfound", "empty"):
         respx.post(
             "https://api.replicate.com/v1/models/acme/hotdog-detector/predictions"
         ).mock(
@@ -305,8 +308,8 @@ async def test_use_with_function_ref(client_mode):
 @pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
 @respx.mock
 async def test_use_versionless_empty_versions_list(client_mode):
-    mock_model_endpoints(has_no_versions=True, uses_versionless_api=True)
-    mock_prediction_endpoints(uses_versionless_api=True)
+    mock_model_endpoints(uses_versionless_api="empty")
+    mock_prediction_endpoints(uses_versionless_api="empty")
 
     # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use("acme/hotdog-detector")
@@ -322,8 +325,8 @@ async def test_use_versionless_empty_versions_list(client_mode):
 @pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
 @respx.mock
 async def test_use_versionless_404_versions_list(client_mode):
-    mock_model_endpoints(uses_versionless_api=True)
-    mock_prediction_endpoints(uses_versionless_api=True)
+    mock_model_endpoints(uses_versionless_api="notfound")
+    mock_prediction_endpoints(uses_versionless_api="notfound")
 
     # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use("acme/hotdog-detector")
@@ -360,21 +363,25 @@ async def test_use_function_create_method(client_mode):
 @respx.mock
 async def test_use_concatenate_iterator_output(client_mode):
     mock_model_endpoints(
-        version_overrides={
-            "openapi_schema": {
-                "components": {
-                    "schemas": {
-                        "Output": {
-                            "type": "array",
-                            "items": {"type": "string"},
-                            "x-cog-array-type": "iterator",
-                            "x-cog-array-display": "concatenate",
-                            "title": "Output",
+        versions=[
+            create_mock_version(
+                {
+                    "openapi_schema": {
+                        "components": {
+                            "schemas": {
+                                "Output": {
+                                    "type": "array",
+                                    "items": {"type": "string"},
+                                    "x-cog-array-type": "iterator",
+                                    "x-cog-array-display": "concatenate",
+                                    "title": "Output",
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
+            )
+        ]
     )
     mock_prediction_endpoints(output_data=["Hello", " ", "world", "!"])
 
@@ -438,19 +445,23 @@ async def test_use_concatenate_iterator_output(client_mode):
 @respx.mock
 async def test_use_list_of_strings_output(client_mode):
     mock_model_endpoints(
-        version_overrides={
-            "openapi_schema": {
-                "components": {
-                    "schemas": {
-                        "Output": {
-                            "type": "array",
-                            "items": {"type": "string"},
-                            "title": "Output",
+        versions=[
+            create_mock_version(
+                {
+                    "openapi_schema": {
+                        "components": {
+                            "schemas": {
+                                "Output": {
+                                    "type": "array",
+                                    "items": {"type": "string"},
+                                    "title": "Output",
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
+            )
+        ]
     )
     mock_prediction_endpoints(output_data=["hello", "world", "test"])
 
@@ -469,20 +480,24 @@ async def test_use_list_of_strings_output(client_mode):
 @respx.mock
 async def test_use_iterator_of_strings_output(client_mode):
     mock_model_endpoints(
-        version_overrides={
-            "openapi_schema": {
-                "components": {
-                    "schemas": {
-                        "Output": {
-                            "type": "array",
-                            "items": {"type": "string"},
-                            "x-cog-array-type": "iterator",
-                            "title": "Output",
+        versions=[
+            create_mock_version(
+                {
+                    "openapi_schema": {
+                        "components": {
+                            "schemas": {
+                                "Output": {
+                                    "type": "array",
+                                    "items": {"type": "string"},
+                                    "x-cog-array-type": "iterator",
+                                    "title": "Output",
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
+            )
+        ]
     )
     mock_prediction_endpoints(output_data=["hello", "world", "test"])
 
@@ -506,15 +521,23 @@ async def test_use_iterator_of_strings_output(client_mode):
 @respx.mock
 async def test_use_path_output(client_mode):
     mock_model_endpoints(
-        version_overrides={
-            "openapi_schema": {
-                "components": {
-                    "schemas": {
-                        "Output": {"type": "string", "format": "uri", "title": "Output"}
+        versions=[
+            create_mock_version(
+                {
+                    "openapi_schema": {
+                        "components": {
+                            "schemas": {
+                                "Output": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "title": "Output",
+                                }
+                            }
+                        }
                     }
                 }
-            }
-        }
+            )
+        ]
     )
     mock_prediction_endpoints(output_data="https://example.com/output.jpg")
 
@@ -539,19 +562,23 @@ async def test_use_path_output(client_mode):
 @respx.mock
 async def test_use_list_of_paths_output(client_mode):
     mock_model_endpoints(
-        version_overrides={
-            "openapi_schema": {
-                "components": {
-                    "schemas": {
-                        "Output": {
-                            "type": "array",
-                            "items": {"type": "string", "format": "uri"},
-                            "title": "Output",
+        versions=[
+            create_mock_version(
+                {
+                    "openapi_schema": {
+                        "components": {
+                            "schemas": {
+                                "Output": {
+                                    "type": "array",
+                                    "items": {"type": "string", "format": "uri"},
+                                    "title": "Output",
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
+            )
+        ]
     )
     mock_prediction_endpoints(
         output_data=[
@@ -587,20 +614,24 @@ async def test_use_list_of_paths_output(client_mode):
 @respx.mock
 async def test_use_iterator_of_paths_output(client_mode):
     mock_model_endpoints(
-        version_overrides={
-            "openapi_schema": {
-                "components": {
-                    "schemas": {
-                        "Output": {
-                            "type": "array",
-                            "items": {"type": "string", "format": "uri"},
-                            "x-cog-array-type": "iterator",
-                            "title": "Output",
+        versions=[
+            create_mock_version(
+                {
+                    "openapi_schema": {
+                        "components": {
+                            "schemas": {
+                                "Output": {
+                                    "type": "array",
+                                    "items": {"type": "string", "format": "uri"},
+                                    "x-cog-array-type": "iterator",
+                                    "title": "Output",
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
+            )
+        ]
     )
     mock_prediction_endpoints(
         output_data=[
@@ -847,27 +878,31 @@ async def test_use_function_logs_method_polling(client_mode):
 @respx.mock
 async def test_use_object_output_with_file_properties(client_mode):
     mock_model_endpoints(
-        version_overrides={
-            "openapi_schema": {
-                "components": {
-                    "schemas": {
-                        "Output": {
-                            "type": "object",
-                            "properties": {
-                                "text": {"type": "string", "title": "Text"},
-                                "image": {
-                                    "type": "string",
-                                    "format": "uri",
-                                    "title": "Image",
-                                },
-                                "count": {"type": "integer", "title": "Count"},
-                            },
-                            "title": "Output",
+        versions=[
+            create_mock_version(
+                {
+                    "openapi_schema": {
+                        "components": {
+                            "schemas": {
+                                "Output": {
+                                    "type": "object",
+                                    "properties": {
+                                        "text": {"type": "string", "title": "Text"},
+                                        "image": {
+                                            "type": "string",
+                                            "format": "uri",
+                                            "title": "Image",
+                                        },
+                                        "count": {"type": "integer", "title": "Count"},
+                                    },
+                                    "title": "Output",
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
+            )
+        ]
     )
     mock_prediction_endpoints(
         output_data={
@@ -901,26 +936,33 @@ async def test_use_object_output_with_file_properties(client_mode):
 @respx.mock
 async def test_use_object_output_with_file_list_property(client_mode):
     mock_model_endpoints(
-        version_overrides={
-            "openapi_schema": {
-                "components": {
-                    "schemas": {
-                        "Output": {
-                            "type": "object",
-                            "properties": {
-                                "text": {"type": "string", "title": "Text"},
-                                "images": {
-                                    "type": "array",
-                                    "items": {"type": "string", "format": "uri"},
-                                    "title": "Images",
-                                },
-                            },
-                            "title": "Output",
+        versions=[
+            create_mock_version(
+                {
+                    "openapi_schema": {
+                        "components": {
+                            "schemas": {
+                                "Output": {
+                                    "type": "object",
+                                    "properties": {
+                                        "text": {"type": "string", "title": "Text"},
+                                        "images": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string",
+                                                "format": "uri",
+                                            },
+                                            "title": "Images",
+                                        },
+                                    },
+                                    "title": "Output",
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
+            )
+        ]
     )
     mock_prediction_endpoints(
         output_data={
