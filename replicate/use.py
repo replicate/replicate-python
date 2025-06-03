@@ -4,11 +4,24 @@
 # - [ ] Support asyncio variant
 import inspect
 import os
+import sys
 import tempfile
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
-from typing import Any, Iterator, Optional, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Generic,
+    Iterator,
+    Optional,
+    ParamSpec,
+    Protocol,
+    Tuple,
+    TypeVar,
+    cast,
+    overload,
+)
 from urllib.parse import urlparse
 
 import httpx
@@ -24,6 +37,18 @@ from replicate.version import Version
 __all__ = ["use", "get_path_url"]
 
 
+def _in_repl() -> bool:
+    return bool(
+        sys.flags.interactive  # python -i
+        or hasattr(sys, "ps1")  # prompt strings exist
+        or (
+            sys.stdin.isatty()  # tty
+            and sys.stdout.isatty()
+        )
+        or ("get_ipython" in globals())
+    )
+
+
 def _in_module_scope() -> bool:
     """
     Returns True when called from top level module scope.
@@ -31,9 +56,16 @@ def _in_module_scope() -> bool:
     if os.getenv("REPLICATE_ALWAYS_ALLOW_USE"):
         return True
 
+    # If we're running in a REPL.
+    if _in_repl():
+        return True
+
     if frame := inspect.currentframe():
+        print(frame)
         if caller := frame.f_back:
+            print(caller.f_code.co_name)
             return caller.f_code.co_name == "<module>"
+
     return False
 
 
@@ -248,8 +280,18 @@ def get_path_url(path: Any) -> str | None:
         return None
 
 
+Input = ParamSpec("Input")
+Output = TypeVar("Output")
+
+
+class FunctionRef(Protocol, Generic[Input, Output]):
+    name: str
+
+    __call__: Callable[Input, Output]
+
+
 @dataclass
-class Run:
+class Run[O]:
     """
     Represents a running prediction with access to its version.
     """
@@ -257,7 +299,7 @@ class Run:
     prediction: Prediction
     schema: dict
 
-    def output(self) -> Union[Any, Iterator[Any]]:
+    def output(self) -> O:
         """
         Wait for the prediction to complete and return its output.
         """
@@ -269,10 +311,13 @@ class Run:
         # Return an OutputIterator for iterator output types (including concatenate iterators)
         if _has_iterator_output_type(self.schema):
             is_concatenate = _has_concatenate_iterator_output_type(self.schema)
-            return OutputIterator(
-                lambda: self.prediction.output_iterator(),
-                self.schema,
-                is_concatenate=is_concatenate,
+            return cast(
+                O,
+                OutputIterator(
+                    lambda: self.prediction.output_iterator(),
+                    self.schema,
+                    is_concatenate=is_concatenate,
+                ),
             )
 
         # Process output for file downloads based on schema
@@ -288,7 +333,7 @@ class Run:
 
 
 @dataclass
-class Function:
+class Function(Generic[Input, Output]):
     """
     A wrapper for a Replicate model that can be called as a function.
     """
@@ -333,11 +378,10 @@ class Function:
 
         return version
 
-    def __call__(self, **inputs: Any) -> Any:
-        run = self.create(**inputs)
-        return run.output()
+    def __call__(self, *args: Input.args, **inputs: Input.kwargs) -> Output:
+        return self.create(*args, **inputs).output()
 
-    def create(self, **inputs: Any) -> Run:
+    def create(self, *_: Input.args, **inputs: Input.kwargs) -> Run[Output]:
         """
         Start a prediction with the specified inputs.
         """
@@ -365,14 +409,14 @@ class Function:
         return Run(prediction, self.openapi_schema)
 
     @property
-    def default_example(self) -> Optional[Prediction]:
+    def default_example(self) -> Optional[dict[str, Any]]:
         """
         Get the default example for this model.
         """
         raise NotImplementedError("This property has not yet been implemented")
 
     @cached_property
-    def openapi_schema(self) -> dict[Any, Any]:
+    def openapi_schema(self) -> dict[str, Any]:
         """
         Get the OpenAPI schema for this model version.
         """
@@ -387,7 +431,19 @@ class Function:
         return schema
 
 
-def use(function_ref: str) -> Function:
+@overload
+def use(ref: FunctionRef[Input, Output]) -> Function[Input, Output]: ...
+
+
+@overload
+def use(ref: str, *, hint: Callable[Input, Output]) -> Function[Input, Output]: ...
+
+
+def use(
+    ref: str | FunctionRef[Input, Output],
+    *,
+    hint: Callable[Input, Output] | None = None,
+) -> Function[Input, Output]:
     """
     Use a Replicate model as a function.
 
@@ -402,4 +458,9 @@ def use(function_ref: str) -> Function:
     if not _in_module_scope():
         raise RuntimeError("You may only call replicate.use() at the top level.")
 
-    return Function(function_ref)
+    try:
+        ref = ref.name  # type: ignore
+    except AttributeError:
+        pass
+
+    return Function(str(ref))

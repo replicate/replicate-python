@@ -592,16 +592,49 @@ for output in outputs:
     print(get_url_path(output)) # "https://replicate.delivery/xyz"
 ```
 
+### Typing
+
+By default `use()` knows nothing about the interface of the model. To provide a better developer experience we provide two methods to add type annotations to the function returned by the `use()` helper.
+
+**1. Provide a function signature**
+
+The use method accepts a function signature as an additional `hint` keyword argument. When provided it will use this signature for the `model()` and `model.create()` functions.
+
+```py
+# Flux takes a required prompt string and optional image and seed.
+def hint(*, prompt: str, image: Path | None = None, seed: int | None = None) -> str: ...
+
+flux_dev = use("black-forest-labs/flux-dev", hint=hint)
+output1 = flux_dev() # will warn that `prompt` is missing
+output2 = flux_dev(prompt="str") # output2 will be typed as `str`
+```
+
+**2. Provide a class**
+
+The second method requires creating a callable class with a `name` field. The name will be used as the function reference when passed to `use()`.
+
+```py
+class FluxDev:
+    name = "black-forest-labs/flux-dev"
+
+    def __call__( self, *, prompt: str, image: Path | None = None, seed: int | None = None ) -> str: ...
+
+flux_dev = use(FluxDev)
+output1 = flux_dev() # will warn that `prompt` is missing
+output2 = flux_dev(prompt="str") # output2 will be typed as `str`
+```
+
+In future we hope to provide tooling to generate and provide these models as packages to make working with them easier. For now you may wish to create your own.
+
 ### TODO
 
 There are several key things still outstanding:
 
  1. Support for asyncio.
- 2. Support for typing the return value.
- 3. Support for streaming text when available (rather than polling)
- 4. Support for streaming files when available (rather than polling)
- 5. Support for cleaning up downloaded files.
- 6. Support for streaming logs using `OutputIterator`.
+ 2. Support for streaming text when available (rather than polling)
+ 3. Support for streaming files when available (rather than polling)
+ 4. Support for cleaning up downloaded files.
+ 5. Support for streaming logs using `OutputIterator`.
 
 ## Development
 

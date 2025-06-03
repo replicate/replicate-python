@@ -283,6 +283,27 @@ async def test_use_with_version_identifier(client_mode):
 @pytest.mark.asyncio
 @pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
 @respx.mock
+async def test_use_with_function_ref(client_mode):
+    mock_model_endpoints()
+    mock_prediction_endpoints()
+
+    class HotdogDetector:
+        name = "acme/hotdog-detector:xyz123"
+
+        def __call__(self, prompt: str) -> str: ...
+
+    hotdog_detector = replicate.use(HotdogDetector())
+
+    # Call function with prompt="hello world"
+    output = hotdog_detector(prompt="hello world")
+
+    # Assert that output is the completed output from the prediction request
+    assert output == "not hotdog"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
+@respx.mock
 async def test_use_versionless_empty_versions_list(client_mode):
     mock_model_endpoints(has_no_versions=True, uses_versionless_api=True)
     mock_prediction_endpoints(uses_versionless_api=True)
