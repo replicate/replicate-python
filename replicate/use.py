@@ -2,6 +2,7 @@
 # - [ ] Support text streaming
 # - [ ] Support file streaming
 # - [ ] Support asyncio variant
+import hashlib
 import inspect
 import os
 import sys
@@ -138,7 +139,7 @@ def _process_iterator_item(item: Any, openapi_schema: dict) -> Any:
         # If items are file URLs, download them
         if items_schema.get("type") == "string" and items_schema.get("format") == "uri":
             if isinstance(item, str) and item.startswith(("http://", "https://")):
-                return PathProxy(item)
+                return URLPath(item)
 
     return item
 
@@ -154,7 +155,7 @@ def _process_output_with_schema(output: Any, openapi_schema: dict) -> Any:
     # Handle direct string with format=uri
     if output_schema.get("type") == "string" and output_schema.get("format") == "uri":
         if isinstance(output, str) and output.startswith(("http://", "https://")):
-            return PathProxy(output)
+            return URLPath(output)
         return output
 
     # Handle array of strings with format=uri
@@ -163,7 +164,7 @@ def _process_output_with_schema(output: Any, openapi_schema: dict) -> Any:
         if items.get("type") == "string" and items.get("format") == "uri":
             if isinstance(output, list):
                 return [
-                    PathProxy(url)
+                    URLPath(url)
                     if isinstance(url, str) and url.startswith(("http://", "https://"))
                     else url
                     for url in output
@@ -187,7 +188,7 @@ def _process_output_with_schema(output: Any, openapi_schema: dict) -> Any:
                     if isinstance(value, str) and value.startswith(
                         ("http://", "https://")
                     ):
-                        result[prop_name] = PathProxy(value)
+                        result[prop_name] = URLPath(value)
 
                 # Array of files property
                 elif prop_schema.get("type") == "array":
@@ -195,7 +196,7 @@ def _process_output_with_schema(output: Any, openapi_schema: dict) -> Any:
                     if items.get("type") == "string" and items.get("format") == "uri":
                         if isinstance(value, list):
                             result[prop_name] = [
-                                PathProxy(url)
+                                URLPath(url)
                                 if isinstance(url, str)
                                 and url.startswith(("http://", "https://"))
                                 else url
@@ -233,41 +234,44 @@ class OutputIterator:
             return str(self.iterator_factory())
 
 
-class PathProxy(Path):
-    def __init__(self, target: str) -> None:
-        path: Path | None = None
+class URLPath(os.PathLike):
+    """
+    A PathLike that defers filesystem ops until first use. Can be used with
+    most Python file interfaces like `open()` and `pathlib.Path()`.
+    See: https://docs.python.org/3.12/library/os.html#os.PathLike
+    """
 
-        def ensure_path() -> Path:
-            nonlocal path
-            if path is None:
-                path = _download_file(target)
-            return path
+    def __init__(self, url: str) -> None:
+        # store the original URL
+        self.__url__ = url
 
-        object.__setattr__(self, "__replicate_target__", target)
-        object.__setattr__(self, "__replicate_path__", ensure_path)
+        # compute target path without touching the filesystem
+        base = Path(tempfile.gettempdir())
+        h = hashlib.sha256(self.__url__.encode("utf-8")).hexdigest()[:16]
+        name = Path(httpx.URL(self.__url__).path).name or h
+        self.__path__ = base / h / name
 
-    def __getattribute__(self, name) -> Any:
-        if name in ("__replicate_path__", "__replicate_target__"):
-            return object.__getattribute__(self, name)
+    def __fspath__(self) -> str:
+        # on first access, create dirs and download if missing
+        if not self.__path__.exists():
+            subdir = self.__path__.parent
+            subdir.mkdir(parents=True, exist_ok=True)
+            if not os.access(subdir, os.W_OK):
+                raise PermissionError(f"Cannot write to {subdir!r}")
 
-        # TODO: We should cover other common properties on Path...
-        if name == "__class__":
-            return Path
+            with httpx.Client() as client, client.stream("GET", self.__url__) as resp:
+                resp.raise_for_status()
+                with open(self.__path__, "wb") as f:
+                    for chunk in resp.iter_bytes(chunk_size=16_384):
+                        f.write(chunk)
 
-        return getattr(object.__getattribute__(self, "__replicate_path__")(), name)
+        return str(self.__path__)
 
-    def __setattr__(self, name, value) -> None:
-        if name in ("__replicate_path__", "__replicate_target__"):
-            raise ValueError()
+    def __str__(self) -> str:
+        return str(self.__path__)
 
-        object.__setattr__(
-            object.__getattribute__(self, "__replicate_path__")(), name, value
-        )
-
-    def __delattr__(self, name) -> None:
-        if name in ("__replicate_path__", "__replicate_target__"):
-            raise ValueError()
-        delattr(object.__getattribute__(self, "__replicate_path__")(), name)
+    def __repr__(self) -> str:
+        return f"<URLPath url={self.__url__!r} path={self.__path__!r}>"
 
 
 def get_path_url(path: Any) -> str | None:
@@ -275,7 +279,7 @@ def get_path_url(path: Any) -> str | None:
     Return the remote URL (if any) for a Path output from a model.
     """
     try:
-        return object.__getattribute__(path, "__replicate_target__")
+        return object.__getattribute__(path, "__url__")
     except AttributeError:
         return None
 
@@ -385,7 +389,7 @@ class Function(Generic[Input, Output]):
         """
         Start a prediction with the specified inputs.
         """
-        # Process inputs to convert concatenate OutputIterators to strings and PathProxy to URLs
+        # Process inputs to convert concatenate OutputIterators to strings and URLPath to URLs
         processed_inputs = {}
         for key, value in inputs.items():
             if isinstance(value, OutputIterator) and value.is_concatenate:

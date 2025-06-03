@@ -9,7 +9,7 @@ import pytest
 import respx
 
 import replicate
-from replicate.use import PathProxy
+from replicate.use import get_path_url
 
 
 class ClientMode(str, Enum):
@@ -541,10 +541,10 @@ async def test_use_path_output(client_mode):
     # Call function with prompt="hello world"
     output = hotdog_detector(prompt="hello world")
 
-    assert isinstance(output, PathProxy)
-    assert isinstance(output, Path)
-    assert output.exists()
-    assert output.read_bytes() == b"fake image data"
+    assert isinstance(output, os.PathLike)
+    assert get_path_url(output) == "https://example.com/output.jpg"
+    assert os.path.exists(output)
+    assert open(output, "rb").read() == b"fake image data"
 
 
 @pytest.mark.asyncio
@@ -600,11 +600,14 @@ async def test_use_list_of_paths_output(client_mode):
 
     assert isinstance(output, list)
     assert len(output) == 2
-    assert all(isinstance(path, PathProxy) for path in output)
-    assert all(isinstance(path, Path) for path in output)
-    assert all(path.exists() for path in output)
-    assert output[0].read_bytes() == b"fake image 1 data"
-    assert output[1].read_bytes() == b"fake image 2 data"
+
+    assert all(isinstance(path, os.PathLike) for path in output)
+    assert get_path_url(output[0]) == "https://example.com/output1.jpg"
+    assert get_path_url(output[1]) == "https://example.com/output2.jpg"
+
+    assert all(os.path.exists(path) for path in output)
+    assert open(output[0], "rb").read() == b"fake image 1 data"
+    assert open(output[1], "rb").read() == b"fake image 2 data"
 
 
 @pytest.mark.asyncio
@@ -666,19 +669,20 @@ async def test_use_iterator_of_paths_output(client_mode):
     # Convert to list to check contents
     output_list = list(output)
     assert len(output_list) == 2
-    assert all(isinstance(path, PathProxy) for path in output_list)
-    assert all(isinstance(path, Path) for path in output_list)
-    assert all(path.exists() for path in output_list)
-    assert output_list[0].read_bytes() == b"fake image 1 data"
-    assert output_list[1].read_bytes() == b"fake image 2 data"
+    assert all(isinstance(path, os.PathLike) for path in output_list)
+    assert get_path_url(output_list[0]) == "https://example.com/output1.jpg"
+    assert get_path_url(output_list[1]) == "https://example.com/output2.jpg"
+    assert all(os.path.exists(path) for path in output_list)
+    assert open(output_list[0], "rb").read() == b"fake image 1 data"
+    assert open(output_list[1], "rb").read() == b"fake image 2 data"
 
 
-def test_get_path_url_with_pathproxy():
+def test_get_path_url_with_urlpath():
     """Test get_path_url returns the URL for PathProxy instances."""
-    from replicate.use import PathProxy, get_path_url
+    from replicate.use import URLPath, get_path_url
 
     url = "https://example.com/test.jpg"
-    path_proxy = PathProxy(url)
+    path_proxy = URLPath(url)
 
     result = get_path_url(path_proxy)
     assert result == url
@@ -711,45 +715,10 @@ def test_get_path_url_with_object_without_target():
     assert result is None
 
 
-def test_get_path_url_with_object_with_target():
-    """Test get_path_url returns URL for any object with __replicate_target__."""
-    from replicate.use import get_path_url
-
-    class MockObjectWithTarget:
-        def __init__(self, target) -> None:
-            object.__setattr__(self, "__replicate_target__", target)
-
-    url = "https://example.com/mock.png"
-    mock_obj = MockObjectWithTarget(url)
-
-    result = get_path_url(mock_obj)
-    assert result == url
-
-
-def test_get_path_url_with_empty_target():
-    """Test get_path_url with empty/falsy target values."""
-    from replicate.use import get_path_url
-
-    class MockObjectWithEmptyTarget:
-        def __init__(self, target) -> None:
-            object.__setattr__(self, "__replicate_target__", target)
-
-    # Test with empty string
-    mock_obj = MockObjectWithEmptyTarget("")
-    result = get_path_url(mock_obj)
-    assert result == ""
-
-    # Test with None
-    mock_obj = MockObjectWithEmptyTarget(None)
-    result = get_path_url(mock_obj)
-    assert result is None
-
-
 @pytest.mark.asyncio
 @pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
 @respx.mock
 async def test_use_pathproxy_input_conversion(client_mode):
-    """Test that PathProxy instances are converted to URLs when passed to create()."""
     mock_model_endpoints()
 
     # Mock the file download - this should NOT be called
@@ -758,9 +727,9 @@ async def test_use_pathproxy_input_conversion(client_mode):
     )
 
     # Create a PathProxy instance
-    from replicate.use import PathProxy
+    from replicate.use import URLPath
 
-    path_proxy = PathProxy("https://example.com/input.jpg")
+    urlpath = URLPath("https://example.com/input.jpg")
 
     # Set up a mock for the prediction creation to capture the request
     request_body = None
@@ -792,11 +761,12 @@ async def test_use_pathproxy_input_conversion(client_mode):
         side_effect=capture_request
     )
 
-    # Call use and create with PathProxy
+    # Call use and create with URLPath
     hotdog_detector = replicate.use("acme/hotdog-detector")
-    hotdog_detector.create(image=path_proxy)
+    hotdog_detector.create(image=urlpath)
 
     # Verify the request body contains the URL, not the downloaded file
+    assert request_body
     parsed_body = json.loads(request_body)
     assert parsed_body["input"]["image"] == "https://example.com/input.jpg"
 
@@ -916,9 +886,10 @@ async def test_use_object_output_with_file_properties(client_mode):
     assert isinstance(output, dict)
     assert output["text"] == "Generated text"
     assert output["count"] == 42
-    assert isinstance(output["image"], Path)
-    assert output["image"].exists()
-    assert output["image"].read_bytes() == b"fake png data"
+    assert isinstance(output["image"], os.PathLike)
+    assert get_path_url(output["image"]) == "https://example.com/generated.png"
+    assert os.path.exists(output["image"])
+    assert open(output["image"], "rb").read() == b"fake png data"
 
 
 @pytest.mark.asyncio
@@ -988,7 +959,9 @@ async def test_use_object_output_with_file_list_property(client_mode):
     assert output["text"] == "Generated text"
     assert isinstance(output["images"], list)
     assert len(output["images"]) == 2
-    assert all(isinstance(path, Path) for path in output["images"])
-    assert all(path.exists() for path in output["images"])
-    assert output["images"][0].read_bytes() == b"fake png 1 data"
-    assert output["images"][1].read_bytes() == b"fake png 2 data"
+    assert all(isinstance(path, os.PathLike) for path in output["images"])
+    assert get_path_url(output["images"][0]) == "https://example.com/image1.png"
+    assert get_path_url(output["images"][1]) == "https://example.com/image2.png"
+    assert all(os.path.exists(path) for path in output["images"])
+    assert open(output["images"][0], "rb").read() == b"fake png 1 data"
+    assert open(output["images"][1], "rb").read() == b"fake png 2 data"

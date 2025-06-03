@@ -525,9 +525,9 @@ To use a model:
 > For now `use()` MUST be called in the top level module scope. We may relax this in future.
 
 ```py
-from replicate import use
+import replicate
 
-flux_dev = use("black-forest-labs/flux-dev")
+flux_dev = replicate.use("black-forest-labs/flux-dev")
 outputs = flux_dev(prompt="a cat wearing an amusing hat")
 
 for output in outputs:
@@ -538,7 +538,7 @@ Models that output iterators will return iterators:
 
 
 ```py
-claude = use("anthropic/claude-4-sonnet")
+claude = replicate.use("anthropic/claude-4-sonnet")
 
 output = claude(prompt="Give me a recipe for tasty smashed avocado on sourdough toast that could feed all of California.")
 
@@ -555,10 +555,10 @@ str(output) # "Here's a recipe to feed all of California (about 39 million peopl
 You can pass the results of one model directly into another:
 
 ```py
-from replicate import use
+import replicate
 
-flux_dev = use("black-forest-labs/flux-dev")
-claude = use("anthropic/claude-4-sonnet")
+flux_dev = replicate.use("black-forest-labs/flux-dev")
+claude = replicate.use("anthropic/claude-4-sonnet")
 
 images = flux_dev(prompt="a cat wearing an amusing hat")
 
@@ -570,7 +570,7 @@ print(str(result)) # "This shows an image of a cat wearing a hat ..."
 To create an individual prediction that has not yet resolved, use the `create()` method:
 
 ```
-claude = use("anthropic/claude-4-sonnet")
+claude = replicate.use("anthropic/claude-4-sonnet")
 
 prediction = claude.create(prompt="Give me a recipe for tasty smashed avocado on sourdough toast that could feed all of California.")
 
@@ -579,13 +579,49 @@ prediction.logs() # get current logs (WIP)
 prediction.output() # get the output
 ```
 
-You can access the underlying URL for a Path object returned from a model call by using the `get_path_url()` helper.
+### Downloading file outputs
+
+Output files are provided as Python [os.PathLike](https://docs.python.org/3.12/library/os.html#os.PathLike) objects. These are supported by most of the Python standard library like `open()` and `Path`, as well as third-party libraries like `pillow` and `ffmpeg-python`.
+
+The first time the file is accessed it will be downloaded to a temporary directory on disk ready for use.
+
+Here's an example of how to use the `pillow` package to convert file outputs:
 
 ```py
-from replicate import use
-from replicate.use import get_url_path
+import replicate
+from PIL import Image
 
-flux_dev = use("black-forest-labs/flux-dev")
+flux_dev = replicate.use("black-forest-labs/flux-dev")
+
+images = flux_dev(prompt="a cat wearing an amusing hat")
+for i, path in enumerate(images):
+    with Image.open(path) as img:
+        img.save(f"./output_{i}.png", format="PNG")
+```
+
+For libraries that do not support `Path` or `PathLike` instances you can use `open()` as you would with any other file. For example to use `requests` to upload the file to a different location:
+
+```py
+import replicate
+import requests
+
+flux_dev = replicate.use("black-forest-labs/flux-dev")
+
+images = flux_dev(prompt="a cat wearing an amusing hat")
+for path in images:
+    with open(path, "rb") as f:
+        r = requests.post("https://api.example.com/upload", files={"file": f})
+```
+
+### Accessing outputs as HTTPS URLs
+
+If you do not need to download the output to disk. You can access the underlying URL for a Path object returned from a model call by using the `get_path_url()` helper.
+
+```py
+import replicate
+from replicate import get_url_path
+
+flux_dev = replicate.use("black-forest-labs/flux-dev")
 outputs = flux_dev(prompt="a cat wearing an amusing hat")
 
 for output in outputs:
