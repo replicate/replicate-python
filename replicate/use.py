@@ -377,7 +377,7 @@ class Run[O]:
         # Handle concatenate iterators - return joined string
         if _has_concatenate_iterator_output_type(self._schema):
             if isinstance(self._prediction.output, list):
-                return "".join(str(item) for item in self._prediction.output)
+                return cast(O, "".join(str(item) for item in self._prediction.output))
             return self._prediction.output
 
         # Process output for file downloads based on schema
@@ -544,7 +544,7 @@ class AsyncRun[O]:
         # Handle concatenate iterators - return joined string
         if _has_concatenate_iterator_output_type(self._schema):
             if isinstance(self._prediction.output, list):
-                return "".join(str(item) for item in self._prediction.output)
+                return cast(O, "".join(str(item) for item in self._prediction.output))
             return self._prediction.output
 
         # Process output for file downloads based on schema
