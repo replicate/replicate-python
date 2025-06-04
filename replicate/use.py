@@ -336,46 +336,54 @@ class FunctionRef(Protocol, Generic[Input, Output]):
 @dataclass
 class Run[O]:
     """
-    Represents a running prediction with access to its version.
+    Represents a running prediction with access to the underlying schema.
     """
 
-    prediction: Prediction
-    schema: dict
+    _prediction: Prediction
+    _schema: dict
+
+    def __init__(
+        self, *, prediction: Prediction, schema: dict, streaming: bool
+    ) -> None:
+        self._prediction = prediction
+        self._schema = schema
+        self._streaming = streaming
 
     def output(self) -> O:
         """
         Return the output. For iterator types, returns immediately without waiting.
         For non-iterator types, waits for completion.
         """
-        # Return an OutputIterator immediately for iterator output types
-        if _has_iterator_output_type(self.schema):
-            is_concatenate = _has_concatenate_iterator_output_type(self.schema)
+        # Return an OutputIterator immediately when streaming, we do this for all
+        # model return types regardless of whether they return an iterator.
+        if self._streaming:
+            is_concatenate = _has_concatenate_iterator_output_type(self._schema)
             return cast(
                 O,
                 OutputIterator(
-                    lambda: self.prediction.output_iterator(),
-                    lambda: self.prediction.async_output_iterator(),
-                    self.schema,
+                    lambda: self._prediction.output_iterator(),
+                    lambda: self._prediction.async_output_iterator(),
+                    self._schema,
                     is_concatenate=is_concatenate,
                 ),
             )
 
         # For non-iterator types, wait for completion and process output
-        self.prediction.wait()
+        self._prediction.wait()
 
-        if self.prediction.status == "failed":
-            raise ModelError(self.prediction)
+        if self._prediction.status == "failed":
+            raise ModelError(self._prediction)
 
         # Process output for file downloads based on schema
-        return _process_output_with_schema(self.prediction.output, self.schema)
+        return _process_output_with_schema(self._prediction.output, self._schema)
 
     def logs(self) -> Optional[str]:
         """
         Fetch and return the logs from the prediction.
         """
-        self.prediction.reload()
+        self._prediction.reload()
 
-        return self.prediction.logs
+        return self._prediction.logs
 
 
 @dataclass
@@ -384,45 +392,11 @@ class Function(Generic[Input, Output]):
     A wrapper for a Replicate model that can be called as a function.
     """
 
-    function_ref: str
+    _ref: str
 
-    def _client(self) -> Client:
-        return Client()
-
-    @cached_property
-    def _parsed_ref(self) -> Tuple[str, str, Optional[str]]:
-        return ModelVersionIdentifier.parse(self.function_ref)
-
-    @cached_property
-    def _model(self) -> Model:
-        client = self._client()
-        model_owner, model_name, _ = self._parsed_ref
-        return client.models.get(f"{model_owner}/{model_name}")
-
-    @cached_property
-    def _version(self) -> Version | None:
-        _, _, model_version = self._parsed_ref
-        model = self._model
-        try:
-            versions = model.versions.list()
-            if len(versions) == 0:
-                # if we got an empty list when getting model versions, this
-                # model is possibly a procedure instead and should be called via
-                # the versionless API
-                return None
-        except ReplicateError as e:
-            if e.status == 404:
-                # if we get a 404 when getting model versions, this is an official
-                # model and doesn't have addressable versions (despite what
-                # latest_version might tell us)
-                return None
-            raise
-
-        version = (
-            model.versions.get(model_version) if model_version else model.latest_version
-        )
-
-        return version
+    def __init__(self, ref: str, *, streaming: bool) -> None:
+        self._ref = ref
+        self._streaming = streaming
 
     def __call__(self, *args: Input.args, **inputs: Input.kwargs) -> Output:
         return self.create(*args, **inputs).output()
@@ -455,7 +429,9 @@ class Function(Generic[Input, Output]):
                 model=self._model, input=processed_inputs
             )
 
-        return Run(prediction, self.openapi_schema)
+        return Run(
+            prediction=prediction, schema=self.openapi_schema, streaming=self._streaming
+        )
 
     @property
     def default_example(self) -> Optional[dict[str, Any]]:
@@ -479,6 +455,44 @@ class Function(Generic[Input, Output]):
             schema = make_schema_backwards_compatible(schema, cog_version)
         return schema
 
+    def _client(self) -> Client:
+        return Client()
+
+    @cached_property
+    def _parsed_ref(self) -> Tuple[str, str, Optional[str]]:
+        return ModelVersionIdentifier.parse(self._ref)
+
+    @cached_property
+    def _model(self) -> Model:
+        client = self._client()
+        model_owner, model_name, _ = self._parsed_ref
+        return client.models.get(f"{model_owner}/{model_name}")
+
+    @cached_property
+    def _version(self) -> Version | None:
+        _, _, model_version = self._parsed_ref
+        model = self._model
+        try:
+            versions = model.versions.list()
+            if len(versions) == 0:
+                # if we got an empty list when getting model versions, this
+                # model is possibly a procedure instead and should be called via
+                # the versionless API
+                return None
+        except ReplicateError as e:
+            if e.status == 404:
+                # if we get a 404 when getting model versions, this is an official
+                # model and doesn't have addressable versions (despite what
+                # latest_version might tell us)
+                return None
+            raise
+
+        version = (
+            model.versions.get(model_version) if model_version else model.latest_version
+        )
+
+        return version
+
 
 @dataclass
 class AsyncRun[O]:
@@ -486,43 +500,51 @@ class AsyncRun[O]:
     Represents a running prediction with access to its version (async version).
     """
 
-    prediction: Prediction
-    schema: dict
+    _prediction: Prediction
+    _schema: dict
+
+    def __init__(
+        self, *, prediction: Prediction, schema: dict, streaming: bool
+    ) -> None:
+        self._prediction = prediction
+        self._schema = schema
+        self._streaming = streaming
 
     async def output(self) -> O:
         """
         Return the output. For iterator types, returns immediately without waiting.
         For non-iterator types, waits for completion.
         """
-        # Return an OutputIterator immediately for iterator output types
-        if _has_iterator_output_type(self.schema):
-            is_concatenate = _has_concatenate_iterator_output_type(self.schema)
+        # Return an OutputIterator immediately when streaming, we do this for all
+        # model return types regardless of whether they return an iterator.
+        if self._streaming:
+            is_concatenate = _has_concatenate_iterator_output_type(self._schema)
             return cast(
                 O,
                 OutputIterator(
-                    lambda: self.prediction.output_iterator(),
-                    lambda: self.prediction.async_output_iterator(),
-                    self.schema,
+                    lambda: self._prediction.output_iterator(),
+                    lambda: self._prediction.async_output_iterator(),
+                    self._schema,
                     is_concatenate=is_concatenate,
                 ),
             )
 
         # For non-iterator types, wait for completion and process output
-        await self.prediction.async_wait()
+        await self._prediction.async_wait()
 
-        if self.prediction.status == "failed":
-            raise ModelError(self.prediction)
+        if self._prediction.status == "failed":
+            raise ModelError(self._prediction)
 
         # Process output for file downloads based on schema
-        return _process_output_with_schema(self.prediction.output, self.schema)
+        return _process_output_with_schema(self._prediction.output, self._schema)
 
     async def logs(self) -> Optional[str]:
         """
         Fetch and return the logs from the prediction asynchronously.
         """
-        await self.prediction.async_reload()
+        await self._prediction.async_reload()
 
-        return self.prediction.logs
+        return self._prediction.logs
 
 
 @dataclass
@@ -532,6 +554,7 @@ class AsyncFunction(Generic[Input, Output]):
     """
 
     function_ref: str
+    streaming: bool
 
     def _client(self) -> Client:
         return Client()
@@ -600,7 +623,11 @@ class AsyncFunction(Generic[Input, Output]):
                 model=model, input=processed_inputs
             )
 
-        return AsyncRun(prediction, await self.openapi_schema())
+        return AsyncRun(
+            prediction=prediction,
+            schema=await self.openapi_schema(),
+            streaming=self.streaming,
+        )
 
     @property
     def default_example(self) -> Optional[dict[str, Any]]:
@@ -631,6 +658,12 @@ def use(ref: FunctionRef[Input, Output]) -> Function[Input, Output]: ...
 
 @overload
 def use(
+    ref: FunctionRef[Input, Output], *, streaming: Literal[False]
+) -> Function[Input, Output]: ...
+
+
+@overload
+def use(
     ref: FunctionRef[Input, Output], *, use_async: Literal[False]
 ) -> Function[Input, Output]: ...
 
@@ -643,7 +676,57 @@ def use(
 
 @overload
 def use(
-    ref: str, *, hint: Callable[Input, Output] | None = None, use_async: Literal[True]
+    ref: FunctionRef[Input, Output],
+    *,
+    streaming: Literal[False],
+    use_async: Literal[True],
+) -> AsyncFunction[Input, Output]: ...
+
+
+@overload
+def use(
+    ref: FunctionRef[Input, Output],
+    *,
+    streaming: Literal[True],
+    use_async: Literal[True],
+) -> AsyncFunction[Input, AsyncIterator[Output]]: ...
+
+
+@overload
+def use(
+    ref: FunctionRef[Input, Output],
+    *,
+    streaming: Literal[False],
+    use_async: Literal[False],
+) -> AsyncFunction[Input, AsyncIterator[Output]]: ...
+
+
+@overload
+def use(
+    ref: str,
+    *,
+    hint: Callable[Input, Output] | None = None,
+    streaming: Literal[False] = False,
+    use_async: Literal[False] = False,
+) -> Function[Input, Output]: ...
+
+
+@overload
+def use(
+    ref: str,
+    *,
+    hint: Callable[Input, Output] | None = None,
+    streaming: Literal[True],
+    use_async: Literal[False] = False,
+) -> Function[Input, Iterator[Output]]: ...
+
+
+@overload
+def use(
+    ref: str,
+    *,
+    hint: Callable[Input, Output] | None = None,
+    use_async: Literal[True],
 ) -> AsyncFunction[Input, Output]: ...
 
 
@@ -652,16 +735,23 @@ def use(
     ref: str,
     *,
     hint: Callable[Input, Output] | None = None,
-    use_async: Literal[False] = False,
-) -> Function[Input, Output]: ...
+    streaming: Literal[True],
+    use_async: Literal[True],
+) -> AsyncFunction[Input, AsyncIterator[Output]]: ...
 
 
 def use(
     ref: str | FunctionRef[Input, Output],
     *,
     hint: Callable[Input, Output] | None = None,
+    streaming: bool = False,
     use_async: bool = False,
-) -> Function[Input, Output] | AsyncFunction[Input, Output]:
+) -> (
+    Function[Input, Output]
+    | AsyncFunction[Input, Output]
+    | Function[Input, Iterator[Output]]
+    | AsyncFunction[Input, AsyncIterator[Output]]
+):
     """
     Use a Replicate model as a function.
 
@@ -682,9 +772,9 @@ def use(
         pass
 
     if use_async:
-        return AsyncFunction(function_ref=str(ref))
+        return AsyncFunction(str(ref), streaming=streaming)
 
-    return Function(str(ref))
+    return Function(str(ref), streaming=streaming)
 
 
 # class Model:
@@ -693,17 +783,23 @@ def use(
 #     def __call__(self) -> str: ...
 
 
-# def model() -> int: ...
+# def model() -> AsyncIterator[int]: ...
 
 
 # flux = use("")
 # flux_sync = use("", use_async=False)
+# streaming_flux_sync = use("", streaming=True, use_async=False)
 # flux_async = use("", use_async=True)
+# streaming_flux_async = use("", streaming=True, use_async=True)
 
 # flux = use("", hint=model)
 # flux_sync = use("", hint=model, use_async=False)
+# streaming_flux_sync = use("", hint=model, streaming=False, use_async=False)
 # flux_async = use("", hint=model, use_async=True)
+# streaming_flux_async = use("", hint=model, streaming=True, use_async=True)
 
 # flux = use(Model())
 # flux_sync = use(Model(), use_async=False)
+# streaming_flux_sync = use(Model(), streaming=False, use_async=False)
 # flux_async = use(Model(), use_async=True)
+# streaming_flux_async = use(Model(), streaming=True, use_async=True)

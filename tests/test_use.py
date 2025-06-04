@@ -351,9 +351,9 @@ async def test_use_function_create_method(client_mode):
         assert isinstance(run, AsyncRun)
     else:
         assert isinstance(run, Run)
-    assert run.prediction.id == "pred123"
-    assert run.prediction.status == "processing"
-    assert run.prediction.input == {"prompt": "hello world"}
+    assert run._prediction.id == "pred123"
+    assert run._prediction.status == "processing"
+    assert run._prediction.input == {"prompt": "hello world"}
 
 
 @pytest.mark.asyncio
@@ -391,7 +391,9 @@ async def test_use_concatenate_iterator_output(client_mode):
 
     # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use(
-        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+        "acme/hotdog-detector",
+        use_async=client_mode == ClientMode.ASYNC,
+        streaming=True,
     )
 
     # Call function with prompt="hello world"
@@ -561,7 +563,9 @@ async def test_async_function_concatenate_iterator_output():
     )
 
     # Call use with use_async=True
-    hotdog_detector = replicate.use("acme/hotdog-detector", use_async=True)
+    hotdog_detector = replicate.use(
+        "acme/hotdog-detector", use_async=True, streaming=True
+    )
 
     # Call async function with prompt="hello world"
     run = await hotdog_detector.create(prompt="hello world")
@@ -660,7 +664,9 @@ async def test_iterator_output_returns_immediately(client_mode):
 
     # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use(
-        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+        "acme/hotdog-detector",
+        use_async=client_mode == ClientMode.ASYNC,
+        streaming=True,
     )
 
     # Get the output iterator - this should return immediately even though prediction is processing
@@ -677,7 +683,7 @@ async def test_iterator_output_returns_immediately(client_mode):
     assert isinstance(output_iterator, OutputIterator)
 
     # Verify the prediction is still processing when we get the iterator
-    assert run.prediction.status == "processing"
+    assert run._prediction.status == "processing"
 
 
 @pytest.mark.asyncio
@@ -757,7 +763,9 @@ async def test_streaming_output_yields_incrementally(client_mode):
 
     # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use(
-        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+        "acme/hotdog-detector",
+        use_async=client_mode == ClientMode.ASYNC,
+        streaming=True,
     )
 
     # Get the output iterator immediately
@@ -921,7 +929,9 @@ async def test_use_iterator_of_strings_output(client_mode):
 
     # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use(
-        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+        "acme/hotdog-detector",
+        use_async=client_mode == ClientMode.ASYNC,
+        streaming=True,
     )
 
     # Call function with prompt="hello world"
@@ -1108,7 +1118,9 @@ async def test_use_iterator_of_paths_output(client_mode):
 
     # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use(
-        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+        "acme/hotdog-detector",
+        use_async=client_mode == ClientMode.ASYNC,
+        streaming=True,
     )
 
     # Call function with prompt="hello world"
