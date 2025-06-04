@@ -345,7 +345,7 @@ async def test_use_function_create_method(client_mode):
         run = hotdog_detector.create(prompt="hello world")
 
     # Assert that run is a Run object with a prediction
-    from replicate.use import Run, AsyncRun
+    from replicate.use import AsyncRun, Run
 
     if client_mode == ClientMode.ASYNC:
         assert isinstance(run, AsyncRun)
@@ -619,6 +619,226 @@ async def test_output_iterator_await_syntax_demo():
     result = await regular_output
     assert result == ["Hello", " ", "World"]
     assert str(result) == "['Hello', ' ', 'World']"  # str() gives list representation
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT, ClientMode.ASYNC])
+@respx.mock
+async def test_iterator_output_returns_immediately(client_mode):
+    """Test that OutputIterator is returned immediately without waiting for completion."""
+    mock_model_endpoints(
+        versions=[
+            create_mock_version(
+                {
+                    "openapi_schema": {
+                        "components": {
+                            "schemas": {
+                                "Output": {
+                                    "type": "array",
+                                    "items": {"type": "string"},
+                                    "x-cog-array-type": "iterator",
+                                    "x-cog-array-display": "concatenate",
+                                }
+                            }
+                        }
+                    }
+                }
+            )
+        ]
+    )
+
+    # Mock prediction that starts as processing (not completed)
+    mock_prediction_endpoints(
+        predictions=[
+            create_mock_prediction({"status": "processing", "output": []}),
+            create_mock_prediction({"status": "processing", "output": ["Hello"]}),
+            create_mock_prediction(
+                {"status": "succeeded", "output": ["Hello", " ", "World"]}
+            ),
+        ]
+    )
+
+    # Call use with "acme/hotdog-detector"
+    hotdog_detector = replicate.use(
+        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+    )
+
+    # Get the output iterator - this should return immediately even though prediction is processing
+    if client_mode == ClientMode.ASYNC:
+        run = await hotdog_detector.create(prompt="hello world")
+        output_iterator = await run.output()
+    else:
+        run = hotdog_detector.create(prompt="hello world")
+        output_iterator = run.output()
+
+    # Assert that we get an OutputIterator immediately (without waiting for completion)
+    from replicate.use import OutputIterator
+
+    assert isinstance(output_iterator, OutputIterator)
+
+    # Verify the prediction is still processing when we get the iterator
+    assert run.prediction.status == "processing"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT, ClientMode.ASYNC])
+@respx.mock
+async def test_streaming_output_yields_incrementally(client_mode):
+    """Test that OutputIterator yields results incrementally during polling."""
+    mock_model_endpoints(
+        versions=[
+            create_mock_version(
+                {
+                    "openapi_schema": {
+                        "components": {
+                            "schemas": {
+                                "Output": {
+                                    "type": "array",
+                                    "items": {"type": "string"},
+                                    "x-cog-array-type": "iterator",
+                                    "x-cog-array-display": "concatenate",
+                                }
+                            }
+                        }
+                    }
+                }
+            )
+        ]
+    )
+
+    # Create a prediction that will be polled multiple times
+    prediction_id = "pred123"
+
+    # Mock the initial prediction creation
+    initial_prediction = create_mock_prediction(
+        {"id": prediction_id, "status": "processing", "output": []},
+        prediction_id=prediction_id,
+    )
+
+    if client_mode == ClientMode.ASYNC:
+        respx.post("https://api.replicate.com/v1/predictions").mock(
+            return_value=httpx.Response(201, json=initial_prediction)
+        )
+    else:
+        respx.post("https://api.replicate.com/v1/predictions").mock(
+            return_value=httpx.Response(201, json=initial_prediction)
+        )
+
+    # Mock incremental polling responses - each poll returns more data
+    poll_responses = [
+        create_mock_prediction(
+            {"status": "processing", "output": ["Hello"]}, prediction_id=prediction_id
+        ),
+        create_mock_prediction(
+            {"status": "processing", "output": ["Hello", " "]},
+            prediction_id=prediction_id,
+        ),
+        create_mock_prediction(
+            {"status": "processing", "output": ["Hello", " ", "streaming"]},
+            prediction_id=prediction_id,
+        ),
+        create_mock_prediction(
+            {"status": "processing", "output": ["Hello", " ", "streaming", " "]},
+            prediction_id=prediction_id,
+        ),
+        create_mock_prediction(
+            {
+                "status": "succeeded",
+                "output": ["Hello", " ", "streaming", " ", "world!"],
+            },
+            prediction_id=prediction_id,
+        ),
+    ]
+
+    # Mock the polling endpoint to return different responses in sequence
+    respx.get(f"https://api.replicate.com/v1/predictions/{prediction_id}").mock(
+        side_effect=[httpx.Response(200, json=resp) for resp in poll_responses]
+    )
+
+    # Call use with "acme/hotdog-detector"
+    hotdog_detector = replicate.use(
+        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+    )
+
+    # Get the output iterator immediately
+    if client_mode == ClientMode.ASYNC:
+        run = await hotdog_detector.create(prompt="hello world", use_async=True)
+        output_iterator = await run.output()
+    else:
+        run = hotdog_detector.create(prompt="hello world")
+        output_iterator = run.output()
+
+    # Assert that we get an OutputIterator immediately
+    from replicate.use import OutputIterator
+
+    assert isinstance(output_iterator, OutputIterator)
+
+    # Track when we receive each item to verify incremental delivery
+    collected_items = []
+
+    if client_mode == ClientMode.ASYNC:
+        async for item in output_iterator:
+            collected_items.append(item)
+            # Break after we get some incremental results to verify polling works
+            if len(collected_items) >= 3:
+                break
+    else:
+        for item in output_iterator:
+            collected_items.append(item)
+            # Break after we get some incremental results to verify polling works
+            if len(collected_items) >= 3:
+                break
+
+    # Verify we got incremental streaming results
+    assert len(collected_items) >= 3
+    # The items should be the concatenated string parts from the incremental output
+    result = "".join(collected_items)
+    assert "Hello" in result  # Should contain the first part we streamed
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT, ClientMode.ASYNC])
+@respx.mock
+async def test_non_streaming_output_waits_for_completion(client_mode):
+    """Test that non-iterator outputs still wait for completion."""
+    mock_model_endpoints(
+        versions=[
+            create_mock_version(
+                {
+                    "openapi_schema": {
+                        "components": {
+                            "schemas": {
+                                "Output": {"type": "string"}  # Non-iterator output
+                            }
+                        }
+                    }
+                }
+            )
+        ]
+    )
+
+    mock_prediction_endpoints(
+        predictions=[
+            create_mock_prediction({"status": "processing", "output": None}),
+            create_mock_prediction({"status": "succeeded", "output": "Final result"}),
+        ]
+    )
+
+    # Call use with "acme/hotdog-detector"
+    hotdog_detector = replicate.use(
+        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+    )
+
+    # For non-iterator output, this should wait for completion
+    if client_mode == ClientMode.ASYNC:
+        run = await hotdog_detector.create(prompt="hello world")
+        output = await run.output()
+    else:
+        run = hotdog_detector.create(prompt="hello world")
+        output = run.output()
+
+    # Should get the final result directly
+    assert output == "Final result"
 
 
 @pytest.mark.asyncio

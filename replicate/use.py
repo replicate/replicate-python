@@ -13,15 +13,16 @@ from typing import (
     Any,
     AsyncIterator,
     Callable,
+    Generator,
     Generic,
     Iterator,
+    List,
     Literal,
     Optional,
     ParamSpec,
     Protocol,
     Tuple,
     TypeVar,
-    Union,
     cast,
     overload,
 )
@@ -210,38 +211,38 @@ def _process_output_with_schema(output: Any, openapi_schema: dict) -> Any:
     return output
 
 
-class OutputIterator:
+class OutputIterator[T]:
     """
     An iterator wrapper that handles both regular iteration and string conversion.
     Supports both sync and async iteration patterns.
     """
 
     def __init__(
-        self, 
-        iterator_factory: Callable[[], Iterator[Any]],
-        async_iterator_factory: Callable[[], AsyncIterator[Any]],
+        self,
+        iterator_factory: Callable[[], Iterator[T]],
+        async_iterator_factory: Callable[[], AsyncIterator[T]],
         schema: dict,
-        *, 
-        is_concatenate: bool
+        *,
+        is_concatenate: bool,
     ) -> None:
         self.iterator_factory = iterator_factory
         self.async_iterator_factory = async_iterator_factory
         self.schema = schema
         self.is_concatenate = is_concatenate
 
-    def __iter__(self) -> Iterator[Any]:
+    def __iter__(self) -> Iterator[T]:
         """Iterate over output items synchronously."""
         for chunk in self.iterator_factory():
             if self.is_concatenate:
-                yield str(chunk)
+                yield chunk
             else:
                 yield _process_iterator_item(chunk, self.schema)
 
-    async def __aiter__(self) -> AsyncIterator[Any]:
+    async def __aiter__(self) -> AsyncIterator[T]:
         """Iterate over output items asynchronously."""
         async for chunk in self.async_iterator_factory():
             if self.is_concatenate:
-                yield str(chunk)
+                yield chunk
             else:
                 yield _process_iterator_item(chunk, self.schema)
 
@@ -252,9 +253,10 @@ class OutputIterator:
         else:
             return str(list(self.iterator_factory()))
 
-    def __await__(self):
+    def __await__(self) -> Generator[Any, None, List[T] | str]:
         """Make OutputIterator awaitable, returning appropriate result based on concatenate mode."""
-        async def _collect_result():
+
+        async def _collect_result() -> List[T] | str:
             if self.is_concatenate:
                 # For concatenate iterators, return the joined string
                 segments = []
@@ -267,6 +269,7 @@ class OutputIterator:
                 async for item in self:
                     items.append(item)
                 return items
+
         return _collect_result().__await__()
 
 
@@ -341,14 +344,10 @@ class Run[O]:
 
     def output(self) -> O:
         """
-        Wait for the prediction to complete and return its output.
+        Return the output. For iterator types, returns immediately without waiting.
+        For non-iterator types, waits for completion.
         """
-        self.prediction.wait()
-
-        if self.prediction.status == "failed":
-            raise ModelError(self.prediction)
-
-        # Return an OutputIterator for iterator output types (including concatenate iterators)
+        # Return an OutputIterator immediately for iterator output types
         if _has_iterator_output_type(self.schema):
             is_concatenate = _has_concatenate_iterator_output_type(self.schema)
             return cast(
@@ -360,6 +359,12 @@ class Run[O]:
                     is_concatenate=is_concatenate,
                 ),
             )
+
+        # For non-iterator types, wait for completion and process output
+        self.prediction.wait()
+
+        if self.prediction.status == "failed":
+            raise ModelError(self.prediction)
 
         # Process output for file downloads based on schema
         return _process_output_with_schema(self.prediction.output, self.schema)
@@ -483,14 +488,10 @@ class AsyncRun[O]:
 
     async def output(self) -> O:
         """
-        Wait for the prediction to complete and return its output asynchronously.
+        Return the output. For iterator types, returns immediately without waiting.
+        For non-iterator types, waits for completion.
         """
-        await self.prediction.async_wait()
-
-        if self.prediction.status == "failed":
-            raise ModelError(self.prediction)
-
-        # Return an OutputIterator for iterator output types (including concatenate iterators)
+        # Return an OutputIterator immediately for iterator output types
         if _has_iterator_output_type(self.schema):
             is_concatenate = _has_concatenate_iterator_output_type(self.schema)
             return cast(
@@ -502,6 +503,12 @@ class AsyncRun[O]:
                     is_concatenate=is_concatenate,
                 ),
             )
+
+        # For non-iterator types, wait for completion and process output
+        await self.prediction.async_wait()
+
+        if self.prediction.status == "failed":
+            raise ModelError(self.prediction)
 
         # Process output for file downloads based on schema
         return _process_output_with_schema(self.prediction.output, self.schema)
