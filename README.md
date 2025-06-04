@@ -628,6 +628,46 @@ for output in outputs:
     print(get_url_path(output)) # "https://replicate.delivery/xyz"
 ```
 
+### Async Mode
+
+By default `use()` will return a function instance with a sync interface. You can pass `use_async=True` to have it return an `AsyncFunction` that provides an async interface.
+
+```py
+import asyncio
+import replicate
+
+async def main():
+    flux_dev = replicate.use("black-forest-labs/flux-dev", use_async=True)
+    outputs = await flux_dev(prompt="a cat wearing an amusing hat")
+
+    for output in outputs:
+        print(Path(output))
+
+asyncio.run(main())
+```
+
+If the model returns an iterator an `AsyncIterator` implementation will be used:
+
+```py
+import asyncio
+import replicate
+
+async def main():
+    claude = replicate.use("anthropic/claude-3.5-haiku", use_async=True)
+    output = await claude(prompt="say hello")
+
+    # Stream the response as it comes in.
+    async for token in output:
+        print(token)
+
+    # Wait until model has completed. This will return either a `list` or a `str` depending
+    # on whether the model uses AsyncIterator or ConcatenateAsyncIterator. You can check this
+    # on the model schema by looking for `x-cog-display: concatenate`.
+    print(await output)
+
+asyncio.run(main())
+```
+
 ### Typing
 
 By default `use()` knows nothing about the interface of the model. To provide a better developer experience we provide two methods to add type annotations to the function returned by the `use()` helper.
@@ -666,11 +706,10 @@ In future we hope to provide tooling to generate and provide these models as pac
 
 There are several key things still outstanding:
 
- 1. Support for asyncio.
- 2. Support for streaming text when available (rather than polling)
- 3. Support for streaming files when available (rather than polling)
- 4. Support for cleaning up downloaded files.
- 5. Support for streaming logs using `OutputIterator`.
+ 1. Support for streaming text when available (rather than polling)
+ 2. Support for streaming files when available (rather than polling)
+ 3. Support for cleaning up downloaded files.
+ 4. Support for streaming logs using `OutputIterator`.
 
 ## Development
 
