@@ -41,38 +41,6 @@ from replicate.version import Version
 __all__ = ["use", "get_path_url"]
 
 
-def _in_repl() -> bool:
-    return bool(
-        sys.flags.interactive  # python -i
-        or hasattr(sys, "ps1")  # prompt strings exist
-        or (
-            sys.stdin.isatty()  # tty
-            and sys.stdout.isatty()
-        )
-        or ("get_ipython" in globals())
-    )
-
-
-def _in_module_scope() -> bool:
-    """
-    Returns True when called from top level module scope.
-    """
-    if os.getenv("REPLICATE_ALWAYS_ALLOW_USE"):
-        return True
-
-    # If we're running in a REPL.
-    if _in_repl():
-        return True
-
-    if frame := inspect.currentframe():
-        print(frame)
-        if caller := frame.f_back:
-            print(caller.f_code.co_name)
-            return caller.f_code.co_name == "<module>"
-
-    return False
-
-
 def _has_concatenate_iterator_output_type(openapi_schema: dict) -> bool:
     """
     Returns true if the model output type is ConcatenateIterator or
@@ -767,17 +735,12 @@ def use(
     """
     Use a Replicate model as a function.
 
-    This function can only be called at the top level of a module.
-
     Example:
 
         flux_dev = replicate.use("black-forest-labs/flux-dev")
         output = flux_dev(prompt="make me a sandwich")
 
     """
-    if not _in_module_scope():
-        raise RuntimeError("You may only call replicate.use() at the top level.")
-
     try:
         ref = ref.name  # type: ignore
     except AttributeError:
