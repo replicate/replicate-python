@@ -434,8 +434,11 @@ class Function(Generic[Input, Output]):
         # Process inputs to convert concatenate OutputIterators to strings and URLPath to URLs
         processed_inputs = {}
         for key, value in inputs.items():
-            if isinstance(value, OutputIterator) and value.is_concatenate:
-                processed_inputs[key] = str(value)
+            if isinstance(value, OutputIterator):
+                if value.is_concatenate:
+                    processed_inputs[key] = str(value)
+                else:
+                    processed_inputs[key] = list(value)
             elif url := get_path_url(value):
                 processed_inputs[key] = url
             else:
@@ -578,8 +581,8 @@ class AsyncFunction(Generic[Input, Output]):
         # Process inputs to convert concatenate OutputIterators to strings and URLPath to URLs
         processed_inputs = {}
         for key, value in inputs.items():
-            if isinstance(value, OutputIterator) and value.is_concatenate:
-                processed_inputs[key] = str(value)
+            if isinstance(value, OutputIterator):
+                processed_inputs[key] = await value
             elif url := get_path_url(value):
                 processed_inputs[key] = url
             else:
