@@ -1,7 +1,6 @@
 # TODO
 # - [ ] Support text streaming
 # - [ ] Support file streaming
-# - [ ] Support asyncio variant
 import hashlib
 import inspect
 import os
@@ -12,14 +11,17 @@ from functools import cached_property
 from pathlib import Path
 from typing import (
     Any,
+    AsyncIterator,
     Callable,
     Generic,
     Iterator,
+    Literal,
     Optional,
     ParamSpec,
     Protocol,
     Tuple,
     TypeVar,
+    Union,
     cast,
     overload,
 )
@@ -211,16 +213,33 @@ def _process_output_with_schema(output: Any, openapi_schema: dict) -> Any:
 class OutputIterator:
     """
     An iterator wrapper that handles both regular iteration and string conversion.
+    Supports both sync and async iteration patterns.
     """
 
-    def __init__(self, iterator_factory, schema: dict, *, is_concatenate: bool) -> None:
+    def __init__(
+        self, 
+        iterator_factory: Callable[[], Iterator[Any]],
+        async_iterator_factory: Callable[[], AsyncIterator[Any]],
+        schema: dict,
+        *, 
+        is_concatenate: bool
+    ) -> None:
         self.iterator_factory = iterator_factory
+        self.async_iterator_factory = async_iterator_factory
         self.schema = schema
         self.is_concatenate = is_concatenate
 
     def __iter__(self) -> Iterator[Any]:
-        """Iterate over output items."""
+        """Iterate over output items synchronously."""
         for chunk in self.iterator_factory():
+            if self.is_concatenate:
+                yield str(chunk)
+            else:
+                yield _process_iterator_item(chunk, self.schema)
+
+    async def __aiter__(self) -> AsyncIterator[Any]:
+        """Iterate over output items asynchronously."""
+        async for chunk in self.async_iterator_factory():
             if self.is_concatenate:
                 yield str(chunk)
             else:
@@ -231,7 +250,24 @@ class OutputIterator:
         if self.is_concatenate:
             return "".join([str(segment) for segment in self.iterator_factory()])
         else:
-            return str(self.iterator_factory())
+            return str(list(self.iterator_factory()))
+
+    def __await__(self):
+        """Make OutputIterator awaitable, returning appropriate result based on concatenate mode."""
+        async def _collect_result():
+            if self.is_concatenate:
+                # For concatenate iterators, return the joined string
+                segments = []
+                async for segment in self:
+                    segments.append(segment)
+                return "".join(segments)
+            else:
+                # For regular iterators, return the list of items
+                items = []
+                async for item in self:
+                    items.append(item)
+                return items
+        return _collect_result().__await__()
 
 
 class URLPath(os.PathLike):
@@ -319,6 +355,7 @@ class Run[O]:
                 O,
                 OutputIterator(
                     lambda: self.prediction.output_iterator(),
+                    lambda: self.prediction.async_output_iterator(),
                     self.schema,
                     is_concatenate=is_concatenate,
                 ),
@@ -435,13 +472,177 @@ class Function(Generic[Input, Output]):
         return schema
 
 
+@dataclass
+class AsyncRun[O]:
+    """
+    Represents a running prediction with access to its version (async version).
+    """
+
+    prediction: Prediction
+    schema: dict
+
+    async def output(self) -> O:
+        """
+        Wait for the prediction to complete and return its output asynchronously.
+        """
+        await self.prediction.async_wait()
+
+        if self.prediction.status == "failed":
+            raise ModelError(self.prediction)
+
+        # Return an OutputIterator for iterator output types (including concatenate iterators)
+        if _has_iterator_output_type(self.schema):
+            is_concatenate = _has_concatenate_iterator_output_type(self.schema)
+            return cast(
+                O,
+                OutputIterator(
+                    lambda: self.prediction.output_iterator(),
+                    lambda: self.prediction.async_output_iterator(),
+                    self.schema,
+                    is_concatenate=is_concatenate,
+                ),
+            )
+
+        # Process output for file downloads based on schema
+        return _process_output_with_schema(self.prediction.output, self.schema)
+
+    async def logs(self) -> Optional[str]:
+        """
+        Fetch and return the logs from the prediction asynchronously.
+        """
+        await self.prediction.async_reload()
+
+        return self.prediction.logs
+
+
+@dataclass
+class AsyncFunction(Generic[Input, Output]):
+    """
+    An async wrapper for a Replicate model that can be called as a function.
+    """
+
+    function_ref: str
+
+    def _client(self) -> Client:
+        return Client()
+
+    @cached_property
+    def _parsed_ref(self) -> Tuple[str, str, Optional[str]]:
+        return ModelVersionIdentifier.parse(self.function_ref)
+
+    async def _model(self) -> Model:
+        client = self._client()
+        model_owner, model_name, _ = self._parsed_ref
+        return await client.models.async_get(f"{model_owner}/{model_name}")
+
+    async def _version(self) -> Version | None:
+        _, _, model_version = self._parsed_ref
+        model = await self._model()
+        try:
+            versions = await model.versions.async_list()
+            if len(versions) == 0:
+                # if we got an empty list when getting model versions, this
+                # model is possibly a procedure instead and should be called via
+                # the versionless API
+                return None
+        except ReplicateError as e:
+            if e.status == 404:
+                # if we get a 404 when getting model versions, this is an official
+                # model and doesn't have addressable versions (despite what
+                # latest_version might tell us)
+                return None
+            raise
+
+        if model_version:
+            version = await model.versions.async_get(model_version)
+        else:
+            version = model.latest_version
+
+        return version
+
+    async def __call__(self, *args: Input.args, **inputs: Input.kwargs) -> Output:
+        run = await self.create(*args, **inputs)
+        return await run.output()
+
+    async def create(self, *_: Input.args, **inputs: Input.kwargs) -> AsyncRun[Output]:
+        """
+        Start a prediction with the specified inputs asynchronously.
+        """
+        # Process inputs to convert concatenate OutputIterators to strings and URLPath to URLs
+        processed_inputs = {}
+        for key, value in inputs.items():
+            if isinstance(value, OutputIterator) and value.is_concatenate:
+                processed_inputs[key] = str(value)
+            elif url := get_path_url(value):
+                processed_inputs[key] = url
+            else:
+                processed_inputs[key] = value
+
+        version = await self._version()
+
+        if version:
+            prediction = await self._client().predictions.async_create(
+                version=version, input=processed_inputs
+            )
+        else:
+            model = await self._model()
+            prediction = await self._client().models.predictions.async_create(
+                model=model, input=processed_inputs
+            )
+
+        return AsyncRun(prediction, await self.openapi_schema())
+
+    @property
+    def default_example(self) -> Optional[dict[str, Any]]:
+        """
+        Get the default example for this model.
+        """
+        raise NotImplementedError("This property has not yet been implemented")
+
+    async def openapi_schema(self) -> dict[str, Any]:
+        """
+        Get the OpenAPI schema for this model version asynchronously.
+        """
+        model = await self._model()
+        latest_version = model.latest_version
+        if latest_version is None:
+            msg = f"Model {model.owner}/{model.name} has no latest version"
+            raise ValueError(msg)
+
+        schema = latest_version.openapi_schema
+        if cog_version := latest_version.cog_version:
+            schema = make_schema_backwards_compatible(schema, cog_version)
+        return schema
+
+
 @overload
 def use(ref: FunctionRef[Input, Output]) -> Function[Input, Output]: ...
 
 
 @overload
 def use(
-    ref: str, *, hint: Callable[Input, Output] | None = None
+    ref: FunctionRef[Input, Output], *, use_async: Literal[False]
+) -> Function[Input, Output]: ...
+
+
+@overload
+def use(
+    ref: FunctionRef[Input, Output], *, use_async: Literal[True]
+) -> AsyncFunction[Input, Output]: ...
+
+
+@overload
+def use(
+    ref: str, *, hint: Callable[Input, Output] | None = None, use_async: Literal[True]
+) -> AsyncFunction[Input, Output]: ...
+
+
+@overload
+def use(
+    ref: str,
+    *,
+    hint: Callable[Input, Output] | None = None,
+    use_async: Literal[False] = False,
 ) -> Function[Input, Output]: ...
 
 
@@ -449,7 +650,8 @@ def use(
     ref: str | FunctionRef[Input, Output],
     *,
     hint: Callable[Input, Output] | None = None,
-) -> Function[Input, Output]:
+    use_async: bool = False,
+) -> Function[Input, Output] | AsyncFunction[Input, Output]:
     """
     Use a Replicate model as a function.
 
@@ -469,4 +671,29 @@ def use(
     except AttributeError:
         pass
 
+    if use_async:
+        return AsyncFunction(function_ref=str(ref))
+
     return Function(str(ref))
+
+
+# class Model:
+#     name = "foo"
+
+#     def __call__(self) -> str: ...
+
+
+# def model() -> int: ...
+
+
+# flux = use("")
+# flux_sync = use("", use_async=False)
+# flux_async = use("", use_async=True)
+
+# flux = use("", hint=model)
+# flux_sync = use("", hint=model, use_async=False)
+# flux_async = use("", hint=model, use_async=True)
+
+# flux = use(Model())
+# flux_sync = use(Model(), use_async=False)
+# flux_async = use(Model(), use_async=True)

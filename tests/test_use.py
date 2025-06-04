@@ -215,41 +215,51 @@ def mock_prediction_endpoints(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT, ClientMode.ASYNC])
 @respx.mock
 async def test_use(client_mode):
     mock_model_endpoints()
     mock_prediction_endpoints()
 
     # Call use with "acme/hotdog-detector"
-    hotdog_detector = replicate.use("acme/hotdog-detector")
+    hotdog_detector = replicate.use(
+        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+    )
 
     # Call function with prompt="hello world"
-    output = hotdog_detector(prompt="hello world")
+    if client_mode == ClientMode.ASYNC:
+        output = await hotdog_detector(prompt="hello world")
+    else:
+        output = hotdog_detector(prompt="hello world")
 
     # Assert that output is the completed output from the prediction request
     assert output == "not hotdog"
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT, ClientMode.ASYNC])
 @respx.mock
 async def test_use_with_version_identifier(client_mode):
     mock_model_endpoints()
     mock_prediction_endpoints()
 
     # Call use with version identifier "acme/hotdog-detector:xyz123"
-    hotdog_detector = replicate.use("acme/hotdog-detector:xyz123")
+    hotdog_detector = replicate.use(
+        "acme/hotdog-detector:xyz123", use_async=client_mode == ClientMode.ASYNC
+    )
 
     # Call function with prompt="hello world"
-    output = hotdog_detector(prompt="hello world")
+    if client_mode == ClientMode.ASYNC:
+        output = await hotdog_detector(prompt="hello world")
+    else:
+        output = hotdog_detector(prompt="hello world")
 
     # Assert that output is the completed output from the prediction request
     assert output == "not hotdog"
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT, ClientMode.ASYNC])
 @respx.mock
 async def test_use_with_function_ref(client_mode):
     mock_model_endpoints()
@@ -260,71 +270,94 @@ async def test_use_with_function_ref(client_mode):
 
         def __call__(self, prompt: str) -> str: ...
 
-    hotdog_detector = replicate.use(HotdogDetector())
+    hotdog_detector = replicate.use(
+        HotdogDetector(), use_async=client_mode == ClientMode.ASYNC
+    )
 
     # Call function with prompt="hello world"
-    output = hotdog_detector(prompt="hello world")
+    if client_mode == ClientMode.ASYNC:
+        output = await hotdog_detector(prompt="hello world")
+    else:
+        output = hotdog_detector(prompt="hello world")
 
     # Assert that output is the completed output from the prediction request
     assert output == "not hotdog"
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT, ClientMode.ASYNC])
 @respx.mock
 async def test_use_versionless_empty_versions_list(client_mode):
     mock_model_endpoints(uses_versionless_api="empty")
     mock_prediction_endpoints(uses_versionless_api="empty")
 
     # Call use with "acme/hotdog-detector"
-    hotdog_detector = replicate.use("acme/hotdog-detector")
+    hotdog_detector = replicate.use(
+        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+    )
 
     # Call function with prompt="hello world"
-    output = hotdog_detector(prompt="hello world")
+    if client_mode == ClientMode.ASYNC:
+        output = await hotdog_detector(prompt="hello world")
+    else:
+        output = hotdog_detector(prompt="hello world")
 
     # Assert that output is the completed output from the prediction request
     assert output == "not hotdog"
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT, ClientMode.ASYNC])
 @respx.mock
 async def test_use_versionless_404_versions_list(client_mode):
     mock_model_endpoints(uses_versionless_api="notfound")
     mock_prediction_endpoints(uses_versionless_api="notfound")
 
     # Call use with "acme/hotdog-detector"
-    hotdog_detector = replicate.use("acme/hotdog-detector")
+    hotdog_detector = replicate.use(
+        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+    )
 
     # Call function with prompt="hello world"
-    output = hotdog_detector(prompt="hello world")
+    if client_mode == ClientMode.ASYNC:
+        output = await hotdog_detector(prompt="hello world")
+    else:
+        output = hotdog_detector(prompt="hello world")
 
     # Assert that output is the completed output from the prediction request
     assert output == "not hotdog"
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT, ClientMode.ASYNC])
 @respx.mock
 async def test_use_function_create_method(client_mode):
     mock_model_endpoints()
     mock_prediction_endpoints()
 
     # Call use and then create method
-    hotdog_detector = replicate.use("acme/hotdog-detector")
-    run = hotdog_detector.create(prompt="hello world")
+    hotdog_detector = replicate.use(
+        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+    )
+    if client_mode == ClientMode.ASYNC:
+        run = await hotdog_detector.create(prompt="hello world")
+    else:
+        run = hotdog_detector.create(prompt="hello world")
 
     # Assert that run is a Run object with a prediction
-    from replicate.use import Run
+    from replicate.use import Run, AsyncRun
 
-    assert isinstance(run, Run)
+    if client_mode == ClientMode.ASYNC:
+        assert isinstance(run, AsyncRun)
+    else:
+        assert isinstance(run, Run)
     assert run.prediction.id == "pred123"
     assert run.prediction.status == "processing"
     assert run.prediction.input == {"prompt": "hello world"}
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT, ClientMode.ASYNC])
 @respx.mock
 async def test_use_concatenate_iterator_output(client_mode):
     mock_model_endpoints(
@@ -357,10 +390,15 @@ async def test_use_concatenate_iterator_output(client_mode):
     )
 
     # Call use with "acme/hotdog-detector"
-    hotdog_detector = replicate.use("acme/hotdog-detector")
+    hotdog_detector = replicate.use(
+        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+    )
 
     # Call function with prompt="hello world"
-    output = hotdog_detector(prompt="hello world")
+    if client_mode == ClientMode.ASYNC:
+        output = await hotdog_detector(prompt="hello world")
+    else:
+        output = hotdog_detector(prompt="hello world")
 
     # Assert that output is an OutputIterator that concatenates when converted to string
     from replicate.use import OutputIterator
@@ -404,15 +442,187 @@ async def test_use_concatenate_iterator_output(client_mode):
     )
 
     # Pass the OutputIterator as input to create()
-    hotdog_detector.create(text_input=output)
+    if client_mode == ClientMode.ASYNC:
+        await hotdog_detector.create(text_input=output)
+    else:
+        hotdog_detector.create(text_input=output)
 
     # Verify the request body contains the stringified version
+    assert request_body
     parsed_body = json.loads(request_body)
     assert parsed_body["input"]["text_input"] == "Hello world!"
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
+async def test_output_iterator_async_iteration():
+    """Test OutputIterator async iteration capabilities."""
+    from replicate.use import OutputIterator
+
+    # Create mock sync and async iterators
+    def sync_iterator():
+        return iter(["Hello", " ", "world", "!"])
+
+    async def async_iterator():
+        for item in ["Hello", " ", "world", "!"]:
+            yield item
+
+    # Test concatenate iterator
+    concatenate_output = OutputIterator(
+        sync_iterator, async_iterator, {}, is_concatenate=True
+    )
+
+    # Test sync iteration
+    sync_result = list(concatenate_output)
+    assert sync_result == ["Hello", " ", "world", "!"]
+
+    # Test async iteration
+    async_result = []
+    async for item in concatenate_output:
+        async_result.append(item)
+    assert async_result == ["Hello", " ", "world", "!"]
+
+    # Test sync string conversion
+    assert str(concatenate_output) == "Hello world!"
+
+    # Test async await (should return joined string for concatenate)
+    async_result = await concatenate_output
+    assert async_result == "Hello world!"
+
+
+@pytest.mark.asyncio
+async def test_output_iterator_async_non_concatenate():
+    """Test OutputIterator async iteration for non-concatenate iterators."""
+    from replicate.use import OutputIterator
+
+    # Create mock sync and async iterators for non-concatenate case
+    test_items = ["item1", "item2", "item3"]
+
+    def sync_iterator():
+        return iter(test_items)
+
+    async def async_iterator():
+        for item in test_items:
+            yield item
+
+    # Test non-concatenate iterator
+    regular_output = OutputIterator(
+        sync_iterator, async_iterator, {}, is_concatenate=False
+    )
+
+    # Test sync iteration
+    sync_result = list(regular_output)
+    assert sync_result == test_items
+
+    # Test async iteration
+    async_result = []
+    async for item in regular_output:
+        async_result.append(item)
+    assert async_result == test_items
+
+    # Test sync string conversion
+    assert str(regular_output) == str(test_items)
+
+    # Test async await (should return list for non-concatenate)
+    async_result = await regular_output
+    assert async_result == test_items
+
+
+@pytest.mark.asyncio
+@respx.mock
+async def test_async_function_concatenate_iterator_output():
+    """Test AsyncFunction with concatenate iterator output."""
+    mock_model_endpoints(
+        versions=[
+            create_mock_version(
+                {
+                    "openapi_schema": {
+                        "components": {
+                            "schemas": {
+                                "Output": {
+                                    "type": "array",
+                                    "items": {"type": "string"},
+                                    "x-cog-array-type": "iterator",
+                                    "x-cog-array-display": "concatenate",
+                                }
+                            }
+                        }
+                    }
+                }
+            )
+        ]
+    )
+    mock_prediction_endpoints(
+        predictions=[
+            create_mock_prediction(),
+            create_mock_prediction(
+                {"status": "succeeded", "output": ["Async", " ", "Hello", " ", "World"]}
+            ),
+        ]
+    )
+
+    # Call use with use_async=True
+    hotdog_detector = replicate.use("acme/hotdog-detector", use_async=True)
+
+    # Call async function with prompt="hello world"
+    run = await hotdog_detector.create(prompt="hello world")
+    output = await run.output()
+
+    # Assert that output is an OutputIterator that concatenates when converted to string
+    from replicate.use import OutputIterator
+
+    assert isinstance(output, OutputIterator)
+    assert str(output) == "Async Hello World"
+
+    # Test async await (should return joined string for concatenate)
+    async_result = await output
+    assert async_result == "Async Hello World"
+
+    # Test async iteration
+    async_result = []
+    async for item in output:
+        async_result.append(item)
+    assert async_result == ["Async", " ", "Hello", " ", "World"]
+
+    # Also test that it's still sync iterable
+    sync_result = list(output)
+    assert sync_result == ["Async", " ", "Hello", " ", "World"]
+
+
+@pytest.mark.asyncio
+async def test_output_iterator_await_syntax_demo():
+    """Demonstrate the clean await syntax for OutputIterator."""
+    from replicate.use import OutputIterator
+
+    # Create mock iterators
+    def sync_iterator():
+        return iter(["Hello", " ", "World"])
+
+    async def async_iterator():
+        for item in ["Hello", " ", "World"]:
+            yield item
+
+    # Test concatenate mode - await returns string
+    concatenate_output = OutputIterator(
+        sync_iterator, async_iterator, {}, is_concatenate=True
+    )
+
+    # This is the clean syntax we wanted: str(await iterator)
+    result = await concatenate_output
+    assert result == "Hello World"
+    assert str(result) == "Hello World"  # Can use str() on the result
+
+    # Test non-concatenate mode - await returns list
+    regular_output = OutputIterator(
+        sync_iterator, async_iterator, {}, is_concatenate=False
+    )
+
+    result = await regular_output
+    assert result == ["Hello", " ", "World"]
+    assert str(result) == "['Hello', ' ', 'World']"  # str() gives list representation
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT, ClientMode.ASYNC])
 @respx.mock
 async def test_use_list_of_strings_output(client_mode):
     mock_model_endpoints(
@@ -443,17 +653,22 @@ async def test_use_list_of_strings_output(client_mode):
     )
 
     # Call use with "acme/hotdog-detector"
-    hotdog_detector = replicate.use("acme/hotdog-detector")
+    hotdog_detector = replicate.use(
+        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+    )
 
     # Call function with prompt="hello world"
-    output = hotdog_detector(prompt="hello world")
+    if client_mode == ClientMode.ASYNC:
+        output = await hotdog_detector(prompt="hello world")
+    else:
+        output = hotdog_detector(prompt="hello world")
 
     # Assert that output is returned as a list
     assert output == ["hello", "world", "test"]
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT, ClientMode.ASYNC])
 @respx.mock
 async def test_use_iterator_of_strings_output(client_mode):
     mock_model_endpoints(
@@ -485,10 +700,15 @@ async def test_use_iterator_of_strings_output(client_mode):
     )
 
     # Call use with "acme/hotdog-detector"
-    hotdog_detector = replicate.use("acme/hotdog-detector")
+    hotdog_detector = replicate.use(
+        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+    )
 
     # Call function with prompt="hello world"
-    output = hotdog_detector(prompt="hello world")
+    if client_mode == ClientMode.ASYNC:
+        output = await hotdog_detector(prompt="hello world")
+    else:
+        output = hotdog_detector(prompt="hello world")
 
     # Assert that output is returned as an OutputIterator
     from replicate.use import OutputIterator
@@ -500,7 +720,7 @@ async def test_use_iterator_of_strings_output(client_mode):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT, ClientMode.ASYNC])
 @respx.mock
 async def test_use_path_output(client_mode):
     mock_model_endpoints(
@@ -536,10 +756,15 @@ async def test_use_path_output(client_mode):
     )
 
     # Call use with "acme/hotdog-detector"
-    hotdog_detector = replicate.use("acme/hotdog-detector")
+    hotdog_detector = replicate.use(
+        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+    )
 
     # Call function with prompt="hello world"
-    output = hotdog_detector(prompt="hello world")
+    if client_mode == ClientMode.ASYNC:
+        output = await hotdog_detector(prompt="hello world")
+    else:
+        output = hotdog_detector(prompt="hello world")
 
     assert isinstance(output, os.PathLike)
     assert get_path_url(output) == "https://example.com/output.jpg"
@@ -548,7 +773,7 @@ async def test_use_path_output(client_mode):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT, ClientMode.ASYNC])
 @respx.mock
 async def test_use_list_of_paths_output(client_mode):
     mock_model_endpoints(
@@ -593,10 +818,15 @@ async def test_use_list_of_paths_output(client_mode):
     )
 
     # Call use with "acme/hotdog-detector"
-    hotdog_detector = replicate.use("acme/hotdog-detector")
+    hotdog_detector = replicate.use(
+        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+    )
 
     # Call function with prompt="hello world"
-    output = hotdog_detector(prompt="hello world")
+    if client_mode == ClientMode.ASYNC:
+        output = await hotdog_detector(prompt="hello world")
+    else:
+        output = hotdog_detector(prompt="hello world")
 
     assert isinstance(output, list)
     assert len(output) == 2
@@ -611,7 +841,7 @@ async def test_use_list_of_paths_output(client_mode):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT, ClientMode.ASYNC])
 @respx.mock
 async def test_use_iterator_of_paths_output(client_mode):
     mock_model_endpoints(
@@ -657,10 +887,15 @@ async def test_use_iterator_of_paths_output(client_mode):
     )
 
     # Call use with "acme/hotdog-detector"
-    hotdog_detector = replicate.use("acme/hotdog-detector")
+    hotdog_detector = replicate.use(
+        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+    )
 
     # Call function with prompt="hello world"
-    output = hotdog_detector(prompt="hello world")
+    if client_mode == ClientMode.ASYNC:
+        output = await hotdog_detector(prompt="hello world")
+    else:
+        output = hotdog_detector(prompt="hello world")
 
     # Assert that output is returned as an OutputIterator of Path objects
     from replicate.use import OutputIterator
@@ -716,7 +951,7 @@ def test_get_path_url_with_object_without_target():
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT, ClientMode.ASYNC])
 @respx.mock
 async def test_use_pathproxy_input_conversion(client_mode):
     mock_model_endpoints()
@@ -762,8 +997,13 @@ async def test_use_pathproxy_input_conversion(client_mode):
     )
 
     # Call use and create with URLPath
-    hotdog_detector = replicate.use("acme/hotdog-detector")
-    hotdog_detector.create(image=urlpath)
+    hotdog_detector = replicate.use(
+        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+    )
+    if client_mode == ClientMode.ASYNC:
+        await hotdog_detector.create(image=urlpath)
+    else:
+        hotdog_detector.create(image=urlpath)
 
     # Verify the request body contains the URL, not the downloaded file
     assert request_body
@@ -775,25 +1015,33 @@ async def test_use_pathproxy_input_conversion(client_mode):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT, ClientMode.ASYNC])
 @respx.mock
 async def test_use_function_logs_method(client_mode):
     mock_model_endpoints()
     mock_prediction_endpoints(predictions=[create_mock_prediction()])
 
     # Call use and then create method
-    hotdog_detector = replicate.use("acme/hotdog-detector")
-    run = hotdog_detector.create(prompt="hello world")
+    hotdog_detector = replicate.use(
+        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+    )
+    if client_mode == ClientMode.ASYNC:
+        run = await hotdog_detector.create(prompt="hello world")
+    else:
+        run = hotdog_detector.create(prompt="hello world")
 
     # Call logs method to get current logs
-    logs = run.logs()
+    if client_mode == ClientMode.ASYNC:
+        logs = await run.logs()
+    else:
+        logs = run.logs()
 
     # Assert that logs returns the current log value
     assert logs == "Starting prediction..."
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT, ClientMode.ASYNC])
 @respx.mock
 async def test_use_function_logs_method_polling(client_mode):
     mock_model_endpoints()
@@ -815,20 +1063,31 @@ async def test_use_function_logs_method_polling(client_mode):
     mock_prediction_endpoints(predictions=polling_responses)
 
     # Call use and then create method
-    hotdog_detector = replicate.use("acme/hotdog-detector")
-    run = hotdog_detector.create(prompt="hello world")
+    hotdog_detector = replicate.use(
+        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+    )
+    if client_mode == ClientMode.ASYNC:
+        run = await hotdog_detector.create(prompt="hello world")
+    else:
+        run = hotdog_detector.create(prompt="hello world")
 
     # Call logs method initially
-    initial_logs = run.logs()
+    if client_mode == ClientMode.ASYNC:
+        initial_logs = await run.logs()
+    else:
+        initial_logs = run.logs()
     assert initial_logs == "Starting prediction..."
 
     # Call logs method again to get updated logs (simulates polling)
-    updated_logs = run.logs()
+    if client_mode == ClientMode.ASYNC:
+        updated_logs = await run.logs()
+    else:
+        updated_logs = run.logs()
     assert updated_logs == "Starting prediction...\nProcessing input..."
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT, ClientMode.ASYNC])
 @respx.mock
 async def test_use_object_output_with_file_properties(client_mode):
     mock_model_endpoints(
@@ -878,10 +1137,15 @@ async def test_use_object_output_with_file_properties(client_mode):
     )
 
     # Call use with "acme/hotdog-detector"
-    hotdog_detector = replicate.use("acme/hotdog-detector")
+    hotdog_detector = replicate.use(
+        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+    )
 
     # Call function with prompt="hello world"
-    output = hotdog_detector(prompt="hello world")
+    if client_mode == ClientMode.ASYNC:
+        output = await hotdog_detector(prompt="hello world")
+    else:
+        output = hotdog_detector(prompt="hello world")
 
     assert isinstance(output, dict)
     assert output["text"] == "Generated text"
@@ -893,7 +1157,7 @@ async def test_use_object_output_with_file_properties(client_mode):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT])
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT, ClientMode.ASYNC])
 @respx.mock
 async def test_use_object_output_with_file_list_property(client_mode):
     mock_model_endpoints(
@@ -950,10 +1214,15 @@ async def test_use_object_output_with_file_list_property(client_mode):
     )
 
     # Call use with "acme/hotdog-detector"
-    hotdog_detector = replicate.use("acme/hotdog-detector")
+    hotdog_detector = replicate.use(
+        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+    )
 
     # Call function with prompt="hello world"
-    output = hotdog_detector(prompt="hello world")
+    if client_mode == ClientMode.ASYNC:
+        output = await hotdog_detector(prompt="hello world")
+    else:
+        output = hotdog_detector(prompt="hello world")
 
     assert isinstance(output, dict)
     assert output["text"] == "Generated text"
