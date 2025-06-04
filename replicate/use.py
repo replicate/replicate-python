@@ -368,11 +368,17 @@ class Run[O]:
                 ),
             )
 
-        # For non-iterator types, wait for completion and process output
+        # For non-streaming, wait for completion and process output
         self._prediction.wait()
 
         if self._prediction.status == "failed":
             raise ModelError(self._prediction)
+
+        # Handle concatenate iterators - return joined string
+        if _has_concatenate_iterator_output_type(self._schema):
+            if isinstance(self._prediction.output, list):
+                return "".join(str(item) for item in self._prediction.output)
+            return self._prediction.output
 
         # Process output for file downloads based on schema
         return _process_output_with_schema(self._prediction.output, self._schema)
@@ -529,11 +535,17 @@ class AsyncRun[O]:
                 ),
             )
 
-        # For non-iterator types, wait for completion and process output
+        # For non-streaming, wait for completion and process output
         await self._prediction.async_wait()
 
         if self._prediction.status == "failed":
             raise ModelError(self._prediction)
+
+        # Handle concatenate iterators - return joined string
+        if _has_concatenate_iterator_output_type(self._schema):
+            if isinstance(self._prediction.output, list):
+                return "".join(str(item) for item in self._prediction.output)
+            return self._prediction.output
 
         # Process output for file downloads based on schema
         return _process_output_with_schema(self._prediction.output, self._schema)

@@ -628,6 +628,53 @@ async def test_output_iterator_await_syntax_demo():
 @pytest.mark.asyncio
 @pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT, ClientMode.ASYNC])
 @respx.mock
+async def test_use_concatenate_iterator_without_streaming_returns_string(client_mode):
+    """Test that concatenate iterator models without streaming=True return final concatenated string."""
+    mock_model_endpoints(
+        versions=[
+            create_mock_version(
+                {
+                    "openapi_schema": {
+                        "components": {
+                            "schemas": {
+                                "Output": {
+                                    "type": "array",
+                                    "items": {"type": "string"},
+                                    "x-cog-array-type": "iterator",
+                                    "x-cog-array-display": "concatenate",
+                                }
+                            }
+                        }
+                    }
+                }
+            )
+        ]
+    )
+    mock_prediction_endpoints(
+        predictions=[
+            create_mock_prediction(),
+            create_mock_prediction(
+                {"status": "succeeded", "output": ["Hello", " ", "world", "!"]}
+            ),
+        ]
+    )
+
+    # Call use with "acme/hotdog-detector" WITHOUT streaming=True (default behavior)
+    hotdog_detector = replicate.use(
+        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+    )
+
+    if client_mode == ClientMode.ASYNC:
+        output = await hotdog_detector(prompt="hello world")
+    else:
+        output = hotdog_detector(prompt="hello world")
+
+    assert output == "Hello world!"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT, ClientMode.ASYNC])
+@respx.mock
 async def test_iterator_output_returns_immediately(client_mode):
     """Test that OutputIterator is returned immediately without waiting for completion."""
     mock_model_endpoints(
