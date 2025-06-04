@@ -307,7 +307,7 @@ class URLPath(os.PathLike):
         return str(self.__path__)
 
     def __str__(self) -> str:
-        return str(self.__path__)
+        return self.__fspath__()
 
     def __repr__(self) -> str:
         return f"<URLPath url={self.__url__!r} path={self.__path__!r}>"
