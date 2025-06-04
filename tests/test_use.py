@@ -121,7 +121,6 @@ def mock_model_endpoints(
         versions = [create_mock_version()]
 
     # Get the latest version (first in list) for the model endpoint
-    # For empty case, we provide the version in latest_version but return empty versions list
     latest_version = versions[0] if versions else None
     respx.get("https://api.replicate.com/v1/models/acme/hotdog-detector").mock(
         return_value=httpx.Response(
@@ -138,8 +137,6 @@ def mock_model_endpoints(
                 "run_count": 42,
                 "cover_image_url": None,
                 "default_example": None,
-                # This one is a bit weird due to a bug in procedures that currently return an empty
-                # version list from the `model.versions.list` endpoint instead of 404ing
                 "latest_version": latest_version,
             },
         )
@@ -149,7 +146,6 @@ def mock_model_endpoints(
     if uses_versionless_api == "empty":
         versions_results = []
 
-    # Mock the versions list endpoint
     if uses_versionless_api == "notfound":
         respx.get(
             "https://api.replicate.com/v1/models/acme/hotdog-detector/versions"
@@ -159,7 +155,6 @@ def mock_model_endpoints(
             "https://api.replicate.com/v1/models/acme/hotdog-detector/versions"
         ).mock(return_value=httpx.Response(200, json={"results": versions_results}))
 
-    # Mock specific version endpoints
     for version_obj in versions_results:
         if uses_versionless_api == "notfound":
             respx.get(
@@ -207,7 +202,6 @@ def mock_prediction_endpoints(
             return_value=httpx.Response(201, json=initial_prediction)
         )
 
-    # Mock the prediction polling endpoint
     prediction_id = initial_prediction["id"]
     respx.get(f"https://api.replicate.com/v1/predictions/{prediction_id}").mock(
         side_effect=[httpx.Response(200, json=response) for response in predictions]
@@ -221,18 +215,15 @@ async def test_use(client_mode):
     mock_model_endpoints()
     mock_prediction_endpoints()
 
-    # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use(
         "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
     )
 
-    # Call function with prompt="hello world"
     if client_mode == ClientMode.ASYNC:
         output = await hotdog_detector(prompt="hello world")
     else:
         output = hotdog_detector(prompt="hello world")
 
-    # Assert that output is the completed output from the prediction request
     assert output == "not hotdog"
 
 
@@ -243,18 +234,15 @@ async def test_use_with_version_identifier(client_mode):
     mock_model_endpoints()
     mock_prediction_endpoints()
 
-    # Call use with version identifier "acme/hotdog-detector:xyz123"
     hotdog_detector = replicate.use(
         "acme/hotdog-detector:xyz123", use_async=client_mode == ClientMode.ASYNC
     )
 
-    # Call function with prompt="hello world"
     if client_mode == ClientMode.ASYNC:
         output = await hotdog_detector(prompt="hello world")
     else:
         output = hotdog_detector(prompt="hello world")
 
-    # Assert that output is the completed output from the prediction request
     assert output == "not hotdog"
 
 
@@ -274,13 +262,11 @@ async def test_use_with_function_ref(client_mode):
         HotdogDetector(), use_async=client_mode == ClientMode.ASYNC
     )
 
-    # Call function with prompt="hello world"
     if client_mode == ClientMode.ASYNC:
         output = await hotdog_detector(prompt="hello world")
     else:
         output = hotdog_detector(prompt="hello world")
 
-    # Assert that output is the completed output from the prediction request
     assert output == "not hotdog"
 
 
@@ -291,18 +277,15 @@ async def test_use_versionless_empty_versions_list(client_mode):
     mock_model_endpoints(uses_versionless_api="empty")
     mock_prediction_endpoints(uses_versionless_api="empty")
 
-    # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use(
         "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
     )
 
-    # Call function with prompt="hello world"
     if client_mode == ClientMode.ASYNC:
         output = await hotdog_detector(prompt="hello world")
     else:
         output = hotdog_detector(prompt="hello world")
 
-    # Assert that output is the completed output from the prediction request
     assert output == "not hotdog"
 
 
@@ -313,18 +296,15 @@ async def test_use_versionless_404_versions_list(client_mode):
     mock_model_endpoints(uses_versionless_api="notfound")
     mock_prediction_endpoints(uses_versionless_api="notfound")
 
-    # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use(
         "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
     )
 
-    # Call function with prompt="hello world"
     if client_mode == ClientMode.ASYNC:
         output = await hotdog_detector(prompt="hello world")
     else:
         output = hotdog_detector(prompt="hello world")
 
-    # Assert that output is the completed output from the prediction request
     assert output == "not hotdog"
 
 
@@ -335,7 +315,6 @@ async def test_use_function_create_method(client_mode):
     mock_model_endpoints()
     mock_prediction_endpoints()
 
-    # Call use and then create method
     hotdog_detector = replicate.use(
         "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
     )
@@ -344,7 +323,6 @@ async def test_use_function_create_method(client_mode):
     else:
         run = hotdog_detector.create(prompt="hello world")
 
-    # Assert that run is a Run object with a prediction
     from replicate.use import AsyncRun, Run
 
     if client_mode == ClientMode.ASYNC:
@@ -389,20 +367,17 @@ async def test_use_concatenate_iterator_output(client_mode):
         ]
     )
 
-    # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use(
         "acme/hotdog-detector",
         use_async=client_mode == ClientMode.ASYNC,
         streaming=True,
     )
 
-    # Call function with prompt="hello world"
     if client_mode == ClientMode.ASYNC:
         output = await hotdog_detector(prompt="hello world")
     else:
         output = hotdog_detector(prompt="hello world")
 
-    # Assert that output is an OutputIterator that concatenates when converted to string
     from replicate.use import OutputIterator
 
     assert isinstance(output, OutputIterator)
@@ -562,16 +537,13 @@ async def test_async_function_concatenate_iterator_output():
         ]
     )
 
-    # Call use with use_async=True
     hotdog_detector = replicate.use(
         "acme/hotdog-detector", use_async=True, streaming=True
     )
 
-    # Call async function with prompt="hello world"
     run = await hotdog_detector.create(prompt="hello world")
     output = await run.output()
 
-    # Assert that output is an OutputIterator that concatenates when converted to string
     from replicate.use import OutputIterator
 
     assert isinstance(output, OutputIterator)
@@ -659,7 +631,6 @@ async def test_use_concatenate_iterator_without_streaming_returns_string(client_
         ]
     )
 
-    # Call use with "acme/hotdog-detector" WITHOUT streaming=True (default behavior)
     hotdog_detector = replicate.use(
         "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
     )
@@ -698,7 +669,6 @@ async def test_iterator_output_returns_immediately(client_mode):
         ]
     )
 
-    # Mock prediction that starts as processing (not completed)
     mock_prediction_endpoints(
         predictions=[
             create_mock_prediction({"status": "processing", "output": []}),
@@ -709,7 +679,6 @@ async def test_iterator_output_returns_immediately(client_mode):
         ]
     )
 
-    # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use(
         "acme/hotdog-detector",
         use_async=client_mode == ClientMode.ASYNC,
@@ -724,7 +693,6 @@ async def test_iterator_output_returns_immediately(client_mode):
         run = hotdog_detector.create(prompt="hello world")
         output_iterator = run.output()
 
-    # Assert that we get an OutputIterator immediately (without waiting for completion)
     from replicate.use import OutputIterator
 
     assert isinstance(output_iterator, OutputIterator)
@@ -762,7 +730,6 @@ async def test_streaming_output_yields_incrementally(client_mode):
     # Create a prediction that will be polled multiple times
     prediction_id = "pred123"
 
-    # Mock the initial prediction creation
     initial_prediction = create_mock_prediction(
         {"id": prediction_id, "status": "processing", "output": []},
         prediction_id=prediction_id,
@@ -777,7 +744,6 @@ async def test_streaming_output_yields_incrementally(client_mode):
             return_value=httpx.Response(201, json=initial_prediction)
         )
 
-    # Mock incremental polling responses - each poll returns more data
     poll_responses = [
         create_mock_prediction(
             {"status": "processing", "output": ["Hello"]}, prediction_id=prediction_id
@@ -803,12 +769,10 @@ async def test_streaming_output_yields_incrementally(client_mode):
         ),
     ]
 
-    # Mock the polling endpoint to return different responses in sequence
     respx.get(f"https://api.replicate.com/v1/predictions/{prediction_id}").mock(
         side_effect=[httpx.Response(200, json=resp) for resp in poll_responses]
     )
 
-    # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use(
         "acme/hotdog-detector",
         use_async=client_mode == ClientMode.ASYNC,
@@ -823,7 +787,6 @@ async def test_streaming_output_yields_incrementally(client_mode):
         run = hotdog_detector.create(prompt="hello world")
         output_iterator = run.output()
 
-    # Assert that we get an OutputIterator immediately
     from replicate.use import OutputIterator
 
     assert isinstance(output_iterator, OutputIterator)
@@ -879,7 +842,6 @@ async def test_non_streaming_output_waits_for_completion(client_mode):
         ]
     )
 
-    # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use(
         "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
     )
@@ -927,18 +889,15 @@ async def test_use_list_of_strings_output(client_mode):
         ]
     )
 
-    # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use(
         "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
     )
 
-    # Call function with prompt="hello world"
     if client_mode == ClientMode.ASYNC:
         output = await hotdog_detector(prompt="hello world")
     else:
         output = hotdog_detector(prompt="hello world")
 
-    # Assert that output is returned as a list
     assert output == ["hello", "world", "test"]
 
 
@@ -974,20 +933,17 @@ async def test_use_iterator_of_strings_output(client_mode):
         ]
     )
 
-    # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use(
         "acme/hotdog-detector",
         use_async=client_mode == ClientMode.ASYNC,
         streaming=True,
     )
 
-    # Call function with prompt="hello world"
     if client_mode == ClientMode.ASYNC:
         output = await hotdog_detector(prompt="hello world")
     else:
         output = hotdog_detector(prompt="hello world")
 
-    # Assert that output is returned as an OutputIterator
     from replicate.use import OutputIterator
 
     assert isinstance(output, OutputIterator)
@@ -1027,17 +983,14 @@ async def test_use_path_output(client_mode):
         ]
     )
 
-    # Mock the file download
     respx.get("https://example.com/output.jpg").mock(
         return_value=httpx.Response(200, content=b"fake image data")
     )
 
-    # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use(
         "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
     )
 
-    # Call function with prompt="hello world"
     if client_mode == ClientMode.ASYNC:
         output = await hotdog_detector(prompt="hello world")
     else:
@@ -1086,7 +1039,6 @@ async def test_use_list_of_paths_output(client_mode):
         ]
     )
 
-    # Mock the file downloads
     respx.get("https://example.com/output1.jpg").mock(
         return_value=httpx.Response(200, content=b"fake image 1 data")
     )
@@ -1094,12 +1046,10 @@ async def test_use_list_of_paths_output(client_mode):
         return_value=httpx.Response(200, content=b"fake image 2 data")
     )
 
-    # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use(
         "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
     )
 
-    # Call function with prompt="hello world"
     if client_mode == ClientMode.ASYNC:
         output = await hotdog_detector(prompt="hello world")
     else:
@@ -1155,7 +1105,6 @@ async def test_use_iterator_of_paths_output(client_mode):
         ]
     )
 
-    # Mock the file downloads
     respx.get("https://example.com/output1.jpg").mock(
         return_value=httpx.Response(200, content=b"fake image 1 data")
     )
@@ -1163,20 +1112,17 @@ async def test_use_iterator_of_paths_output(client_mode):
         return_value=httpx.Response(200, content=b"fake image 2 data")
     )
 
-    # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use(
         "acme/hotdog-detector",
         use_async=client_mode == ClientMode.ASYNC,
         streaming=True,
     )
 
-    # Call function with prompt="hello world"
     if client_mode == ClientMode.ASYNC:
         output = await hotdog_detector(prompt="hello world")
     else:
         output = hotdog_detector(prompt="hello world")
 
-    # Assert that output is returned as an OutputIterator of Path objects
     from replicate.use import OutputIterator
 
     assert isinstance(output, OutputIterator)
@@ -1235,7 +1181,6 @@ def test_get_path_url_with_object_without_target():
 async def test_use_pathproxy_input_conversion(client_mode):
     mock_model_endpoints()
 
-    # Mock the file download - this should NOT be called
     file_request_mock = respx.get("https://example.com/input.jpg").mock(
         return_value=httpx.Response(200, content=b"fake input image data")
     )
@@ -1275,7 +1220,6 @@ async def test_use_pathproxy_input_conversion(client_mode):
         side_effect=capture_request
     )
 
-    # Call use and create with URLPath
     hotdog_detector = replicate.use(
         "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
     )
@@ -1289,7 +1233,6 @@ async def test_use_pathproxy_input_conversion(client_mode):
     parsed_body = json.loads(request_body)
     assert parsed_body["input"]["image"] == "https://example.com/input.jpg"
 
-    # Assert that the file was never downloaded
     assert file_request_mock.call_count == 0
 
 
@@ -1300,7 +1243,6 @@ async def test_use_function_logs_method(client_mode):
     mock_model_endpoints()
     mock_prediction_endpoints(predictions=[create_mock_prediction()])
 
-    # Call use and then create method
     hotdog_detector = replicate.use(
         "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
     )
@@ -1309,13 +1251,11 @@ async def test_use_function_logs_method(client_mode):
     else:
         run = hotdog_detector.create(prompt="hello world")
 
-    # Call logs method to get current logs
     if client_mode == ClientMode.ASYNC:
         logs = await run.logs()
     else:
         logs = run.logs()
 
-    # Assert that logs returns the current log value
     assert logs == "Starting prediction..."
 
 
@@ -1325,7 +1265,6 @@ async def test_use_function_logs_method(client_mode):
 async def test_use_function_logs_method_polling(client_mode):
     mock_model_endpoints()
 
-    # Mock prediction endpoints with updated logs on polling
     polling_responses = [
         create_mock_prediction(
             {
@@ -1341,7 +1280,6 @@ async def test_use_function_logs_method_polling(client_mode):
 
     mock_prediction_endpoints(predictions=polling_responses)
 
-    # Call use and then create method
     hotdog_detector = replicate.use(
         "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
     )
@@ -1350,14 +1288,12 @@ async def test_use_function_logs_method_polling(client_mode):
     else:
         run = hotdog_detector.create(prompt="hello world")
 
-    # Call logs method initially
     if client_mode == ClientMode.ASYNC:
         initial_logs = await run.logs()
     else:
         initial_logs = run.logs()
     assert initial_logs == "Starting prediction..."
 
-    # Call logs method again to get updated logs (simulates polling)
     if client_mode == ClientMode.ASYNC:
         updated_logs = await run.logs()
     else:
@@ -1410,17 +1346,14 @@ async def test_use_object_output_with_file_properties(client_mode):
         ]
     )
 
-    # Mock the file download
     respx.get("https://example.com/generated.png").mock(
         return_value=httpx.Response(200, content=b"fake png data")
     )
 
-    # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use(
         "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
     )
 
-    # Call function with prompt="hello world"
     if client_mode == ClientMode.ASYNC:
         output = await hotdog_detector(prompt="hello world")
     else:
@@ -1484,7 +1417,6 @@ async def test_use_object_output_with_file_list_property(client_mode):
         ]
     )
 
-    # Mock the file downloads
     respx.get("https://example.com/image1.png").mock(
         return_value=httpx.Response(200, content=b"fake png 1 data")
     )
@@ -1492,12 +1424,10 @@ async def test_use_object_output_with_file_list_property(client_mode):
         return_value=httpx.Response(200, content=b"fake png 2 data")
     )
 
-    # Call use with "acme/hotdog-detector"
     hotdog_detector = replicate.use(
         "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
     )
 
-    # Call function with prompt="hello world"
     if client_mode == ClientMode.ASYNC:
         output = await hotdog_detector(prompt="hello world")
     else:
