@@ -510,12 +510,12 @@ The latest versions of `replicate >= 1.0.8` include a new experimental `use()` f
 Some key differences to `replicate.run()`.
 
  1. You "import" the model using the `use()` syntax, after that you call the model like a function.
- 2. The output type matches the model definition. i.e. if the model uses an iterator output will be an iterator.
- 3. Files will be downloaded output as `Path` objects*.
+ 2. The output type matches the model definition.
+ 3. Baked in support for streaming for all models.
+ 4. File outputs will be represented as `PathLike` objects and downloaded to disk when used*.
 
 > [!NOTE]
-
-\* We've replaced the `FileOutput` implementation with `Path` objects. However to avoid unnecessary downloading of files until they are needed we've implemented a `PathProxy` class that will defer the download until the first time the object is used. If you need the underlying URL of the `Path` object you can use the `get_path_url(path: Path) -> str` helper.
+> \* We've replaced the `FileOutput` implementation with `Path` objects. However to avoid unnecessary downloading of files until they are needed we've implemented a `PathProxy` class that will defer the download until the first time the object is used. If you need the underlying URL of the `Path` object you can use the `get_path_url(path: Path) -> str` helper.
 
 ### Examples
 
@@ -534,22 +534,14 @@ for output in outputs:
     print(output) # Path(/tmp/output.webp)
 ```
 
-Models that output iterators will return iterators:
-
+Models that implement iterators will return the output of the completed run as a list unless explicitly streaming (see Streaming section below). Language models that define `x-cog-iterator-display: concatenate` will return strings:
 
 ```py
 claude = replicate.use("anthropic/claude-4-sonnet")
 
 output = claude(prompt="Give me a recipe for tasty smashed avocado on sourdough toast that could feed all of California.")
 
-for token in output:
-    print(token) # "Here's a recipe"
-```
-
-You can call `str()` on a language model to get the full output when done rather than iterating over tokens:
-
-```py
-str(output) # "Here's a recipe to feed all of California (about 39 million people)! ..."
+print(output) # "Here's a recipe to feed all of California (about 39 million people)! ..."
 ```
 
 You can pass the results of one model directly into another:
@@ -577,6 +569,19 @@ prediction = claude.create(prompt="Give me a recipe for tasty smashed avocado on
 prediction.logs() # get current logs (WIP)
 
 prediction.output() # get the output
+```
+
+### Streaming
+
+Many models, particularly large language models (LLMs), will yield partial results as the model is running. To consume outputs from these models as they run you can pass the `streaming` argument to `use()`:
+
+```py
+claude = replicate.use("anthropic/claude-4-sonnet", streaming=True)
+
+output = claude(prompt="Give me a recipe for tasty smashed avocado on sourdough toast that could feed all of California.")
+
+for chunk in output:
+    print(chunk) # "Here's a recipe ", "to feed all", " of California"
 ```
 
 ### Downloading file outputs
@@ -646,14 +651,14 @@ async def main():
 asyncio.run(main())
 ```
 
-If the model returns an iterator an `AsyncIterator` implementation will be used:
+When used in streaming mode then an `AsyncIterator` will be returned.
 
 ```py
 import asyncio
 import replicate
 
 async def main():
-    claude = replicate.use("anthropic/claude-3.5-haiku", use_async=True)
+    claude = replicate.use("anthropic/claude-3.5-haiku", streaming=True, use_async=True)
     output = await claude(prompt="say hello")
 
     # Stream the response as it comes in.
@@ -699,6 +704,9 @@ flux_dev = use(FluxDev)
 output1 = flux_dev() # will warn that `prompt` is missing
 output2 = flux_dev(prompt="str") # output2 will be typed as `str`
 ```
+
+> [!WARNING]
+> Currently the typing system doesn't correctly support the `streaming` flag for models that return lists or use iterators. We're working on improvements here.
 
 In future we hope to provide tooling to generate and provide these models as packages to make working with them easier. For now you may wish to create your own.
 
