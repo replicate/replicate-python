@@ -2,9 +2,7 @@
 # - [ ] Support text streaming
 # - [ ] Support file streaming
 import hashlib
-import inspect
 import os
-import sys
 import tempfile
 from dataclasses import dataclass
 from functools import cached_property
@@ -115,7 +113,7 @@ def _process_iterator_item(item: Any, openapi_schema: dict) -> Any:
     return item
 
 
-def _process_output_with_schema(output: Any, openapi_schema: dict) -> Any:
+def _process_output_with_schema(output: Any, openapi_schema: dict) -> Any:  # pylint: disable=too-many-branches,too-many-nested-blocks
     """
     Process output data, downloading files based on OpenAPI schema.
     """
@@ -143,7 +141,7 @@ def _process_output_with_schema(output: Any, openapi_schema: dict) -> Any:
         return output
 
     # Handle object with properties
-    if output_schema.get("type") == "object" and isinstance(output, dict):
+    if output_schema.get("type") == "object" and isinstance(output, dict):  # pylint: disable=too-many-nested-blocks
         properties = output_schema.get("properties", {})
         result = output.copy()
 
@@ -177,6 +175,9 @@ def _process_output_with_schema(output: Any, openapi_schema: dict) -> Any:
         return result
 
     return output
+
+
+T = TypeVar("T")
 
 
 class OutputIterator[T]:
@@ -218,8 +219,7 @@ class OutputIterator[T]:
         """Convert to string by joining segments with empty string."""
         if self.is_concatenate:
             return "".join([str(segment) for segment in self.iterator_factory()])
-        else:
-            return str(list(self.iterator_factory()))
+        return str(list(self.iterator_factory()))
 
     def __await__(self) -> Generator[Any, None, List[T] | str]:
         """Make OutputIterator awaitable, returning appropriate result based on concatenate mode."""
@@ -231,14 +231,13 @@ class OutputIterator[T]:
                 async for segment in self:
                     segments.append(segment)
                 return "".join(segments)
-            else:
-                # For regular iterators, return the list of items
-                items = []
-                async for item in self:
-                    items.append(item)
-                return items
+            # For regular iterators, return the list of items
+            items = []
+            async for item in self:
+                items.append(item)
+            return items
 
-        return _collect_result().__await__()
+        return _collect_result().__await__()  # pylint: disable=no-member # return type confuses pylint
 
 
 class URLPath(os.PathLike):
@@ -296,6 +295,8 @@ Output = TypeVar("Output")
 
 
 class FunctionRef(Protocol, Generic[Input, Output]):
+    """Represents a Replicate model, providing the model identifier and interface."""
+
     name: str
 
     __call__: Callable[Input, Output]
@@ -329,8 +330,8 @@ class Run[O]:
             return cast(
                 O,
                 OutputIterator(
-                    lambda: self._prediction.output_iterator(),
-                    lambda: self._prediction.async_output_iterator(),
+                    self._prediction.output_iterator,
+                    self._prediction.async_output_iterator,
                     self._schema,
                     is_concatenate=is_concatenate,
                 ),
@@ -496,8 +497,8 @@ class AsyncRun[O]:
             return cast(
                 O,
                 OutputIterator(
-                    lambda: self._prediction.output_iterator(),
-                    lambda: self._prediction.async_output_iterator(),
+                    self._prediction.output_iterator,
+                    self._prediction.async_output_iterator,
                     self._schema,
                     is_concatenate=is_concatenate,
                 ),
@@ -685,7 +686,7 @@ def use(
 def use(
     ref: str,
     *,
-    hint: Callable[Input, Output] | None = None,
+    hint: Callable[Input, Output] | None = None,  # pylint: disable=unused-argument
     streaming: Literal[False] = False,
     use_async: Literal[False] = False,
 ) -> Function[Input, Output]: ...
@@ -695,7 +696,7 @@ def use(
 def use(
     ref: str,
     *,
-    hint: Callable[Input, Output] | None = None,
+    hint: Callable[Input, Output] | None = None,  # pylint: disable=unused-argument
     streaming: Literal[True],
     use_async: Literal[False] = False,
 ) -> Function[Input, Iterator[Output]]: ...
@@ -705,7 +706,7 @@ def use(
 def use(
     ref: str,
     *,
-    hint: Callable[Input, Output] | None = None,
+    hint: Callable[Input, Output] | None = None,  # pylint: disable=unused-argument
     use_async: Literal[True],
 ) -> AsyncFunction[Input, Output]: ...
 
@@ -714,7 +715,7 @@ def use(
 def use(
     ref: str,
     *,
-    hint: Callable[Input, Output] | None = None,
+    hint: Callable[Input, Output] | None = None,  # pylint: disable=unused-argument
     streaming: Literal[True],
     use_async: Literal[True],
 ) -> AsyncFunction[Input, AsyncIterator[Output]]: ...
@@ -723,7 +724,7 @@ def use(
 def use(
     ref: str | FunctionRef[Input, Output],
     *,
-    hint: Callable[Input, Output] | None = None,
+    hint: Callable[Input, Output] | None = None,  # pylint: disable=unused-argument # required for type inference
     streaming: bool = False,
     use_async: bool = False,
 ) -> (
@@ -750,31 +751,3 @@ def use(
         return AsyncFunction(str(ref), streaming=streaming)
 
     return Function(str(ref), streaming=streaming)
-
-
-# class Model:
-#     name = "foo"
-
-#     def __call__(self) -> str: ...
-
-
-# def model() -> AsyncIterator[int]: ...
-
-
-# flux = use("")
-# flux_sync = use("", use_async=False)
-# streaming_flux_sync = use("", streaming=True, use_async=False)
-# flux_async = use("", use_async=True)
-# streaming_flux_async = use("", streaming=True, use_async=True)
-
-# flux = use("", hint=model)
-# flux_sync = use("", hint=model, use_async=False)
-# streaming_flux_sync = use("", hint=model, streaming=False, use_async=False)
-# flux_async = use("", hint=model, use_async=True)
-# streaming_flux_async = use("", hint=model, streaming=True, use_async=True)
-
-# flux = use(Model())
-# flux_sync = use(Model(), use_async=False)
-# streaming_flux_sync = use(Model(), streaming=False, use_async=False)
-# flux_async = use(Model(), use_async=True)
-# streaming_flux_async = use(Model(), streaming=True, use_async=True)
