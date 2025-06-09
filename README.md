@@ -710,6 +710,153 @@ output2 = flux_dev(prompt="str") # output2 will be typed as `str`
 
 In future we hope to provide tooling to generate and provide these models as packages to make working with them easier. For now you may wish to create your own.
 
+### API Reference
+
+The Replicate Python Library provides several key classes and functions for working with models in pipelines:
+
+#### `use()` Function
+
+Creates a callable function wrapper for a Replicate model.
+
+```py
+def use(
+    ref: FunctionRef,
+    *,
+    streaming: bool = False,
+    use_async: bool = False
+) -> Function | AsyncFunction
+
+def use(
+    ref: str,
+    *,
+    hint: Callable | None = None,
+    streaming: bool = False,
+    use_async: bool = False
+) -> Function | AsyncFunction
+```
+
+**Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `ref` | `str \| FunctionRef` | Required | Model reference (e.g., "owner/model" or "owner/model:version") |
+| `hint` | `Callable \| None` | `None` | Function signature for type hints |
+| `streaming` | `bool` | `False` | Return OutputIterator for streaming results |
+| `use_async` | `bool` | `False` | Return AsyncFunction instead of Function |
+
+**Returns:**
+- `Function` - Synchronous model wrapper (default)
+- `AsyncFunction` - Asynchronous model wrapper (when `use_async=True`)
+
+#### `Function` Class
+
+A synchronous wrapper for calling Replicate models.
+
+**Methods:**
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `__call__()` | `(*args, **inputs) -> Output` | Execute the model and return final output |
+| `create()` | `(*args, **inputs) -> Run` | Start a prediction and return Run object |
+
+**Properties:**
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `openapi_schema` | `dict` | Model's OpenAPI schema for inputs/outputs |
+| `default_example` | `dict \| None` | Default example inputs (not yet implemented) |
+
+#### `AsyncFunction` Class
+
+An asynchronous wrapper for calling Replicate models.
+
+**Methods:**
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `__call__()` | `async (*args, **inputs) -> Output` | Execute the model and return final output |
+| `create()` | `async (*args, **inputs) -> AsyncRun` | Start a prediction and return AsyncRun object |
+
+**Properties:**
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `openapi_schema()` | `async () -> dict` | Model's OpenAPI schema for inputs/outputs |
+| `default_example` | `dict \| None` | Default example inputs (not yet implemented) |
+
+#### `Run` Class
+
+Represents a running prediction with access to output and logs.
+
+**Methods:**
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `output()` | `() -> Output` | Get prediction output (blocks until complete) |
+| `logs()` | `() -> str \| None` | Get current prediction logs |
+
+**Behavior:**
+- When `streaming=True`: Returns `OutputIterator` immediately
+- When `streaming=False`: Waits for completion and returns final result
+
+#### `AsyncRun` Class
+
+Asynchronous version of Run for async model calls.
+
+**Methods:**
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `output()` | `async () -> Output` | Get prediction output (awaits completion) |
+| `logs()` | `async () -> str \| None` | Get current prediction logs |
+
+#### `OutputIterator` Class
+
+Iterator wrapper for streaming model outputs.
+
+**Methods:**
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `__iter__()` | `() -> Iterator[T]` | Synchronous iteration over output chunks |
+| `__aiter__()` | `() -> AsyncIterator[T]` | Asynchronous iteration over output chunks |
+| `__str__()` | `() -> str` | Convert to string (concatenated or list representation) |
+| `__await__()` | `() -> List[T] \| str` | Await all results (string for concatenate, list otherwise) |
+
+#### `URLPath` Class
+
+A path-like object that downloads files on first access.
+
+**Methods:**
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `__fspath__()` | `() -> str` | Get local file path (downloads if needed) |
+| `__str__()` | `() -> str` | String representation of local path |
+
+**Usage:**
+- Compatible with `open()`, `pathlib.Path()`, and most file operations
+- Downloads file automatically on first filesystem access
+- Cached locally in temporary directory
+
+#### `get_path_url()` Function
+
+Helper function to extract original URLs from `URLPath` objects.
+
+```py
+def get_path_url(path: Any) -> str | None
+```
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `path` | `Any` | Path object (typically `URLPath`) |
+
+**Returns:**
+- `str` - Original URL if path is a `URLPath`
+- `None` - If path is not a `URLPath` or has no URL
+
 ### TODO
 
 There are several key things still outstanding:
