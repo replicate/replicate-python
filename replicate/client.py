@@ -352,6 +352,11 @@ def _get_api_token_from_environment() -> Optional[str]:
     """Get API token from cog current scope if available, otherwise from environment."""
     try:
         import cog  # noqa: I001 # pyright: ignore [reportMissingImports]
+        import warnings
+
+        warnings.filterwarnings(
+            "ignore", message="current_scope", category=cog.ExperimentalFeatureWarning
+        )
 
         for key, value in cog.current_scope().context.items():
             if key.upper() == "REPLICATE_API_TOKEN":

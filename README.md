@@ -503,6 +503,369 @@ replicate = Client(
 > Never hardcode authentication credentials like API tokens into your code.
 > Instead, pass them as environment variables when running your program.
 
+## Experimental `use()` interface
+
+The latest versions of `replicate >= 1.0.8` include a new experimental `use()` function that is intended to make running a model closer to calling a function rather than an API request.
+
+Some key differences to `replicate.run()`.
+
+ 1. You "import" the model using the `use()` syntax, after that you call the model like a function.
+ 2. The output type matches the model definition.
+ 3. Baked in support for streaming for all models.
+ 4. File outputs will be represented as `PathLike` objects and downloaded to disk when used*.
+
+> [!NOTE]
+> \* We've replaced the `FileOutput` implementation with `Path` objects. However to avoid unnecessary downloading of files until they are needed we've implemented a `PathProxy` class that will defer the download until the first time the object is used. If you need the underlying URL of the `Path` object you can use the `get_path_url(path: Path) -> str` helper.
+
+### Examples
+
+To use a model:
+
+> [!IMPORTANT]
+> For now `use()` MUST be called in the top level module scope. We may relax this in future.
+
+```py
+import replicate
+
+flux_dev = replicate.use("black-forest-labs/flux-dev")
+outputs = flux_dev(prompt="a cat wearing an amusing hat")
+
+for output in outputs:
+    print(output) # Path(/tmp/output.webp)
+```
+
+Models that implement iterators will return the output of the completed run as a list unless explicitly streaming (see Streaming section below). Language models that define `x-cog-iterator-display: concatenate` will return strings:
+
+```py
+claude = replicate.use("anthropic/claude-4-sonnet")
+
+output = claude(prompt="Give me a recipe for tasty smashed avocado on sourdough toast that could feed all of California.")
+
+print(output) # "Here's a recipe to feed all of California (about 39 million people)! ..."
+```
+
+You can pass the results of one model directly into another:
+
+```py
+import replicate
+
+flux_dev = replicate.use("black-forest-labs/flux-dev")
+claude = replicate.use("anthropic/claude-4-sonnet")
+
+images = flux_dev(prompt="a cat wearing an amusing hat")
+
+result = claude(prompt="describe this image for me", image=images[0])
+
+print(str(result)) # "This shows an image of a cat wearing a hat ..."
+```
+
+To create an individual prediction that has not yet resolved, use the `create()` method:
+
+```
+claude = replicate.use("anthropic/claude-4-sonnet")
+
+prediction = claude.create(prompt="Give me a recipe for tasty smashed avocado on sourdough toast that could feed all of California.")
+
+prediction.logs() # get current logs (WIP)
+
+prediction.output() # get the output
+```
+
+### Streaming
+
+Many models, particularly large language models (LLMs), will yield partial results as the model is running. To consume outputs from these models as they run you can pass the `streaming` argument to `use()`:
+
+```py
+claude = replicate.use("anthropic/claude-4-sonnet", streaming=True)
+
+output = claude(prompt="Give me a recipe for tasty smashed avocado on sourdough toast that could feed all of California.")
+
+for chunk in output:
+    print(chunk) # "Here's a recipe ", "to feed all", " of California"
+```
+
+### Downloading file outputs
+
+Output files are provided as Python [os.PathLike](https://docs.python.org/3.12/library/os.html#os.PathLike) objects. These are supported by most of the Python standard library like `open()` and `Path`, as well as third-party libraries like `pillow` and `ffmpeg-python`.
+
+The first time the file is accessed it will be downloaded to a temporary directory on disk ready for use.
+
+Here's an example of how to use the `pillow` package to convert file outputs:
+
+```py
+import replicate
+from PIL import Image
+
+flux_dev = replicate.use("black-forest-labs/flux-dev")
+
+images = flux_dev(prompt="a cat wearing an amusing hat")
+for i, path in enumerate(images):
+    with Image.open(path) as img:
+        img.save(f"./output_{i}.png", format="PNG")
+```
+
+For libraries that do not support `Path` or `PathLike` instances you can use `open()` as you would with any other file. For example to use `requests` to upload the file to a different location:
+
+```py
+import replicate
+import requests
+
+flux_dev = replicate.use("black-forest-labs/flux-dev")
+
+images = flux_dev(prompt="a cat wearing an amusing hat")
+for path in images:
+    with open(path, "rb") as f:
+        r = requests.post("https://api.example.com/upload", files={"file": f})
+```
+
+### Accessing outputs as HTTPS URLs
+
+If you do not need to download the output to disk. You can access the underlying URL for a Path object returned from a model call by using the `get_path_url()` helper.
+
+```py
+import replicate
+from replicate import get_url_path
+
+flux_dev = replicate.use("black-forest-labs/flux-dev")
+outputs = flux_dev(prompt="a cat wearing an amusing hat")
+
+for output in outputs:
+    print(get_url_path(output)) # "https://replicate.delivery/xyz"
+```
+
+### Async Mode
+
+By default `use()` will return a function instance with a sync interface. You can pass `use_async=True` to have it return an `AsyncFunction` that provides an async interface.
+
+```py
+import asyncio
+import replicate
+
+async def main():
+    flux_dev = replicate.use("black-forest-labs/flux-dev", use_async=True)
+    outputs = await flux_dev(prompt="a cat wearing an amusing hat")
+
+    for output in outputs:
+        print(Path(output))
+
+asyncio.run(main())
+```
+
+When used in streaming mode then an `AsyncIterator` will be returned.
+
+```py
+import asyncio
+import replicate
+
+async def main():
+    claude = replicate.use("anthropic/claude-3.5-haiku", streaming=True, use_async=True)
+    output = await claude(prompt="say hello")
+
+    # Stream the response as it comes in.
+    async for token in output:
+        print(token)
+
+    # Wait until model has completed. This will return either a `list` or a `str` depending
+    # on whether the model uses AsyncIterator or ConcatenateAsyncIterator. You can check this
+    # on the model schema by looking for `x-cog-display: concatenate`.
+    print(await output)
+
+asyncio.run(main())
+```
+
+### Typing
+
+By default `use()` knows nothing about the interface of the model. To provide a better developer experience we provide two methods to add type annotations to the function returned by the `use()` helper.
+
+**1. Provide a function signature**
+
+The use method accepts a function signature as an additional `hint` keyword argument. When provided it will use this signature for the `model()` and `model.create()` functions.
+
+```py
+# Flux takes a required prompt string and optional image and seed.
+def hint(*, prompt: str, image: Path | None = None, seed: int | None = None) -> str: ...
+
+flux_dev = use("black-forest-labs/flux-dev", hint=hint)
+output1 = flux_dev() # will warn that `prompt` is missing
+output2 = flux_dev(prompt="str") # output2 will be typed as `str`
+```
+
+**2. Provide a class**
+
+The second method requires creating a callable class with a `name` field. The name will be used as the function reference when passed to `use()`.
+
+```py
+class FluxDev:
+    name = "black-forest-labs/flux-dev"
+
+    def __call__( self, *, prompt: str, image: Path | None = None, seed: int | None = None ) -> str: ...
+
+flux_dev = use(FluxDev)
+output1 = flux_dev() # will warn that `prompt` is missing
+output2 = flux_dev(prompt="str") # output2 will be typed as `str`
+```
+
+> [!WARNING]
+> Currently the typing system doesn't correctly support the `streaming` flag for models that return lists or use iterators. We're working on improvements here.
+
+In future we hope to provide tooling to generate and provide these models as packages to make working with them easier. For now you may wish to create your own.
+
+### API Reference
+
+The Replicate Python Library provides several key classes and functions for working with models in pipelines:
+
+#### `use()` Function
+
+Creates a callable function wrapper for a Replicate model.
+
+```py
+def use(
+    ref: FunctionRef,
+    *,
+    streaming: bool = False,
+    use_async: bool = False
+) -> Function | AsyncFunction
+
+def use(
+    ref: str,
+    *,
+    hint: Callable | None = None,
+    streaming: bool = False,
+    use_async: bool = False
+) -> Function | AsyncFunction
+```
+
+**Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `ref` | `str \| FunctionRef` | Required | Model reference (e.g., "owner/model" or "owner/model:version") |
+| `hint` | `Callable \| None` | `None` | Function signature for type hints |
+| `streaming` | `bool` | `False` | Return OutputIterator for streaming results |
+| `use_async` | `bool` | `False` | Return AsyncFunction instead of Function |
+
+**Returns:**
+- `Function` - Synchronous model wrapper (default)
+- `AsyncFunction` - Asynchronous model wrapper (when `use_async=True`)
+
+#### `Function` Class
+
+A synchronous wrapper for calling Replicate models.
+
+**Methods:**
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `__call__()` | `(*args, **inputs) -> Output` | Execute the model and return final output |
+| `create()` | `(*args, **inputs) -> Run` | Start a prediction and return Run object |
+
+**Properties:**
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `openapi_schema` | `dict` | Model's OpenAPI schema for inputs/outputs |
+| `default_example` | `dict \| None` | Default example inputs (not yet implemented) |
+
+#### `AsyncFunction` Class
+
+An asynchronous wrapper for calling Replicate models.
+
+**Methods:**
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `__call__()` | `async (*args, **inputs) -> Output` | Execute the model and return final output |
+| `create()` | `async (*args, **inputs) -> AsyncRun` | Start a prediction and return AsyncRun object |
+
+**Properties:**
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `openapi_schema()` | `async () -> dict` | Model's OpenAPI schema for inputs/outputs |
+| `default_example` | `dict \| None` | Default example inputs (not yet implemented) |
+
+#### `Run` Class
+
+Represents a running prediction with access to output and logs.
+
+**Methods:**
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `output()` | `() -> Output` | Get prediction output (blocks until complete) |
+| `logs()` | `() -> str \| None` | Get current prediction logs |
+
+**Behavior:**
+- When `streaming=True`: Returns `OutputIterator` immediately
+- When `streaming=False`: Waits for completion and returns final result
+
+#### `AsyncRun` Class
+
+Asynchronous version of Run for async model calls.
+
+**Methods:**
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `output()` | `async () -> Output` | Get prediction output (awaits completion) |
+| `logs()` | `async () -> str \| None` | Get current prediction logs |
+
+#### `OutputIterator` Class
+
+Iterator wrapper for streaming model outputs.
+
+**Methods:**
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `__iter__()` | `() -> Iterator[T]` | Synchronous iteration over output chunks |
+| `__aiter__()` | `() -> AsyncIterator[T]` | Asynchronous iteration over output chunks |
+| `__str__()` | `() -> str` | Convert to string (concatenated or list representation) |
+| `__await__()` | `() -> List[T] \| str` | Await all results (string for concatenate, list otherwise) |
+
+#### `URLPath` Class
+
+A path-like object that downloads files on first access.
+
+**Methods:**
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `__fspath__()` | `() -> str` | Get local file path (downloads if needed) |
+| `__str__()` | `() -> str` | String representation of local path |
+
+**Usage:**
+- Compatible with `open()`, `pathlib.Path()`, and most file operations
+- Downloads file automatically on first filesystem access
+- Cached locally in temporary directory
+
+#### `get_path_url()` Function
+
+Helper function to extract original URLs from `URLPath` objects.
+
+```py
+def get_path_url(path: Any) -> str | None
+```
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `path` | `Any` | Path object (typically `URLPath`) |
+
+**Returns:**
+- `str` - Original URL if path is a `URLPath`
+- `None` - If path is not a `URLPath` or has no URL
+
+### TODO
+
+There are several key things still outstanding:
+
+ 1. Support for streaming text when available (rather than polling)
+ 2. Support for streaming files when available (rather than polling)
+ 3. Support for cleaning up downloaded files.
+ 4. Support for streaming logs using `OutputIterator`.
+
 ## Development
 
 See [CONTRIBUTING.md](CONTRIBUTING.md)

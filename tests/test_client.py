@@ -119,6 +119,9 @@ def test_custom_headers_are_applied():
     mock_send_wrapper.assert_called_once()
 
 
+class ExperimentalFeatureWarning(Warning): ...
+
+
 class TestGetApiToken:
     """Test cases for _get_api_token_from_environment function covering all import paths."""
 
@@ -142,6 +145,7 @@ class TestGetApiToken:
     def test_cog_no_current_scope_method_falls_back_to_env(self):
         """Test fallback when cog exists but has no current_scope method."""
         mock_cog = mock.MagicMock()
+        mock_cog.ExperimentalFeatureWarning = ExperimentalFeatureWarning
         del mock_cog.current_scope  # Remove the method
 
         with mock.patch.dict(os.environ, {"REPLICATE_API_TOKEN": "env-token"}):
@@ -152,6 +156,7 @@ class TestGetApiToken:
     def test_cog_current_scope_returns_none_falls_back_to_env(self):
         """Test fallback when current_scope() returns None."""
         mock_cog = mock.MagicMock()
+        mock_cog.ExperimentalFeatureWarning = ExperimentalFeatureWarning
         mock_cog.current_scope.return_value = None
 
         with mock.patch.dict(os.environ, {"REPLICATE_API_TOKEN": "env-token"}):
@@ -165,6 +170,7 @@ class TestGetApiToken:
         del mock_scope.context  # Remove the context attribute
 
         mock_cog = mock.MagicMock()
+        mock_cog.ExperimentalFeatureWarning = ExperimentalFeatureWarning
         mock_cog.current_scope.return_value = mock_scope
 
         with mock.patch.dict(os.environ, {"REPLICATE_API_TOKEN": "env-token"}):
@@ -178,6 +184,7 @@ class TestGetApiToken:
         mock_scope.context = "not a dict"
 
         mock_cog = mock.MagicMock()
+        mock_cog.ExperimentalFeatureWarning = ExperimentalFeatureWarning
         mock_cog.current_scope.return_value = mock_scope
 
         with mock.patch.dict(os.environ, {"REPLICATE_API_TOKEN": "env-token"}):
@@ -191,6 +198,7 @@ class TestGetApiToken:
         mock_scope.context = {"other_key": "other_value"}  # Missing replicate_api_token
 
         mock_cog = mock.MagicMock()
+        mock_cog.ExperimentalFeatureWarning = ExperimentalFeatureWarning
         mock_cog.current_scope.return_value = mock_scope
 
         with mock.patch.dict(os.environ, {"REPLICATE_API_TOKEN": "env-token"}):
@@ -204,6 +212,7 @@ class TestGetApiToken:
         mock_scope.context = {"REPLICATE_API_TOKEN": "cog-token"}
 
         mock_cog = mock.MagicMock()
+        mock_cog.ExperimentalFeatureWarning = ExperimentalFeatureWarning
         mock_cog.current_scope.return_value = mock_scope
 
         with mock.patch.dict(os.environ, {"REPLICATE_API_TOKEN": "env-token"}):
@@ -217,6 +226,7 @@ class TestGetApiToken:
         mock_scope.context = {"replicate_api_token": "cog-token"}
 
         mock_cog = mock.MagicMock()
+        mock_cog.ExperimentalFeatureWarning = ExperimentalFeatureWarning
         mock_cog.current_scope.return_value = mock_scope
 
         with mock.patch.dict(os.environ, {"REPLICATE_API_TOKEN": "env-token"}):
@@ -230,6 +240,7 @@ class TestGetApiToken:
         mock_scope.context = {"replicate_api_token": ""}  # Empty string
 
         mock_cog = mock.MagicMock()
+        mock_cog.ExperimentalFeatureWarning = ExperimentalFeatureWarning
         mock_cog.current_scope.return_value = mock_scope
 
         with mock.patch.dict(os.environ, {"REPLICATE_API_TOKEN": "env-token"}):
@@ -243,6 +254,7 @@ class TestGetApiToken:
         mock_scope.context = {"replicate_api_token": None}
 
         mock_cog = mock.MagicMock()
+        mock_cog.ExperimentalFeatureWarning = ExperimentalFeatureWarning
         mock_cog.current_scope.return_value = mock_scope
 
         with mock.patch.dict(os.environ, {"REPLICATE_API_TOKEN": "env-token"}):
@@ -253,6 +265,7 @@ class TestGetApiToken:
     def test_cog_current_scope_raises_exception_falls_back_to_env(self):
         """Test fallback when current_scope() raises an exception."""
         mock_cog = mock.MagicMock()
+        mock_cog.ExperimentalFeatureWarning = ExperimentalFeatureWarning
         mock_cog.current_scope.side_effect = RuntimeError("Scope error")
 
         with mock.patch.dict(os.environ, {"REPLICATE_API_TOKEN": "env-token"}):

@@ -1,6 +1,28 @@
 from replicate.client import Client
 from replicate.pagination import async_paginate as _async_paginate
 from replicate.pagination import paginate as _paginate
+from replicate.use import get_path_url, use
+
+__all__ = [
+    "Client",
+    "use",
+    "run",
+    "async_run",
+    "stream",
+    "async_stream",
+    "paginate",
+    "async_paginate",
+    "collections",
+    "deployments",
+    "files",
+    "hardware",
+    "models",
+    "predictions",
+    "trainings",
+    "webhooks",
+    "default_client",
+    "get_path_url",
+]
 
 default_client = Client()
 

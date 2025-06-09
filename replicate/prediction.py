@@ -248,6 +248,11 @@ class Prediction(Resource):
         """
         Return an iterator of the prediction output.
         """
+        if (
+            self.status in ["succeeded", "failed", "canceled"]
+            and self.output is not None
+        ):
+            yield from self.output
 
         # TODO: check output is list
         previous_output = self.output or []
@@ -270,6 +275,12 @@ class Prediction(Resource):
         """
         Return an asynchronous iterator of the prediction output.
         """
+        if (
+            self.status in ["succeeded", "failed", "canceled"]
+            and self.output is not None
+        ):
+            for item in self.output:
+                yield item
 
         # TODO: check output is list
         previous_output = self.output or []
