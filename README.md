@@ -505,7 +505,7 @@ replicate = Client(
 
 ## Experimental `use()` interface
 
-The latest versions of `replicate >= 1.0.8` include a new experimental `use()` function that is intended to make running a model closer to calling a function rather than an API request.
+The latest versions of `replicate >= 1.1.0b1` include a new experimental `use()` function that is intended to make running a model closer to calling a function rather than an API request.
 
 Some key differences to `replicate.run()`.
 
