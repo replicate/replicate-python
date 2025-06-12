@@ -337,6 +337,61 @@ async def test_use_function_create_method(client_mode):
 @pytest.mark.asyncio
 @pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT, ClientMode.ASYNC])
 @respx.mock
+async def test_use_function_openapi_schema_dereferenced(client_mode):
+    mock_model_endpoints(
+        versions=[
+            create_mock_version(
+                {
+                    "openapi_schema": {
+                        "components": {
+                            "schemas": {
+                                "Output": {"$ref": "#/components/schemas/ModelOutput"},
+                                "ModelOutput": {
+                                    "type": "object",
+                                    "properties": {
+                                        "text": {"type": "string"},
+                                        "image": {
+                                            "type": "string",
+                                            "format": "uri",
+                                        },
+                                        "count": {"type": "integer"},
+                                    },
+                                },
+                            }
+                        }
+                    }
+                }
+            )
+        ]
+    )
+
+    hotdog_detector = replicate.use(
+        "acme/hotdog-detector", use_async=client_mode == ClientMode.ASYNC
+    )
+
+    if client_mode == ClientMode.ASYNC:
+        schema = await hotdog_detector.openapi_schema()
+    else:
+        schema = hotdog_detector.openapi_schema
+
+    assert schema["components"]["schemas"]["Output"] == {
+        "type": "object",
+        "properties": {
+            "text": {"type": "string"},
+            "image": {
+                "type": "string",
+                "format": "uri",
+            },
+            "count": {"type": "integer"},
+        },
+    }
+
+    assert "ModelOutput" not in schema["components"]["schemas"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("client_mode", [ClientMode.DEFAULT, ClientMode.ASYNC])
+@respx.mock
 async def test_use_concatenate_iterator_output(client_mode):
     mock_model_endpoints(
         versions=[

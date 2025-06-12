@@ -1,6 +1,7 @@
 # TODO
 # - [ ] Support text streaming
 # - [ ] Support file streaming
+import copy
 import hashlib
 import os
 import tempfile
@@ -175,6 +176,60 @@ def _process_output_with_schema(output: Any, openapi_schema: dict) -> Any:  # py
         return result
 
     return output
+
+
+def _dereference_schema(schema: dict[str, Any]) -> dict[str, Any]:
+    """
+    Performs basic dereferencing on an OpenAPI schema based on the current schemas generated
+    by Replicate. This code assumes that:
+
+    1) References will always point to a field within #/components/schemas and will error
+       if the reference is more deeply nested.
+    2) That the references when used can be discarded.
+
+    Should something more in-depth be required we could consider using the jsonref package.
+    """
+    dereferenced = copy.deepcopy(schema)
+    schemas = dereferenced.get("components", {}).get("schemas", {})
+    dereferenced_refs = set()
+
+    def _resolve_ref(obj: Any) -> Any:
+        if isinstance(obj, dict):
+            if "$ref" in obj:
+                ref_path = obj["$ref"]
+                if ref_path.startswith("#/components/schemas/"):
+                    parts = ref_path.replace("#/components/schemas/", "").split("/", 2)
+
+                    if len(parts) > 1:
+                        raise NotImplementedError(
+                            f"Unexpected nested $ref found in schema: {ref_path}"
+                        )
+
+                    (schema_name,) = parts
+                    if schema_name in schemas:
+                        dereferenced_refs.add(schema_name)
+                        return _resolve_ref(schemas[schema_name])
+                    else:
+                        return obj
+                else:
+                    return obj
+            else:
+                return {key: _resolve_ref(value) for key, value in obj.items()}
+        elif isinstance(obj, list):
+            return [_resolve_ref(item) for item in obj]
+        else:
+            return obj
+
+    result = _resolve_ref(dereferenced)
+
+    # Filter out any references that have now been referenced.
+    result["components"]["schemas"] = {
+        k: v
+        for k, v in result["components"]["schemas"].items()
+        if k not in dereferenced_refs
+    }
+
+    return result
 
 
 T = TypeVar("T")
@@ -428,7 +483,7 @@ class Function(Generic[Input, Output]):
         schema = latest_version.openapi_schema
         if cog_version := latest_version.cog_version:
             schema = make_schema_backwards_compatible(schema, cog_version)
-        return schema
+        return _dereference_schema(schema)
 
     def _client(self) -> Client:
         return Client()
@@ -630,7 +685,7 @@ class AsyncFunction(Generic[Input, Output]):
         schema = latest_version.openapi_schema
         if cog_version := latest_version.cog_version:
             schema = make_schema_backwards_compatible(schema, cog_version)
-        return schema
+        return _dereference_schema(schema)
 
 
 @overload
