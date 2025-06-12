@@ -190,7 +190,17 @@ def _dereference_schema(schema: dict[str, Any]) -> dict[str, Any]:
 
     result = _resolve_ref(dereferenced)
 
-    # Filter out any references that have now been referenced.
+    # Remove "paths" as these aren't relevant to models.
+    result["paths"] = {}
+
+    # Retain Input and Output schemas as these are important.
+    dereferenced_refs.discard("Input")
+    dereferenced_refs.discard("Output")
+
+    dereferenced_refs.discard("TrainingInput")
+    dereferenced_refs.discard("TrainingOutput")
+
+    # Filter out any remaining references that have been inlined.
     result["components"]["schemas"] = {
         k: v
         for k, v in result["components"]["schemas"].items()
