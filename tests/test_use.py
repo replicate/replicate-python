@@ -372,7 +372,7 @@ async def test_use_function_openapi_schema_dereferenced(client_mode):
     if client_mode == ClientMode.ASYNC:
         schema = await hotdog_detector.openapi_schema()
     else:
-        schema = hotdog_detector.openapi_schema
+        schema = hotdog_detector.openapi_schema()
 
     assert schema["components"]["schemas"]["Output"] == {
         "type": "object",
