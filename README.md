@@ -492,7 +492,7 @@ import os
 from replicate.client import Client
 
 replicate = Client(
-    api_token=os.environ["SOME_OTHER_REPLICATE_API_TOKEN"]
+    api_token=os.environ["SOME_OTHER_REPLICATE_API_TOKEN"],
     headers={
         "User-Agent": "my-app/1.0"
     }
