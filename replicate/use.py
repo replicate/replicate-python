@@ -213,7 +213,7 @@ def _dereference_schema(schema: dict[str, Any]) -> dict[str, Any]:
 def _log_prediction_url(id: str) -> None:
     if os.environ.get("R8_LOG_PREDICTION_URL") != "1":
         return
-    print("Running prediction https://replicate.com/p/%s", id)
+    print(f"Running prediction https://replicate.com/p/{id}")
 
 
 T = TypeVar("T")
