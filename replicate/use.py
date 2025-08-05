@@ -3,6 +3,7 @@
 # - [ ] Support file streaming
 import copy
 import hashlib
+import logging
 import os
 import tempfile
 from functools import cached_property
@@ -208,6 +209,12 @@ def _dereference_schema(schema: dict[str, Any]) -> dict[str, Any]:
     }
 
     return result
+
+
+def _log_prediction_url(id: str) -> None:
+    if os.environ.get("R8_LOG_PREDICTION_URL") != "1":
+        return
+    logging.info("Running prediction https://replicate.com/p/%s", id)
 
 
 T = TypeVar("T")
@@ -436,6 +443,8 @@ class Function(Generic[Input, Output]):
                 model=self._model, input=processed_inputs
             )
 
+        _log_prediction_url(prediction.id)
+
         return Run(
             prediction=prediction,
             schema=self.openapi_schema(),
@@ -648,6 +657,8 @@ class AsyncFunction(Generic[Input, Output]):
             prediction = await self._client().models.predictions.async_create(
                 model=model, input=processed_inputs
             )
+
+        _log_prediction_url(prediction.id)
 
         return AsyncRun(
             prediction=prediction,
