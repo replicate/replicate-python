@@ -3,7 +3,6 @@
 # - [ ] Support file streaming
 import copy
 import hashlib
-import logging
 import os
 import tempfile
 from functools import cached_property
@@ -212,9 +211,10 @@ def _dereference_schema(schema: dict[str, Any]) -> dict[str, Any]:
 
 
 def _log_prediction_url(id: str) -> None:
+    print("_log_prediction_url")
     if os.environ.get("R8_LOG_PREDICTION_URL") != "1":
         return
-    logging.info("Running prediction https://replicate.com/p/%s", id)
+    print("Running prediction https://replicate.com/p/%s", id)
 
 
 T = TypeVar("T")
