@@ -17,7 +17,9 @@ class ModelError(ReplicateException):
 
     def __init__(self, prediction: "Prediction") -> None:
         self.prediction = prediction
-        super().__init__(prediction.error)
+        super().__init__(
+            f"Prediction {prediction.id} {prediction.status}: {prediction.error}"
+        )
 
 
 class ReplicateError(ReplicateException):

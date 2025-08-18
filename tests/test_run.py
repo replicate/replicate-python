@@ -581,7 +581,7 @@ async def test_run_with_model_error(mock_replicate_api_token):
             },
         )
 
-    assert str(excinfo.value) == "OOM"
+    assert str(excinfo.value) == "Prediction p1 failed: OOM"
     assert excinfo.value.prediction.error == "OOM"
     assert excinfo.value.prediction.status == "failed"
 
