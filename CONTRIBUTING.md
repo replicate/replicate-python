@@ -101,9 +101,33 @@ to validate your changes locally before going through CI.
 - `REPLICATE_API_BASE_URL`: Defaults to `https://api.replicate.com` but can be overriden to point the client at a development host.
 - `REPLICATE_API_TOKEN`: Required. Find your token at https://replicate.com/#token
 
-## Publishing a release
+## Publishing releases
 
 This project has a [GitHub Actions workflow](/.github/workflows/ci.yaml) that publishes the `replicate` package to PyPI. The release process is triggered by manually creating and pushing a new git tag.
+
+### Publishing a beta release
+
+Betas live in branches off the main branch.
+
+First, set the version number in [pyproject.toml](pyproject.toml) and commit it to the `beta` branch.
+
+```
+version = "1.1.0b3"
+```
+
+Then run the following in your local checkout:
+
+```sh
+git checkout beta
+git fetch --all --tags
+git tag 1.1.0b3
+git push --tags
+```
+
+Then visit [github.com/replicate/replicate-python/actions](https://github.com/replicate/replicate-python/actions) to monitor the release process.
+
+
+### Publishing a stable release
 
 First, set the version number in [pyproject.toml](pyproject.toml) and commit it to the `main` branch:
 
