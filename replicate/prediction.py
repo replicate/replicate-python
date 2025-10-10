@@ -55,7 +55,7 @@ class Prediction(Resource):
     version: str
     """An identifier for the version of the model used to create the prediction."""
 
-    status: Literal["starting", "processing", "succeeded", "failed", "canceled"]
+    status: Literal["starting", "processing", "succeeded", "failed", "canceled", "aborted"]
     """The status of the prediction."""
 
     input: Optional[Dict[str, Any]]
