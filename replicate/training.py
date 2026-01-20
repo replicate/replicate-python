@@ -11,6 +11,7 @@ from typing import (
     overload,
 )
 
+import pydantic
 from typing_extensions import NotRequired, Unpack
 
 from replicate.helpers import async_encode_json, encode_json
@@ -19,11 +20,6 @@ from replicate.model import Model
 from replicate.pagination import Page
 from replicate.resource import Namespace, Resource
 from replicate.version import Version
-
-try:
-    from pydantic import v1 as pydantic  # type: ignore
-except ImportError:
-    import pydantic  # type: ignore
 
 if TYPE_CHECKING:
     from replicate.client import Client
@@ -46,34 +42,34 @@ class Training(Resource):
     version: Union[str, Version]
     """The version of the model used to create the training."""
 
-    destination: Optional[str]
+    destination: Optional[str] = None
     """The model destination of the training."""
 
     status: Literal["starting", "processing", "succeeded", "failed", "canceled"]
     """The status of the training."""
 
-    input: Optional[Dict[str, Any]]
+    input: Optional[Dict[str, Any]] = None
     """The input to the training."""
 
-    output: Optional[Any]
+    output: Optional[Any] = None
     """The output of the training."""
 
-    logs: Optional[str]
+    logs: Optional[str] = None
     """The logs of the training."""
 
-    error: Optional[str]
+    error: Optional[str] = None
     """The error encountered during the training, if any."""
 
-    created_at: Optional[str]
+    created_at: Optional[str] = None
     """When the training was created."""
 
-    started_at: Optional[str]
+    started_at: Optional[str] = None
     """When the training was started."""
 
-    completed_at: Optional[str]
+    completed_at: Optional[str] = None
     """When the training was completed, if finished."""
 
-    urls: Optional[Dict[str, str]]
+    urls: Optional[Dict[str, str]] = None
     """
     URLs associated with the training.
 
@@ -88,7 +84,7 @@ class Training(Resource):
         """
 
         canceled = self._client.trainings.cancel(self.id)
-        for name, value in canceled.dict().items():
+        for name, value in canceled.model_dump().items():
             setattr(self, name, value)
 
     async def async_cancel(self) -> None:
@@ -97,7 +93,7 @@ class Training(Resource):
         """
 
         canceled = await self._client.trainings.async_cancel(self.id)
-        for name, value in canceled.dict().items():
+        for name, value in canceled.model_dump().items():
             setattr(self, name, value)
 
     def reload(self) -> None:
@@ -106,7 +102,7 @@ class Training(Resource):
         """
 
         updated = self._client.trainings.get(self.id)
-        for name, value in updated.dict().items():
+        for name, value in updated.model_dump().items():
             setattr(self, name, value)
 
     async def async_reload(self) -> None:
@@ -115,7 +111,7 @@ class Training(Resource):
         """
 
         updated = await self._client.trainings.async_get(self.id)
-        for name, value in updated.dict().items():
+        for name, value in updated.model_dump().items():
             setattr(self, name, value)
 
 

@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple, TypedDict, Union
 
+import pydantic
 from typing_extensions import Unpack, deprecated
 
 from replicate.account import Account
@@ -12,12 +13,6 @@ from replicate.prediction import (
     _json_to_prediction,
 )
 from replicate.resource import Namespace, Resource
-
-try:
-    from pydantic import v1 as pydantic  # type: ignore
-except ImportError:
-    import pydantic  # type: ignore
-
 
 if TYPE_CHECKING:
     from replicate.client import Client
@@ -66,7 +61,7 @@ class Deployment(Resource):
         The time the release was created.
         """
 
-        created_by: Optional[Account]
+        created_by: Optional[Account] = None
         """
         The account that created the release.
         """
@@ -96,7 +91,7 @@ class Deployment(Resource):
         The deployment configuration.
         """
 
-    current_release: Optional[Release]
+    current_release: Optional[Release] = None
     """
     The current release of the deployment.
     """
