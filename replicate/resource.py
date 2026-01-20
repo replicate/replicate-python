@@ -1,10 +1,7 @@
 import abc
 from typing import TYPE_CHECKING
 
-try:
-    from pydantic import v1 as pydantic  # type: ignore
-except ImportError:
-    import pydantic  # type: ignore
+import pydantic
 
 if TYPE_CHECKING:
     from replicate.client import Client

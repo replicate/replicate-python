@@ -11,17 +11,12 @@ from typing import (
 )
 
 import httpx
+import pydantic
 from typing_extensions import Unpack
 
 from replicate import identifier
 from replicate.exceptions import ReplicateError
 from replicate.helpers import transform_output
-
-try:
-    from pydantic import v1 as pydantic  # type: ignore
-except ImportError:
-    import pydantic  # type: ignore
-
 
 if TYPE_CHECKING:
     from replicate.client import Client
@@ -49,7 +44,7 @@ class ServerSentEvent(pydantic.BaseModel):  # type: ignore
     event: EventType
     data: str
     id: str
-    retry: Optional[int]
+    retry: Optional[int] = None
 
     def __str__(self) -> str:
         if self.event == ServerSentEvent.EventType.OUTPUT:

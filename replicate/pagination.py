@@ -11,10 +11,7 @@ from typing import (
     Union,
 )
 
-try:
-    from pydantic import v1 as pydantic  # type: ignore
-except ImportError:
-    import pydantic  # type: ignore
+import pydantic
 
 from replicate.resource import Resource
 
