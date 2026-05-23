@@ -1076,3 +1076,88 @@ def _version_with_schema(id: str = "v1", output_schema: Optional[object] = None)
             },
         },
     }
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_run_raises_on_aborted_prediction(async_flag, mock_replicate_api_token):
+    """
+    Regression test: an 'aborted' prediction (server-side termination) must surface as
+    ModelError and must NOT cause wait() / async_wait() to poll forever.
+
+    Before the fix, 'aborted' was not in the terminal-state list, so wait() looped
+    until the test timed out (issue #431) and run() silently returned None output.
+    """
+    router = respx.Router(base_url="https://api.replicate.com/v1")
+    router.route(method="POST", path="/predictions").mock(
+        return_value=httpx.Response(
+            201,
+            json=_prediction_with_status("starting"),
+        )
+    )
+    router.route(method="GET", path="/predictions/p1").mock(
+        return_value=httpx.Response(
+            200,
+            json={**_prediction_with_status("aborted"), "error": "Prediction was aborted"},
+        )
+    )
+    router.route(
+        method="GET",
+        path="/models/test/example/versions/v1",
+    ).mock(
+        return_value=httpx.Response(
+            201,
+            json=_version_with_schema(),
+        )
+    )
+    router.route(host="api.replicate.com").pass_through()
+
+    client = Client(
+        api_token="test-token", transport=httpx.MockTransport(router.handler)
+    )
+    client.poll_interval = 0.001
+
+    with pytest.raises(ModelError) as excinfo:
+        if async_flag:
+            await client.async_run("test/example:v1", input={"text": "Hello, world!"})
+        else:
+            client.run("test/example:v1", input={"text": "Hello, world!"})
+
+    assert excinfo.value.prediction.status == "aborted"
+
+
+@pytest.mark.asyncio
+async def test_prediction_wait_terminates_on_aborted(mock_replicate_api_token):
+    """
+    Regression test: Prediction.wait() and async_wait() must exit immediately when
+    a prediction transitions to 'aborted', not loop forever.
+    """
+    import replicate
+    from replicate.prediction import Prediction
+
+    router = respx.Router(base_url="https://api.replicate.com/v1")
+    router.route(method="GET", path="/predictions/p1").mock(
+        return_value=httpx.Response(
+            200,
+            json={**_prediction_with_status("aborted"), "error": "aborted by server"},
+        )
+    )
+    router.route(host="api.replicate.com").pass_through()
+
+    client = Client(
+        api_token="test-token", transport=httpx.MockTransport(router.handler)
+    )
+    client.poll_interval = 0.001
+
+    prediction = Prediction(**_prediction_with_status("processing"))
+    prediction._client = client
+
+    # wait() must return (not loop forever) when status flips to "aborted"
+    prediction.wait()
+    assert prediction.status == "aborted"
+
+    # Reset and verify async_wait() also exits
+    prediction2 = Prediction(**_prediction_with_status("processing"))
+    prediction2._client = client
+    await prediction2.async_wait()
+    assert prediction2.status == "aborted"
