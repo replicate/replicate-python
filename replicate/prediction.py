@@ -55,7 +55,7 @@ class Prediction(Resource):
     version: str
     """An identifier for the version of the model used to create the prediction."""
 
-    status: Literal["starting", "processing", "succeeded", "failed", "canceled"]
+    status: Literal["starting", "processing", "succeeded", "failed", "canceled", "aborted"]
     """The status of the prediction."""
 
     input: Optional[Dict[str, Any]]
@@ -141,7 +141,7 @@ class Prediction(Resource):
         Wait for prediction to finish.
         """
 
-        while self.status not in ["succeeded", "failed", "canceled"]:
+        while self.status not in ["succeeded", "failed", "canceled", "aborted"]:
             time.sleep(self._client.poll_interval)
             self.reload()
 
@@ -150,7 +150,7 @@ class Prediction(Resource):
         Wait for prediction to finish asynchronously.
         """
 
-        while self.status not in ["succeeded", "failed", "canceled"]:
+        while self.status not in ["succeeded", "failed", "canceled", "aborted"]:
             await asyncio.sleep(self._client.poll_interval)
             await self.async_reload()
 
@@ -251,7 +251,7 @@ class Prediction(Resource):
 
         # TODO: check output is list
         previous_output = self.output or []
-        while self.status not in ["succeeded", "failed", "canceled"]:
+        while self.status not in ["succeeded", "failed", "canceled", "aborted"]:
             output = self.output or []
             new_output = output[len(previous_output) :]
             yield from new_output
@@ -259,7 +259,7 @@ class Prediction(Resource):
             time.sleep(self._client.poll_interval)  # pylint: disable=no-member
             self.reload()
 
-        if self.status == "failed":
+        if self.status in ("failed", "aborted"):
             raise ModelError(self)
 
         output = self.output or []
@@ -273,7 +273,7 @@ class Prediction(Resource):
 
         # TODO: check output is list
         previous_output = self.output or []
-        while self.status not in ["succeeded", "failed", "canceled"]:
+        while self.status not in ["succeeded", "failed", "canceled", "aborted"]:
             output = self.output or []
             new_output = output[len(previous_output) :]
             for item in new_output:
@@ -282,7 +282,7 @@ class Prediction(Resource):
             await asyncio.sleep(self._client.poll_interval)  # pylint: disable=no-member
             await self.async_reload()
 
-        if self.status == "failed":
+        if self.status in ("failed", "aborted"):
             raise ModelError(self)
 
         output = self.output or []
