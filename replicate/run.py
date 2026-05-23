@@ -77,7 +77,7 @@ def run(
 
         prediction.wait()
 
-    if prediction.status == "failed":
+    if prediction.status in ("failed", "aborted"):
         raise ModelError(prediction)
 
     # Return an iterator for the completed prediction when needed.
@@ -147,7 +147,7 @@ async def async_run(
 
         await prediction.async_wait()
 
-    if prediction.status == "failed":
+    if prediction.status in ("failed", "aborted"):
         raise ModelError(prediction)
 
     # Return an iterator for completed output if the model has an output iterator array type.
