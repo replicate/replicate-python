@@ -55,7 +55,7 @@ class Prediction(Resource):
     version: str
     """An identifier for the version of the model used to create the prediction."""
 
-    status: Literal["starting", "processing", "succeeded", "failed", "canceled"]
+    status: Literal["starting", "processing", "succeeded", "failed", "canceled", "aborted"]
     """The status of the prediction."""
 
     input: Optional[Dict[str, Any]]
@@ -141,7 +141,7 @@ class Prediction(Resource):
         Wait for prediction to finish.
         """
 
-        while self.status not in ["succeeded", "failed", "canceled"]:
+        while self.status not in ["succeeded", "failed", "canceled", "aborted"]:
             time.sleep(self._client.poll_interval)
             self.reload()
 
@@ -150,7 +150,7 @@ class Prediction(Resource):
         Wait for prediction to finish asynchronously.
         """
 
-        while self.status not in ["succeeded", "failed", "canceled"]:
+        while self.status not in ["succeeded", "failed", "canceled", "aborted"]:
             await asyncio.sleep(self._client.poll_interval)
             await self.async_reload()
 
@@ -249,20 +249,39 @@ class Prediction(Resource):
         Return an iterator of the prediction output.
         """
 
-        # TODO: check output is list
-        previous_output = self.output or []
-        while self.status not in ["succeeded", "failed", "canceled"]:
-            output = self.output or []
+        def _as_list(value: Any) -> list:
+            """Coerce output to a list.
+
+            ``None`` means the model has not produced any output yet; treat it
+            as an empty list so the polling loop can start cleanly.  Any other
+            non-list value (e.g. a plain string returned by a non-streaming
+            model) indicates a model whose output schema is not an array — in
+            that case we raise a ``ValueError`` rather than silently iterating
+            over the characters of a string or the keys of a dict.
+            """
+            if value is None:
+                return []
+            if isinstance(value, list):
+                return value
+            raise ValueError(
+                f"output_iterator requires an array output type, "
+                f"but the model returned a {type(value).__name__!r}. "
+                f"Use prediction.output directly for non-array outputs."
+            )
+
+        previous_output = _as_list(self.output)
+        while self.status not in ["succeeded", "failed", "canceled", "aborted"]:
+            output = _as_list(self.output)
             new_output = output[len(previous_output) :]
             yield from new_output
             previous_output = output
             time.sleep(self._client.poll_interval)  # pylint: disable=no-member
             self.reload()
 
-        if self.status == "failed":
+        if self.status in ("failed", "aborted"):
             raise ModelError(self)
 
-        output = self.output or []
+        output = _as_list(self.output)
         new_output = output[len(previous_output) :]
         yield from new_output
 
@@ -271,10 +290,21 @@ class Prediction(Resource):
         Return an asynchronous iterator of the prediction output.
         """
 
-        # TODO: check output is list
-        previous_output = self.output or []
-        while self.status not in ["succeeded", "failed", "canceled"]:
-            output = self.output or []
+        def _as_list(value: Any) -> list:
+            """Coerce output to a list (see sync variant for rationale)."""
+            if value is None:
+                return []
+            if isinstance(value, list):
+                return value
+            raise ValueError(
+                f"async_output_iterator requires an array output type, "
+                f"but the model returned a {type(value).__name__!r}. "
+                f"Use prediction.output directly for non-array outputs."
+            )
+
+        previous_output = _as_list(self.output)
+        while self.status not in ["succeeded", "failed", "canceled", "aborted"]:
+            output = _as_list(self.output)
             new_output = output[len(previous_output) :]
             for item in new_output:
                 yield item
@@ -282,13 +312,13 @@ class Prediction(Resource):
             await asyncio.sleep(self._client.poll_interval)  # pylint: disable=no-member
             await self.async_reload()
 
-        if self.status == "failed":
+        if self.status in ("failed", "aborted"):
             raise ModelError(self)
 
-        output = self.output or []
+        output = _as_list(self.output)
         new_output = output[len(previous_output) :]
-        for output in new_output:
-            yield output
+        for item in new_output:
+            yield item
 
 
 class Predictions(Namespace):

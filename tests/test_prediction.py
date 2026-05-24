@@ -3,6 +3,7 @@ import pytest
 import respx
 
 import replicate
+from replicate.prediction import Prediction
 
 
 @pytest.mark.vcr("predictions-create.yaml")
@@ -540,3 +541,90 @@ async def test_predictions_stream(async_flag):
 #             assert progress.current == 5
 #             assert progress.total == 5
 #             assert progress.percentage == 1.0
+
+
+# ---------------------------------------------------------------------------
+# Unit tests: output_iterator / async_output_iterator non-list guard
+# ---------------------------------------------------------------------------
+
+
+def _make_prediction(output, status="succeeded"):
+    """Build a minimal Prediction with a mock client (no HTTP calls needed)."""
+    p = Prediction(
+        id="p1",
+        model="owner/model",
+        version="v1",
+        urls={
+            "get": "https://api.replicate.com/v1/predictions/p1",
+            "cancel": "https://api.replicate.com/v1/predictions/p1/cancel",
+        },
+        created_at="2024-01-01T00:00:00.000000Z",
+        source="api",
+        status=status,
+        input={"prompt": "hello"},
+        output=output,
+        error=None,
+        logs="",
+    )
+    return p
+
+
+def test_output_iterator_completed_with_list_output_yields_nothing():
+    """output_iterator yields only items arriving *after* the iterator starts.
+
+    When called on an already-completed prediction, all output tokens were
+    present at start-time so no new items are yielded.  This documents the
+    intended "streaming" contract: call output_iterator while the prediction
+    is still running, not after it has completed.
+    """
+    p = _make_prediction(output=["token1", "token2", "token3"], status="succeeded")
+    # The full list is the "previous_output" baseline, so nothing is yielded.
+    assert list(p.output_iterator()) == []
+
+
+def test_output_iterator_none_output_yields_nothing():
+    """output_iterator must handle None output gracefully (empty sequence)."""
+    p = _make_prediction(output=None)
+    assert list(p.output_iterator()) == []
+
+
+def test_output_iterator_string_output_raises():
+    """output_iterator must raise ValueError when output is a plain string.
+
+    Before the fix, ``self.output or []`` returned the string intact, causing
+    ``yield from "hello world"`` to silently iterate over individual characters
+    instead of raising a clear error.
+    """
+    p = _make_prediction(output="hello world")
+    with pytest.raises(ValueError, match="array output type"):
+        list(p.output_iterator())
+
+
+def test_output_iterator_dict_output_raises():
+    """output_iterator must raise ValueError when output is a dict."""
+    p = _make_prediction(output={"url": "https://example.com/file.png"})
+    with pytest.raises(ValueError, match="array output type"):
+        list(p.output_iterator())
+
+
+@pytest.mark.asyncio
+async def test_async_output_iterator_none_output_yields_nothing():
+    """async_output_iterator must handle None output gracefully."""
+    p = _make_prediction(output=None)
+    results = []
+    async for item in p.async_output_iterator():
+        results.append(item)
+    assert results == []
+
+
+@pytest.mark.asyncio
+async def test_async_output_iterator_string_output_raises():
+    """async_output_iterator must raise ValueError for non-list outputs.
+
+    Before the fix, ``self.output or []`` returned the string intact,
+    causing iteration over individual characters silently.
+    """
+    p = _make_prediction(output="some string")
+    with pytest.raises(ValueError, match="array output type"):
+        async for _ in p.async_output_iterator():
+            pass
