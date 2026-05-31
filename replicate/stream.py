@@ -76,7 +76,7 @@ class EventSource:
     ) -> None:
         self.client = client
         self.response = response
-        self.use_file_output = use_file_output or True
+        self.use_file_output = use_file_output if use_file_output is not None else True
         content_type, _, _ = response.headers["content-type"].partition(";")
         if content_type != "text/event-stream":
             raise ValueError(
