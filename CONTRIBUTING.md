@@ -93,12 +93,12 @@ Run the setup script to install uv and install the project's dependencies.
 ./script/setup
 ```
 
-You can run the `format`, `lint`, and `test` scripts before commiting
+You can run the `format`, `lint`, and `test` scripts before committing
 to validate your changes locally before going through CI.
 
 ### Environment variables
 
-- `REPLICATE_API_BASE_URL`: Defaults to `https://api.replicate.com` but can be overriden to point the client at a development host.
+- `REPLICATE_API_BASE_URL`: Defaults to `https://api.replicate.com` but can be overridden to point the client at a development host.
 - `REPLICATE_API_TOKEN`: Required. Find your token at https://replicate.com/#token
 
 ## Publishing releases
