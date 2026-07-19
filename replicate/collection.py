@@ -72,7 +72,7 @@ class Collections(Namespace):
         Parameters:
             cursor: The cursor to use for pagination. Use the value of `Page.next` or `Page.previous`.
         Returns:
-            Page[Collection]: A page of of model collections.
+            Page[Collection]: A page of model collections.
         Raises:
             ValueError: If `cursor` is `None`.
         """
@@ -99,7 +99,7 @@ class Collections(Namespace):
         Parameters:
             cursor: The cursor to use for pagination. Use the value of `Page.next` or `Page.previous`.
         Returns:
-            Page[Collection]: A page of of model collections.
+            Page[Collection]: A page of model collections.
         Raises:
             ValueError: If `cursor` is `None`.
         """
