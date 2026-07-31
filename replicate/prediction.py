@@ -303,7 +303,7 @@ class Predictions(Namespace):
         Parameters:
             cursor: The cursor to use for pagination. Use the value of `Page.next` or `Page.previous`.
         Returns:
-            Page[Prediction]: A page of of predictions.
+            Page[Prediction]: A page of predictions.
         Raises:
             ValueError: If `cursor` is `None`.
         """
@@ -332,7 +332,7 @@ class Predictions(Namespace):
         Parameters:
             cursor: The cursor to use for pagination. Use the value of `Page.next` or `Page.previous`.
         Returns:
-            Page[Prediction]: A page of of predictions.
+            Page[Prediction]: A page of predictions.
         Raises:
             ValueError: If `cursor` is `None`.
         """

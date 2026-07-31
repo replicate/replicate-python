@@ -163,7 +163,7 @@ class Models(Namespace):
         Parameters:
             cursor: The cursor to use for pagination. Use the value of `Page.next` or `Page.previous`.
         Returns:
-            Page[Model]: A page of of models.
+            Page[Model]: A page of models.
         Raises:
             ValueError: If `cursor` is `None`.
         """
@@ -190,7 +190,7 @@ class Models(Namespace):
         Parameters:
             cursor: The cursor to use for pagination. Use the value of `Page.next` or `Page.previous`.
         Returns:
-            Page[Model]: A page of of models.
+            Page[Model]: A page of models.
         Raises:
             ValueError: If `cursor` is `None`.
         """
