@@ -10,7 +10,10 @@ from typing import (
     Union,
 )
 
-import httpx
+try:
+    import httpx2 as httpx
+except ImportError:
+    import httpx
 from typing_extensions import Unpack
 
 from replicate import identifier

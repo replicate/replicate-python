@@ -1,6 +1,9 @@
 from typing import TYPE_CHECKING, Optional
 
-import httpx
+try:
+    import httpx2 as httpx
+except ImportError:
+    import httpx
 
 if TYPE_CHECKING:
     from replicate.prediction import Prediction

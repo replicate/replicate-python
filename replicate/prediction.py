@@ -16,7 +16,10 @@ from typing import (
     overload,
 )
 
-import httpx
+try:
+    import httpx2 as httpx
+except ImportError:
+    import httpx
 from typing_extensions import NotRequired, TypedDict, Unpack
 
 from replicate.exceptions import ModelError, ReplicateError

@@ -11,6 +11,9 @@ from typing import (
 from replicate.resource import Namespace, Resource
 
 if TYPE_CHECKING:
+    try:
+    import httpx2 as httpx
+except ImportError:
     import httpx
 
 
