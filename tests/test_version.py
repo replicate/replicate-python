@@ -1,6 +1,6 @@
-import httpx
+import httpx2
 import pytest
-import respx
+from tests import _mock_router as respx
 
 from replicate.client import Client
 
@@ -11,7 +11,7 @@ router.route(
     path="/models/replicate/hello-world",
     name="models.get",
 ).mock(
-    return_value=httpx.Response(
+    return_value=httpx2.Response(
         200,
         json={
             "owner": "replicate",
@@ -57,7 +57,7 @@ router.route(
     path__regex=r"^/models/replicate/hello-world/versions/(?P<id>\w+)/?",
     name="models.versions.delete",
 ).mock(
-    return_value=httpx.Response(
+    return_value=httpx2.Response(
         202,
     )
 )
@@ -67,7 +67,7 @@ router.route(
 @pytest.mark.parametrize("async_flag", [True, False])
 async def test_version_delete(async_flag):
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
 
     if async_flag:

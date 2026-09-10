@@ -1,9 +1,9 @@
 import os
 import tempfile
 
-import httpx
+import httpx2
 import pytest
-import respx
+from tests import _mock_router as respx
 
 import replicate
 from replicate.client import Client
@@ -17,7 +17,7 @@ router.route(
     path="/files",
     name="files.create",
 ).mock(
-    return_value=httpx.Response(
+    return_value=httpx2.Response(
         201,
         json={
             "id": "0ZjcyLWFhZjkNGZiNmY2YzQtMThhZi0tODg4NTY0NWNlMDEy",
@@ -47,7 +47,7 @@ router.route(
 @pytest.mark.parametrize("use_path", [True, False])
 async def test_file_create(async_flag, use_path):
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
 
     temp_dir = tempfile.mkdtemp()
@@ -118,11 +118,11 @@ async def test_file_prediction(async_flag):
     image_url = "https://replicate.delivery/pbxt/LUSNInCegT0XwStCCJjXOojSBhPjpk2Pzj5VNjksiP9cER8A/ComfyUI_02172_.png"
 
     if async_flag:
-        client = httpx.AsyncClient()
+        client = httpx2.AsyncClient()
         response = await client.get(image_url)
     else:
-        client = httpx.Client()
-        response = httpx.get(image_url)
+        client = httpx2.Client()
+        response = httpx2.get(image_url)
 
     with tempfile.NamedTemporaryFile(delete=False) as temp_file:
         temp_file.write(response.content)

@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Optional
 
-import httpx
+import httpx2
 
 if TYPE_CHECKING:
     from replicate.prediction import Prediction
@@ -57,7 +57,7 @@ class ReplicateError(ReplicateException):
         self.instance = instance
 
     @classmethod
-    def from_response(cls, response: httpx.Response) -> "ReplicateError":
+    def from_response(cls, response: httpx2.Response) -> "ReplicateError":
         """Create a ReplicateError from an HTTP response."""
 
         try:

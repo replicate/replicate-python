@@ -16,7 +16,7 @@ from typing import (
     overload,
 )
 
-import httpx
+import httpx2
 from typing_extensions import NotRequired, TypedDict, Unpack
 
 from replicate.exceptions import ModelError, ReplicateError
@@ -626,7 +626,7 @@ class Predictions(Namespace):
 
 class CreatePredictionRequestParams(TypedDict):
     headers: NotRequired[Optional[dict]]
-    timeout: NotRequired[Optional[httpx.Timeout]]
+    timeout: NotRequired[Optional[httpx2.Timeout]]
 
 
 def _create_prediction_request_params(
@@ -643,9 +643,9 @@ def _create_prediction_request_params(
 
 def _create_prediction_timeout(
     *, wait: Optional[Union[int, bool]] = None
-) -> Union[httpx.Timeout, None]:
+) -> Union[httpx2.Timeout, None]:
     """
-    Returns an `httpx.Timeout` instances appropriate for the optional
+    Returns an `httpx2.Timeout` instances appropriate for the optional
     `Prefer: wait=x` header that can be provided with the request. This
     will ensure that we give the server enough time to respond with
     a partial prediction in the event that the request times out.
@@ -655,7 +655,7 @@ def _create_prediction_timeout(
         return None
 
     read_timeout = 60.0 if isinstance(wait, bool) else wait
-    return httpx.Timeout(5.0, read=read_timeout + 0.5)
+    return httpx2.Timeout(5.0, read=read_timeout + 0.5)
 
 
 def _create_prediction_headers(

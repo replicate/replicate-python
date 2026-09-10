@@ -1,9 +1,9 @@
 import time
 
-import httpx
+import httpx2
 import pytest
-import respx
-from httpx import Request
+from tests import _mock_router as respx
+from httpx2 import Request
 
 import replicate
 from replicate.client import Client
@@ -25,13 +25,15 @@ def webhook_signing_secret():
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_flag", [True, False])
-@respx.mock
 async def test_get_webhook_secret(async_flag, webhook_signing_secret):
     respx.get("https://api.replicate.com/v1/webhooks/default/secret").mock(
-        return_value=httpx.Response(200, json={"key": webhook_signing_secret.key})
+        return_value=httpx2.Response(200, json={"key": webhook_signing_secret.key})
     )
 
-    client = Client(api_token="test-token")
+    client = Client(
+        api_token="test-token",
+        transport=httpx2.MockTransport(respx.default_router.handler),
+    )
 
     if async_flag:
         secret = await client.webhooks.default.async_secret()

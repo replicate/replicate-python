@@ -16,7 +16,7 @@ from typing import (
     Union,
 )
 
-import httpx
+import httpx2
 from typing_extensions import Unpack
 
 from replicate.__about__ import __version__
@@ -40,15 +40,15 @@ if TYPE_CHECKING:
 class Client:
     """A Replicate API client library"""
 
-    __client: Optional[httpx.Client] = None
-    __async_client: Optional[httpx.AsyncClient] = None
+    __client: Optional[httpx2.Client] = None
+    __async_client: Optional[httpx2.AsyncClient] = None
 
     def __init__(
         self,
         api_token: Optional[str] = None,
         *,
         base_url: Optional[str] = None,
-        timeout: Optional[httpx.Timeout] = None,
+        timeout: Optional[httpx2.Timeout] = None,
         **kwargs,
     ) -> None:
         super().__init__()
@@ -61,10 +61,10 @@ class Client:
         self.poll_interval = float(os.environ.get("REPLICATE_POLL_INTERVAL", "0.5"))
 
     @property
-    def _client(self) -> httpx.Client:
+    def _client(self) -> httpx2.Client:
         if not self.__client:
             self.__client = _build_httpx_client(
-                httpx.Client,
+                httpx2.Client,
                 self._api_token,
                 self._base_url,
                 self._timeout,
@@ -73,10 +73,10 @@ class Client:
         return self.__client  # type: ignore[return-value]
 
     @property
-    def _async_client(self) -> httpx.AsyncClient:
+    def _async_client(self) -> httpx2.AsyncClient:
         if not self.__async_client:
             self.__async_client = _build_httpx_client(
-                httpx.AsyncClient,
+                httpx2.AsyncClient,
                 self._api_token,
                 self._base_url,
                 self._timeout,
@@ -84,13 +84,13 @@ class Client:
             )  # type: ignore[assignment]
         return self.__async_client  # type: ignore[return-value]
 
-    def _request(self, method: str, path: str, **kwargs) -> httpx.Response:
+    def _request(self, method: str, path: str, **kwargs) -> httpx2.Response:
         resp = self._client.request(method, path, **kwargs)
         _raise_for_status(resp)
 
         return resp
 
-    async def _async_request(self, method: str, path: str, **kwargs) -> httpx.Response:
+    async def _async_request(self, method: str, path: str, **kwargs) -> httpx2.Response:
         resp = await self._async_client.request(method, path, **kwargs)
         _raise_for_status(resp)
 
@@ -219,8 +219,8 @@ class Client:
         return async_stream(self, ref, input, use_file_output=use_file_output, **params)
 
 
-# Adapted from https://github.com/encode/httpx/issues/108#issuecomment-1132753155
-class RetryTransport(httpx.AsyncBaseTransport, httpx.BaseTransport):
+# Adapted from https://github.com/encode/httpx2/issues/108#issuecomment-1132753155
+class RetryTransport(httpx2.AsyncBaseTransport, httpx2.BaseTransport):
     """A custom HTTP transport that automatically retries requests using an exponential backoff strategy
     for specific HTTP status codes and request methods.
     """
@@ -237,7 +237,7 @@ class RetryTransport(httpx.AsyncBaseTransport, httpx.BaseTransport):
 
     def __init__(  # pylint: disable=too-many-arguments
         self,
-        wrapped_transport: Union[httpx.BaseTransport, httpx.AsyncBaseTransport],
+        wrapped_transport: Union[httpx2.BaseTransport, httpx2.AsyncBaseTransport],
         *,
         max_attempts: int = 10,
         max_backoff_wait: float = MAX_BACKOFF_WAIT,
@@ -269,7 +269,7 @@ class RetryTransport(httpx.AsyncBaseTransport, httpx.BaseTransport):
         self.max_backoff_wait = max_backoff_wait
 
     def _calculate_sleep(
-        self, attempts_made: int, headers: Union[httpx.Headers, Mapping[str, str]]
+        self, attempts_made: int, headers: Union[httpx2.Headers, Mapping[str, str]]
     ) -> float:
         retry_after_header = (headers.get("Retry-After") or "").strip()
         if retry_after_header:
@@ -289,7 +289,7 @@ class RetryTransport(httpx.AsyncBaseTransport, httpx.BaseTransport):
         total_backoff = backoff + jitter
         return min(total_backoff, self.max_backoff_wait)
 
-    def handle_request(self, request: httpx.Request) -> httpx.Response:
+    def handle_request(self, request: httpx2.Request) -> httpx2.Response:
         response = self._wrapped_transport.handle_request(request)  # type: ignore
 
         if request.method not in self.retryable_methods:
@@ -315,7 +315,7 @@ class RetryTransport(httpx.AsyncBaseTransport, httpx.BaseTransport):
             attempts_made += 1
             remaining_attempts -= 1
 
-    async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+    async def handle_async_request(self, request: httpx2.Request) -> httpx2.Response:
         response = await self._wrapped_transport.handle_async_request(request)  # type: ignore
 
         if request.method not in self.retryable_methods:
@@ -363,12 +363,12 @@ def _get_api_token_from_environment() -> Optional[str]:
 
 
 def _build_httpx_client(
-    client_type: Type[Union[httpx.Client, httpx.AsyncClient]],
+    client_type: Type[Union[httpx2.Client, httpx2.AsyncClient]],
     api_token: Optional[str] = None,
     base_url: Optional[str] = None,
-    timeout: Optional[httpx.Timeout] = None,
+    timeout: Optional[httpx2.Timeout] = None,
     **kwargs,
-) -> Union[httpx.Client, httpx.AsyncClient]:
+) -> Union[httpx2.Client, httpx2.AsyncClient]:
     headers = kwargs.pop("headers", {})
     if "User-Agent" not in headers:
         headers["User-Agent"] = f"replicate-python/{__version__}"
@@ -383,14 +383,14 @@ def _build_httpx_client(
     if base_url == "":
         base_url = "https://api.replicate.com"
 
-    timeout = timeout or httpx.Timeout(
+    timeout = timeout or httpx2.Timeout(
         5.0, read=30.0, write=30.0, connect=5.0, pool=10.0
     )
 
     transport = kwargs.pop("transport", None) or (
-        httpx.HTTPTransport()
-        if client_type is httpx.Client
-        else httpx.AsyncHTTPTransport()
+        httpx2.HTTPTransport()
+        if client_type is httpx2.Client
+        else httpx2.AsyncHTTPTransport()
     )
 
     return client_type(
@@ -402,6 +402,6 @@ def _build_httpx_client(
     )
 
 
-def _raise_for_status(resp: httpx.Response) -> None:
+def _raise_for_status(resp: httpx2.Response) -> None:
     if 400 <= resp.status_code < 600:
         raise ReplicateError.from_response(resp)
