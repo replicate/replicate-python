@@ -1,9 +1,9 @@
 import json
 from typing import cast
 
-import httpx
+import httpx2
 import pytest
-import respx
+from tests import _mock_router as respx
 
 from replicate.client import Client
 
@@ -17,7 +17,7 @@ def router():
         path="/deployments/replicate/my-app-image-generator",
         name="deployments.get",
     ).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             200,
             json={
                 "owner": "replicate",
@@ -47,7 +47,7 @@ def router():
         path="/deployments/replicate/my-app-image-generator/predictions",
         name="deployments.predictions.create",
     ).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json={
                 "id": "p1",
@@ -72,7 +72,7 @@ def router():
         path="/deployments",
         name="deployments.list",
     ).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             200,
             json={
                 "results": [
@@ -126,7 +126,7 @@ def router():
         path="/deployments",
         name="deployments.create",
     ).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json={
                 "owner": "acme",
@@ -156,7 +156,7 @@ def router():
         path="/deployments/acme/image-upscaler",
         name="deployments.update",
     ).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             200,
             json={
                 "owner": "acme",
@@ -185,7 +185,7 @@ def router():
         method="DELETE",
         path="/deployments/acme/image-upscaler",
         name="deployments.delete",
-    ).mock(return_value=httpx.Response(204))
+    ).mock(return_value=httpx2.Response(204))
 
     router.route(host="api.replicate.com").pass_through()
 
@@ -196,7 +196,7 @@ def router():
 @pytest.mark.parametrize("async_flag", [True, False])
 async def test_deployment_get(router, async_flag):
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
 
     if async_flag:
@@ -229,7 +229,7 @@ async def test_deployment_get(router, async_flag):
 @pytest.mark.parametrize("async_flag", [True, False])
 async def test_deployment_predictions_create(router, async_flag):
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
 
     if async_flag:
@@ -274,7 +274,7 @@ async def test_deployment_predictions_create_blocking(
     wait_param: bool | int,  # noqa: FBT001
 ):
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
 
     if async_flag:
@@ -300,7 +300,7 @@ async def test_deployment_predictions_create_blocking(
 
     assert router["deployments.predictions.create"].called
     request = cast(
-        httpx.Request, router["deployments.predictions.create"].calls[0].request
+        httpx2.Request, router["deployments.predictions.create"].calls[0].request
     )
 
     if wait_param is True:
@@ -322,7 +322,7 @@ async def test_deployment_predictions_create_blocking(
 @pytest.mark.parametrize("async_flag", [True, False])
 async def test_deployments_predictions_create(router, async_flag):
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
 
     if async_flag:
@@ -367,7 +367,7 @@ async def test_deployments_predictions_create_blocking(
     wait_param: bool | int,  # noqa: FBT001
 ):
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
 
     if async_flag:
@@ -391,7 +391,7 @@ async def test_deployments_predictions_create_blocking(
 
     assert router["deployments.predictions.create"].called
     request = cast(
-        httpx.Request, router["deployments.predictions.create"].calls[0].request
+        httpx2.Request, router["deployments.predictions.create"].calls[0].request
     )
 
     if wait_param is True:
@@ -409,12 +409,11 @@ async def test_deployments_predictions_create_blocking(
     assert prediction.input == {"text": "world"}
 
 
-@respx.mock
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_flag", [True, False])
 async def test_deployments_list(router, async_flag):
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
 
     if async_flag:
@@ -437,12 +436,11 @@ async def test_deployments_list(router, async_flag):
     assert deployments.results[1].current_release.model == "acme/acme-llama"
 
 
-@respx.mock
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_flag", [True, False])
 async def test_create_deployment(router, async_flag):
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
 
     config = {
@@ -479,7 +477,6 @@ async def test_create_deployment(router, async_flag):
     assert deployment.current_release.configuration.max_instances == 5
 
 
-@respx.mock
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_flag", [True, False])
 async def test_update_deployment(router, async_flag):
@@ -491,7 +488,7 @@ async def test_update_deployment(router, async_flag):
     }
 
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
 
     if async_flag:
@@ -519,12 +516,11 @@ async def test_update_deployment(router, async_flag):
     assert updated_deployment.current_release.configuration.max_instances == 10
 
 
-@respx.mock
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_flag", [True, False])
 async def test_delete_deployment(router, async_flag):
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
 
     if async_flag:

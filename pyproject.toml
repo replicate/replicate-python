@@ -9,10 +9,9 @@ description = "Python client for Replicate"
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [{ name = "Replicate, Inc." }]
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 dependencies = [
-    "httpx>=0.21.0,<1",
-    "httpx2>=2.12.0; python_version >= \"3.10\"",
+    "httpx2>=2.12.0",
     "packaging",
     "pydantic>1.10.7",
     "typing_extensions>=4.5.0",
@@ -29,7 +28,6 @@ dev-dependencies = [
     "pyright>=1.1.358",
     "pytest-asyncio>=0.23.6",
     "pytest-recording>=0.13.1",
-    "respx>=0.21.1",
     "ruff>=0.3.7",
 ]
 

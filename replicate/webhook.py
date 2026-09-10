@@ -11,10 +11,7 @@ from typing import (
 from replicate.resource import Namespace, Resource
 
 if TYPE_CHECKING:
-    try:
-    import httpx2 as httpx
-except ImportError:
-    import httpx
+    import httpx2
 
 
 class WebhookSigningSecret(Resource):
@@ -94,7 +91,7 @@ class Webhooks(Namespace):
     @overload
     @staticmethod
     def validate(
-        request: "httpx.Request",
+        request: "httpx2.Request",
         secret: WebhookSigningSecret,
         tolerance: Optional[int] = None,
     ) -> bool: ...
@@ -110,7 +107,7 @@ class Webhooks(Namespace):
 
     @staticmethod
     def validate(  # type: ignore # pylint: disable=too-many-branches,too-many-locals
-        request: Optional["httpx.Request"] = None,
+        request: Optional["httpx2.Request"] = None,
         headers: Optional[Dict[str, str]] = None,
         body: Optional[str] = None,
         secret: Optional[WebhookSigningSecret] = None,
@@ -120,7 +117,7 @@ class Webhooks(Namespace):
         Validate the signature from an incoming webhook request using the provided secret.
 
         Args:
-            request (httpx.Request): The request object.
+            request (httpx2.Request): The request object.
             headers (Dict[str, str]): The request headers.
             body (str): The request body.
             secret (WebhookSigningSecret): The webhook signing secret.

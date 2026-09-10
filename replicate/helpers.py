@@ -6,7 +6,7 @@ from pathlib import Path
 from types import GeneratorType
 from typing import TYPE_CHECKING, Any, AsyncIterator, Iterator, Optional
 
-import httpx
+import httpx2
 
 if TYPE_CHECKING:
     from replicate.client import Client
@@ -115,7 +115,7 @@ def base64_encode_file(file: io.IOBase) -> str:
     return f"data:{mime_type};base64,{encoded_body}"
 
 
-class FileOutput(httpx.SyncByteStream, httpx.AsyncByteStream):
+class FileOutput(httpx2.SyncByteStream, httpx2.AsyncByteStream):
     """
     An object that can be used to read the contents of an output file
     created by running a Replicate model.

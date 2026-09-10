@@ -1,6 +1,6 @@
-import httpx
+import httpx2
 import pytest
-import respx
+from tests import _mock_router as respx
 
 import replicate
 
@@ -145,7 +145,7 @@ async def test_predictions_create_by_deployment(async_flag):
         path="/deployments/replicate/my-app-image-generator/predictions",
         name="deployments.predictions.create",
     ).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json={
                 "id": "p1",
@@ -169,7 +169,7 @@ async def test_predictions_create_by_deployment(async_flag):
     router.route(host="api.replicate.com").pass_through()
 
     client = replicate.Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
 
     input = {"text": "world"}
@@ -195,7 +195,7 @@ async def test_predictions_create_fail_with_too_many_arguments(async_flag):
     router = respx.Router(base_url="https://api.replicate.com/v1")
 
     client = replicate.Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
 
     version = "02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3"

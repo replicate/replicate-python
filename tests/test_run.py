@@ -7,9 +7,9 @@ from email.parser import BytesParser
 from email.policy import HTTP
 from typing import AsyncIterator, Iterator, Optional, cast
 
-import httpx
+import httpx2
 import pytest
-import respx
+from tests import _mock_router as respx
 
 import replicate
 from replicate.client import Client
@@ -57,14 +57,14 @@ async def test_run(async_flag, record_mode):
 async def test_run_with_iterator(mock_replicate_api_token):
     router = respx.Router(base_url="https://api.replicate.com/v1")
     router.route(method="POST", path="/predictions").mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_prediction_with_status("starting"),
         )
     )
     router.route(method="GET", path="/predictions/p1").mock(
         side_effect=[
-            httpx.Response(
+            httpx2.Response(
                 200,
                 json=_prediction_with_status(
                     "processing",
@@ -73,7 +73,7 @@ async def test_run_with_iterator(mock_replicate_api_token):
                     ],
                 ),
             ),
-            httpx.Response(
+            httpx2.Response(
                 200,
                 json=_prediction_with_status(
                     "succeeded",
@@ -89,7 +89,7 @@ async def test_run_with_iterator(mock_replicate_api_token):
         method="GET",
         path="/models/test/example/versions/v1",
     ).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_version_with_schema(
                 "p1",
@@ -105,7 +105,7 @@ async def test_run_with_iterator(mock_replicate_api_token):
     )
 
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
     client.poll_interval = 0.001
 
@@ -128,14 +128,14 @@ async def test_run_with_iterator(mock_replicate_api_token):
 async def test_async_run_with_iterator(mock_replicate_api_token):
     router = respx.Router(base_url="https://api.replicate.com/v1")
     router.route(method="POST", path="/predictions").mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_prediction_with_status("starting"),
         )
     )
     router.route(method="GET", path="/predictions/p1").mock(
         side_effect=[
-            httpx.Response(
+            httpx2.Response(
                 200,
                 json=_prediction_with_status(
                     "processing",
@@ -144,7 +144,7 @@ async def test_async_run_with_iterator(mock_replicate_api_token):
                     ],
                 ),
             ),
-            httpx.Response(
+            httpx2.Response(
                 200,
                 json=_prediction_with_status(
                     "succeeded",
@@ -160,7 +160,7 @@ async def test_async_run_with_iterator(mock_replicate_api_token):
         method="GET",
         path="/models/test/example/versions/v1",
     ).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_version_with_schema(
                 "p1",
@@ -176,7 +176,7 @@ async def test_async_run_with_iterator(mock_replicate_api_token):
     )
 
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
     client.poll_interval = 0.001
 
@@ -199,7 +199,7 @@ async def test_async_run_with_iterator(mock_replicate_api_token):
 async def test_run_blocking_with_iterator(mock_replicate_api_token):
     router = respx.Router(base_url="https://api.replicate.com/v1")
     router.route(method="POST", path="/predictions", headers={"Prefer": "wait"}).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_prediction_with_status(
                 "processing",
@@ -214,7 +214,7 @@ async def test_run_blocking_with_iterator(mock_replicate_api_token):
         method="GET",
         path="/models/test/example/versions/v1",
     ).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_version_with_schema(
                 "p1",
@@ -230,7 +230,7 @@ async def test_run_blocking_with_iterator(mock_replicate_api_token):
     )
 
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
     client.poll_interval = 0.001
 
@@ -252,7 +252,7 @@ async def test_run_blocking_timeout_with_iterator(mock_replicate_api_token):
     router = respx.Router(base_url="https://api.replicate.com/v1")
     # Initial request times out and returns "starting" state.
     router.route(method="POST", path="/predictions", headers={"Prefer": "wait"}).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_prediction_with_status(
                 "starting",
@@ -262,7 +262,7 @@ async def test_run_blocking_timeout_with_iterator(mock_replicate_api_token):
     # Client should start polling for the prediction.
     router.route(method="GET", path="/predictions/p1").mock(
         side_effect=[
-            httpx.Response(
+            httpx2.Response(
                 200,
                 json=_prediction_with_status(
                     "processing",
@@ -271,7 +271,7 @@ async def test_run_blocking_timeout_with_iterator(mock_replicate_api_token):
                     ],
                 ),
             ),
-            httpx.Response(
+            httpx2.Response(
                 200,
                 json=_prediction_with_status(
                     "succeeded",
@@ -287,7 +287,7 @@ async def test_run_blocking_timeout_with_iterator(mock_replicate_api_token):
         method="GET",
         path="/models/test/example/versions/v1",
     ).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_version_with_schema(
                 "p1",
@@ -303,7 +303,7 @@ async def test_run_blocking_timeout_with_iterator(mock_replicate_api_token):
     )
 
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
     client.poll_interval = 0.001
 
@@ -325,7 +325,7 @@ async def test_async_run_blocking_timeout_with_iterator(mock_replicate_api_token
     router = respx.Router(base_url="https://api.replicate.com/v1")
     # Initial request times out and returns "starting" state.
     router.route(method="POST", path="/predictions", headers={"Prefer": "wait"}).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_prediction_with_status(
                 "starting",
@@ -335,7 +335,7 @@ async def test_async_run_blocking_timeout_with_iterator(mock_replicate_api_token
     # Client should start polling for the prediction.
     router.route(method="GET", path="/predictions/p1").mock(
         side_effect=[
-            httpx.Response(
+            httpx2.Response(
                 200,
                 json=_prediction_with_status(
                     "processing",
@@ -344,7 +344,7 @@ async def test_async_run_blocking_timeout_with_iterator(mock_replicate_api_token
                     ],
                 ),
             ),
-            httpx.Response(
+            httpx2.Response(
                 200,
                 json=_prediction_with_status(
                     "succeeded",
@@ -360,7 +360,7 @@ async def test_async_run_blocking_timeout_with_iterator(mock_replicate_api_token
         method="GET",
         path="/models/test/example/versions/v1",
     ).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_version_with_schema(
                 "p1",
@@ -376,7 +376,7 @@ async def test_async_run_blocking_timeout_with_iterator(mock_replicate_api_token
     )
 
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
     client.poll_interval = 0.001
 
@@ -398,7 +398,7 @@ async def test_async_run_blocking_timeout_with_iterator(mock_replicate_api_token
 async def test_async_run_blocking_with_iterator(mock_replicate_api_token):
     router = respx.Router(base_url="https://api.replicate.com/v1")
     router.route(method="POST", path="/predictions", headers={"Prefer": "wait"}).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_prediction_with_status(
                 "processing",
@@ -413,7 +413,7 @@ async def test_async_run_blocking_with_iterator(mock_replicate_api_token):
         method="GET",
         path="/models/test/example/versions/v1",
     ).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_version_with_schema(
                 "p1",
@@ -429,7 +429,7 @@ async def test_async_run_blocking_with_iterator(mock_replicate_api_token):
     )
 
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
     client.poll_interval = 0.001
 
@@ -505,13 +505,13 @@ async def test_run_with_invalid_token():
 async def test_run_version_with_invalid_cog_version(mock_replicate_api_token):
     router = respx.Router(base_url="https://api.replicate.com/v1")
     router.route(method="POST", path="/predictions").mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_prediction_with_status("starting"),
         )
     )
     router.route(method="GET", path="/predictions/p1").mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             200,
             json=_prediction_with_status("succeeded", "Hello, world!"),
         )
@@ -520,7 +520,7 @@ async def test_run_version_with_invalid_cog_version(mock_replicate_api_token):
         method="GET",
         path="/models/test/example/versions/invalid",
     ).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_version_with_schema(),
         )
@@ -528,7 +528,7 @@ async def test_run_version_with_invalid_cog_version(mock_replicate_api_token):
     router.route(host="api.replicate.com").pass_through()
 
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
     client.poll_interval = 0.001
 
@@ -546,13 +546,13 @@ async def test_run_version_with_invalid_cog_version(mock_replicate_api_token):
 async def test_run_with_model_error(mock_replicate_api_token):
     router = respx.Router(base_url="https://api.replicate.com/v1")
     router.route(method="POST", path="/predictions").mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_prediction_with_status("starting"),
         )
     )
     router.route(method="GET", path="/predictions/p1").mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             200,
             json=_prediction_with_status("failed"),
         )
@@ -561,7 +561,7 @@ async def test_run_with_model_error(mock_replicate_api_token):
         method="GET",
         path="/models/test/example/versions/v1",
     ).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_version_with_schema(),
         )
@@ -569,7 +569,7 @@ async def test_run_with_model_error(mock_replicate_api_token):
     router.route(host="api.replicate.com").pass_through()
 
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
     client.poll_interval = 0.001
 
@@ -591,7 +591,7 @@ async def test_run_with_model_error(mock_replicate_api_token):
 async def test_run_with_file_input_files_api(async_flag, mock_replicate_api_token):
     router = respx.Router(base_url="https://api.replicate.com/v1")
     mock_predictions_create = router.route(method="POST", path="/predictions").mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_prediction_with_status("processing"),
         )
@@ -600,7 +600,7 @@ async def test_run_with_file_input_files_api(async_flag, mock_replicate_api_toke
         method="GET",
         path="/models/test/example/versions/v1",
     ).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             200,
             json=_version_with_schema(),
         )
@@ -609,7 +609,7 @@ async def test_run_with_file_input_files_api(async_flag, mock_replicate_api_toke
         method="POST",
         path="/files",
     ).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             200,
             json={
                 "id": "file1",
@@ -628,7 +628,7 @@ async def test_run_with_file_input_files_api(async_flag, mock_replicate_api_toke
     router.route(host="api.replicate.com").pass_through()
 
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
     if async_flag:
         await client.async_run(
@@ -669,7 +669,7 @@ async def test_run_with_file_input_files_api(async_flag, mock_replicate_api_toke
 async def test_run_with_file_input_data_url(async_flag, mock_replicate_api_token):
     router = respx.Router(base_url="https://api.replicate.com/v1")
     mock_predictions_create = router.route(method="POST", path="/predictions").mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_prediction_with_status("processing"),
         )
@@ -678,7 +678,7 @@ async def test_run_with_file_input_data_url(async_flag, mock_replicate_api_token
         method="GET",
         path="/models/test/example/versions/v1",
     ).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             200,
             json=_version_with_schema(),
         )
@@ -686,7 +686,7 @@ async def test_run_with_file_input_data_url(async_flag, mock_replicate_api_token
     router.route(host="api.replicate.com").pass_through()
 
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
 
     if async_flag:
@@ -714,13 +714,13 @@ async def test_run_with_file_input_data_url(async_flag, mock_replicate_api_token
 async def test_run_with_file_output(mock_replicate_api_token):
     router = respx.Router(base_url="https://api.replicate.com/v1")
     router.route(method="POST", path="/predictions").mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_prediction_with_status("starting"),
         )
     )
     router.route(method="GET", path="/predictions/p1").mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             200,
             json=_prediction_with_status(
                 "succeeded", "https://api.replicate.com/v1/assets/output.txt"
@@ -731,17 +731,17 @@ async def test_run_with_file_output(mock_replicate_api_token):
         method="GET",
         path="/models/test/example/versions/v1",
     ).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_version_with_schema(),
         )
     )
     router.route(method="GET", path="/assets/output.txt").mock(
-        return_value=httpx.Response(200, content=b"Hello, world!")
+        return_value=httpx2.Response(200, content=b"Hello, world!")
     )
 
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
     client.poll_interval = 0.001
 
@@ -772,7 +772,7 @@ async def test_run_with_file_output(mock_replicate_api_token):
 async def test_run_with_file_output_blocking(mock_replicate_api_token):
     router = respx.Router(base_url="https://api.replicate.com/v1")
     predictions_create_route = router.route(method="POST", path="/predictions").mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_prediction_with_status(
                 "processing", "data:text/plain;base64,SGVsbG8sIHdvcmxkIQ=="
@@ -780,7 +780,7 @@ async def test_run_with_file_output_blocking(mock_replicate_api_token):
         )
     )
     predictions_get_route = router.route(method="GET", path="/predictions/p1").mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             200,
             json=_prediction_with_status(
                 "succeeded", "https://api.replicate.com/v1/assets/output.txt"
@@ -790,9 +790,9 @@ async def test_run_with_file_output_blocking(mock_replicate_api_token):
     router.route(
         method="GET",
         path="/models/test/example/versions/v1",
-    ).mock(return_value=httpx.Response(201, json=_version_with_schema()))
+    ).mock(return_value=httpx2.Response(201, json=_version_with_schema()))
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
     client.poll_interval = 0.001
 
@@ -827,13 +827,13 @@ async def test_run_with_file_output_blocking(mock_replicate_api_token):
 async def test_run_with_file_output_array(mock_replicate_api_token):
     router = respx.Router(base_url="https://api.replicate.com/v1")
     router.route(method="POST", path="/predictions").mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_prediction_with_status("starting"),
         )
     )
     router.route(method="GET", path="/predictions/p1").mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             200,
             json=_prediction_with_status(
                 "succeeded",
@@ -848,20 +848,20 @@ async def test_run_with_file_output_array(mock_replicate_api_token):
         method="GET",
         path="/models/test/example/versions/v1",
     ).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_version_with_schema(),
         )
     )
     router.route(method="GET", path="/assets/hello.txt").mock(
-        return_value=httpx.Response(200, content=b"Hello,")
+        return_value=httpx2.Response(200, content=b"Hello,")
     )
     router.route(method="GET", path="/assets/world.txt").mock(
-        return_value=httpx.Response(200, content=b" world!")
+        return_value=httpx2.Response(200, content=b" world!")
     )
 
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
     client.poll_interval = 0.001
 
@@ -888,14 +888,14 @@ async def test_run_with_file_output_array(mock_replicate_api_token):
 async def test_run_with_file_output_iterator(mock_replicate_api_token):
     router = respx.Router(base_url="https://api.replicate.com/v1")
     router.route(method="POST", path="/predictions").mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_prediction_with_status("starting"),
         )
     )
     router.route(method="GET", path="/predictions/p1").mock(
         side_effect=[
-            httpx.Response(
+            httpx2.Response(
                 200,
                 json=_prediction_with_status(
                     "processing",
@@ -904,7 +904,7 @@ async def test_run_with_file_output_iterator(mock_replicate_api_token):
                     ],
                 ),
             ),
-            httpx.Response(
+            httpx2.Response(
                 200,
                 json=_prediction_with_status(
                     "succeeded",
@@ -920,7 +920,7 @@ async def test_run_with_file_output_iterator(mock_replicate_api_token):
         method="GET",
         path="/models/test/example/versions/v1",
     ).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_version_with_schema(
                 "p1",
@@ -936,14 +936,14 @@ async def test_run_with_file_output_iterator(mock_replicate_api_token):
         )
     )
     router.route(method="GET", path="/assets/hello.txt").mock(
-        return_value=httpx.Response(200, content=b"Hello,")
+        return_value=httpx2.Response(200, content=b"Hello,")
     )
     router.route(method="GET", path="/assets/world.txt").mock(
-        return_value=httpx.Response(200, content=b" world!")
+        return_value=httpx2.Response(200, content=b" world!")
     )
 
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
     client.poll_interval = 0.001
 
@@ -973,13 +973,13 @@ async def test_run_with_file_output_iterator(mock_replicate_api_token):
 async def test_run_with_file_output_data_uri(mock_replicate_api_token):
     router = respx.Router(base_url="https://api.replicate.com/v1")
     router.route(method="POST", path="/predictions").mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_prediction_with_status("starting"),
         )
     )
     router.route(method="GET", path="/predictions/p1").mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             200,
             json=_prediction_with_status(
                 "succeeded",
@@ -991,14 +991,14 @@ async def test_run_with_file_output_data_uri(mock_replicate_api_token):
         method="GET",
         path="/models/test/example/versions/v1",
     ).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             201,
             json=_version_with_schema(),
         )
     )
 
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
     client.poll_interval = 0.001
 

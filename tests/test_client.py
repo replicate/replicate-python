@@ -2,9 +2,9 @@ import os
 import sys
 from unittest import mock
 
-import httpx
+import httpx2
 import pytest
-import respx
+from tests import _mock_router as respx
 
 from replicate.client import _get_api_token_from_environment
 
@@ -19,7 +19,7 @@ async def test_authorization_when_setting_environ_after_import():
         url="https://api.replicate.com/",
         headers={"Authorization": "Bearer test-set-after-import"},
     ).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             200,
             json={},
         )
@@ -31,7 +31,7 @@ async def test_authorization_when_setting_environ_after_import():
         os.environ,
         {"REPLICATE_API_TOKEN": token},
     ):
-        client = replicate.Client(transport=httpx.MockTransport(router.handler))
+        client = replicate.Client(transport=httpx2.MockTransport(router.handler))
         resp = client._request("GET", "/")
         assert resp.status_code == 200
 
@@ -47,7 +47,7 @@ async def test_client_error_handling():
         url="https://api.replicate.com/",
         headers={"Authorization": "Bearer test-client-error"},
     ).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             400,
             json={"detail": "Client error occurred"},
         )
@@ -56,7 +56,7 @@ async def test_client_error_handling():
     token = "test-client-error"  # noqa: S105
 
     with mock.patch.dict(os.environ, {"REPLICATE_API_TOKEN": token}):
-        client = replicate.Client(transport=httpx.MockTransport(router.handler))
+        client = replicate.Client(transport=httpx2.MockTransport(router.handler))
         with pytest.raises(ReplicateError) as exc_info:
             client._request("GET", "/")
         assert "status: 400" in str(exc_info.value)
@@ -74,7 +74,7 @@ async def test_server_error_handling():
         url="https://api.replicate.com/",
         headers={"Authorization": "Bearer test-server-error"},
     ).mock(
-        return_value=httpx.Response(
+        return_value=httpx2.Response(
             500,
             json={"detail": "Server error occurred"},
         )
@@ -83,7 +83,7 @@ async def test_server_error_handling():
     token = "test-server-error"  # noqa: S105
 
     with mock.patch.dict(os.environ, {"REPLICATE_API_TOKEN": token}):
-        client = replicate.Client(transport=httpx.MockTransport(router.handler))
+        client = replicate.Client(transport=httpx2.MockTransport(router.handler))
         with pytest.raises(ReplicateError) as exc_info:
             client._request("GET", "/")
         assert "status: 500" in str(exc_info.value)
@@ -101,14 +101,14 @@ def test_custom_headers_are_applied():
         assert request.headers["User-Agent"] == "my-custom-user-agent/1.0", (
             "Custom header value is incorrect"
         )
-        return httpx.Response(401, json={})
+        return httpx2.Response(401, json={})
 
     mock_send_wrapper = mock.Mock(side_effect=mock_send)
 
     client = replicate.Client(
         api_token="dummy_token",
         headers=custom_headers,
-        transport=httpx.MockTransport(mock_send_wrapper),
+        transport=httpx2.MockTransport(mock_send_wrapper),
     )
 
     try:

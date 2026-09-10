@@ -1,6 +1,6 @@
-import httpx
+import httpx2
 import pytest
-import respx
+from tests import _mock_router as respx
 
 from replicate.account import Account
 from replicate.client import Client
@@ -11,7 +11,7 @@ router.route(
     path="/account",
     name="accounts.current",
 ).mock(
-    return_value=httpx.Response(
+    return_value=httpx2.Response(
         200,
         json={
             "type": "organization",
@@ -28,7 +28,7 @@ router.route(host="api.replicate.com").pass_through()
 @pytest.mark.parametrize("async_flag", [True, False])
 async def test_account_current(async_flag):
     client = Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
 
     if async_flag:

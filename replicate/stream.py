@@ -10,10 +10,7 @@ from typing import (
     Union,
 )
 
-try:
-    import httpx2 as httpx
-except ImportError:
-    import httpx
+import httpx2
 from typing_extensions import Unpack
 
 from replicate import identifier
@@ -67,13 +64,13 @@ class EventSource:
     """
 
     client: "Client"
-    response: "httpx.Response"
+    response: "httpx2.Response"
     use_file_output: bool
 
     def __init__(
         self,
         client: "Client",
-        response: "httpx.Response",
+        response: "httpx2.Response",
         *,
         use_file_output: Optional[bool] = True,
     ) -> None:

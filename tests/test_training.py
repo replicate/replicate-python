@@ -1,6 +1,6 @@
-import httpx
+import httpx2
 import pytest
-import respx
+from tests import _mock_router as respx
 
 import replicate
 from replicate.exceptions import ReplicateException
@@ -199,7 +199,7 @@ router.route(
     path="/trainings/zz4ibbonubfz7carwiefibzgga",
     name="trainings.get",
 ).mock(
-    return_value=httpx.Response(
+    return_value=httpx2.Response(
         201,
         json={
             "completed_at": "2023-09-08T16:41:19.826523Z",
@@ -232,7 +232,7 @@ router.route(host="api.replicate.com").pass_through()
 @pytest.mark.parametrize("async_flag", [True, False])
 async def test_training_gets_destination_from_output(async_flag):
     client = replicate.Client(
-        api_token="test-token", transport=httpx.MockTransport(router.handler)
+        api_token="test-token", transport=httpx2.MockTransport(router.handler)
     )
 
     if async_flag:
