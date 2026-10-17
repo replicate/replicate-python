@@ -27,19 +27,19 @@ class ReplicateError(ReplicateException):
     This class represents a problem details response as defined in RFC 7807.
     """
 
-    type: Optional[str]
+    type: Optional[str] = None
     """A URI that identifies the error type."""
 
-    title: Optional[str]
+    title: Optional[str] = None
     """A short, human-readable summary of the error."""
 
-    status: Optional[int]
+    status: Optional[int] = None
     """The HTTP status code."""
 
-    detail: Optional[str]
+    detail: Optional[str] = None
     """A human-readable explanation specific to this occurrence of the error."""
 
-    instance: Optional[str]
+    instance: Optional[str] = None
     """A URI that identifies the specific occurrence of the error."""
 
     def __init__(  # pylint: disable=too-many-arguments

@@ -17,10 +17,7 @@ from replicate import identifier
 from replicate.exceptions import ReplicateError
 from replicate.helpers import transform_output
 
-try:
-    from pydantic import v1 as pydantic  # type: ignore
-except ImportError:
-    import pydantic  # type: ignore
+import pydantic
 
 
 if TYPE_CHECKING:
@@ -49,7 +46,7 @@ class ServerSentEvent(pydantic.BaseModel):  # type: ignore
     event: EventType
     data: str
     id: str
-    retry: Optional[int]
+    retry: Optional[int] = None
 
     def __str__(self) -> str:
         if self.event == ServerSentEvent.EventType.OUTPUT:
@@ -89,10 +86,10 @@ class EventSource:
         A decoder for server-sent events.
         """
 
-        event: Optional["ServerSentEvent.EventType"]
+        event: Optional["ServerSentEvent.EventType"] = None
         data: List[str]
-        last_event_id: Optional[str]
-        retry: Optional[int]
+        last_event_id: Optional[str] = None
+        retry: Optional[int] = None
 
         def __init__(self) -> None:
             self.event = None

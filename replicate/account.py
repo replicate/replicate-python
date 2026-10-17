@@ -17,7 +17,7 @@ class Account(Resource):
     name: str
     """The name of the account."""
 
-    github_url: Optional[str]
+    github_url: Optional[str] = None
     """The GitHub URL of the account."""
 
 
