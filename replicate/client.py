@@ -2,7 +2,8 @@ import asyncio
 import os
 import random
 import time
-from datetime import datetime
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -277,11 +278,18 @@ class RetryTransport(httpx.AsyncBaseTransport, httpx.BaseTransport):
                 return float(retry_after_header)
 
             try:
-                parsed_date = datetime.fromisoformat(retry_after_header).astimezone()
+                try:
+                    parsed_date = datetime.fromisoformat(
+                        retry_after_header
+                    ).astimezone()
+                except ValueError:
+                    parsed_date = parsedate_to_datetime(retry_after_header)
+                    if parsed_date.tzinfo is None:
+                        parsed_date = parsed_date.replace(tzinfo=timezone.utc)
                 diff = (parsed_date - datetime.now().astimezone()).total_seconds()
                 if diff > 0:
                     return min(diff, self.max_backoff_wait)
-            except ValueError:
+            except (TypeError, ValueError, OverflowError):
                 pass
 
         backoff = self.backoff_factor * (2 ** (attempts_made - 1))
