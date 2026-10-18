@@ -13,10 +13,7 @@ from replicate.prediction import (
 )
 from replicate.resource import Namespace, Resource
 
-try:
-    from pydantic import v1 as pydantic  # type: ignore
-except ImportError:
-    import pydantic  # type: ignore
+import pydantic
 
 
 if TYPE_CHECKING:
@@ -66,7 +63,7 @@ class Deployment(Resource):
         The time the release was created.
         """
 
-        created_by: Optional[Account]
+        created_by: Optional[Account] = None
         """
         The account that created the release.
         """
@@ -96,7 +93,7 @@ class Deployment(Resource):
         The deployment configuration.
         """
 
-    current_release: Optional[Release]
+    current_release: Optional[Release] = None
     """
     The current release of the deployment.
     """

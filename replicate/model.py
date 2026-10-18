@@ -15,10 +15,7 @@ from replicate.prediction import (
 from replicate.resource import Namespace, Resource
 from replicate.version import Version, Versions
 
-try:
-    from pydantic import v1 as pydantic  # type: ignore
-except ImportError:
-    import pydantic  # type: ignore
+import pydantic
 
 
 if TYPE_CHECKING:
@@ -48,7 +45,7 @@ class Model(Resource):
     The name of the model.
     """
 
-    description: Optional[str]
+    description: Optional[str] = None
     """
     The description of the model.
     """
@@ -58,17 +55,17 @@ class Model(Resource):
     The visibility of the model. Can be 'public' or 'private'.
     """
 
-    github_url: Optional[str]
+    github_url: Optional[str] = None
     """
     The GitHub URL of the model.
     """
 
-    paper_url: Optional[str]
+    paper_url: Optional[str] = None
     """
     The URL of the paper related to the model.
     """
 
-    license_url: Optional[str]
+    license_url: Optional[str] = None
     """
     The URL of the license for the model.
     """
@@ -78,17 +75,17 @@ class Model(Resource):
     The number of runs of the model.
     """
 
-    cover_image_url: Optional[str]
+    cover_image_url: Optional[str] = None
     """
     The URL of the cover image for the model.
     """
 
-    default_example: Optional[Prediction]
+    default_example: Optional[Prediction] = None
     """
     The default example of the model.
     """
 
-    latest_version: Optional[Version]
+    latest_version: Optional[Version] = None
     """
     The latest version of the model.
     """
@@ -137,7 +134,7 @@ class Model(Resource):
         """
 
         obj = self._client.models.get(f"{self.owner}/{self.name}")
-        for name, value in obj.dict().items():
+        for name, value in obj.model_dump().items():
             setattr(self, name, value)
 
 

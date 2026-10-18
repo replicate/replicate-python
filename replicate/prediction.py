@@ -27,10 +27,7 @@ from replicate.resource import Namespace, Resource
 from replicate.stream import EventSource
 from replicate.version import Version
 
-try:
-    from pydantic import v1 as pydantic  # type: ignore
-except ImportError:
-    import pydantic  # type: ignore
+import pydantic
 
 if TYPE_CHECKING:
     from replicate.client import Client
@@ -58,31 +55,31 @@ class Prediction(Resource):
     status: Literal["starting", "processing", "succeeded", "failed", "canceled"]
     """The status of the prediction."""
 
-    input: Optional[Dict[str, Any]]
+    input: Optional[Dict[str, Any]] = None
     """The input to the prediction."""
 
-    output: Optional[Any]
+    output: Optional[Any] = None
     """The output of the prediction."""
 
-    logs: Optional[str]
+    logs: Optional[str] = None
     """The logs of the prediction."""
 
-    error: Optional[str]
+    error: Optional[str] = None
     """The error encountered during the prediction, if any."""
 
-    metrics: Optional[Dict[str, Any]]
+    metrics: Optional[Dict[str, Any]] = None
     """Metrics for the prediction."""
 
-    created_at: Optional[str]
+    created_at: Optional[str] = None
     """When the prediction was created."""
 
-    started_at: Optional[str]
+    started_at: Optional[str] = None
     """When the prediction was started."""
 
-    completed_at: Optional[str]
+    completed_at: Optional[str] = None
     """When the prediction was completed, if finished."""
 
-    urls: Optional[Dict[str, str]]
+    urls: Optional[Dict[str, str]] = None
     """
     URLs associated with the prediction.
 
@@ -214,7 +211,7 @@ class Prediction(Resource):
         """
 
         canceled = self._client.predictions.cancel(self.id)
-        for name, value in canceled.dict().items():
+        for name, value in canceled.model_dump().items():
             setattr(self, name, value)
 
     async def async_cancel(self) -> None:
@@ -223,7 +220,7 @@ class Prediction(Resource):
         """
 
         canceled = await self._client.predictions.async_cancel(self.id)
-        for name, value in canceled.dict().items():
+        for name, value in canceled.model_dump().items():
             setattr(self, name, value)
 
     def reload(self) -> None:
@@ -232,7 +229,7 @@ class Prediction(Resource):
         """
 
         updated = self._client.predictions.get(self.id)
-        for name, value in updated.dict().items():
+        for name, value in updated.model_dump().items():
             setattr(self, name, value)
 
     async def async_reload(self) -> None:
@@ -241,7 +238,7 @@ class Prediction(Resource):
         """
 
         updated = await self._client.predictions.async_get(self.id)
-        for name, value in updated.dict().items():
+        for name, value in updated.model_dump().items():
             setattr(self, name, value)
 
     def output_iterator(self) -> Iterator[Any]:

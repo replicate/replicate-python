@@ -41,7 +41,7 @@ class File(Resource):
     created_at: str
     """The time the file was created."""
 
-    expires_at: Optional[str]
+    expires_at: Optional[str] = None
     """The time the file will expire."""
 
     urls: Dict[str, str]
