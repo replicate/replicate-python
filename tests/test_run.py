@@ -54,12 +54,32 @@ async def test_run(async_flag, record_mode):
 
 
 @pytest.mark.asyncio
-async def test_run_with_iterator(mock_replicate_api_token):
+async def test_completed_prediction_output_iterators(mock_replicate_api_token):
+    router = respx.Router(base_url="https://api.replicate.com/v1")
+    get_prediction = router.get("/predictions/p1").mock(
+        return_value=httpx.Response(
+            200, json=_prediction_with_status("succeeded", ["A", "B"])
+        )
+    )
+    client = Client(
+        api_token="test-token", transport=httpx.MockTransport(router.handler)
+    )
+    prediction = client.predictions.get("p1")
+    assert list(prediction.output_iterator()) == ["A", "B"]
+    assert [chunk async for chunk in prediction.async_output_iterator()] == ["A", "B"]
+    assert get_prediction.call_count == 1
+
+
+@pytest.mark.parametrize("initial_output", [None, ["Hello, "]])
+@pytest.mark.asyncio
+async def test_run_with_iterator(mock_replicate_api_token, initial_output):
     router = respx.Router(base_url="https://api.replicate.com/v1")
     router.route(method="POST", path="/predictions").mock(
         return_value=httpx.Response(
             201,
-            json=_prediction_with_status("starting"),
+            json=_prediction_with_status(
+                "processing" if initial_output else "starting", initial_output
+            ),
         )
     )
     router.route(method="GET", path="/predictions/p1").mock(
@@ -124,13 +144,16 @@ async def test_run_with_iterator(mock_replicate_api_token):
     assert output == ["Hello, ", "world!"]
 
 
+@pytest.mark.parametrize("initial_output", [None, ["Hello, "]])
 @pytest.mark.asyncio
-async def test_async_run_with_iterator(mock_replicate_api_token):
+async def test_async_run_with_iterator(mock_replicate_api_token, initial_output):
     router = respx.Router(base_url="https://api.replicate.com/v1")
     router.route(method="POST", path="/predictions").mock(
         return_value=httpx.Response(
             201,
-            json=_prediction_with_status("starting"),
+            json=_prediction_with_status(
+                "processing" if initial_output else "starting", initial_output
+            ),
         )
     )
     router.route(method="GET", path="/predictions/p1").mock(
