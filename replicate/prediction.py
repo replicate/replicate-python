@@ -250,12 +250,12 @@ class Prediction(Resource):
         """
 
         # TODO: check output is list
-        previous_output = self.output or []
+        output_offset = 0
         while self.status not in ["succeeded", "failed", "canceled"]:
             output = self.output or []
-            new_output = output[len(previous_output) :]
+            new_output = output[output_offset:]
             yield from new_output
-            previous_output = output
+            output_offset = len(output)
             time.sleep(self._client.poll_interval)  # pylint: disable=no-member
             self.reload()
 
@@ -263,7 +263,7 @@ class Prediction(Resource):
             raise ModelError(self)
 
         output = self.output or []
-        new_output = output[len(previous_output) :]
+        new_output = output[output_offset:]
         yield from new_output
 
     async def async_output_iterator(self) -> AsyncIterator[Any]:
@@ -272,13 +272,13 @@ class Prediction(Resource):
         """
 
         # TODO: check output is list
-        previous_output = self.output or []
+        output_offset = 0
         while self.status not in ["succeeded", "failed", "canceled"]:
             output = self.output or []
-            new_output = output[len(previous_output) :]
+            new_output = output[output_offset:]
             for item in new_output:
                 yield item
-            previous_output = output
+            output_offset = len(output)
             await asyncio.sleep(self._client.poll_interval)  # pylint: disable=no-member
             await self.async_reload()
 
@@ -286,7 +286,7 @@ class Prediction(Resource):
             raise ModelError(self)
 
         output = self.output or []
-        new_output = output[len(previous_output) :]
+        new_output = output[output_offset:]
         for output in new_output:
             yield output
 
