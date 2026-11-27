@@ -46,6 +46,8 @@ def encode_json(
             return base64_encode_file(obj)
         return client.files.create(obj).urls["get"]
     if HAS_NUMPY:
+        if isinstance(obj, np.bool_):  # type: ignore
+            return bool(obj)
         if isinstance(obj, np.integer):  # type: ignore
             return int(obj)
         if isinstance(obj, np.floating):  # type: ignore
@@ -83,6 +85,8 @@ async def async_encode_json(
             return base64_encode_file(obj)
         return (await client.files.async_create(obj)).urls["get"]
     if HAS_NUMPY:
+        if isinstance(obj, np.bool_):  # type: ignore
+            return bool(obj)
         if isinstance(obj, np.integer):  # type: ignore
             return int(obj)
         if isinstance(obj, np.floating):  # type: ignore
