@@ -53,7 +53,7 @@ class ServerSentEvent(pydantic.BaseModel):  # type: ignore
 
     def __str__(self) -> str:
         if self.event == ServerSentEvent.EventType.OUTPUT:
-            return self.data
+            return str(self.data)
 
         return ""
 
