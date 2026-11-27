@@ -1,8 +1,10 @@
 import io
+import json
 
 import pytest
 
-from replicate.helpers import base64_encode_file
+from replicate.client import Client
+from replicate.helpers import async_encode_json, base64_encode_file, encode_json
 
 
 @pytest.mark.parametrize(
@@ -33,3 +35,17 @@ def test_base64_encode_file(content, filename, expected):
     # Call the function and check the result
     result = base64_encode_file(file)
     assert result == expected
+
+
+@pytest.mark.parametrize("value", [True, False])
+async def test_numpy_boolean_prediction_inputs(value):
+    np = pytest.importorskip("numpy")
+    inputs = {"enabled": np.bool_(value), "flags": [np.bool_(value)]}
+    client = Client()
+    for payload in (
+        encode_json(inputs, client),
+        await async_encode_json(inputs, client),
+    ):
+        decoded = json.loads(json.dumps(payload))
+        assert decoded["enabled"] is value
+        assert decoded["flags"][0] is value
