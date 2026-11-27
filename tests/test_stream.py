@@ -1,8 +1,10 @@
+import httpx
 import pytest
 
 import replicate
 from replicate.exceptions import ReplicateError
-from replicate.stream import ServerSentEvent
+from replicate.helpers import FileOutput
+from replicate.stream import EventSource, ServerSentEvent
 
 from .conftest import skip_if_no_token
 
@@ -71,3 +73,23 @@ async def test_stream_prediction(async_flag, record_mode):
             pytest.skip("Skipping test due to authentication error")
         else:
             raise e
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_stringify_stream_output(async_flag):
+    url = "https://example.com/output.png"
+    response = httpx.Response(
+        200,
+        headers={"Content-Type": "text/event-stream"},
+        text=(
+            "event: output\nid: 1\ndata: hello\n\n"
+            f"event: output\nid: 2\ndata: {url}\n\n"
+            "event: done\nid: 3\ndata: {}\n\n"
+        ),
+    )
+    source = EventSource(replicate.Client(), response)
+    events = [event async for event in source] if async_flag else list(source)
+
+    assert isinstance(events[1].data, FileOutput)
+    assert [str(event) for event in events] == ["hello", url, ""]
