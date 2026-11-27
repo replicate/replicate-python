@@ -8,6 +8,8 @@ from typing import TYPE_CHECKING, Any, AsyncIterator, Iterator, Optional
 
 import httpx
 
+from replicate.file import get_file_name
+
 if TYPE_CHECKING:
     from replicate.client import Client
     from replicate.file import FileEncodingStrategy
@@ -110,7 +112,7 @@ def base64_encode_file(file: io.IOBase) -> str:
     encoded_body = base64.b64encode(body).decode("utf-8")
 
     mime_type = (
-        mimetypes.guess_type(getattr(file, "name", ""))[0] or "application/octet-stream"
+        mimetypes.guess_type(get_file_name(file))[0] or "application/octet-stream"
     )
     return f"data:{mime_type};base64,{encoded_body}"
 
