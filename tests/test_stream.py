@@ -1,8 +1,9 @@
+import httpx
 import pytest
 
 import replicate
 from replicate.exceptions import ReplicateError
-from replicate.stream import ServerSentEvent
+from replicate.stream import EventSource, ServerSentEvent
 
 from .conftest import skip_if_no_token
 
@@ -71,3 +72,21 @@ async def test_stream_prediction(async_flag, record_mode):
             pytest.skip("Skipping test due to authentication error")
         else:
             raise e
+
+
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_event_stream_media_type_is_case_insensitive(async_flag):
+    response = httpx.Response(
+        200,
+        headers={"Content-Type": "Text/Event-Stream; charset=utf-8"},
+        content=b"id: 1\nevent: output\ndata: hello\n\n",
+    )
+    source = EventSource(replicate.Client(), response)
+    events = [event async for event in source] if async_flag else list(source)
+    assert [str(event) for event in events] == ["hello"]
+
+
+def test_event_stream_rejects_other_media_types():
+    response = httpx.Response(200, headers={"Content-Type": "text/plain"})
+    with pytest.raises(ValueError, match="text/plain"):
+        EventSource(replicate.Client(), response)

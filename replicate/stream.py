@@ -78,7 +78,7 @@ class EventSource:
         self.response = response
         self.use_file_output = use_file_output or True
         content_type, _, _ = response.headers["content-type"].partition(";")
-        if content_type != "text/event-stream":
+        if content_type.strip().lower() != "text/event-stream":
             raise ValueError(
                 "Expected response Content-Type to be 'text/event-stream', "
                 f"got {content_type!r}"
