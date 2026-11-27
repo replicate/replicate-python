@@ -3,6 +3,8 @@ import pytest
 import respx
 
 from replicate.client import Client
+from replicate.pagination import async_paginate, paginate
+from replicate.version import Versions
 
 router = respx.Router(base_url="https://api.replicate.com/v1")
 
@@ -85,3 +87,45 @@ async def test_version_delete(async_flag):
 
     assert router["models.get"].called
     assert router["models.versions.delete"].called
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_flag", [True, False])
+async def test_paginate_model_versions(async_flag):
+    path = "/v1/models/replicate/hello-world/versions"
+    calls = []
+
+    def list_page(request):
+        assert request.url.path == path
+        cursor = request.url.params.get("cursor")
+        calls.append(cursor)
+        version = {
+            "id": "second" if cursor else "first",
+            "created_at": "2022-04-26T19:29:04Z",
+            "cog_version": "0.3.0",
+            "openapi_schema": {},
+        }
+        return httpx.Response(
+            200,
+            json={
+                "next": None
+                if cursor
+                else f"https://api.replicate.com{path}?cursor=two",
+                "results": [version],
+            },
+        )
+
+    versions = Versions(
+        Client(transport=httpx.MockTransport(list_page)), "replicate/hello-world"
+    )
+    if async_flag:
+        pages = [page async for page in async_paginate(versions.async_list)]
+        with pytest.raises(ValueError):
+            await versions.async_list(None)
+    else:
+        pages = list(paginate(versions.list))
+        with pytest.raises(ValueError):
+            versions.list(None)
+
+    assert calls == [None, "two"]
+    assert [version.id for page in pages for version in page] == ["first", "second"]
