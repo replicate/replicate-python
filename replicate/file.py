@@ -146,6 +146,13 @@ class Files(Namespace):
         return resp.status_code == 204
 
 
+def get_file_name(file: Union[BinaryIO, io.IOBase]) -> str:
+    name = getattr(file, "name", None)
+    if isinstance(name, (str, bytes, os.PathLike)):
+        return os.path.basename(os.fsdecode(name))
+    return "file"
+
+
 def _create_file_params(
     file: Union[BinaryIO, io.IOBase],
     **params: Unpack["Files.CreateFileParams"],
@@ -155,7 +162,7 @@ def _create_file_params(
     if params is None:
         params = {}
 
-    filename = params.get("filename", os.path.basename(getattr(file, "name", "file")))
+    filename = params.get("filename", get_file_name(file))
     content_type = (
         params.get("content_type")
         or mimetypes.guess_type(filename)[0]

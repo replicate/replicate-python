@@ -586,9 +586,27 @@ async def test_run_with_model_error(mock_replicate_api_token):
     assert excinfo.value.prediction.status == "failed"
 
 
+@pytest.fixture(params=["unnamed", "null-name", "descriptor"])
+def prediction_file(request, tmp_path):
+    if request.param == "descriptor":
+        with (tmp_path / "source").open("wb+") as source:
+            with open(source.fileno(), "rb+", closefd=False) as file:
+                file.write(b"hello world")
+                yield file
+    else:
+        file = io.BytesIO(b"hello world")
+        if request.param == "null-name":
+            # An unrolled SpooledTemporaryFile can expose a null name.
+            file.name = None
+        with file:
+            yield file
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_flag", [True, False])
-async def test_run_with_file_input_files_api(async_flag, mock_replicate_api_token):
+async def test_run_with_file_input_files_api(
+    async_flag, mock_replicate_api_token, prediction_file
+):
     router = respx.Router(base_url="https://api.replicate.com/v1")
     mock_predictions_create = router.route(method="POST", path="/predictions").mock(
         return_value=httpx.Response(
@@ -633,12 +651,12 @@ async def test_run_with_file_input_files_api(async_flag, mock_replicate_api_toke
     if async_flag:
         await client.async_run(
             "test/example:v1",
-            input={"file": io.BytesIO(initial_bytes=b"hello world")},
+            input={"file": prediction_file},
         )
     else:
         client.run(
             "test/example:v1",
-            input={"file": io.BytesIO(initial_bytes=b"hello world")},
+            input={"file": prediction_file},
         )
 
     assert mock_predictions_create.called
@@ -660,13 +678,16 @@ async def test_run_with_file_input_files_api(async_flag, mock_replicate_api_toke
     next(parsed_message_generator)  # wrapper
     input_file = next(parsed_message_generator)
     assert mock_files_create.called
+    assert input_file.get_filename() == "file"
     assert input_file.get_content() == b"hello world"
     assert input_file.get_content_type() == "application/octet-stream"
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_flag", [True, False])
-async def test_run_with_file_input_data_url(async_flag, mock_replicate_api_token):
+async def test_run_with_file_input_data_url(
+    async_flag, mock_replicate_api_token, prediction_file
+):
     router = respx.Router(base_url="https://api.replicate.com/v1")
     mock_predictions_create = router.route(method="POST", path="/predictions").mock(
         return_value=httpx.Response(
@@ -692,13 +713,13 @@ async def test_run_with_file_input_data_url(async_flag, mock_replicate_api_token
     if async_flag:
         await client.async_run(
             "test/example:v1",
-            input={"file": io.BytesIO(initial_bytes=b"hello world")},
+            input={"file": prediction_file},
             file_encoding_strategy="base64",
         )
     else:
         client.run(
             "test/example:v1",
-            input={"file": io.BytesIO(initial_bytes=b"hello world")},
+            input={"file": prediction_file},
             file_encoding_strategy="base64",
         )
 
