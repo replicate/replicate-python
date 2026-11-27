@@ -1,5 +1,6 @@
 import datetime
 from typing import TYPE_CHECKING, Any, Dict, Tuple, Union
+from urllib.parse import urlsplit
 
 if TYPE_CHECKING:
     from replicate.client import Client
@@ -81,33 +82,32 @@ class Versions(Namespace):
 
         return _json_to_version(resp.json())
 
-    def list(self) -> Page[Version]:
-        """
-        Return a list of all versions for a model.
+    def _list_url(self, cursor: Union[str, "ellipsis", None]) -> str:  # noqa: F821
+        path = f"/v1/models/{self.model[0]}/{self.model[1]}/versions"
+        if cursor is None:
+            raise ValueError("cursor cannot be None")
+        if cursor is ...:
+            return path
+        return f"{path}?{urlsplit(cursor).query}"
 
-        Returns:
-            List[Version]: A list of version objects.
+    def list(self, cursor: Union[str, "ellipsis", None] = ...) -> Page[Version]:  # noqa: F821
         """
-
-        resp = self._client._request(
-            "GET", f"/v1/models/{self.model[0]}/{self.model[1]}/versions"
-        )
+        List a page of model versions, optionally using a previous page's next or previous URL.
+        """
+        resp = self._client._request("GET", self._list_url(cursor))
         obj = resp.json()
         obj["results"] = [_json_to_version(result) for result in obj["results"]]
 
         return Page[Version](**obj)
 
-    async def async_list(self) -> Page[Version]:
+    async def async_list(
+        self,
+        cursor: Union[str, "ellipsis", None] = ...,  # noqa: F821
+    ) -> Page[Version]:
         """
-        Return a list of all versions for a model.
-
-        Returns:
-            List[Version]: A list of version objects.
+        List a page of model versions, optionally using a previous page's next or previous URL.
         """
-
-        resp = await self._client._async_request(
-            "GET", f"/v1/models/{self.model[0]}/{self.model[1]}/versions"
-        )
+        resp = await self._client._async_request("GET", self._list_url(cursor))
         obj = resp.json()
         obj["results"] = [_json_to_version(result) for result in obj["results"]]
 
