@@ -44,6 +44,34 @@ router.route(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_flag", [True, False])
+@pytest.mark.parametrize("use_string", [True, False])
+async def test_file_create_preserves_explicit_filename(
+    tmp_path, async_flag, use_string
+):
+    path = tmp_path / "temporary.bin"
+    path.write_bytes(b"image contents")
+    file_arg = str(path) if use_string else path
+    local_router = respx.Router(base_url="https://api.replicate.com/v1")
+    route = local_router.post("/files").mock(
+        return_value=router["files.create"].return_value
+    )
+    client = Client(
+        api_token="test-token", transport=httpx.MockTransport(local_router.handler)
+    )
+
+    if async_flag:
+        await client.files.async_create(file_arg, filename="image.png")
+    else:
+        client.files.create(file_arg, filename="image.png")
+
+    request = route.calls[0].request
+    assert b'filename="image.png"' in request.content
+    assert b"Content-Type: image/png" in request.content
+    assert b"image contents" in request.content
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_flag", [True, False])
 @pytest.mark.parametrize("use_path", [True, False])
 async def test_file_create(async_flag, use_path):
     client = Client(
