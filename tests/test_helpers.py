@@ -33,3 +33,77 @@ def test_base64_encode_file(content, filename, expected):
     # Call the function and check the result
     result = base64_encode_file(file)
     assert result == expected
+
+
+def test_file_output_equality_and_repr():
+    from replicate.client import Client
+    from replicate.helpers import FileOutput
+
+    client = Client(api_token="test")
+    fo1 = FileOutput("https://replicate.delivery/test.png", client)
+    fo2 = FileOutput("https://replicate.delivery/test.png", client)
+    fo3 = FileOutput("https://replicate.delivery/other.png", client)
+
+    assert fo1 == fo2
+    assert fo1 != fo3
+    assert fo1 == "https://replicate.delivery/test.png"
+    assert "https://replicate.delivery/test.png" == fo1
+    assert fo1 != "https://replicate.delivery/other.png"
+    assert repr(fo1) == "FileOutput('https://replicate.delivery/test.png')"
+    assert hash(fo1) == hash("https://replicate.delivery/test.png")
+    assert {fo1, fo2} == {fo1}
+
+
+def test_encode_json_with_file_output():
+    import json
+
+    from replicate.client import Client
+    from replicate.helpers import FileOutput, encode_json
+
+    client = Client(api_token="test")
+    url = "https://replicate.delivery/test.png"
+    fo = FileOutput(url, client)
+
+    # Direct FileOutput encoding
+    encoded = encode_json(fo, client)
+    assert encoded == url
+    assert json.dumps({"image": encoded}) == f'{{"image": "{url}"}}'
+
+    # Nested FileOutput in dict and list
+    nested = {"image": fo, "images": [fo]}
+    encoded_nested = encode_json(nested, client)
+    assert encoded_nested == {"image": url, "images": [url]}
+    assert json.dumps(encoded_nested) == f'{{"image": "{url}", "images": ["{url}"]}}'
+
+    # Data URI FileOutput with base64 strategy
+    data_uri = "data:image/png;base64,iVBORw0KGgo="
+    fo_data = FileOutput(data_uri, client)
+    assert encode_json(fo_data, client, file_encoding_strategy="base64") == data_uri
+
+
+@pytest.mark.asyncio
+async def test_async_encode_json_with_file_output():
+    import json
+
+    from replicate.client import Client
+    from replicate.helpers import FileOutput, async_encode_json
+
+    client = Client(api_token="test")
+    url = "https://replicate.delivery/test.png"
+    fo = FileOutput(url, client)
+
+    encoded = await async_encode_json(fo, client)
+    assert encoded == url
+    assert json.dumps({"image": encoded}) == f'{{"image": "{url}"}}'
+
+    nested = {"image": fo, "images": [fo]}
+    encoded_nested = await async_encode_json(nested, client)
+    assert encoded_nested == {"image": url, "images": [url]}
+    assert json.dumps(encoded_nested) == f'{{"image": "{url}", "images": ["{url}"]}}'
+
+    data_uri = "data:image/png;base64,iVBORw0KGgo="
+    fo_data = FileOutput(data_uri, client)
+    assert (
+        await async_encode_json(fo_data, client, file_encoding_strategy="base64")
+        == data_uri
+    )
