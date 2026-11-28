@@ -191,7 +191,78 @@ async def test_predictions_create_by_deployment(async_flag):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_flag", [True, False])
+async def test_predictions_create_with_file_output_input(async_flag):
+    import json
+
+    from replicate.helpers import FileOutput
+
+    router = respx.Router(base_url="https://api.replicate.com/v1")
+    captured_request = {}
+
+    def mock_create(request):
+        captured_request["body"] = json.loads(request.content)
+        return httpx.Response(
+            201,
+            json={
+                "id": "p_file_out",
+                "model": "owner/model",
+                "version": "v1",
+                "urls": {
+                    "get": "https://api.replicate.com/v1/predictions/p_file_out",
+                    "cancel": "https://api.replicate.com/v1/predictions/p_file_out/cancel",
+                },
+                "created_at": "2024-01-01T00:00:00Z",
+                "source": "api",
+                "status": "starting",
+                "input": captured_request["body"]["input"],
+                "output": None,
+                "error": None,
+                "logs": "",
+            },
+        )
+
+    router.route(
+        method="POST",
+        path="/predictions",
+        name="predictions.create",
+    ).mock(side_effect=mock_create)
+    router.route(host="api.replicate.com").pass_through()
+
+    client = replicate.Client(
+        api_token="test-token", transport=httpx.MockTransport(router.handler)
+    )
+
+    fo = FileOutput("https://replicate.delivery/pbxt/sample.png", client)
+    input_data = {
+        "image": fo,
+        "gallery": [fo],
+    }
+
+    if async_flag:
+        prediction = await client.predictions.async_create(
+            version="v1",
+            input=input_data,
+        )
+    else:
+        prediction = client.predictions.create(
+            version="v1",
+            input=input_data,
+        )
+
+    assert prediction.id == "p_file_out"
+    assert (
+        captured_request["body"]["input"]["image"]
+        == "https://replicate.delivery/pbxt/sample.png"
+    )
+    assert captured_request["body"]["input"]["gallery"] == [
+        "https://replicate.delivery/pbxt/sample.png"
+    ]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_flag", [True, False])
 async def test_predictions_create_fail_with_too_many_arguments(async_flag):
+
     router = respx.Router(base_url="https://api.replicate.com/v1")
 
     client = replicate.Client(
